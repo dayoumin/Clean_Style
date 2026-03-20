@@ -59,19 +59,19 @@ export const questions: Question[] = [
     choices: [
       { text: '남은 금액은 반납 처리하고 정리한다', scores: { principle: 1 } },
       { text: '다음 연구에 쓸 소모품을 미리 구매한다', scores: { principle: -1, independence: 1 } },
-      { text: '기관 연구관리팀에 처리 방법을 확인한다', scores: { transparency: 1, independence: -1 } },  // 수정: 공식 기관에 문의 = 투명
-      { text: '팀원들한테 필요한 거 있는지 물어본다', scores: { independence: -1, transparency: 1 } },
+      { text: '기관 연구관리팀에 처리 방법을 확인한다', scores: { transparency: 1, independence: -1 } },
+      { text: '동료들한테 필요한 거 있는지 물어본다', scores: { independence: -1 } },
     ],
   },
   {
     id: 4,
     category: 'research',
-    situation: '실험에 AI 분석 도구를 활용했는데, 보고서에 어디까지 쓸지 고민이다.',
+    situation: '연구 중간보고 시점인데, 일부 실험이 예상대로 안 돼서 당초 계획보다 진도가 늦다.',
     choices: [
-      { text: '사용한 도구와 방법을 상세히 기술한다', scores: { transparency: 1, principle: 1 } },
-      { text: '"AI 보조 분석 수행"으로 간단히 언급한다', scores: { principle: -1 } },
-      { text: '팀 내 가이드라인이 있는지 먼저 확인한다', scores: { transparency: -1, independence: -1 } },
-      { text: '결과 검증이 됐으니 방법론은 간소하게 쓴다', scores: { independence: 1, principle: -1 } },
+      { text: '지연 상황과 원인을 솔직하게 보고한다', scores: { transparency: 1, principle: 1 } },
+      { text: '할 수 있는 데까지 해보고, 보고 시점에 정리해서 말한다', scores: { principle: -1 } },
+      { text: '비슷한 경험이 있는 동료에게 먼저 조언을 구한다', scores: { transparency: -1, independence: -1 } },
+      { text: '방법을 바꿔서라도 일정 내 결과를 내본다', scores: { independence: 1, principle: -1 } },
     ],
   },
   {
@@ -104,7 +104,7 @@ export const questions: Question[] = [
     situation: '용역 계약서 내용이 좀 모호한 부분이 있다. 상대방은 "원래 이렇게 한다"고 한다.',
     choices: [
       { text: '모호한 부분을 명확히 수정 요청한다', scores: { principle: 1, independence: 1 } },
-      { text: '법무/계약 담당에게 검토를 요청한다', scores: { transparency: 1, independence: -1 } },  // 수정: 공식 검토 요청 = 투명
+      { text: '법무/계약 담당에게 검토를 요청한다', scores: { transparency: 1, independence: -1 } },
       { text: '큰 문제 없어 보이면 진행하되 메모를 남긴다', scores: { principle: -1, transparency: -1 } },
       { text: '팀 내에서 같은 경험 있는 사람에게 물어본다', scores: { independence: -1 } },
     ],
@@ -112,23 +112,23 @@ export const questions: Question[] = [
   {
     id: 8,
     category: 'admin',
-    situation: '출장 후 정산인데, 실비보다 규정 상한이 더 높다.',
+    situation: '출장비 정산 중인데, 업무 관련 저녁 식사비를 개인 경비와 구분하기 애매한 건이 있다.',
     choices: [
-      { text: '실제 사용한 금액만 청구한다', scores: { principle: 1 } },
-      { text: '규정에서 정한 기준대로 청구한다', scores: { principle: -1, independence: 1 } },
-      { text: '다른 동료들은 어떻게 하는지 확인해본다', scores: { independence: -1, transparency: -1 } },
-      { text: '행정팀에 기준을 확인하고 그대로 따른다', scores: { transparency: 1, principle: 1 } },  // 수정: 공식 경로 확인 = 투명
+      { text: '애매한 건은 빼고 확실한 것만 청구한다', scores: { principle: 1 } },
+      { text: '업무 맥락이 있었으니 포함해서 청구한다', scores: { principle: -1, independence: 1 } },
+      { text: '같이 식사한 동료에게 업무 관련이었는지 확인해본다', scores: { independence: -1, transparency: -1 } },
+      { text: '행정팀에 기준을 문의해서 그대로 따른다', scores: { transparency: 1, principle: 1 } },
     ],
   },
   {
     id: 9,
     category: 'admin',
-    situation: '장비 납품업체 담당자가 "감사 인사" 명목으로 소소한 선물을 보내왔다.',
+    situation: '오래 거래한 업체 담당자가 퇴직 인사를 하며 커피 한 잔 하자고 한다. 앞으로 업무 관계는 없을 예정이다.',
     choices: [
-      { text: '정중히 돌려보낸다', scores: { principle: 1, independence: 1 } },
-      { text: '기관 규정상 가능 범위인지 먼저 확인한다', scores: { transparency: -1, principle: 1 } },
-      { text: '감사히 받아두되, 답례로 동등한 수준의 인사를 한다', scores: { principle: -1 } },
-      { text: '팀장에게 보고하고 판단을 구한다', scores: { independence: -1, transparency: 1 } },
+      { text: '고마웠지만 정중히 사양한다', scores: { principle: 1, independence: 1 } },
+      { text: '혹시 모르니 기관 규정을 확인해본다', scores: { transparency: -1, principle: 1 } },
+      { text: '앞으로 이해관계가 없으니 편하게 만난다', scores: { principle: -1 } },
+      { text: '팀장에게 알리고 판단을 구한다', scores: { independence: -1, transparency: 1 } },
     ],
   },
   {
@@ -150,8 +150,8 @@ export const questions: Question[] = [
     situation: '외부 기관 담당자가 점심 미팅을 제안했다. 업무 관련 논의가 목적이라고 한다.',
     choices: [
       { text: '기관 내 회의실에서 만나자고 제안한다', scores: { principle: 1, independence: 1 } },
-      { text: '각자 비용 부담으로 가볍게 만난다', scores: { principle: -1, transparency: 1 } },
-      { text: '팀장에게 보고하고 동행할지 물어본다', scores: { independence: -1, transparency: 1 } },  // 수정: 보고 = 투명
+      { text: '각자 비용 부담으로 가볍게 만난다', scores: { principle: -1, independence: 1 } },
+      { text: '팀장에게 보고하고 동행할지 물어본다', scores: { independence: -1, transparency: 1 } },
       { text: '미팅 내용을 기록으로 남기고 참석한다', scores: { transparency: 1, principle: -1 } },
     ],
   },
@@ -163,7 +163,7 @@ export const questions: Question[] = [
       { text: '관련 규정을 확인해보고, 문제가 있으면 알려준다', scores: { principle: 1, independence: 1 } },
       { text: '동료한테 직접 "이거 괜찮은 건지" 가볍게 물어본다', scores: { transparency: 1, independence: -1 } },
       { text: '업무 스타일 차이일 수 있으니, 상황을 좀 더 파악해본다', scores: { principle: -1, transparency: -1 } },
-      { text: '기관 윤리담당에게 일반적 질문으로 확인해본다', scores: { transparency: -1, principle: 1 } },  // 유지: "일반적 질문으로" = 우회적/신중한 접근
+      { text: '기관 윤리담당에게 일반적 질문으로 확인해본다', scores: { transparency: -1, principle: 1 } },
     ],
   },
   {
@@ -185,7 +185,7 @@ export const questions: Question[] = [
       { text: '데이터가 말하는 대로 객관적 결과만 제공한다', scores: { principle: 1, independence: 1 } },
       { text: '요청 의도를 먼저 정확히 파악하고 범위를 조율한다', scores: { transparency: -1, principle: -1 } },
       { text: '팀장에게 보고하고 대응 방향을 함께 정한다', scores: { independence: -1, transparency: 1 } },
-      { text: '결과와 함께 분석의 한계도 명확히 안내한다', scores: { transparency: 1, principle: 1 } },
+      { text: '결과와 함께 분석의 한계도 명확히 안내한다', scores: { transparency: 1 } },
     ],
   },
   {
@@ -195,7 +195,7 @@ export const questions: Question[] = [
     choices: [
       { text: '시간이 걸려도 내용을 확인하고 사인한다', scores: { principle: 1, independence: 1 } },
       { text: '핵심만 빠르게 확인하고 처리한다', scores: { principle: -1, independence: 1 } },
-      { text: '동료와 함께 빠르게 검토하고 사인한다', scores: { independence: -1, transparency: 1 } },  // 수정: 함께 검토 = 공유/투명
+      { text: '동료와 함께 빠르게 검토하고 사인한다', scores: { independence: -1, transparency: 1 } },
       { text: '내일 아침 일찍 와서 제대로 확인하겠다고 한다', scores: { transparency: -1, principle: 1 } },
     ],
   },

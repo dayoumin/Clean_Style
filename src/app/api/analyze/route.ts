@@ -34,6 +34,72 @@ const SYSTEM_PROMPT = `당신은 공공 연구기관 종사자를 위한 청렴 
 - 주의 포인트는 "~하면 좋겠어요", "~해보는 것도 방법이에요" 형태
 - 팁은 바로 실행 가능한 행동 수준`;
 
+function describeAxis(
+  score: number,
+  positiveStrong: string,
+  positiveSoft: string,
+  negativeSoft: string,
+  negativeStrong: string,
+): string {
+  if (score >= 5) return positiveStrong;
+  if (score >= 1) return positiveSoft;
+  if (score <= -5) return negativeStrong;
+  if (score <= -1) return negativeSoft;
+  return '상황에 따라 균형 있게 판단하는 편';
+}
+
+function generateFallbackAnalysis(
+  style: { name: string; description: string },
+  scores: { principle: number; transparency: number; independence: number },
+): AnalysisResult {
+  const principleText = describeAxis(
+    scores.principle,
+    '규정과 기준을 매우 분명하게 붙드는 성향',
+    '기준을 우선 확인하고 판단하는 성향',
+    '상황과 맥락을 함께 보며 유연하게 조율하는 성향',
+    '현장 상황에 맞춰 실용적으로 해법을 찾는 성향',
+  );
+
+  const transparencyText = describeAxis(
+    scores.transparency,
+    '이슈를 빠르게 공유하고 드러내는 성향',
+    '필요한 내용을 비교적 솔직하게 공유하는 성향',
+    '먼저 확인한 뒤 신중하게 공유 범위를 정하는 성향',
+    '공개보다 정리와 맥락 파악을 먼저 중시하는 성향',
+  );
+
+  const independenceText = describeAxis(
+    scores.independence,
+    '혼자 기준을 세우고 실행까지 밀고 가는 성향',
+    '스스로 판단하며 주도적으로 움직이는 성향',
+    '주변 의견을 반영하며 함께 움직이는 성향',
+    '협의와 합의를 통해 안정적으로 진행하는 성향',
+  );
+
+  return {
+    styleSummary:
+      `${style.name} 유형입니다. ${principleText}, ${transparencyText}, ${independenceText}이 함께 드러났습니다. ` +
+      `${style.description} 강점이 있으므로, 실무에서는 판단 근거를 짧게라도 남기면 장점이 더 선명해집니다.`,
+    strengths: [
+      '애매한 상황에서도 기준을 세우고 다음 행동을 정하는 속도가 비교적 안정적입니다.',
+      '연구비 집행, 데이터 정리, 대외 협업처럼 판단 근거가 중요한 일에서 자신의 스타일을 일관되게 유지할 가능성이 큽니다.',
+      '업무 방식이 비교적 분명해 동료가 역할과 기대치를 이해하기 쉽습니다.',
+    ],
+    cautions: [
+      '내 방식이 익숙할수록 다른 사람이 왜 다른 판단을 하는지 한 번 더 확인해보면 좋겠어요.',
+      '빠르게 처리해야 하는 상황일수록 근거와 과정 기록을 짧게라도 남겨두면 이후 설명 부담이 줄어듭니다.',
+      '혼자 판단하거나 반대로 합의에 오래 머무르는 경향이 강하다면, 중요한 건은 중간 점검 시점을 먼저 정해두는 것도 방법이에요.',
+    ],
+    tips: {
+      research: '연구비·데이터 업무에서는 원자료, 수정 이력, 판단 기준을 한 번에 볼 수 있게 정리해두면 실수를 줄이는 데 도움이 됩니다.',
+      admin: '구매·계약 업무에서는 비교견적 사유, 예외 처리 근거, 승인 경로를 짧게 메모로 남겨두면 이후 검토가 훨씬 수월해집니다.',
+      relation: '외부 협력·소통에서는 구두 합의만 두지 말고 핵심 결정사항을 메일이나 회의 기록으로 정리해두면 불필요한 오해를 줄일 수 있습니다.',
+    },
+    message:
+      '당신의 판단 스타일에는 이미 분명한 장점이 있습니다. 조금만 기록과 공유 방식을 다듬으면 더 신뢰받는 업무 습관으로 이어질 수 있어요.',
+  };
+}
+
 // User 프롬프트 — 테스트 결과 데이터 전달
 function buildUserPrompt(
   style: { name: string; subtitle: string; description: string },
@@ -94,14 +160,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid scores' }, { status: 400 });
     }
 
-    const response = await chat({
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: buildUserPrompt(style, scores, answers) },
-      ],
-      temperature: 0.7,
-      maxTokens: 1500,
-    });
+    let response;
+    try {
+      response = await chat({
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'user', content: buildUserPrompt(style, scores, answers) },
+        ],
+        temperature: 0.7,
+        maxTokens: 1500,
+      });
+    } catch (error) {
+      console.warn('Falling back to local analysis:', error instanceof Error ? error.message : error);
+      return NextResponse.json({
+        analysis: generateFallbackAnalysis(style, scores),
+        style,
+        structured: true,
+        provider: 'local-fallback',
+      });
+    }
 
     // JSON 파싱 + 구조 검증 (```json ... ``` 래핑 대응)
     let analysisJson: AnalysisResult;

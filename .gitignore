@@ -18,3 +18,5 @@ next-env.d.ts
 
 # design concepts (static mockups)
 design-concepts/
+
+.vercel
