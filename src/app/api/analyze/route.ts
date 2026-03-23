@@ -4,8 +4,8 @@ import { styleTypes, questions, calculateResult } from '@/data/questions';
 import { isValidAnalysisResult } from '@/types/analysis';
 import type { AnalysisResult } from '@/types/analysis';
 
-// 이어서 질문 시 유지할 최대 대화 턴 수 (토큰 예산 제한)
-const MAX_HISTORY_TURNS = 6;
+// 이어서 질문 시 유지할 최대 대화 메시지 수 (5턴 = user+assistant 10개)
+const MAX_HISTORY_MESSAGES = 10;
 
 // System 프롬프트 (상수 — 매 요청마다 재생성 방지)
 const SYSTEM_PROMPT = `당신은 공공 연구기관 종사자를 위한 청렴 스타일 분석 전문가입니다.
@@ -309,7 +309,7 @@ export async function POST(request: NextRequest) {
 
         const messages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
           { role: 'system', content: systemPrompt },
-          ...(hasHistory ? history.slice(-MAX_HISTORY_TURNS) : []),
+          ...(hasHistory ? history.slice(-MAX_HISTORY_MESSAGES) : []),
           { role: 'user', content: userMessage },
         ];
 

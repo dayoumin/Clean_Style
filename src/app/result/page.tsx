@@ -82,6 +82,30 @@ function BottomSheet({ onClose, children }: { onClose: () => void; children: Rea
   );
 }
 
+function ChatBubbles({ messages }: { messages: { role: 'user' | 'assistant'; content: string }[] }) {
+  if (messages.length === 0) return null;
+  return (
+    <>
+      {messages.map((msg, idx) => (
+        <div
+          key={idx}
+          className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+        >
+          <div
+            className={`max-w-[85%] rounded-[var(--radius-md)] px-3.5 py-2.5 text-[13px] leading-relaxed ${
+              msg.role === 'user'
+                ? 'bg-[var(--color-primary)] text-white rounded-br-sm'
+                : 'bg-[var(--color-card)] text-[var(--color-text-secondary)] rounded-bl-sm'
+            }`}
+          >
+            <p className="whitespace-pre-line">{msg.content}</p>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
 function ResultContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -162,7 +186,7 @@ function ResultContent() {
         ...prev,
         { role: 'user' as const, content: question },
         { role: 'assistant' as const, content: data.answer },
-      ].slice(-6));
+      ].slice(-10));
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
       setAiError(true);
@@ -318,15 +342,22 @@ function ResultContent() {
       {showModal && (
         <BottomSheet onClose={() => { if (!aiLoading) { setShowModal(false); resetModal(); } }}>
           {aiAnswer ? (
-            <div className="space-y-4">
-              <div className="rounded-[var(--radius-md)] bg-[var(--color-card)] px-4 py-3">
-                <p className="text-[12px] font-semibold text-[var(--color-text-muted)] mb-1">내 질문</p>
-                <p className="text-[14px] text-[var(--color-text)]">{userContext}</p>
+            <div className="space-y-3">
+              {/* 이전 대화 히스토리 (마지막 턴 제외 — 아래서 별도 렌더) */}
+              <ChatBubbles messages={chatHistory.slice(0, -2)} />
+
+              {/* 현재 질문 (우측) */}
+              <ChatBubbles messages={[{ role: 'user', content: userContext }]} />
+
+              {/* AI 답변 (좌측) — 최신 답변은 강조 스타일 */}
+              <div className="flex justify-start">
+                <div className="max-w-[85%] rounded-[var(--radius-md)] rounded-bl-sm border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-3.5 py-2.5">
+                  <p className="text-[13px] leading-relaxed text-[var(--color-text-secondary)] whitespace-pre-line">{aiAnswer}</p>
+                </div>
               </div>
-              <div className="rounded-[var(--radius-md)] border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-4 py-4">
-                <p className="text-[14px] leading-relaxed text-[var(--color-text-secondary)] whitespace-pre-line">{aiAnswer}</p>
-              </div>
-              <div className="flex gap-2">
+
+              {/* 버튼 */}
+              <div className="flex gap-2 pt-1">
                 <button
                   onClick={resetModal}
                   className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
@@ -342,17 +373,22 @@ function ResultContent() {
               </div>
             </div>
           ) : aiLoading ? (
-            <div className="py-8 text-center">
-              <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-primary-accent)] border-t-transparent mb-3" />
-              <p className="text-[14px] font-semibold text-[var(--color-primary-accent)]">답변을 작성하고 있어요...</p>
+            <div className="space-y-3">
+              <ChatBubbles messages={chatHistory} />
+              <ChatBubbles messages={[{ role: 'user', content: userContext }]} />
+              <div className="py-4 text-center">
+                <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-primary-accent)] border-t-transparent mb-3" />
+                <p className="text-[14px] font-semibold text-[var(--color-primary-accent)]">답변을 작성하고 있어요...</p>
+              </div>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
+              <ChatBubbles messages={chatHistory} />
               <textarea
                 value={userContext}
                 onChange={(e) => setUserContext(e.target.value)}
                 maxLength={500}
-                placeholder="궁금한 상황을 자유롭게 질문해주세요"
+                placeholder={chatHistory.length > 0 ? "이어서 질문해주세요" : "궁금한 상황을 자유롭게 질문해주세요"}
                 className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-[14px] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-accent)]"
                 rows={3}
               />
