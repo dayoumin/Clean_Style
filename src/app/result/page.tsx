@@ -357,20 +357,34 @@ function ResultContent() {
               </div>
 
               {/* 버튼 */}
-              <div className="flex gap-2 pt-1">
-                <button
-                  onClick={resetModal}
-                  className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
-                >
-                  새 질문
-                </button>
-                <button
-                  onClick={continueChat}
-                  className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[#2a2a4e]"
-                >
-                  이어서 질문
-                </button>
-              </div>
+              {chatHistory.length >= 10 ? (
+                <div className="space-y-2 pt-1">
+                  <p className="text-center text-[12px] text-[var(--color-text-muted)]">
+                    대화가 길어져서 새로 시작할게요
+                  </p>
+                  <button
+                    onClick={resetModal}
+                    className="w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[#2a2a4e]"
+                  >
+                    새 질문
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={resetModal}
+                    className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
+                  >
+                    새 질문
+                  </button>
+                  <button
+                    onClick={continueChat}
+                    className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[#2a2a4e]"
+                  >
+                    이어서
+                  </button>
+                </div>
+              )}
             </div>
           ) : aiLoading ? (
             <div className="space-y-3">
