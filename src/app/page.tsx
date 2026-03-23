@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 const infoChips = [
   { emoji: '📋', title: '15개 상황', desc: '약 3분' },
-  { emoji: '🎯', title: '정답 없음', desc: '나의 스타일' },
+  { emoji: '🎯', title: '오답 없음', desc: '나의 스타일' },
   { emoji: '🤖', title: 'AI 분석', desc: '맞춤 팁' },
 ];
 
@@ -21,9 +21,9 @@ export default function HomePage() {
         스타일은?
       </h1>
       <p className="mb-10 text-center text-[16px] leading-relaxed text-[var(--color-text-secondary)]">
-        공공 연구기관에서 만나는 다양한 상황,
+        업무 중 만나는 애매한 상황,
         <br />
-        나는 어떻게 대처할까?
+        나라면 어떻게 할까?
       </p>
 
       {/* 안내 칩 */}
@@ -50,9 +50,7 @@ export default function HomePage() {
 
       {/* 푸터 */}
       <p className="mt-7 text-center text-[11px] leading-relaxed text-[var(--color-text-muted)]">
-        이 테스트는 재미있는 자기발견을 위한 것이며,
-        <br />
-        공식적인 평가와는 무관합니다.
+        부담 없이 즐기는 셀프 테스트입니다.
       </p>
     </div>
   );

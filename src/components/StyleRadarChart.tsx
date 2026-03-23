@@ -14,22 +14,16 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
+import type { SixAxisScores } from '@/data/questions';
 
 interface StyleRadarChartProps {
-  scores: {
-    principle: number;
-    transparency: number;
-    independence: number;
-  };
+  sixAxis: SixAxisScores;
 }
 
 interface ChartDataItem {
   axis: string;
   label: string;
   score: number;
-  raw: number;
-  positive: string;
-  negative: string;
 }
 
 const chartConfig: ChartConfig = {
@@ -39,22 +33,17 @@ const chartConfig: ChartConfig = {
   },
 };
 
-const AXES = [
-  { key: 'principle' as const, axis: '원칙 ↔ 유연', positive: '원칙', negative: '유연' },
-  { key: 'transparency' as const, axis: '투명 ↔ 신중', positive: '투명', negative: '신중' },
-  { key: 'independence' as const, axis: '독립 ↔ 협력', positive: '독립', negative: '협력' },
-] as const;
+// 대각선에 반대 성향이 오도록 배치: 원칙↔유연, 투명↔신중, 독립↔협력
+const AXES: { key: keyof SixAxisScores; label: string }[] = [
+  { key: 'principle', label: '원칙' },
+  { key: 'transparent', label: '투명' },
+  { key: 'independent', label: '독립' },
+  { key: 'flexible', label: '유연' },
+  { key: 'cautious', label: '신중' },
+  { key: 'cooperative', label: '협력' },
+];
 
-// 각 축의 실현 가능한 최대 절대값 (15문항, 다축 동시 점수 고려)
-const AXIS_MAX = 8;
 const DISPLAY_MAX = 5;
-
-function normalizeScore(value: number): number {
-  // 원점수를 5점 척도로 변환
-  const clamped = Math.max(-AXIS_MAX, Math.min(AXIS_MAX, value));
-  const scaled = (Math.abs(clamped) / AXIS_MAX) * DISPLAY_MAX;
-  return Math.round(scaled * 10) / 10; // 소수 첫째자리
-}
 
 function getTextAnchor(index: number, total: number): 'start' | 'middle' | 'end' {
   const angle = (index / total) * 360;
@@ -64,34 +53,31 @@ function getTextAnchor(index: number, total: number): 'start' | 'middle' | 'end'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatTooltip(_value: any, _name: any, item: any) {
-  const { score, positive, negative, raw } = item.payload as ChartDataItem;
+  const { label, score } = item.payload as ChartDataItem;
   return (
     <span>
-      {raw >= 0 ? positive : negative}: {score} / {DISPLAY_MAX}
+      {label}: {score} / {DISPLAY_MAX}
     </span>
   );
 }
 
-export default function StyleRadarChart({ scores }: StyleRadarChartProps) {
+export default function StyleRadarChart({ sixAxis }: StyleRadarChartProps) {
   const id = useId();
   const gradientId = `radarGradient-${id}`;
   const strokeId = `radarStroke-${id}`;
 
-  const data: ChartDataItem[] = AXES.map(({ key, axis, positive, negative }) => ({
-    axis,
-    label: scores[key] >= 0 ? positive : negative,
-    score: normalizeScore(scores[key]),
-    raw: scores[key],
-    positive,
-    negative,
+  const data: ChartDataItem[] = AXES.map(({ key, label }) => ({
+    axis: label,
+    label,
+    score: Math.min(sixAxis[key], DISPLAY_MAX),
   }));
 
   return (
     <ChartContainer
       config={chartConfig}
-      className="mx-auto max-h-[260px] w-full"
+      className="mx-auto max-h-[280px] w-full"
     >
-      <RadarChart data={data} cx="50%" cy="50%" outerRadius="80%">
+      <RadarChart data={data} cx="50%" cy="50%" outerRadius="75%">
         <defs>
           <radialGradient id={gradientId} cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="var(--color-primary-accent)" stopOpacity={0.7} />
@@ -104,7 +90,7 @@ export default function StyleRadarChart({ scores }: StyleRadarChartProps) {
         </defs>
 
         <PolarGrid
-          gridType="circle"
+          gridType="polygon"
           stroke="var(--color-text-muted)"
           strokeOpacity={0.35}
           strokeWidth={1.5}

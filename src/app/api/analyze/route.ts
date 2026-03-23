@@ -36,6 +36,21 @@ const SYSTEM_PROMPT = `당신은 공공 연구기관 종사자를 위한 청렴 
 - 팁은 바로 실행 가능한 행동 수준, 격려 톤으로
 - 사용자가 추가 맥락(업무 고민, 구체적 상황)을 제공한 경우, 해당 내용을 분석 전체에 자연스럽게 반영하여 맞춤형 조언을 제공하세요`;
 
+// Q&A 모드 프롬프트 — 사용자가 구체적 질문을 했을 때
+const QA_SYSTEM_PROMPT = `당신은 공공 연구기관 종사자를 위한 청렴 조언 도우미입니다.
+
+## 역할
+- 사용자의 구체적인 질문에 **직접적이고 실용적인 답변** 제공
+- 사용자의 청렴 스타일 유형을 참고하되, 질문에 대한 답변이 핵심
+- 밝고 따뜻한 톤, 실행 가능한 조언
+- 옳고 그름을 판단하지 않고 안전한 방법을 안내
+
+## 응답 원칙
+- 5~7문장 이내로 핵심만 간결하게
+- 관련 규정이나 주의점이 있으면 짧게 언급
+- 마지막에 한 줄 격려
+- JSON이 아닌 일반 텍스트로 응답`;
+
 // 유형별 폴백 분석 데이터 (AI 실패 시 사용)
 const FALLBACK_DATA: Record<string, Omit<AnalysisResult, 'styleSummary'>> = {
   'principle-transparent-independent': {
@@ -237,10 +252,11 @@ ${userContext}
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { styleKey, answers, userContext } = body as {
+    const { styleKey, answers, userContext, mode } = body as {
       styleKey: string;
       answers: number[];
       userContext?: string;
+      mode?: 'analysis' | 'question';
     };
 
     // 입력 검증
@@ -253,6 +269,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid style' }, { status: 400 });
     }
 
+    if (userContext && (typeof userContext !== 'string' || userContext.length > 500)) {
+      return NextResponse.json({ error: 'userContext must be string under 500 chars' }, { status: 400 });
+    }
+
+    // ── Q&A 모드: 사용자 질문에 직접 답변 (answers 검증 불필요) ──
+    if (mode === 'question') {
+      if (!userContext?.trim()) {
+        return NextResponse.json({ error: 'question is required' }, { status: 400 });
+      }
+
+      try {
+        const response = await chat({
+          messages: [
+            { role: 'system', content: QA_SYSTEM_PROMPT },
+            { role: 'user', content: `나의 청렴 스타일: ${style.name} (${style.description})\n\n질문: ${userContext}` },
+          ],
+          temperature: 0.7,
+          maxTokens: 600,
+        });
+
+        return NextResponse.json({
+          answer: response.content,
+          provider: response.provider,
+        });
+      } catch {
+        return NextResponse.json(
+          { error: '답변 생성에 실패했어요. 다시 시도해주세요.' },
+          { status: 500 }
+        );
+      }
+    }
+
+    // ── 기존 분석 모드: answers 검증 필요 ──
     if (!Array.isArray(answers) || answers.length !== questions.length) {
       return NextResponse.json({ error: `answers must be array of ${questions.length}` }, { status: 400 });
     }
@@ -261,11 +310,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Each answer must be 0-3' }, { status: 400 });
     }
 
-    if (userContext && (typeof userContext !== 'string' || userContext.length > 500)) {
-      return NextResponse.json({ error: 'userContext must be string under 500 chars' }, { status: 400 });
-    }
-
-    // 서버에서 점수 재계산 (클라이언트 데이터를 신뢰하지 않음)
     const serverResult = calculateResult(answers);
     const verifiedScores = serverResult.scores;
     const borderline = serverResult.borderline;

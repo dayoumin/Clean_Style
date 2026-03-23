@@ -208,6 +208,9 @@ export interface StyleType {
   subtitle: string;
   description: string;
   emoji: string;
+  strength: string;
+  caution: string;
+  tip: string;
 }
 
 export const styleTypes: Record<string, StyleType> = {
@@ -217,6 +220,9 @@ export const styleTypes: Record<string, StyleType> = {
     subtitle: '원칙-투명-독립',
     description: '규정대로, 바로 말하고, 혼자서도 밀고 나가는 타입',
     emoji: '🛡️',
+    strength: '애매한 상황에서도 기준을 먼저 확인하고, 문제가 보이면 바로 공유하는 투명한 판단력',
+    caution: '혼자 판단하고 직설적으로 전달하다 보면, 동료 입장에서는 부담스러울 수 있어요',
+    tip: '원칙은 지키되, 전달 전에 "이걸 어떻게 말하면 좋을까?" 한 번만 생각해보세요',
   },
   'principle-transparent-cooperative': {
     id: 'principle-transparent-cooperative',
@@ -224,6 +230,9 @@ export const styleTypes: Record<string, StyleType> = {
     subtitle: '원칙-투명-협력',
     description: '규정을 중시하되, 팀과 공유하며 함께 해결하는 타입',
     emoji: '⚖️',
+    strength: '기준을 지키면서도 팀과 공유하고 합의를 이끌어내는 균형 감각이 돋보여요',
+    caution: '모두의 동의를 구하다 보면 결정이 늦어지거나 원래 기준이 흐려질 수 있어요',
+    tip: '핵심 원칙은 양보하지 않되, 방법은 유연하게 — 합의 결과를 간단히 기록해두면 좋아요',
   },
   'principle-cautious-independent': {
     id: 'principle-cautious-independent',
@@ -231,6 +240,9 @@ export const styleTypes: Record<string, StyleType> = {
     subtitle: '원칙-신중-독립',
     description: '원칙은 지키되, 조용히 혼자 판단하고 처리하는 타입',
     emoji: '🏔️',
+    strength: '꼼꼼하게 확인하고 소란 없이 올바른 방향을 지키는 안정적인 판단력이 강점이에요',
+    caution: '혼자 고민하다 타이밍을 놓치거나, 주변에서 무관심으로 오해할 수 있어요',
+    tip: '판단은 신중하게 하되, 공유 시점은 빠르게 — 근거를 메모해두면 설명이 쉬워져요',
   },
   'principle-cautious-cooperative': {
     id: 'principle-cautious-cooperative',
@@ -238,6 +250,9 @@ export const styleTypes: Record<string, StyleType> = {
     subtitle: '원칙-신중-협력',
     description: '원칙 기반이지만, 상황 파악 후 팀과 협의하는 타입',
     emoji: '🤝',
+    strength: '충분히 파악한 뒤 팀과 논의해서, 성급하지 않고 신뢰할 수 있는 결론을 이끌어내요',
+    caution: '너무 신중하면 결정이 지연되고, 자기 의견을 뒤로 미루기 쉬워요',
+    tip: '"확인할 건 3가지만" 같은 기준을 정해두면, 신중함과 실행력을 둘 다 챙길 수 있어요',
   },
   'flexible-transparent-independent': {
     id: 'flexible-transparent-independent',
@@ -245,6 +260,9 @@ export const styleTypes: Record<string, StyleType> = {
     subtitle: '유연-투명-독립',
     description: '상황에 맞게 판단하고, 과정은 공개하며 주도적으로 실행하는 타입',
     emoji: '🚀',
+    strength: '변화에 빠르게 대응하면서도 과정을 투명하게 공유해 독단적으로 보이지 않아요',
+    caution: '유연한 판단이 반복되면 일관성이 부족해 보이거나 기준이 흔들릴 수 있어요',
+    tip: '"이건 왜 이렇게 판단했는지" 한 줄이라도 남겨두면, 유연함이 신뢰로 바뀌어요',
   },
   'flexible-transparent-cooperative': {
     id: 'flexible-transparent-cooperative',
@@ -252,6 +270,9 @@ export const styleTypes: Record<string, StyleType> = {
     subtitle: '유연-투명-협력',
     description: '유연하게 판단하고, 모두와 공유하며 진행하는 타입',
     emoji: '💬',
+    strength: '다양한 의견을 듣고 정보를 적극 공유해서, 팀 전체가 함께 판단할 수 있게 해줘요',
+    caution: '모든 의견을 수용하다 방향이 흔들리거나, 원칙이 필요한 순간에 너무 유연해질 수 있어요',
+    tip: '"여기까지는 유연, 여기부터는 원칙" — 이 선을 미리 정해두면 결정이 한결 수월해져요',
   },
   'flexible-cautious-independent': {
     id: 'flexible-cautious-independent',
@@ -259,6 +280,9 @@ export const styleTypes: Record<string, StyleType> = {
     subtitle: '유연-신중-독립',
     description: '상황 판단 후 조용히 최선의 방법을 찾아내는 타입',
     emoji: '🎯',
+    strength: '조용하지만 정확하게 상황을 파악하고, 갈등 없이 효과적으로 문제를 해결해요',
+    caution: '혼자 처리하다 보면 팀이 상황을 모르거나, 소극적으로 비칠 수 있어요',
+    tip: '판단 후 결과만이라도 팀에 간단히 공유하면, 신뢰와 협력이 함께 올라가요',
   },
   'flexible-cautious-cooperative': {
     id: 'flexible-cautious-cooperative',
@@ -266,8 +290,49 @@ export const styleTypes: Record<string, StyleType> = {
     subtitle: '유연-신중-협력',
     description: '분위기 살피며, 팀 합의로 부드럽게 풀어가는 타입',
     emoji: '🕊️',
+    strength: '상황과 사람을 모두 살피며, 갈등을 최소화하면서 합의를 이끌어내는 조정력이 탁월해요',
+    caution: '갈등을 피하다 문제 해결이 미뤄지거나, 분위기에 맞추느라 할 말을 못 할 수 있어요',
+    tip: '부드럽게 말하되 할 말은 하는 연습 — "이건 꼭 지켜야 할 것" 목록을 미리 만들어보세요',
   },
 };
+
+// 6축 개별 점수 (레이더 차트용)
+export interface SixAxisScores {
+  principle: number;    // 원칙
+  flexible: number;     // 유연
+  transparent: number;  // 투명
+  cautious: number;     // 신중
+  independent: number;  // 독립
+  cooperative: number;  // 협력
+}
+
+export function computeSixAxisScores(answers: number[]): SixAxisScores {
+  const result: SixAxisScores = {
+    principle: 0, flexible: 0,
+    transparent: 0, cautious: 0,
+    independent: 0, cooperative: 0,
+  };
+
+  answers.forEach((choiceIndex, questionIndex) => {
+    const question = questions[questionIndex];
+    if (!question) return;
+    const choice = question.choices[choiceIndex];
+    if (!choice) return;
+
+    const p = choice.scores.principle ?? 0;
+    const t = choice.scores.transparency ?? 0;
+    const i = choice.scores.independence ?? 0;
+
+    if (p > 0) result.principle += p;
+    if (p < 0) result.flexible += Math.abs(p);
+    if (t > 0) result.transparent += t;
+    if (t < 0) result.cautious += Math.abs(t);
+    if (i > 0) result.independent += i;
+    if (i < 0) result.cooperative += Math.abs(i);
+  });
+
+  return result;
+}
 
 // 점수 계산 유틸리티
 export interface TestResult {
@@ -283,18 +348,13 @@ export interface TestResult {
 }
 
 export function calculateResult(answers: number[]): TestResult {
-  const scores = { principle: 0, transparency: 0, independence: 0 };
-
-  answers.forEach((choiceIndex, questionIndex) => {
-    const question = questions[questionIndex];
-    if (!question) return;
-    const choice = question.choices[choiceIndex];
-    if (!choice) return;
-
-    scores.principle += choice.scores.principle ?? 0;
-    scores.transparency += choice.scores.transparency ?? 0;
-    scores.independence += choice.scores.independence ?? 0;
-  });
+  // 6축 점수에서 3축 순점수를 도출 (단일 패스)
+  const six = computeSixAxisScores(answers);
+  const scores = {
+    principle: six.principle - six.flexible,
+    transparency: six.transparent - six.cautious,
+    independence: six.independent - six.cooperative,
+  };
 
   // 0점인 축을 기록 (균형 상태 — 어느 쪽 성향도 뚜렷하지 않음)
   const borderline: string[] = [];
