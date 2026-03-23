@@ -1,10 +1,11 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { styleTypes, type StyleType } from '@/data/questions';
 import type { AnalysisResult } from '@/types/analysis';
 import StyleRadarChart from '@/components/StyleRadarChart';
+import type html2canvasType from 'html2canvas';
 
 // ── 모듈 레벨 상수 ──
 
@@ -14,7 +15,7 @@ const TIP_CONFIG = [
   { key: 'relation' as const, label: '외부 협력·소통', boxCls: 'tip-box-relation', labelCls: 'tip-label-relation' },
 ] as const;
 
-// ── 마크다운 헬퍼 (렌더 밖에서 정의) ──
+// ── 마크다운 헬퍼 ──
 
 const escapeHtml = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -43,22 +44,74 @@ function LoadingDots() {
   );
 }
 
-function StructuredResult({ data, style }: { data: AnalysisResult; style: StyleType }) {
+function Accordion({ title, defaultOpen, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen ?? false);
+
+  return (
+    <div className="result-card">
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="flex w-full items-center justify-between text-left"
+      >
+        <h3 className="text-[15px] font-bold text-[var(--color-text)]">{title}</h3>
+        <span className={`text-[var(--color-text-muted)] transition-transform ${open ? 'rotate-180' : ''}`}>
+          ▾
+        </span>
+      </button>
+      {open && <div className="mt-4">{children}</div>}
+    </div>
+  );
+}
+
+function BottomSheet({ onClose, children }: { onClose: () => void; children: React.ReactNode }) {
+  const handleBackdrop = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
+  }, [onClose]);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm"
+      onClick={handleBackdrop}
+    >
+      <div className="animate-slide-up w-full max-w-md overflow-hidden rounded-t-[24px] bg-[var(--color-bg)] shadow-xl">
+        <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
+          <h2 className="text-[16px] font-bold text-[var(--color-text)]">🤖 AI 조언</h2>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-card)] text-[var(--color-text-muted)] hover:bg-[var(--color-border)]"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="max-h-[70vh] overflow-y-auto px-5 py-4">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AnalysisModalContent({ data }: { data: AnalysisResult }) {
   return (
     <>
-      {/* 스타일 요약 */}
-      <div className="result-card">
-        <h3 className="mb-2 text-[15px] font-bold text-[var(--color-text)]">
-          📌 당신의 청렴 스타일: {style.name}
-        </h3>
-        <p className="text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
-          {data.styleSummary}
+      <div className="mb-4 rounded-[var(--radius-lg)] border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-5 py-4 text-center">
+        <p className="text-[15px] font-semibold leading-relaxed text-[var(--color-primary)]">
+          🌟 {data.message}
         </p>
       </div>
 
-      {/* 강점 */}
-      <div className="result-card">
-        <h3 className="mb-4 text-[15px] font-bold text-[var(--color-text)]">💪 이런 점이 강점이에요</h3>
+      <Accordion title="💪 이런 점이 강점이에요" defaultOpen>
         <ul className="space-y-2">
           {data.strengths.map((s, i) => (
             <li key={i} className="flex gap-2.5 text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
@@ -67,11 +120,9 @@ function StructuredResult({ data, style }: { data: AnalysisResult; style: StyleT
             </li>
           ))}
         </ul>
-      </div>
+      </Accordion>
 
-      {/* 주의 포인트 */}
-      <div className="result-card">
-        <h3 className="mb-4 text-[15px] font-bold text-[var(--color-text)]">⚠️ 이런 상황에서 한 번 더 생각해보세요</h3>
+      <Accordion title="⚠️ 한 번 더 생각해보세요">
         <ul className="space-y-2">
           {data.cautions.map((c, i) => (
             <li key={i} className="flex gap-2.5 text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
@@ -80,11 +131,9 @@ function StructuredResult({ data, style }: { data: AnalysisResult; style: StyleT
             </li>
           ))}
         </ul>
-      </div>
+      </Accordion>
 
-      {/* 업무별 팁 */}
-      <div className="result-card">
-        <h3 className="mb-4 text-[15px] font-bold text-[var(--color-text)]">💡 업무별 꿀팁</h3>
+      <Accordion title="💡 업무별 꿀팁">
         <div className="space-y-2.5">
           {TIP_CONFIG.map((tip) => (
             <div key={tip.key} className={`tip-box ${tip.boxCls}`}>
@@ -93,20 +142,12 @@ function StructuredResult({ data, style }: { data: AnalysisResult; style: StyleT
             </div>
           ))}
         </div>
-      </div>
-
-      {/* 한마디 */}
-      <div className="mb-6 rounded-[var(--radius-lg)] border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] p-6 text-center">
-        <p className="mb-2 text-2xl">🌟</p>
-        <p className="text-[15px] font-semibold leading-relaxed text-[var(--color-primary)]">
-          {data.message}
-        </p>
-      </div>
+      </Accordion>
     </>
   );
 }
 
-function MarkdownResult({ text }: { text: string }) {
+function MarkdownContent({ text }: { text: string }) {
   const lines = text.split('\n');
   const elements: React.ReactNode[] = [];
   let listItems: string[] = [];
@@ -140,16 +181,20 @@ function MarkdownResult({ text }: { text: string }) {
   }
   flushList();
 
-  return <div className="ai-result result-card mb-6">{elements}</div>;
+  return <div className="ai-result">{elements}</div>;
 }
 
 function ResultContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const captureRef = useRef<HTMLDivElement>(null);
   const [analysisData, setAnalysisData] = useState<AnalysisResult | null>(null);
   const [markdownFallback, setMarkdownFallback] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [capturing, setCapturing] = useState(false);
 
   const styleKey = searchParams.get('style') ?? '';
   const scores = {
@@ -168,6 +213,7 @@ function ResultContent() {
       return;
     }
 
+    const userContext = sessionStorage.getItem('userContext') ?? '';
     const controller = new AbortController();
 
     async function fetchAnalysis() {
@@ -175,7 +221,7 @@ function ResultContent() {
         const res = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ styleKey, scores, answers }),
+          body: JSON.stringify({ styleKey, scores, answers, userContext: userContext || undefined }),
           signal: controller.signal,
         });
 
@@ -207,7 +253,7 @@ function ResultContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleShare = async () => {
+  const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
@@ -217,8 +263,30 @@ function ResultContent() {
     }
   };
 
+  const handleCapture = async () => {
+    if (!captureRef.current || capturing) return;
+    setCapturing(true);
+    try {
+      const { default: html2canvas } = await import('html2canvas') as { default: typeof html2canvasType };
+      const canvas = await html2canvas(captureRef.current, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+      });
+      const link = document.createElement('a');
+      link.download = `청렴스타일_${style?.name ?? '결과'}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch {
+      // 캡쳐 실패 시 무시
+    } finally {
+      setCapturing(false);
+    }
+  };
+
   const handleRetry = () => {
-    window.location.href = '/';
+    sessionStorage.removeItem('userContext');
+    router.push('/');
   };
 
   if (loading) return <LoadingDots />;
@@ -239,54 +307,113 @@ function ResultContent() {
 
   if (!style) return null;
 
+  const hasAnalysis = analysisData || markdownFallback;
+
   return (
-    <div className="animate-slide-up">
-      {/* 유형 카드 */}
-      <div className="result-gradient relative z-0 mb-6 rounded-[var(--radius-xl)] p-10 text-center text-white shadow-lg">
-        <div className="mb-3 text-[56px]">{style.emoji}</div>
-        <h1 className="mb-1.5 text-[28px] font-extrabold tracking-tight">{style.name}</h1>
-        <span className="inline-flex rounded-full bg-white/15 px-3 py-1 text-[14px] font-semibold backdrop-blur-sm">
-          {style.subtitle}
-        </span>
-        <p className="mt-4 text-[14px] leading-relaxed text-white/75">
-          {style.description}
+    <>
+      <div className="animate-slide-up" ref={captureRef}>
+        {/* 유형 카드 */}
+        <div className="result-gradient relative z-0 mb-6 overflow-hidden rounded-[var(--radius-xl)] px-6 py-7 text-center text-white shadow-lg">
+          <div className="pointer-events-none absolute -left-6 -top-6 h-28 w-28 rounded-full bg-white/5" />
+          <div className="pointer-events-none absolute -bottom-4 -right-4 h-20 w-20 rounded-full bg-white/5" />
+          <div className="pointer-events-none absolute right-8 top-4 h-3 w-3 rounded-full bg-white/10" />
+
+          <div className="relative z-10">
+            <div className="mb-2 text-[48px]">{style.emoji}</div>
+            <h1 className="mb-1.5 text-[26px] font-extrabold tracking-tight">{style.name}</h1>
+            <span className="inline-flex rounded-full bg-white/15 px-3 py-1 text-[13px] font-semibold backdrop-blur-sm">
+              {style.subtitle}
+            </span>
+            <p className="mt-3 text-[13px] leading-relaxed text-white/75">
+              {style.description}
+            </p>
+          </div>
+        </div>
+
+        {/* 성향 레이더 차트 */}
+        <div className="result-card relative mb-6 px-3 pb-2 pt-5">
+          <span className="absolute left-4 top-3 text-[11px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
+            성향 분석
+          </span>
+          <StyleRadarChart scores={scores} />
+        </div>
+
+        {/* 균형 상태 안내 */}
+        {(() => {
+          const axisNames: Record<string, string> = { principle: '원칙↔유연', transparency: '투명↔신중', independence: '독립↔협력' };
+          const balanced = Object.entries(scores).filter(([, v]) => v === 0).map(([k]) => axisNames[k]);
+          if (balanced.length === 0) return null;
+          return (
+            <div className="mb-6 rounded-[var(--radius-md)] border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-4 py-3">
+              <p className="text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
+                <span className="font-semibold text-[var(--color-primary-accent)]">균형 </span>
+                {balanced.join(', ')} 축이 균형 상태예요. 상황에 따라 양쪽 성향을 유연하게 활용하는 타입입니다.
+              </p>
+            </div>
+          );
+        })()}
+
+        {/* AI 스타일 요약 */}
+        {analysisData?.styleSummary && (
+          <div className="result-card">
+            <h3 className="mb-2 text-[15px] font-bold text-[var(--color-text)]">
+              📌 당신의 청렴 스타일
+            </h3>
+            <p className="text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
+              {analysisData.styleSummary}
+            </p>
+          </div>
+        )}
+
+        {/* AI 조언 보기 버튼 */}
+        {hasAnalysis && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="mt-2 w-full rounded-[var(--radius-md)] border border-dashed border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] py-3.5 text-center text-[13px] font-semibold text-[var(--color-primary-accent)] hover:bg-[var(--color-primary-muted)]"
+          >
+            🤖 AI 조언 보기
+          </button>
+        )}
+
+        {/* 푸터 */}
+        <p className="mt-6 text-center text-xs text-[var(--color-text-muted)]">
+          이 테스트는 재미있는 자기발견을 위한 것이며,
+          <br />
+          공식적인 평가와는 무관합니다.
         </p>
       </div>
 
-      {/* 성향 레이더 차트 */}
-      <div className="result-card mb-6 p-5">
-        <h3 className="mb-3 text-center text-[13px] font-bold uppercase tracking-wider text-[var(--color-text-muted)]">
-          성향 분석
-        </h3>
-        <StyleRadarChart scores={scores} />
-      </div>
-
-      {/* AI 분석 결과 */}
-      {analysisData && <StructuredResult data={analysisData} style={style} />}
-      {markdownFallback && <MarkdownResult text={markdownFallback} />}
-
       {/* 하단 버튼 */}
-      <div className="flex gap-2.5">
+      <div className="mt-6 flex gap-2">
         <button
           onClick={handleRetry}
-          className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg)] py-4 text-center text-[15px] font-semibold text-[var(--color-text)] hover:bg-[var(--color-card)]"
+          className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg)] py-3.5 text-center text-[13px] font-semibold text-[var(--color-text)] hover:bg-[var(--color-card)]"
         >
           다시 하기
         </button>
         <button
-          onClick={handleShare}
-          className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-4 text-center text-[15px] font-semibold text-white hover:bg-[#2a2a4e]"
+          onClick={handleCopyLink}
+          className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg)] py-3.5 text-center text-[13px] font-semibold text-[var(--color-text)] hover:bg-[var(--color-card)]"
         >
-          {copied ? '복사됨!' : '결과 공유 →'}
+          {copied ? '복사됨!' : '링크 복사'}
+        </button>
+        <button
+          onClick={handleCapture}
+          disabled={capturing}
+          className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3.5 text-center text-[13px] font-semibold text-white hover:bg-[#2a2a4e] disabled:opacity-40"
+        >
+          {capturing ? '저장 중...' : '캡쳐하기'}
         </button>
       </div>
 
-      <p className="mt-6 text-center text-xs text-[var(--color-text-muted)]">
-        이 테스트는 재미있는 자기발견을 위한 것이며,
-        <br />
-        공식적인 평가와는 무관합니다.
-      </p>
-    </div>
+      {/* AI 조언 모달 */}
+      {showModal && (analysisData || markdownFallback) && (
+        <BottomSheet onClose={() => setShowModal(false)}>
+          {analysisData && <AnalysisModalContent data={analysisData} />}
+          {markdownFallback && <MarkdownContent text={markdownFallback} />}
+        </BottomSheet>
+      )}
+    </>
   );
 }
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chat } from '@/lib/ai';
-import { styleTypes, questions } from '@/data/questions';
+import { styleTypes, questions, calculateResult } from '@/data/questions';
 import { isValidAnalysisResult } from '@/types/analysis';
 import type { AnalysisResult } from '@/types/analysis';
 
@@ -8,10 +8,11 @@ import type { AnalysisResult } from '@/types/analysis';
 const SYSTEM_PROMPT = `당신은 공공 연구기관 종사자를 위한 청렴 스타일 분석 전문가입니다.
 
 ## 역할
-- 따뜻하고 실용적인 피드백 제공
-- 평가가 아닌 "자기발견" 관점
-- 부드럽고 격려하는 톤 (비난/판정 절대 금지)
-- 선택에 대한 옳고 그름 판단 금지
+- 기분 좋고 긍정적인 분위기의 피드백 제공
+- 평가가 아닌 "자기발견"과 "응원" 관점
+- 밝고 따뜻하며 격려하는 톤 유지
+- 선택에 대한 옳고 그름 판단 절대 금지 — 모든 스타일은 장점이 있음을 강조
+- 잘못 여부를 따지는 것이 아니라, 각자의 강점을 발견하고 키워가는 테스트임을 전제
 
 ## 응답 형식
 반드시 아래 JSON 형식으로만 응답하세요. 다른 텍스트 없이 JSON만 출력하세요.
@@ -31,8 +32,9 @@ const SYSTEM_PROMPT = `당신은 공공 연구기관 종사자를 위한 청렴 
 ## 작성 원칙
 - 공공 연구기관의 실제 업무 맥락(연구비 집행, 물품 구매, 용역 계약, 생명자원/LMO, 외부 협력)에 기반
 - 강점은 업무 상황과 연결된 구체적 예시로 서술
-- 주의 포인트는 "~하면 좋겠어요", "~해보는 것도 방법이에요" 형태
-- 팁은 바로 실행 가능한 행동 수준`;
+- 주의 포인트도 부정적 표현 대신 "~하면 더 빛날 수 있어요", "~해보는 것도 좋은 방법이에요" 같은 긍정적 제안
+- 팁은 바로 실행 가능한 행동 수준, 격려 톤으로
+- 사용자가 추가 맥락(업무 고민, 구체적 상황)을 제공한 경우, 해당 내용을 분석 전체에 자연스럽게 반영하여 맞춤형 조언을 제공하세요`;
 
 function describeAxis(
   score: number,
@@ -51,6 +53,7 @@ function describeAxis(
 function generateFallbackAnalysis(
   style: { name: string; description: string },
   scores: { principle: number; transparency: number; independence: number },
+  userContext?: string,
 ): AnalysisResult {
   const principleText = describeAxis(
     scores.principle,
@@ -76,10 +79,14 @@ function generateFallbackAnalysis(
     '협의와 합의를 통해 안정적으로 진행하는 성향',
   );
 
+  const contextNote = userContext
+    ? ` 말씀하신 "${userContext.slice(0, 80)}" 상황에서도 이 성향이 드러날 수 있으니, 아래 팁을 참고해보세요.`
+    : '';
+
   return {
     styleSummary:
       `${style.name} 유형입니다. ${principleText}, ${transparencyText}, ${independenceText}이 함께 드러났습니다. ` +
-      `${style.description} 강점이 있으므로, 실무에서는 판단 근거를 짧게라도 남기면 장점이 더 선명해집니다.`,
+      `${style.description} 강점이 있으므로, 실무에서는 판단 근거를 짧게라도 남기면 장점이 더 선명해집니다.${contextNote}`,
     strengths: [
       '애매한 상황에서도 기준을 세우고 다음 행동을 정하는 속도가 비교적 안정적입니다.',
       '연구비 집행, 데이터 정리, 대외 협업처럼 판단 근거가 중요한 일에서 자신의 스타일을 일관되게 유지할 가능성이 큽니다.',
@@ -105,6 +112,8 @@ function buildUserPrompt(
   style: { name: string; subtitle: string; description: string },
   scores: { principle: number; transparency: number; independence: number },
   answers: number[],
+  borderline: string[],
+  userContext?: string,
 ): string {
   const choiceSummary = answers
     .map((choiceIdx, qIdx) => {
@@ -117,25 +126,43 @@ function buildUserPrompt(
     .filter(Boolean)
     .join('\n');
 
-  return `## 테스트 결과
+  const axisNames: Record<string, string> = { principle: '원칙↔유연', transparency: '투명↔신중', independence: '독립↔협력' };
+  const borderlineNote = borderline.length > 0
+    ? `\n- 균형 축: ${borderline.map(b => axisNames[b] ?? b).join(', ')} — 이 축은 어느 한쪽 성향이 뚜렷하지 않으므로, 고정된 유형으로 프레이밍하지 말고 "상황에 따라 양쪽을 활용하는 경향"으로 설명해주세요.`
+    : '';
+
+  let prompt = `## 테스트 결과
 - 유형: ${style.name} (${style.subtitle})
 - 설명: ${style.description}
 - 점수: 원칙↔유연(${scores.principle}), 투명↔신중(${scores.transparency}), 독립↔협력(${scores.independence})
-  - 양수 = 원칙/투명/독립 성향, 음수 = 유연/신중/협력 성향, 0 = 균형
+  - 양수 = 원칙/투명/독립 성향, 음수 = 유연/신중/협력 성향, 0 = 균형${borderlineNote}
 
 ## 선택 패턴
-${choiceSummary}
+${choiceSummary}`;
+
+  if (userContext) {
+    prompt += `
+
+## 사용자가 알려준 업무 상황/고민
+${userContext}
+
+위 테스트 결과와 사용자의 상황을 함께 고려하여 맞춤형 분석을 JSON으로 응답해주세요.`;
+  } else {
+    prompt += `
 
 위 결과를 분석하여 JSON으로 응답해주세요.`;
+  }
+
+  return prompt;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { styleKey, scores, answers } = body as {
+    const { styleKey, answers, userContext } = body as {
       styleKey: string;
-      scores: { principle: number; transparency: number; independence: number };
       answers: number[];
+      userContext?: string;
     };
 
     // 입력 검증
@@ -156,16 +183,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Each answer must be 0-3' }, { status: 400 });
     }
 
-    if (!scores || typeof scores.principle !== 'number' || typeof scores.transparency !== 'number' || typeof scores.independence !== 'number') {
-      return NextResponse.json({ error: 'Invalid scores' }, { status: 400 });
+    if (userContext && (typeof userContext !== 'string' || userContext.length > 500)) {
+      return NextResponse.json({ error: 'userContext must be string under 500 chars' }, { status: 400 });
     }
+
+    // 서버에서 점수 재계산 (클라이언트 데이터를 신뢰하지 않음)
+    const serverResult = calculateResult(answers);
+    const verifiedScores = serverResult.scores;
+    const borderline = serverResult.borderline;
 
     let response;
     try {
       response = await chat({
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: buildUserPrompt(style, scores, answers) },
+          { role: 'user', content: buildUserPrompt(style, verifiedScores, answers, borderline, userContext) },
         ],
         temperature: 0.7,
         maxTokens: 1500,
@@ -173,7 +205,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       console.warn('Falling back to local analysis:', error instanceof Error ? error.message : error);
       return NextResponse.json({
-        analysis: generateFallbackAnalysis(style, scores),
+        analysis: generateFallbackAnalysis(style, verifiedScores, userContext),
         style,
         structured: true,
         provider: 'local-fallback',

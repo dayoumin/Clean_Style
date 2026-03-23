@@ -47,7 +47,9 @@ const AXES = [
 
 function normalizeScore(value: number, maxAbsolute: number = 15): number {
   const clamped = Math.max(-maxAbsolute, Math.min(maxAbsolute, value));
-  return Math.round(((clamped + maxAbsolute) / (2 * maxAbsolute)) * 100);
+  // 0~100 범위, 최소 25% 보장하여 레이더 형태가 항상 보이게
+  const raw = ((clamped + maxAbsolute) / (2 * maxAbsolute)) * 100;
+  return Math.round(25 + (raw * 0.75));
 }
 
 function getTextAnchor(index: number, total: number): 'start' | 'middle' | 'end' {
@@ -83,13 +85,13 @@ export default function StyleRadarChart({ scores }: StyleRadarChartProps) {
   return (
     <ChartContainer
       config={chartConfig}
-      className="mx-auto aspect-square max-h-[280px] w-full"
+      className="mx-auto max-h-[260px] w-full"
     >
-      <RadarChart data={data} cx="50%" cy="50%" outerRadius="65%">
+      <RadarChart data={data} cx="50%" cy="50%" outerRadius="80%">
         <defs>
           <radialGradient id={gradientId} cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="var(--color-primary-accent)" stopOpacity={0.5} />
-            <stop offset="100%" stopColor="var(--color-primary-accent)" stopOpacity={0.05} />
+            <stop offset="0%" stopColor="var(--color-primary-accent)" stopOpacity={0.7} />
+            <stop offset="100%" stopColor="var(--color-primary-accent)" stopOpacity={0.15} />
           </radialGradient>
           <linearGradient id={strokeId} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="var(--color-primary-accent)" />
@@ -99,8 +101,9 @@ export default function StyleRadarChart({ scores }: StyleRadarChartProps) {
 
         <PolarGrid
           gridType="circle"
-          stroke="var(--color-border)"
-          strokeWidth={1}
+          stroke="var(--color-text-muted)"
+          strokeOpacity={0.35}
+          strokeWidth={1.5}
         />
         <PolarRadiusAxis
           angle={90}
@@ -138,7 +141,7 @@ export default function StyleRadarChart({ scores }: StyleRadarChartProps) {
                   className="text-[10px]"
                   fill="var(--color-text-muted)"
                 >
-                  {item.raw > 0 ? '+' : ''}{item.raw}점
+                  {Math.abs(item.raw)}점
                 </text>
               </g>
             );
@@ -156,12 +159,12 @@ export default function StyleRadarChart({ scores }: StyleRadarChartProps) {
           dataKey="score"
           fill={`url(#${gradientId})`}
           stroke={`url(#${strokeId})`}
-          strokeWidth={2.5}
+          strokeWidth={3}
           dot={{
             r: 5,
             fill: 'white',
             stroke: 'var(--color-primary-accent)',
-            strokeWidth: 2.5,
+            strokeWidth: 3,
             fillOpacity: 1,
           }}
           animationDuration={800}

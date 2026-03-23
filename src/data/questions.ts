@@ -279,6 +279,7 @@ export interface TestResult {
   styleKey: string;
   style: StyleType;
   answers: number[]; // 각 문항에서 선택한 인덱스
+  borderline: string[]; // 점수가 0인 축 (균형 상태)
 }
 
 export function calculateResult(answers: number[]): TestResult {
@@ -295,6 +296,12 @@ export function calculateResult(answers: number[]): TestResult {
     scores.independence += choice.scores.independence ?? 0;
   });
 
+  // 0점인 축을 기록 (균형 상태 — 어느 쪽 성향도 뚜렷하지 않음)
+  const borderline: string[] = [];
+  if (scores.principle === 0) borderline.push('principle');
+  if (scores.transparency === 0) borderline.push('transparency');
+  if (scores.independence === 0) borderline.push('independence');
+
   const p = scores.principle >= 0 ? 'principle' : 'flexible';
   const t = scores.transparency >= 0 ? 'transparent' : 'cautious';
   const i = scores.independence >= 0 ? 'independent' : 'cooperative';
@@ -305,5 +312,6 @@ export function calculateResult(answers: number[]): TestResult {
     styleKey,
     style: styleTypes[styleKey] ?? styleTypes['principle-transparent-independent']!,
     answers,
+    borderline,
   };
 }
