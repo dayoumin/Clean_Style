@@ -22,3 +22,14 @@ design-concepts/
 .vercel
 .open-next/
 .dev.vars
+
+# dev server logs
+*.log
+*.err.log
+
+# test artifacts
+artifacts/
+test-results/
+
+# claude
+.claude/

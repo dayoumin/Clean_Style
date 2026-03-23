@@ -15,6 +15,15 @@ const TIP_CONFIG = [
   { key: 'relation' as const, label: '외부 협력·소통', boxCls: 'tip-box-relation', labelCls: 'tip-label-relation' },
 ] as const;
 
+const AI_LOADING_STEPS = [
+  '답변 패턴을 분석하고 있어요...',
+  '청렴 성향을 해석하고 있어요...',
+  '맞춤 조언을 작성하고 있어요...',
+  '거의 다 됐어요!',
+] as const;
+
+const AI_BUTTON_CLS = 'mt-2 w-full rounded-[var(--radius-md)] border border-dashed border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] py-3.5 text-center text-[13px] font-semibold text-[var(--color-primary-accent)] hover:bg-[var(--color-primary-muted)]';
+
 // ── 마크다운 헬퍼 ──
 
 const escapeHtml = (s: string) =>
@@ -32,7 +41,7 @@ function LoadingDots() {
         🤖
       </div>
       <p className="mb-3 text-base font-semibold text-[var(--color-text)]">
-        AI가 분석 중이에요
+        결과를 준비하고 있어요
       </p>
       <div className="flex gap-1.5">
         <div className="loading-dot h-2 w-2 rounded-full bg-[var(--color-primary-accent)]" />
@@ -81,10 +90,10 @@ function BottomSheet({ onClose, children }: { onClose: () => void; children: Rea
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
       onClick={handleBackdrop}
     >
-      <div className="animate-slide-up w-full max-w-md overflow-hidden rounded-t-[24px] bg-[var(--color-bg)] shadow-xl">
+      <div className="animate-slide-up w-full max-w-md overflow-hidden rounded-[20px] bg-[var(--color-bg)] shadow-xl">
         <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
           <h2 className="text-[16px] font-bold text-[var(--color-text)]">🤖 AI 조언</h2>
           <button
@@ -188,13 +197,24 @@ function ResultContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const captureRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [analysisData, setAnalysisData] = useState<AnalysisResult | null>(null);
   const [markdownFallback, setMarkdownFallback] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiLoadingText, setAiLoadingText] = useState('');
+  const [aiError, setAiError] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [capturing, setCapturing] = useState(false);
+
+  // 언마운트 시 정리
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+      timersRef.current.forEach(clearTimeout);
+    };
+  }, []);
 
   const styleKey = searchParams.get('style') ?? '';
   const scores = {
@@ -206,58 +226,55 @@ function ResultContent() {
 
   const style: StyleType | undefined = styleTypes[styleKey];
 
-  useEffect(() => {
-    if (!style) {
-      setError('잘못된 접근입니다.');
-      setLoading(false);
-      return;
-    }
+  const fetchAnalysis = async () => {
+    if (aiLoading || analysisData || markdownFallback) return;
+    setAiLoading(true);
+    setAiError(false);
+    setAiLoadingText(AI_LOADING_STEPS[0]);
 
-    const userContext = sessionStorage.getItem('userContext') ?? '';
+    // 기존 타이머 정리 후 단계별 텍스트 변경
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = AI_LOADING_STEPS.slice(1).map((text, i) =>
+      setTimeout(() => setAiLoadingText(text), (i + 1) * 2500)
+    );
+
     const controller = new AbortController();
+    abortRef.current = controller;
+    const userContext = sessionStorage.getItem('userContext') ?? '';
 
-    async function fetchAnalysis() {
-      try {
-        const res = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ styleKey, scores, answers, userContext: userContext || undefined }),
-          signal: controller.signal,
-        });
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ styleKey, scores, answers, userContext: userContext || undefined }),
+        signal: controller.signal,
+      });
 
-        if (!res.ok) throw new Error('API 응답 오류');
+      if (!res.ok) throw new Error('API 응답 오류');
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (!controller.signal.aborted) {
-          if (data.structured) {
-            setAnalysisData(data.analysis);
-          } else {
-            setMarkdownFallback(data.analysis);
-          }
-        }
-      } catch {
-        if (!controller.signal.aborted) {
-          setError('AI 분석에 실패했습니다. 잠시 후 다시 시도해주세요.');
-        }
-      } finally {
-        if (!controller.signal.aborted) {
-          setLoading(false);
-        }
+      if (data.structured) {
+        setAnalysisData(data.analysis);
+      } else {
+        setMarkdownFallback(data.analysis);
       }
+      setShowModal(true);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
+      setAiError(true);
+    } finally {
+      timersRef.current.forEach(clearTimeout);
+      setAiLoading(false);
     }
-
-    fetchAnalysis();
-
-    return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      const t = setTimeout(() => setCopied(false), 2000);
+      timersRef.current.push(t);
     } catch {
       // 클립보드 실패 시 무시
     }
@@ -289,12 +306,10 @@ function ResultContent() {
     router.push('/');
   };
 
-  if (loading) return <LoadingDots />;
-
-  if (error) {
+  if (!style) {
     return (
       <div className="flex flex-col items-center py-20 text-center">
-        <p className="mb-4 text-lg text-[var(--color-text)]">{error}</p>
+        <p className="mb-4 text-lg text-[var(--color-text)]">잘못된 접근입니다.</p>
         <button
           onClick={handleRetry}
           className="rounded-[var(--radius-md)] bg-[var(--color-primary)] px-6 py-3 text-white hover:bg-[#2a2a4e]"
@@ -304,8 +319,6 @@ function ResultContent() {
       </div>
     );
   }
-
-  if (!style) return null;
 
   const hasAnalysis = analysisData || markdownFallback;
 
@@ -365,13 +378,28 @@ function ResultContent() {
           </div>
         )}
 
-        {/* AI 조언 보기 버튼 */}
-        {hasAnalysis && (
-          <button
-            onClick={() => setShowModal(true)}
-            className="mt-2 w-full rounded-[var(--radius-md)] border border-dashed border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] py-3.5 text-center text-[13px] font-semibold text-[var(--color-primary-accent)] hover:bg-[var(--color-primary-muted)]"
-          >
-            🤖 AI 조언 보기
+        {/* AI 조언 버튼 */}
+        {aiLoading ? (
+          <div className="mt-2 w-full rounded-[var(--radius-md)] border border-dashed border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-4 py-4 text-center">
+            <span className="mb-2 inline-flex items-center gap-2 text-[13px] font-semibold text-[var(--color-primary-accent)]">
+              <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-[var(--color-primary-accent)] border-t-transparent" />
+              🤖 AI 분석 중
+            </span>
+            <p className="text-[12px] text-[var(--color-text-muted)] transition-all duration-300">
+              {aiLoadingText}
+            </p>
+          </div>
+        ) : hasAnalysis ? (
+          <button onClick={() => setShowModal(true)} className={AI_BUTTON_CLS}>
+            🤖 AI 맞춤 조언 보기
+          </button>
+        ) : aiError ? (
+          <button onClick={fetchAnalysis} className={AI_BUTTON_CLS}>
+            🤖 AI 조언 다시 시도
+          </button>
+        ) : (
+          <button onClick={fetchAnalysis} className={AI_BUTTON_CLS}>
+            🤖 AI 맞춤 조언 받기
           </button>
         )}
 

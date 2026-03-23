@@ -38,7 +38,7 @@ export const questions: Question[] = [
       { text: '일단 전부 기록해두고 내일 다시 본다', scores: { principle: 1, independence: 1 } },
       { text: '선임연구원에게 같이 봐달라고 한다', scores: { transparency: 1, independence: -1 } },
       { text: '전체 흐름을 먼저 파악하고, 나중에 다시 살펴본다', scores: { principle: -1 } },
-      { text: '이상한 부분만 메모해두고 팀 회의에서 꺼낸다', scores: { transparency: -1, independence: -1 } },
+      { text: '이상한 부분만 메모해두고 팀 회의에서 꺼낸다', scores: { transparency: 1, independence: -1 } },
     ],
   },
   {
@@ -46,7 +46,7 @@ export const questions: Question[] = [
     category: 'research',
     situation: '공동연구 보고서 작성 중인데, 동료가 "이 수치 좀 반올림해서 깔끔하게 하자"고 한다.',
     choices: [
-      { text: '"원본 그대로 쓰는 게 맞지 않나" 하고 얘기한다', scores: { principle: 1, transparency: 1 } },
+      { text: '"원본 그대로 쓰는 게 맞지 않나" 하고 얘기한다', scores: { principle: 1 } },
       { text: '의미 있는 차이인지 먼저 확인해본다', scores: { transparency: -1, independence: 1 } },
       { text: '보고서 가독성도 중요하니 적절히 조정한다', scores: { principle: -1 } },
       { text: '팀장한테 어디까지 정리해도 되는지 물어본다', scores: { independence: -1, transparency: -1 } },
@@ -55,12 +55,12 @@ export const questions: Question[] = [
   {
     id: 3,
     category: 'research',
-    situation: '연구비 집행 마감인데, 소액이 남았다. 당장 필요한 물품은 없다.',
+    situation: '연구비 집행 마감이 다가오는데, 소액이 남았다. 올해 안에 써야 이월이 안 된다.',
     choices: [
-      { text: '남은 금액은 반납 처리하고 정리한다', scores: { principle: 1 } },
-      { text: '다음 연구에 쓸 소모품을 미리 구매한다', scores: { principle: -1, independence: 1 } },
-      { text: '기관 연구관리팀에 처리 방법을 확인한다', scores: { transparency: 1, independence: -1 } },
-      { text: '동료들한테 필요한 거 있는지 물어본다', scores: { independence: -1 } },
+      { text: '쓸 곳이 없으면 반납이 맞다고 보고 정리한다', scores: { principle: 1 } },
+      { text: '다음 실험에 필요한 소모품을 미리 확보해둔다', scores: { principle: -1, independence: 1 } },
+      { text: '연구관리팀에 이월 가능 여부를 먼저 확인한다', scores: { transparency: 1, independence: -1 } },
+      { text: '팀원들에게 필요한 물품이 있는지 취합해본다', scores: { independence: -1 } },
     ],
   },
   {
@@ -68,7 +68,7 @@ export const questions: Question[] = [
     category: 'research',
     situation: '연구 중간보고 시점인데, 일부 실험이 예상대로 안 돼서 당초 계획보다 진도가 늦다.',
     choices: [
-      { text: '지연 상황과 원인을 솔직하게 보고한다', scores: { transparency: 1, principle: 1 } },
+      { text: '지연 상황과 원인을 솔직하게 보고한다', scores: { transparency: 1 } },
       { text: '할 수 있는 데까지 해보고, 보고 시점에 정리해서 말한다', scores: { principle: -1 } },
       { text: '비슷한 경험이 있는 동료에게 먼저 조언을 구한다', scores: { transparency: -1, independence: -1 } },
       { text: '방법을 바꿔서라도 일정 내 결과를 내본다', scores: { independence: 1, principle: -1 } },
@@ -94,30 +94,30 @@ export const questions: Question[] = [
     choices: [
       { text: '비교견적 절차를 밟고 최저가로 진행한다', scores: { principle: 1 } },
       { text: '금액 차이가 크지 않으면 기존 업체로 간다', scores: { principle: -1, independence: 1 } },
-      { text: '다른 업체도 알아보되, 담당자와 상의해서 결정한다', scores: { independence: -1, transparency: -1 } },
-      { text: '비교견적 과정과 선정 이유를 문서로 남긴다', scores: { transparency: 1, principle: 1 } },
+      { text: '다른 업체도 알아보되, 담당자와 상의해서 결정한다', scores: { independence: -1 } },
+      { text: '비교견적 과정과 선정 이유를 문서로 남긴다', scores: { transparency: 1 } },
     ],
   },
   {
     id: 7,
     category: 'admin',
-    situation: '용역 계약서 내용이 좀 모호한 부분이 있다. 상대방은 "원래 이렇게 한다"고 한다.',
+    situation: '용역 계약서에 해석이 달라질 수 있는 조항이 있다. 상대방은 "실무에서는 다 이렇게 한다"고 한다.',
     choices: [
-      { text: '모호한 부분을 명확히 수정 요청한다', scores: { principle: 1, independence: 1 } },
-      { text: '법무/계약 담당에게 검토를 요청한다', scores: { transparency: 1, independence: -1 } },
-      { text: '큰 문제 없어 보이면 진행하되 메모를 남긴다', scores: { principle: -1, transparency: -1 } },
-      { text: '팀 내에서 같은 경험 있는 사람에게 물어본다', scores: { independence: -1 } },
+      { text: '해당 조항의 문구를 구체적으로 바꿔서 제안한다', scores: { principle: 1, independence: 1 } },
+      { text: '법무/계약 담당에게 의견을 구한다', scores: { transparency: 1, independence: -1 } },
+      { text: '실무 관행도 중요하니 전체 맥락을 보고 판단한다', scores: { principle: -1, transparency: -1 } },
+      { text: '비슷한 계약을 해본 동료에게 경험을 물어본다', scores: { independence: -1 } },
     ],
   },
   {
     id: 8,
     category: 'admin',
-    situation: '출장비 정산 중인데, 업무 관련 저녁 식사비를 개인 경비와 구분하기 애매한 건이 있다.',
+    situation: '출장 중 저녁 식사를 했는데, 업무 논의도 했고 개인적 대화도 섞였다. 정산할 때 포함할지 고민된다.',
     choices: [
-      { text: '애매한 건은 빼고 확실한 것만 청구한다', scores: { principle: 1 } },
-      { text: '업무 맥락이 있었으니 포함해서 청구한다', scores: { principle: -1, independence: 1 } },
-      { text: '같이 식사한 동료에게 업무 관련이었는지 확인해본다', scores: { independence: -1, transparency: -1 } },
-      { text: '행정팀에 기준을 문의해서 그대로 따른다', scores: { transparency: 1, principle: 1 } },
+      { text: '구분이 애매하면 청구하지 않는 쪽으로 정리한다', scores: { principle: 1 } },
+      { text: '업무 논의가 포함된 자리였으니 청구해도 된다고 본다', scores: { principle: -1, independence: 1 } },
+      { text: '함께한 동료와 얘기해서 업무 비중을 맞춰본다', scores: { independence: -1, transparency: -1 } },
+      { text: '행정팀에 기준을 물어보고 그대로 따른다', scores: { transparency: 1 } },
     ],
   },
   {
@@ -136,7 +136,7 @@ export const questions: Question[] = [
     category: 'admin',
     situation: '연구 장비 유지보수 계약 갱신인데, 기존 업체 외에 선택지가 사실상 없다.',
     choices: [
-      { text: '그래도 공식 절차(수의계약 사유서 등)를 꼼꼼히 밟는다', scores: { principle: 1, transparency: 1 } },
+      { text: '그래도 공식 절차(수의계약 사유서 등)를 꼼꼼히 밟는다', scores: { principle: 1 } },
       { text: '상황이 상황인 만큼 빠르게 갱신 처리한다', scores: { principle: -1, independence: 1 } },
       { text: '혹시 다른 업체가 있는지 한 번은 알아본다', scores: { transparency: -1 } },
       { text: '계약 담당과 상의해서 적절한 방법을 찾는다', scores: { independence: -1, transparency: -1 } },
@@ -173,7 +173,7 @@ export const questions: Question[] = [
     choices: [
       { text: '절차가 필요한 이유를 설명하고 정식으로 진행한다', scores: { principle: 1, independence: 1 } },
       { text: '간소화 가능한 부분과 필수 절차를 구분해서 제안한다', scores: { principle: -1, transparency: 1 } },
-      { text: '속도에 맞추되, 진행 과정을 기록으로 남겨둔다', scores: { transparency: -1, principle: -1 } },
+      { text: '속도에 맞추되, 진행 과정을 기록으로 남겨둔다', scores: { transparency: 1, principle: -1 } },
       { text: '다른 팀원과 함께 상급자에게 의견을 전달한다', scores: { independence: -1, transparency: 1 } },
     ],
   },

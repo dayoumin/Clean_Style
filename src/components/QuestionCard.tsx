@@ -6,6 +6,7 @@ import type { Question } from '@/data/questions';
 interface QuestionCardProps {
   question: Question;
   questionIndex: number;
+  shuffleSeed: number;
   onSelect: (choiceIndex: number) => void;
 }
 
@@ -29,18 +30,13 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
   return shuffled;
 }
 
-export default function QuestionCard({ question, questionIndex, onSelect }: QuestionCardProps) {
+export default function QuestionCard({ question, questionIndex, shuffleSeed, onSelect }: QuestionCardProps) {
   const cat = categoryInfo[question.category];
 
-  // 선택지를 셔플하되 원래 인덱스를 보존
   const shuffledChoices = useMemo(() => {
     const indexed = question.choices.map((choice, originalIndex) => ({ choice, originalIndex }));
-    // question.id + 세션별 랜덤 시드로 셔플
-    const sessionSeed = typeof window !== 'undefined'
-      ? (window as unknown as Record<string, number>).__shuffleSeed ??= Math.floor(Math.random() * 100000)
-      : 0;
-    return seededShuffle(indexed, question.id * 1000 + sessionSeed);
-  }, [question.id, question.choices]);
+    return seededShuffle(indexed, question.id * 1000 + shuffleSeed);
+  }, [question.id, question.choices, shuffleSeed]);
 
   return (
     <div className="animate-fade-in">

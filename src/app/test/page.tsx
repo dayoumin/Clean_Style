@@ -10,6 +10,7 @@ export default function TestPage() {
   const router = useRouter();
   const [answers, setAnswers] = useState<number[]>([]);
   const [userContext, setUserContext] = useState('');
+  const [shuffleSeed] = useState(() => Math.floor(Math.random() * 100000));
   const testDone = answers.length >= questions.length;
 
   const handleSelect = useCallback((choiceIndex: number) => {
@@ -93,16 +94,30 @@ export default function TestPage() {
     );
   }
 
+  const handleBack = () => setAnswers(prev => prev.slice(0, -1));
+
   const question = questions[answers.length];
   if (!question) return null;
 
   return (
     <div>
+      <div className="mb-4 flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+        <h1 className="text-[17px] font-bold text-[var(--color-text)]">청렴 스타일 찾기</h1>
+        {answers.length > 0 && (
+          <button
+            onClick={handleBack}
+            className="text-[13px] text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+          >
+            ← 이전 문항
+          </button>
+        )}
+      </div>
       <ProgressBar current={answers.length + 1} total={questions.length} />
       <QuestionCard
         key={question.id}
         question={question}
         questionIndex={answers.length}
+        shuffleSeed={shuffleSeed}
         onSelect={handleSelect}
       />
     </div>

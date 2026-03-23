@@ -45,11 +45,15 @@ const AXES = [
   { key: 'independence' as const, axis: '독립 ↔ 협력', positive: '독립', negative: '협력' },
 ] as const;
 
-function normalizeScore(value: number, maxAbsolute: number = 15): number {
-  const clamped = Math.max(-maxAbsolute, Math.min(maxAbsolute, value));
-  // 0~100 범위, 최소 25% 보장하여 레이더 형태가 항상 보이게
-  const raw = ((clamped + maxAbsolute) / (2 * maxAbsolute)) * 100;
-  return Math.round(25 + (raw * 0.75));
+// 각 축의 실현 가능한 최대 절대값 (15문항, 다축 동시 점수 고려)
+const AXIS_MAX = 8;
+const DISPLAY_MAX = 5;
+
+function normalizeScore(value: number): number {
+  // 원점수를 5점 척도로 변환
+  const clamped = Math.max(-AXIS_MAX, Math.min(AXIS_MAX, value));
+  const scaled = (Math.abs(clamped) / AXIS_MAX) * DISPLAY_MAX;
+  return Math.round(scaled * 10) / 10; // 소수 첫째자리
 }
 
 function getTextAnchor(index: number, total: number): 'start' | 'middle' | 'end' {
@@ -60,10 +64,10 @@ function getTextAnchor(index: number, total: number): 'start' | 'middle' | 'end'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function formatTooltip(_value: any, _name: any, item: any) {
-  const { raw, positive, negative } = item.payload as ChartDataItem;
+  const { score, positive, negative, raw } = item.payload as ChartDataItem;
   return (
     <span>
-      {raw >= 0 ? positive : negative}: {raw > 0 ? '+' : ''}{raw}
+      {raw >= 0 ? positive : negative}: {score} / {DISPLAY_MAX}
     </span>
   );
 }
@@ -107,7 +111,8 @@ export default function StyleRadarChart({ scores }: StyleRadarChartProps) {
         />
         <PolarRadiusAxis
           angle={90}
-          domain={[0, 100]}
+          domain={[0, DISPLAY_MAX]}
+          tickCount={6}
           tick={false}
           axisLine={false}
         />
@@ -141,7 +146,7 @@ export default function StyleRadarChart({ scores }: StyleRadarChartProps) {
                   className="text-[10px]"
                   fill="var(--color-text-muted)"
                 >
-                  {Math.abs(item.raw)}점
+                  {item.score}점
                 </text>
               </g>
             );
