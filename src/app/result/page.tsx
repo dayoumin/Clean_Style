@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { styleTypes, computeSixAxisScores, type StyleType } from '@/data/questions';
 import StyleRadarChart from '@/components/StyleRadarChart';
 import type html2canvasType from 'html2canvas';
+import { MAX_HISTORY_MESSAGES } from '@/lib/constants';
 
 // ── 컴포넌트 ──
 
@@ -141,6 +142,8 @@ function ResultContent() {
   const sixAxis = useMemo(() => computeSixAxisScores(answers), [answers]);
 
   const style: StyleType | undefined = styleTypes[styleKey];
+  const chatMaxReached = chatHistory.length >= MAX_HISTORY_MESSAGES;
+  const chatLastTurn = chatHistory.length >= MAX_HISTORY_MESSAGES - 2 && !chatMaxReached;
 
   const clearChatUI = () => {
     setAiAnswer('');
@@ -186,7 +189,7 @@ function ResultContent() {
         ...prev,
         { role: 'user' as const, content: question },
         { role: 'assistant' as const, content: data.answer },
-      ].slice(-8));
+      ].slice(-MAX_HISTORY_MESSAGES));
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
       setAiError(true);
@@ -357,39 +360,33 @@ function ResultContent() {
               </div>
 
               {/* 버튼 */}
-              {(() => {
-                const maxReached = chatHistory.length >= 8;
-                const lastTurn = chatHistory.length >= 6 && !maxReached;
-                return (
-                  <div className="space-y-2 pt-1">
-                    {maxReached && (
-                      <p className="text-center text-[12px] text-[var(--color-text-muted)]">
-                        대화가 길어져서 새로 시작할게요
-                      </p>
-                    )}
-                    {lastTurn && (
-                      <p className="text-center text-[12px] text-[var(--color-text-muted)]">
-                        이어서 질문은 1번 더 가능해요
-                      </p>
-                    )}
-                    <div className="flex gap-2">
-                      <button
-                        onClick={resetModal}
-                        className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
-                      >
-                        새 질문
-                      </button>
-                      <button
-                        onClick={continueChat}
-                        disabled={maxReached}
-                        className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[#2a2a4e] disabled:opacity-40 disabled:cursor-not-allowed"
-                      >
-                        이어서
-                      </button>
-                    </div>
-                  </div>
-                );
-              })()}
+              <div className="space-y-2 pt-1">
+                {chatMaxReached && (
+                  <p className="text-center text-[12px] text-[var(--color-text-muted)]">
+                    대화가 길어져서 새로 시작할게요
+                  </p>
+                )}
+                {chatLastTurn && (
+                  <p className="text-center text-[12px] text-[var(--color-text-muted)]">
+                    이어서 질문은 1번 더 가능해요
+                  </p>
+                )}
+                <div className="flex gap-2">
+                  <button
+                    onClick={resetModal}
+                    className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
+                  >
+                    새 질문
+                  </button>
+                  <button
+                    onClick={continueChat}
+                    disabled={chatMaxReached}
+                    className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[#2a2a4e] disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    이어서
+                  </button>
+                </div>
+              </div>
             </div>
           ) : aiLoading ? (
             <div className="space-y-3">
