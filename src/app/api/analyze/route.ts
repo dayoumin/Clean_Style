@@ -4,6 +4,9 @@ import { styleTypes, questions, calculateResult } from '@/data/questions';
 import { isValidAnalysisResult } from '@/types/analysis';
 import type { AnalysisResult } from '@/types/analysis';
 
+// 이어서 질문 시 유지할 최대 대화 턴 수 (토큰 예산 제한)
+const MAX_HISTORY_TURNS = 6;
+
 // System 프롬프트 (상수 — 매 요청마다 재생성 방지)
 const SYSTEM_PROMPT = `당신은 공공 연구기관 종사자를 위한 청렴 스타일 분석 전문가입니다.
 
@@ -36,27 +39,37 @@ const SYSTEM_PROMPT = `당신은 공공 연구기관 종사자를 위한 청렴 
 - 팁은 바로 실행 가능한 행동 수준, 격려 톤으로
 - 사용자가 추가 맥락(업무 고민, 구체적 상황)을 제공한 경우, 해당 내용을 분석 전체에 자연스럽게 반영하여 맞춤형 조언을 제공하세요`;
 
-// Q&A 모드 프롬프트 — 사용자가 구체적 질문을 했을 때
-const QA_SYSTEM_PROMPT = `당신은 공공 연구기관 종사자를 위한 청렴 조언 도우미입니다.
+// Q&A 프롬프트 공통 베이스
+const QA_BASE = `당신은 공공 연구기관 종사자를 위한 청렴 조언 도우미입니다.
 
 ## 역할
 - 사용자의 구체적인 질문에 **직접적이고 실용적인 답변** 제공
-- 사용자의 청렴 스타일 유형을 참고하되, 질문에 대한 답변이 핵심
 - 밝고 따뜻한 톤, 실행 가능한 조언
 - 옳고 그름을 판단하지 않고 안전한 방법을 안내
-
-## 스타일 반영 원칙
-- 답변 도입부에서 사용자의 스타일 특성과 질문을 자연스럽게 연결하세요
-  - 예: "원칙을 중시하는 소신 수호자답게 기준이 궁금하셨군요."
-  - 예: "유연한 판단을 선호하시는 만큼, 상황별 대처가 중요하겠네요."
-- 스타일 언급은 도입부에서 한 번만, 이후에는 질문 자체에 집중하세요
-- 유형명을 매번 반복하거나 과도하게 강조하지 마세요
 
 ## 응답 원칙
 - 5~7문장 이내로 핵심만 간결하게
 - 관련 규정이나 주의점이 있으면 짧게 언급
 - 마지막에 한 줄 격려
 - JSON이 아닌 일반 텍스트로 응답`;
+
+// 첫 질문: 스타일을 도입부에서 한 번 언급
+const QA_SYSTEM_PROMPT = `${QA_BASE}
+
+## 스타일 반영 원칙
+- 사용자의 청렴 스타일 유형을 참고하되, 질문에 대한 답변이 핵심
+- 답변 도입부에서 사용자의 스타일 특성과 질문을 자연스럽게 연결하세요
+  - 예: "원칙을 중시하는 소신 수호자답게 기준이 궁금하셨군요."
+  - 예: "유연한 판단을 선호하시는 만큼, 상황별 대처가 중요하겠네요."
+- 스타일 언급은 도입부에서 한 번만, 이후에는 질문 자체에 집중하세요
+- 유형명을 매번 반복하거나 과도하게 강조하지 마세요`;
+
+// 이어서 질문: 스타일 반복 언급 방지
+const QA_SYSTEM_PROMPT_CONTINUE = `${QA_BASE}
+
+## 스타일 반영 원칙
+- 이전 대화에서 이미 스타일을 언급했으므로, 유형명이나 스타일 특성을 다시 언급하지 마세요
+- 이전 대화 맥락을 자연스럽게 이어가세요`;
 
 // 유형별 폴백 분석 데이터 (AI 실패 시 사용)
 const FALLBACK_DATA: Record<string, Omit<AnalysisResult, 'styleSummary'>> = {
@@ -259,11 +272,12 @@ ${userContext}
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { styleKey, answers, userContext, mode } = body as {
+    const { styleKey, answers, userContext, mode, history } = body as {
       styleKey: string;
       answers: number[];
       userContext?: string;
       mode?: 'analysis' | 'question';
+      history?: { role: 'user' | 'assistant'; content: string }[];
     };
 
     // 입력 검증
@@ -287,11 +301,20 @@ export async function POST(request: NextRequest) {
       }
 
       try {
+        const hasHistory = Array.isArray(history) && history.length > 0;
+        const systemPrompt = hasHistory ? QA_SYSTEM_PROMPT_CONTINUE : QA_SYSTEM_PROMPT;
+        const userMessage = hasHistory
+          ? userContext
+          : `나의 청렴 스타일: ${style.name} (${style.description})\n\n질문: ${userContext}`;
+
+        const messages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
+          { role: 'system', content: systemPrompt },
+          ...(hasHistory ? history.slice(-MAX_HISTORY_TURNS) : []),
+          { role: 'user', content: userMessage },
+        ];
+
         const response = await chat({
-          messages: [
-            { role: 'system', content: QA_SYSTEM_PROMPT },
-            { role: 'user', content: `나의 청렴 스타일: ${style.name} (${style.description})\n\n질문: ${userContext}` },
-          ],
+          messages,
           temperature: 0.7,
           maxTokens: 600,
         });

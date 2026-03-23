@@ -97,6 +97,7 @@ function ResultContent() {
   const [capturing, setCapturing] = useState(false);
   const [userContext, setUserContext] = useState('');
   const [activeTab, setActiveTab] = useState<'strength' | 'caution' | 'tip'>('strength');
+  const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
 
   useEffect(() => {
     return () => {
@@ -117,11 +118,18 @@ function ResultContent() {
 
   const style: StyleType | undefined = styleTypes[styleKey];
 
-  const resetModal = () => {
+  const clearChatUI = () => {
     setAiAnswer('');
     setUserContext('');
     setAiError(false);
   };
+
+  const resetModal = () => {
+    clearChatUI();
+    setChatHistory([]);
+  };
+
+  const continueChat = clearChatUI;
 
   const fetchAnswer = async () => {
     if (aiLoading || !userContext.trim()) return;
@@ -133,13 +141,15 @@ function ResultContent() {
     abortRef.current = controller;
 
     try {
+      const question = userContext.trim();
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           styleKey, scores, answers,
-          userContext: userContext.trim(),
+          userContext: question,
           mode: 'question',
+          history: chatHistory.length > 0 ? chatHistory : undefined,
         }),
         signal: controller.signal,
       });
@@ -148,6 +158,11 @@ function ResultContent() {
 
       const data = await res.json();
       setAiAnswer(data.answer);
+      setChatHistory(prev => [
+        ...prev,
+        { role: 'user' as const, content: question },
+        { role: 'assistant' as const, content: data.answer },
+      ].slice(-6));
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
       setAiError(true);
@@ -311,12 +326,20 @@ function ResultContent() {
               <div className="rounded-[var(--radius-md)] border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-4 py-4">
                 <p className="text-[14px] leading-relaxed text-[var(--color-text-secondary)] whitespace-pre-line">{aiAnswer}</p>
               </div>
-              <button
-                onClick={resetModal}
-                className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
-              >
-                다른 질문하기
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={resetModal}
+                  className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
+                >
+                  새 질문
+                </button>
+                <button
+                  onClick={continueChat}
+                  className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[#2a2a4e]"
+                >
+                  이어서 질문
+                </button>
+              </div>
             </div>
           ) : aiLoading ? (
             <div className="py-8 text-center">
