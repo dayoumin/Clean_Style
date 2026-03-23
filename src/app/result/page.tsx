@@ -186,7 +186,7 @@ function ResultContent() {
         ...prev,
         { role: 'user' as const, content: question },
         { role: 'assistant' as const, content: data.answer },
-      ].slice(-10));
+      ].slice(-8));
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
       setAiError(true);
@@ -357,34 +357,39 @@ function ResultContent() {
               </div>
 
               {/* 버튼 */}
-              {chatHistory.length >= 10 ? (
-                <div className="space-y-2 pt-1">
-                  <p className="text-center text-[12px] text-[var(--color-text-muted)]">
-                    대화가 길어져서 새로 시작할게요
-                  </p>
-                  <button
-                    onClick={resetModal}
-                    className="w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[#2a2a4e]"
-                  >
-                    새 질문
-                  </button>
-                </div>
-              ) : (
-                <div className="flex gap-2 pt-1">
-                  <button
-                    onClick={resetModal}
-                    className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
-                  >
-                    새 질문
-                  </button>
-                  <button
-                    onClick={continueChat}
-                    className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[#2a2a4e]"
-                  >
-                    이어서
-                  </button>
-                </div>
-              )}
+              {(() => {
+                const maxReached = chatHistory.length >= 8;
+                const lastTurn = chatHistory.length >= 6 && !maxReached;
+                return (
+                  <div className="space-y-2 pt-1">
+                    {maxReached && (
+                      <p className="text-center text-[12px] text-[var(--color-text-muted)]">
+                        대화가 길어져서 새로 시작할게요
+                      </p>
+                    )}
+                    {lastTurn && (
+                      <p className="text-center text-[12px] text-[var(--color-text-muted)]">
+                        이어서 질문은 1번 더 가능해요
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={resetModal}
+                        className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
+                      >
+                        새 질문
+                      </button>
+                      <button
+                        onClick={continueChat}
+                        disabled={maxReached}
+                        className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[#2a2a4e] disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        이어서
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           ) : aiLoading ? (
             <div className="space-y-3">

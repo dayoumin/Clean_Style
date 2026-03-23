@@ -4,8 +4,8 @@ import { styleTypes, questions, calculateResult } from '@/data/questions';
 import { isValidAnalysisResult } from '@/types/analysis';
 import type { AnalysisResult } from '@/types/analysis';
 
-// 이어서 질문 시 유지할 최대 대화 메시지 수 (5턴 = user+assistant 10개)
-const MAX_HISTORY_MESSAGES = 10;
+// 이어서 질문 시 유지할 최대 대화 메시지 수 (4턴 = user+assistant 8개)
+const MAX_HISTORY_MESSAGES = 8;
 
 // System 프롬프트 (상수 — 매 요청마다 재생성 방지)
 const SYSTEM_PROMPT = `당신은 공공 연구기관 종사자를 위한 청렴 스타일 분석 전문가입니다.
