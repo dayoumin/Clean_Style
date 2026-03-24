@@ -6,8 +6,28 @@ import { styleTypes, computeSixAxisScores, type StyleType } from '@/data/questio
 import StyleRadarChart from '@/components/StyleRadarChart';
 import type html2canvasType from 'html2canvas';
 import { MAX_HISTORY_MESSAGES } from '@/lib/constants';
+import { getHistoryEntry, updateChat, clearChat } from '@/lib/history';
 
 // ── 컴포넌트 ──
+
+function LoadingFairy({ message, children }: { message: string; children?: React.ReactNode }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-24">
+      <div className="animate-bounce-soft mb-5 inline-flex h-14 w-14 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-primary-soft)] text-2xl">
+        🧚
+      </div>
+      <p className="mb-3 text-base font-semibold text-[var(--color-text)]">
+        {message}
+      </p>
+      <div className="flex gap-1.5">
+        <div className="loading-dot h-2 w-2 rounded-full bg-[var(--color-primary-accent)]" />
+        <div className="loading-dot h-2 w-2 rounded-full bg-[var(--color-primary-accent)]" />
+        <div className="loading-dot h-2 w-2 rounded-full bg-[var(--color-primary-accent)]" />
+      </div>
+      {children}
+    </div>
+  );
+}
 
 function AnalyzingScreen({ onDone }: { onDone: () => void }) {
   const [step, setStep] = useState(0);
@@ -21,26 +41,14 @@ function AnalyzingScreen({ onDone }: { onDone: () => void }) {
   }, [onDone]);
 
   return (
-    <div className="flex flex-col items-center justify-center py-24">
-      <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-primary-soft)] text-2xl">
-        🔍
-      </div>
-      <p className="mb-3 text-base font-semibold text-[var(--color-text)]">
-        {steps[step]}
-      </p>
-      <div className="flex gap-1.5">
-        <div className="loading-dot h-2 w-2 rounded-full bg-[var(--color-primary-accent)]" />
-        <div className="loading-dot h-2 w-2 rounded-full bg-[var(--color-primary-accent)]" />
-        <div className="loading-dot h-2 w-2 rounded-full bg-[var(--color-primary-accent)]" />
-      </div>
-      {/* 프로그레스 바 */}
+    <LoadingFairy message={steps[step]}>
       <div className="mt-6 h-1 w-48 overflow-hidden rounded-full bg-[var(--color-border)]">
         <div
           className="h-full rounded-full bg-[var(--color-primary-accent)] transition-all duration-500 ease-out"
           style={{ width: `${((step + 1) / steps.length) * 100}%` }}
         />
       </div>
-    </div>
+    </LoadingFairy>
   );
 }
 
@@ -67,7 +75,7 @@ function BottomSheet({ onClose, children }: { onClose: () => void; children: Rea
     >
       <div className="animate-slide-up w-full max-w-md overflow-hidden rounded-[20px] bg-[var(--color-bg)] shadow-xl">
         <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
-          <h2 className="text-[16px] font-bold text-[var(--color-text)]">🤖 AI 맞춤 조언</h2>
+          <h2 className="text-[16px] font-bold text-[var(--color-text)]">🧚 AI 맞춤 조언</h2>
           <button
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-card)] text-[var(--color-text-muted)] hover:bg-[var(--color-border)]"
@@ -112,26 +120,52 @@ function ResultContent() {
   const router = useRouter();
   const captureRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const [analyzing, setAnalyzing] = useState(true);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAnswer, setAiAnswer] = useState('');
   const [aiError, setAiError] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [capturing, setCapturing] = useState(false);
   const [userContext, setUserContext] = useState('');
   const [activeTab, setActiveTab] = useState<'strength' | 'caution' | 'tip'>('strength');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
 
+  const historyId = searchParams.get('hid') ?? '';
+  const styleKey = searchParams.get('style') ?? '';
+
   useEffect(() => {
     return () => {
       abortRef.current?.abort();
-      timersRef.current.forEach(clearTimeout);
     };
   }, []);
 
-  const styleKey = searchParams.get('style') ?? '';
+  // historyId 변경 시 채팅 로드 (없으면 리셋)
+  const chatLoadedRef = useRef(false);
+  useEffect(() => {
+    if (!historyId) {
+      setChatHistory([]);
+      return;
+    }
+    const entry = getHistoryEntry(historyId);
+    if (entry?.chat.length) {
+      chatLoadedRef.current = true;
+      setChatHistory(entry.chat);
+    } else {
+      setChatHistory([]);
+    }
+  }, [historyId]);
+
+  // 채팅 변경 시 히스토리에 저장 (초기 로드 스킵)
+  useEffect(() => {
+    if (chatLoadedRef.current) {
+      chatLoadedRef.current = false;
+      return;
+    }
+    if (historyId && chatHistory.length > 0) {
+      updateChat(historyId, chatHistory);
+    }
+  }, [historyId, chatHistory]);
+
   const scores = {
     principle: Number(searchParams.get('p') ?? 0),
     transparency: Number(searchParams.get('t') ?? 0),
@@ -154,6 +188,15 @@ function ResultContent() {
   const resetModal = () => {
     clearChatUI();
     setChatHistory([]);
+  };
+
+  const closeModal = () => {
+    clearChatUI();
+  };
+
+  const handleDeleteChat = () => {
+    if (historyId) clearChat(historyId);
+    resetModal();
   };
 
   const continueChat = clearChatUI;
@@ -198,17 +241,6 @@ function ResultContent() {
     }
   };
 
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      const t = setTimeout(() => setCopied(false), 2000);
-      timersRef.current.push(t);
-    } catch {
-      // 클립보드 실패 시 무시
-    }
-  };
-
   const handleCapture = async () => {
     if (!captureRef.current || capturing) return;
     setCapturing(true);
@@ -240,7 +272,7 @@ function ResultContent() {
         <p className="mb-4 text-lg text-[var(--color-text)]">잘못된 접근입니다.</p>
         <button
           onClick={handleRetry}
-          className="rounded-[var(--radius-md)] bg-[var(--color-primary)] px-6 py-3 text-white hover:bg-[#2a2a4e]"
+          className="rounded-[var(--radius-md)] bg-[var(--color-primary)] px-6 py-3 text-white hover:bg-[var(--color-primary-hover)]"
         >
           처음으로
         </button>
@@ -248,15 +280,13 @@ function ResultContent() {
     );
   }
 
-  // 로딩 애니메이션
   if (analyzing) {
     return <AnalyzingScreen onDone={() => setAnalyzing(false)} />;
   }
 
-
   return (
-    <>
-      <div className="animate-slide-up" ref={captureRef}>
+    <div className="flex flex-col">
+      <div className="flex-1 animate-slide-up" ref={captureRef}>
         {/* 유형 카드 */}
         <div className="result-gradient relative z-0 mb-4 overflow-hidden rounded-[var(--radius-xl)] px-6 py-5 text-center text-white shadow-lg">
           <div className="pointer-events-none absolute -left-6 -top-6 h-28 w-28 rounded-full bg-white/5" />
@@ -312,38 +342,37 @@ function ResultContent() {
         {/* AI 맞춤 조언 버튼 */}
         <button
           onClick={() => setShowModal(true)}
-          className="mt-3 w-full rounded-[var(--radius-md)] border border-dashed border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] py-3.5 text-center text-[13px] font-semibold text-[var(--color-primary-accent)] hover:bg-[var(--color-primary-muted)]"
+          className="mt-2 w-full rounded-[var(--radius-md)] border border-dashed border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] py-3.5 text-center text-[13px] font-semibold text-[var(--color-primary-accent)] hover:bg-[var(--color-primary-muted)]"
         >
-          🤖 AI 맞춤 조언 받기
+          🧚 AI 맞춤 조언 받기
+          {chatHistory.length > 0 && (
+            <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-primary)] text-[11px] text-white">
+              💬{Math.floor(chatHistory.length / 2)}
+            </span>
+          )}
         </button>
       </div>
 
-      {/* 하단 버튼 */}
-      <div className="mt-4 flex gap-2">
+      {/* 하단 버튼 — 바닥 고정 */}
+      <div className="mt-auto flex gap-2 pt-3">
         <button
           onClick={handleRetry}
-          className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-card)] py-3 text-center text-[13px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-border)]"
+          className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] py-3 text-center text-[13px] font-semibold text-[var(--color-text)] hover:bg-[var(--color-border)]"
         >
           다시 하기
         </button>
         <button
-          onClick={handleCopyLink}
-          className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-card)] py-3 text-center text-[13px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-border)]"
-        >
-          {copied ? '복사됨!' : '링크 복사'}
-        </button>
-        <button
           onClick={handleCapture}
           disabled={capturing}
-          className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary-accent)] py-3 text-center text-[13px] font-semibold text-white hover:opacity-90 disabled:opacity-40"
+          className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-center text-[13px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-40"
         >
-          {capturing ? '저장 중...' : '캡쳐하기'}
+          {capturing ? '저장 중...' : '이미지 저장'}
         </button>
       </div>
 
       {/* AI 조언 모달 */}
       {showModal && (
-        <BottomSheet onClose={() => { if (!aiLoading) { setShowModal(false); resetModal(); } }}>
+        <BottomSheet onClose={() => { if (!aiLoading) { setShowModal(false); closeModal(); } }}>
           {aiAnswer ? (
             <div className="space-y-3">
               {/* 이전 대화 히스토리 (마지막 턴 제외 — 아래서 별도 렌더) */}
@@ -381,7 +410,7 @@ function ResultContent() {
                   <button
                     onClick={continueChat}
                     disabled={chatMaxReached}
-                    className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[#2a2a4e] disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     이어서
                   </button>
@@ -414,25 +443,28 @@ function ResultContent() {
               <button
                 onClick={fetchAnswer}
                 disabled={!userContext.trim()}
-                className="w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[#2a2a4e] disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 질문하기
               </button>
+              {chatHistory.length > 0 && (
+                <button
+                  onClick={handleDeleteChat}
+                  className="w-full py-2 text-[12px] text-[var(--color-text-muted)] hover:text-red-500"
+                >
+                  대화 지우기
+                </button>
+              )}
             </div>
           )}
         </BottomSheet>
       )}
-    </>
+    </div>
   );
 }
 
 function SuspenseSpinner() {
-  return (
-    <div className="flex flex-col items-center justify-center py-24">
-      <div className="mb-4 h-8 w-8 animate-spin rounded-full border-3 border-[var(--color-primary-accent)] border-t-transparent" />
-      <p className="text-[14px] text-[var(--color-text-muted)]">잠시만요...</p>
-    </div>
-  );
+  return <LoadingFairy message="불러오는 중..." />;
 }
 
 export default function ResultPage() {

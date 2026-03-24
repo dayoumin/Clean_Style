@@ -47,7 +47,7 @@ export default function QuestionCard({ question, questionIndex, shuffleSeed, onS
       </div>
 
       {/* 문항 번호 */}
-      <div className="mb-3 text-5xl font-extrabold leading-none tracking-tighter text-[var(--color-border)]">
+      <div className="mb-3 text-5xl font-extrabold leading-none tracking-tighter text-[var(--color-primary-muted)]">
         {String(questionIndex + 1).padStart(2, '0')}
       </div>
 
@@ -62,7 +62,7 @@ export default function QuestionCard({ question, questionIndex, shuffleSeed, onS
           <button
             key={originalIndex}
             onClick={() => onSelect(originalIndex)}
-            className="choice-button relative w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg)] py-[18px] pr-5 pl-[48px] text-left text-[15px] leading-relaxed text-[var(--color-text)]"
+            className="choice-button relative w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg)] py-[18px] pr-5 pl-[48px] text-left text-[15px] leading-relaxed text-[var(--color-text)] shadow-sm"
           >
             <span className="absolute left-[18px] top-1/2 flex h-[22px] w-[22px] -translate-y-1/2 items-center justify-center rounded-md border border-[var(--color-border)] bg-[var(--color-card)] text-[12px] font-bold text-[var(--color-text-muted)]">
               {choiceLabels[displayIndex]}

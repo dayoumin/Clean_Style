@@ -1,9 +1,10 @@
 import Link from 'next/link';
+import HistoryList from '@/components/HistoryList';
 
 const infoChips = [
   { emoji: '📋', title: '15개 상황', desc: '약 3분' },
   { emoji: '🎯', title: '오답 없음', desc: '나의 스타일' },
-  { emoji: '🤖', title: 'AI 분석', desc: '맞춤 팁' },
+  { emoji: '🧚', title: 'AI 분석', desc: '맞춤 팁' },
 ];
 
 export default function HomePage() {
@@ -28,12 +29,17 @@ export default function HomePage() {
 
       {/* 안내 칩 */}
       <div className="mb-8 flex w-full gap-3">
-        {infoChips.map((chip) => (
+        {infoChips.map((chip, i) => (
           <div
             key={chip.title}
-            className="flex flex-1 flex-col items-center rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-5 text-center"
+            className="flex flex-1 flex-col items-center rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-5 text-center shadow-sm"
           >
-            <span className="mb-2.5 text-2xl">{chip.emoji}</span>
+            <span
+              className="animate-bounce-soft mb-2.5 inline-block text-2xl"
+              style={{ animationDelay: `${i * 0.3}s` }}
+            >
+              {chip.emoji}
+            </span>
             <p className="text-[13px] font-bold tracking-tight text-[var(--color-text)]">{chip.title}</p>
             <p className="text-[11px] text-[var(--color-text-muted)]">{chip.desc}</p>
           </div>
@@ -47,6 +53,9 @@ export default function HomePage() {
       >
         테스트 시작하기 →
       </Link>
+
+      {/* 이전 결과 */}
+      <HistoryList />
 
       {/* 푸터 */}
       <p className="mt-7 text-center text-[11px] leading-relaxed text-[var(--color-text-muted)]">
