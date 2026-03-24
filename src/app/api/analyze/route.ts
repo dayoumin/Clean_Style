@@ -3,7 +3,7 @@ import { chat } from '@/lib/ai';
 import { styleTypes, questions, calculateResult } from '@/data/questions';
 import { isValidAnalysisResult } from '@/types/analysis';
 import type { AnalysisResult } from '@/types/analysis';
-import { MAX_HISTORY_MESSAGES, MAX_CONTENT_LENGTH } from '@/lib/constants';
+import { MAX_HISTORY_MESSAGES, MAX_CONTENT_LENGTH, SUMMARIZE_AT_MESSAGES } from '@/lib/constants';
 
 // ── 보안: 입력 sanitize ──
 
@@ -83,7 +83,6 @@ const QA_BASE = `당신은 공공 연구기관 종사자를 위한 청렴 조언
 - 2~3문장마다 줄바꿈(\\n)을 넣어 가독성을 높이세요
 - 관련 규정이나 주의점이 있으면 짧게 언급
 - 마지막에 한 줄 격려
-- 유형명은 반드시 꺾쇠로 감싸세요 (예: 「소신 수호자」)
 - JSON이 아닌 일반 텍스트로 응답`;
 
 // 첫 질문: 스타일을 도입부에서 한 번 언급
@@ -91,18 +90,25 @@ const QA_SYSTEM_PROMPT = `${QA_BASE}
 
 ## 스타일 반영 원칙
 - 사용자의 청렴 스타일 유형을 참고하되, 질문에 대한 답변이 핵심
-- 답변 도입부에서 사용자의 스타일 특성과 질문을 자연스럽게 연결하세요
+- 답변 도입부 첫 문장에서만 사용자의 스타일을 한 번 언급하세요
+  - 유형명은 꺾쇠로 감싸세요 (예: 「소신 수호자」)
   - 예: "원칙을 중시하는 「소신 수호자」답게 기준이 궁금하셨군요."
   - 예: "유연한 판단을 선호하시는 만큼, 상황별 대처가 중요하겠네요."
-- 스타일 언급은 도입부에서 한 번만, 이후에는 질문 자체에 집중하세요
-- 유형명을 매번 반복하거나 과도하게 강조하지 마세요`;
+- 첫 문장 이후에는 유형명이나 스타일 특성을 절대 다시 언급하지 마세요`;
 
 // 이어서 질문: 스타일 반복 언급 방지
 const QA_SYSTEM_PROMPT_CONTINUE = `${QA_BASE}
 
-## 스타일 반영 원칙
-- 이전 대화에서 이미 스타일을 언급했으므로, 유형명이나 스타일 특성을 다시 언급하지 마세요
-- 이전 대화 맥락을 자연스럽게 이어가세요`;
+## 스타일 반영 원칙 (중요)
+- 이전 대화에서 이미 스타일을 언급했습니다
+- 유형명(「...」), 스타일 특성, 성향 설명을 절대 다시 언급하지 마세요
+- 질문 내용 자체에만 집중하여 답변하세요`;
+
+// 대화 요약 프롬프트
+const SUMMARIZE_SYSTEM_PROMPT = `아래 대화를 3문장 이내로 요약하세요.
+- 사용자의 주요 관심사와 질문 주제
+- AI가 제공한 핵심 조언 내용
+- 간결하고 명확하게, 일반 텍스트로만 응답`;
 
 // 유형별 폴백 분석 데이터 (AI 실패 시 사용)
 const FALLBACK_DATA: Record<string, Omit<AnalysisResult, 'styleSummary'>> = {
@@ -308,12 +314,13 @@ ${cleaned}
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { styleKey, answers, userContext, mode, history } = body as {
+    const { styleKey, answers, userContext, mode, history, summary } = body as {
       styleKey: string;
       answers: number[];
       userContext?: string;
-      mode?: 'analysis' | 'question';
+      mode?: 'analysis' | 'question' | 'summarize';
       history?: { role: 'user' | 'assistant'; content: string }[];
+      summary?: string;
     };
 
     // 입력 검증
@@ -330,6 +337,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'userContext must be string under 500 chars' }, { status: 400 });
     }
 
+    // ── 요약 모드: 대화 히스토리를 3문장으로 축약 ──
+    if (mode === 'summarize') {
+      const safeHistory = sanitizeHistory(history);
+      if (safeHistory.length === 0) {
+        return NextResponse.json({ error: 'history is required' }, { status: 400 });
+      }
+      try {
+        const conversation = safeHistory
+          .slice(0, SUMMARIZE_AT_MESSAGES)
+          .map(m => `${m.role === 'user' ? '사용자' : 'AI'}: ${m.content}`)
+          .join('\n');
+        const response = await chat({
+          messages: [
+            { role: 'system', content: SUMMARIZE_SYSTEM_PROMPT },
+            { role: 'user', content: conversation },
+          ],
+          temperature: 0.3,
+          maxTokens: 200,
+        });
+        return NextResponse.json({ summary: response.content });
+      } catch {
+        return NextResponse.json({ error: 'summarization failed' }, { status: 500 });
+      }
+    }
+
     // ── Q&A 모드: 사용자 질문에 직접 답변 (answers 검증 불필요) ──
     if (mode === 'question') {
       if (!userContext?.trim()) {
@@ -339,11 +371,16 @@ export async function POST(request: NextRequest) {
       try {
         const safeHistory = sanitizeHistory(history);
         const hasHistory = safeHistory.length > 0;
-        const systemPrompt = hasHistory ? QA_SYSTEM_PROMPT_CONTINUE : QA_SYSTEM_PROMPT;
+        const safeSummary = typeof summary === 'string' ? sanitizeUserInput(summary.slice(0, MAX_CONTENT_LENGTH)) : '';
+        const basePrompt = (safeSummary || hasHistory) ? QA_SYSTEM_PROMPT_CONTINUE : QA_SYSTEM_PROMPT;
+        const systemPrompt = safeSummary
+          ? `${basePrompt}\n\n## 이전 대화 요약\n${safeSummary}`
+          : basePrompt;
         const cleanedQuestion = sanitizeUserInput(userContext);
-        const userMessage = hasHistory
-          ? cleanedQuestion
-          : `나의 청렴 스타일: ${style.name} (${style.description})\n\n질문: ${cleanedQuestion}`;
+        const isFirstTurn = !hasHistory && !safeSummary;
+        const userMessage = isFirstTurn
+          ? `나의 청렴 스타일: ${style.name} (${style.description})\n\n질문: ${cleanedQuestion}`
+          : cleanedQuestion;
 
         const messages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
           { role: 'system', content: systemPrompt },

@@ -5,8 +5,11 @@ import { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { styleTypes, computeSixAxisScores, type StyleType } from '@/data/questions';
 import StyleRadarChart from '@/components/StyleRadarChart';
 import type html2canvasType from 'html2canvas';
-import { MAX_HISTORY_MESSAGES } from '@/lib/constants';
+import { MAX_HISTORY_MESSAGES, SUMMARIZE_AT_MESSAGES } from '@/lib/constants';
 import { getHistoryEntry, updateChat, clearChat } from '@/lib/history';
+import { cn } from '@/lib/utils';
+
+const SCROLL_AREA = 'flex-1 space-y-3 overflow-y-auto px-5 py-4';
 
 // ── 컴포넌트 ──
 
@@ -70,11 +73,11 @@ function BottomSheet({ onClose, children }: { onClose: () => void; children: Rea
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm sm:p-4"
       onClick={handleBackdrop}
     >
-      <div className="animate-slide-up w-full max-w-md overflow-hidden rounded-[20px] bg-[var(--color-bg)] shadow-xl">
-        <div className="flex items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
+      <div className="animate-slide-up flex w-full max-w-md flex-col rounded-t-[20px] sm:rounded-[20px] bg-[var(--color-bg)] shadow-xl max-h-[85dvh] sm:max-h-[70vh]">
+        <div className="flex shrink-0 items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
           <h2 className="text-[16px] font-bold text-[var(--color-text)]">🧚 AI 맞춤 조언</h2>
           <button
             onClick={onClose}
@@ -83,9 +86,7 @@ function BottomSheet({ onClose, children }: { onClose: () => void; children: Rea
             ✕
           </button>
         </div>
-        <div className="max-h-[70vh] overflow-y-auto px-5 py-4">
-          {children}
-        </div>
+        {children}
       </div>
     </div>
   );
@@ -120,7 +121,9 @@ function ResultContent() {
   const router = useRouter();
   const captureRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const [analyzing, setAnalyzing] = useState(true);
+  const scrollAnchorRef = useRef<HTMLDivElement>(null);
+  const isRevisit = searchParams.has('hid');
+  const [analyzing, setAnalyzing] = useState(!isRevisit);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAnswer, setAiAnswer] = useState('');
   const [aiError, setAiError] = useState(false);
@@ -129,6 +132,8 @@ function ResultContent() {
   const [userContext, setUserContext] = useState('');
   const [activeTab, setActiveTab] = useState<'strength' | 'caution' | 'tip'>('strength');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
+  const [chatSummary, setChatSummary] = useState('');
+  const summarizingRef = useRef(false);
 
   const historyId = searchParams.get('hid') ?? '';
   const styleKey = searchParams.get('style') ?? '';
@@ -138,6 +143,14 @@ function ResultContent() {
       abortRef.current?.abort();
     };
   }, []);
+
+  // DOM 페인트 후 최신 답변으로 스크롤 — 상태 업데이트 직후 레이아웃이 완료되지 않을 수 있어 지연 필요
+  useEffect(() => {
+    if (aiAnswer) {
+      const timer = setTimeout(() => scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      return () => clearTimeout(timer);
+    }
+  }, [aiAnswer]);
 
   // historyId 변경 시 채팅 로드 (없으면 리셋)
   const chatLoadedRef = useRef(false);
@@ -188,6 +201,7 @@ function ResultContent() {
   const resetModal = () => {
     clearChatUI();
     setChatHistory([]);
+    setChatSummary('');
   };
 
   const closeModal = () => {
@@ -201,6 +215,30 @@ function ResultContent() {
 
   const continueChat = clearChatUI;
 
+  const triggerSummarize = async (messages: { role: 'user' | 'assistant'; content: string }[]) => {
+    if (summarizingRef.current) return;
+    summarizingRef.current = true;
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'summarize',
+          history: messages.slice(0, SUMMARIZE_AT_MESSAGES),
+          styleKey,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setChatSummary(data.summary);
+      }
+    } catch {
+      // 요약 실패 시 무시 — 전체 히스토리로 계속 진행
+    } finally {
+      summarizingRef.current = false;
+    }
+  };
+
   const fetchAnswer = async () => {
     if (aiLoading || !userContext.trim()) return;
     abortRef.current?.abort();
@@ -212,6 +250,12 @@ function ResultContent() {
 
     try {
       const question = userContext.trim();
+
+      // 요약이 있으면 요약 이후 최근 2턴만 전송
+      const historyToSend = chatSummary
+        ? chatHistory.slice(SUMMARIZE_AT_MESSAGES).slice(-4)
+        : chatHistory;
+
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -219,7 +263,8 @@ function ResultContent() {
           styleKey, scores, answers,
           userContext: question,
           mode: 'question',
-          history: chatHistory.length > 0 ? chatHistory : undefined,
+          history: historyToSend.length > 0 ? historyToSend : undefined,
+          summary: chatSummary || undefined,
         }),
         signal: controller.signal,
       });
@@ -228,11 +273,19 @@ function ResultContent() {
 
       const data = await res.json();
       setAiAnswer(data.answer);
-      setChatHistory(prev => [
-        ...prev,
+
+      const newHistory = [
+        ...chatHistory,
         { role: 'user' as const, content: question },
         { role: 'assistant' as const, content: data.answer },
-      ].slice(-MAX_HISTORY_MESSAGES));
+      ].slice(-MAX_HISTORY_MESSAGES);
+
+      setChatHistory(newHistory);
+
+      // 4턴 도달 시 요약 트리거 (백그라운드)
+      if (newHistory.length >= SUMMARIZE_AT_MESSAGES && !chatSummary) {
+        triggerSummarize(newHistory);
+      }
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
       setAiError(true);
@@ -374,22 +427,21 @@ function ResultContent() {
       {showModal && (
         <BottomSheet onClose={() => { if (!aiLoading) { setShowModal(false); closeModal(); } }}>
           {aiAnswer ? (
-            <div className="space-y-3">
-              {/* 이전 대화 히스토리 (마지막 턴 제외 — 아래서 별도 렌더) */}
-              <ChatBubbles messages={chatHistory.slice(0, -2)} />
-
-              {/* 현재 질문 (우측) */}
-              <ChatBubbles messages={[{ role: 'user', content: userContext }]} />
-
-              {/* AI 답변 (좌측) — 최신 답변은 강조 스타일 */}
-              <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-[var(--radius-md)] rounded-bl-sm border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-3.5 py-2.5">
-                  <p className="text-[13px] leading-relaxed text-[var(--color-text-secondary)] whitespace-pre-line">{aiAnswer}</p>
+            <>
+              {/* 대화 영역 — 스크롤 */}
+              <div className={SCROLL_AREA}>
+                <ChatBubbles messages={chatHistory.slice(0, -2)} />
+                <ChatBubbles messages={[{ role: 'user', content: userContext }]} />
+                <div className="flex justify-start">
+                  <div className="max-w-[85%] rounded-[var(--radius-md)] rounded-bl-sm border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-3.5 py-2.5">
+                    <p className="text-[13px] leading-relaxed text-[var(--color-text-secondary)] whitespace-pre-line">{aiAnswer}</p>
+                  </div>
                 </div>
+                <div ref={scrollAnchorRef} />
               </div>
 
-              {/* 버튼 */}
-              <div className="space-y-2 pt-1">
+              {/* 하단 고정 액션 */}
+              <div className="shrink-0 space-y-2 border-t border-[var(--color-border)] px-5 py-3">
                 {chatMaxReached && (
                   <p className="text-center text-[12px] text-[var(--color-text-muted)]">
                     대화가 길어져서 새로 시작할게요
@@ -416,9 +468,9 @@ function ResultContent() {
                   </button>
                 </div>
               </div>
-            </div>
+            </>
           ) : aiLoading ? (
-            <div className="space-y-3">
+            <div className={SCROLL_AREA}>
               <ChatBubbles messages={chatHistory} />
               <ChatBubbles messages={[{ role: 'user', content: userContext }]} />
               <div className="py-4 text-center">
@@ -427,35 +479,44 @@ function ResultContent() {
               </div>
             </div>
           ) : (
-            <div className="space-y-3">
-              <ChatBubbles messages={chatHistory} />
-              <textarea
-                value={userContext}
-                onChange={(e) => setUserContext(e.target.value)}
-                maxLength={500}
-                placeholder={chatHistory.length > 0 ? "이어서 질문해주세요" : "궁금한 상황을 자유롭게 질문해주세요"}
-                className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-[14px] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-accent)]"
-                rows={3}
-              />
-              {aiError && (
-                <p className="text-[13px] text-red-500">답변 생성에 실패했어요. 다시 시도해주세요.</p>
-              )}
-              <button
-                onClick={fetchAnswer}
-                disabled={!userContext.trim()}
-                className="w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                질문하기
-              </button>
+            <>
+              {/* 대화 히스토리 — 스크롤 (있을 때만) */}
               {chatHistory.length > 0 && (
-                <button
-                  onClick={handleDeleteChat}
-                  className="w-full py-2 text-[12px] text-[var(--color-text-muted)] hover:text-red-500"
-                >
-                  대화 지우기
-                </button>
+                <div className={SCROLL_AREA}>
+                  <ChatBubbles messages={chatHistory} />
+                </div>
               )}
-            </div>
+
+              {/* 하단 입력 */}
+              <div className={cn('shrink-0 space-y-3 px-5 py-3', chatHistory.length > 0 ? 'border-t border-[var(--color-border)]' : 'pt-0')}>
+                <textarea
+                  value={userContext}
+                  onChange={(e) => setUserContext(e.target.value)}
+                  maxLength={500}
+                  placeholder={chatHistory.length > 0 ? "이어서 질문해주세요" : "궁금한 상황을 자유롭게 질문해주세요"}
+                  className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-[14px] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-accent)]"
+                  rows={3}
+                />
+                {aiError && (
+                  <p className="text-[13px] text-red-500">답변 생성에 실패했어요. 다시 시도해주세요.</p>
+                )}
+                <button
+                  onClick={fetchAnswer}
+                  disabled={!userContext.trim()}
+                  className="w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  질문하기
+                </button>
+                {chatHistory.length > 0 && (
+                  <button
+                    onClick={handleDeleteChat}
+                    className="w-full py-2 text-[12px] text-[var(--color-text-muted)] hover:text-red-500"
+                  >
+                    대화 지우기
+                  </button>
+                )}
+              </div>
+            </>
           )}
         </BottomSheet>
       )}
