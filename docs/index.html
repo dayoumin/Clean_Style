@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - Docs</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, sans-serif;
+    background: #0f1117;
+    color: #e1e4ed;
+    display: flex;
+    justify-content: center;
+    padding: 4rem 1.5rem;
+  }
+  .wrap { max-width: 480px; width: 100%; }
+  h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 2rem; }
+  h1 span { color: #6c8aff; }
+  a {
+    display: block;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+    background: #1a1d27;
+    border: 1px solid #2e3345;
+    border-radius: 12px;
+    color: #e1e4ed;
+    text-decoration: none;
+    transition: border-color 0.15s;
+  }
+  a:hover { border-color: #6c8aff; }
+  a strong { display: block; font-size: 0.95rem; margin-bottom: 0.2rem; }
+  a span { font-size: 0.78rem; color: #8b90a0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1><span>Clean Style</span> Docs</h1>
+  <a href="chat-flow-reference.html">
+    <strong>Chat Flow Reference</strong>
+    <span>API 모드, 채팅 흐름, 요약, 토큰, 보안, 파일 맵</span>
+  </a>
+  <a href="ui-layout-guide.html">
+    <strong>UI Layout Guide</strong>
+    <span>모바일/PC 반응형, BottomSheet 구조, 수정 체크리스트</span>
+  </a>
+  <a href="security.md">
+    <strong>Security</strong>
+    <span>보안 점검 사항 (Markdown)</span>
+  </a>
+  <a href="design-decisions.md">
+    <strong>Design Decisions</strong>
+    <span>설계 결정 기록 (Markdown)</span>
+  </a>
+  <a href="token-cost-analysis.md">
+    <strong>Token Cost Analysis</strong>
+    <span>토큰 비용 상세 분석 (Markdown)</span>
+  </a>
+</div>
+</body>
+</html>

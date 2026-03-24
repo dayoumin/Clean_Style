@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - Chat Flow Reference</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e1e4ed;
+    --text-dim: #8b90a0;
+    --accent: #6c8aff;
+    --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80;
+    --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c;
+    --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171;
+    --red-soft: rgba(248,113,113,0.12);
+    --purple: #a78bfa;
+    --purple-soft: rgba(167,139,250,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.25rem; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 2.5rem; }
+  h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  h2 .badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  h3 { font-size: 0.95rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.75rem 0; }
+  th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-dim); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td { color: var(--text); }
+  td code { background: var(--surface2); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.8rem; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-right: 0.25rem;
+  }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+  .tag-orange { background: var(--orange-soft); color: var(--orange); }
+  .tag-red { background: var(--red-soft); color: var(--red); }
+  .tag-purple { background: var(--purple-soft); color: var(--purple); }
+
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 1rem 0;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+  }
+  .flow-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 0.45rem;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .flow-dot::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 4px;
+    width: 2px;
+    height: calc(100% + 0.6rem);
+    background: var(--border);
+  }
+  .flow-step:last-child .flow-dot::after { display: none; }
+  .flow-dot.blue { background: var(--accent); }
+  .flow-dot.green { background: var(--green); }
+  .flow-dot.orange { background: var(--orange); }
+  .flow-dot.red { background: var(--red); }
+  .flow-dot.purple { background: var(--purple); }
+  .flow-label { font-size: 0.85rem; }
+  .flow-label strong { font-weight: 600; }
+  .flow-label .dim { color: var(--text-dim); font-size: 0.8rem; }
+
+  pre {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+    line-height: 1.6;
+  }
+
+  .diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+  }
+  .diagram svg { display: block; margin: 0 auto; }
+
+  .note {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    margin: 0.75rem 0;
+    color: var(--text);
+  }
+  .note.warn {
+    background: var(--orange-soft);
+    border-left-color: var(--orange);
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .toc-title { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 0.5rem; }
+  .toc a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 0.85rem;
+    display: block;
+    padding: 0.2rem 0;
+  }
+  .toc a:hover { text-decoration: underline; }
+
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .cols-2, .card-grid { grid-template-columns: 1fr; } }
+
+  .updated { color: var(--text-dim); font-size: 0.75rem; text-align: center; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<h1><span>Clean Style</span> Chat Flow Reference</h1>
+<p class="subtitle">AI 맞춤 조언 채팅 시스템 전체 구조 &mdash; 개발 참고용</p>
+
+<div class="toc">
+  <div class="toc-title">목차</div>
+  <a href="#arch">1. 아키텍처 개요</a>
+  <a href="#constants">2. 핵심 상수</a>
+  <a href="#api-modes">3. API 모드 (analysis / question / summarize)</a>
+  <a href="#chat-flow">4. 채팅 데이터 흐름</a>
+  <a href="#summarize">5. 요약 전략</a>
+  <a href="#tokens">6. 토큰 & 비용</a>
+  <a href="#modal-ux">7. 모달 UX & 상태 전이</a>
+  <a href="#security">8. 보안</a>
+  <a href="#history">9. 히스토리 (localStorage)</a>
+  <a href="#files">10. 파일 맵</a>
+</div>
+
+<!-- ============================== 1. ARCHITECTURE ============================== -->
+<h2 id="arch">1. 아키텍처 개요</h2>
+
+<div class="diagram">
+<pre style="background:transparent;border:none;padding:0;margin:0;text-align:center;font-size:0.78rem;">
+ [사용자]
+    |
+    |  15개 질문 응답
+    v
+ [테스트 페이지]  ──answers, scores──>  [결과 페이지]
+  src/app/test/                         src/app/result/
+                                             |
+                          ┌──────────────────┼──────────────────┐
+                          v                  v                  v
+                   mode: analysis      mode: question     mode: summarize
+                          |                  |                  |
+                          └──────────────────┼──────────────────┘
+                                             v
+                                    [/api/analyze]
+                                     src/app/api/analyze/route.ts
+                                             |
+                                    sanitize + validate
+                                             |
+                                             v
+                                     [OpenRouter API]
+                                      x-ai/grok-4.1-fast
+                                      src/lib/ai.ts
+                                             |
+                                  ┌──────────┴──────────┐
+                                  v                     v
+                              AI 응답              실패 시 Fallback
+                          (JSON or text)         (로컬 템플릿 8종)
+</pre>
+</div>
+
+<!-- ============================== 2. CONSTANTS ============================== -->
+<h2 id="constants">2. 핵심 상수 <span class="badge tag-blue">src/lib/constants.ts</span></h2>
+
+<div class="card">
+<table>
+  <tr><th>상수</th><th>값</th><th>설명</th></tr>
+  <tr><td><code>MAX_HISTORY_MESSAGES</code></td><td>16</td><td>히스토리 최대 크기 (8턴 = user+assistant 16개)</td></tr>
+  <tr><td><code>SUMMARIZE_AT_MESSAGES</code></td><td>8</td><td>요약 트리거 시점 (4턴 도달 시)</td></tr>
+  <tr><td><code>MAX_CONTENT_LENGTH</code></td><td>2,000</td><td>메시지 1건당 최대 길이 (sanitize 시 truncate)</td></tr>
+  <tr><td><code>AI_TIMEOUT_MS</code></td><td>10,000</td><td>API 호출 타임아웃 (src/lib/ai.ts)</td></tr>
+</table>
+<div class="note">상수 간 관계: <code>SUMMARIZE_AT &lt; MAX_HISTORY</code>, 둘 다 짝수 (턴 = user+assistant 쌍)</div>
+</div>
+
+<!-- ============================== 3. API MODES ============================== -->
+<h2 id="api-modes">3. API 모드 <span class="badge tag-green">POST /api/analyze</span></h2>
+
+<div class="card-grid">
+
+  <div class="card">
+    <h3>mode: analysis</h3>
+    <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:0.5rem;">초기 스타일 분석 &mdash; 테스트 직후 1회</p>
+    <table>
+      <tr><th>입력</th><th>설명</th></tr>
+      <tr><td><code>styleKey</code></td><td>유형 키 (필수)</td></tr>
+      <tr><td><code>answers</code></td><td>15개 응답 배열 [0-3]</td></tr>
+      <tr><td><code>userContext</code></td><td>업무 상황 (선택, 500자)</td></tr>
+    </table>
+    <table>
+      <tr><th>출력</th><th>설명</th></tr>
+      <tr><td><code>analysis</code></td><td>AnalysisResult JSON</td></tr>
+      <tr><td><code>provider</code></td><td>"grok" or "local-fallback"</td></tr>
+    </table>
+    <p style="font-size:0.78rem;color:var(--text-dim);margin-top:0.5rem;">temp: 0.7 / maxTokens: 1500</p>
+  </div>
+
+  <div class="card">
+    <h3>mode: question</h3>
+    <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:0.5rem;">이어서 질문 &mdash; 최대 8턴</p>
+    <table>
+      <tr><th>입력</th><th>설명</th></tr>
+      <tr><td><code>userContext</code></td><td>질문 (필수, 500자)</td></tr>
+      <tr><td><code>history</code></td><td>이전 대화 (선택)</td></tr>
+      <tr><td><code>summary</code></td><td>요약 텍스트 (선택)</td></tr>
+    </table>
+    <table>
+      <tr><th>출력</th><th>설명</th></tr>
+      <tr><td><code>answer</code></td><td>일반 텍스트 (5-7문장)</td></tr>
+    </table>
+    <p style="font-size:0.78rem;color:var(--text-dim);margin-top:0.5rem;">temp: 0.7 / maxTokens: 600</p>
+  </div>
+
+  <div class="card">
+    <h3>mode: summarize</h3>
+    <p style="font-size:0.82rem;color:var(--text-dim);margin-bottom:0.5rem;">백그라운드 요약 &mdash; 4턴 도달 시 1회</p>
+    <table>
+      <tr><th>입력</th><th>설명</th></tr>
+      <tr><td><code>history</code></td><td>첫 8개 메시지</td></tr>
+      <tr><td><code>styleKey</code></td><td>유형 키</td></tr>
+    </table>
+    <table>
+      <tr><th>출력</th><th>설명</th></tr>
+      <tr><td><code>summary</code></td><td>3문장 이내 요약</td></tr>
+    </table>
+    <p style="font-size:0.78rem;color:var(--text-dim);margin-top:0.5rem;">temp: 0.3 / maxTokens: 200</p>
+  </div>
+
+</div>
+
+<!-- System Prompt 분기 -->
+<h3>System Prompt 분기 로직</h3>
+<div class="card">
+<table>
+  <tr><th>조건</th><th>프롬프트</th><th>스타일 언급</th></tr>
+  <tr>
+    <td>첫 질문 <span class="tag tag-green">isFirstTurn</span></td>
+    <td><code>QA_SYSTEM_PROMPT</code></td>
+    <td>도입부 첫 문장에서 1회, 「꺾쇠」 사용</td>
+  </tr>
+  <tr>
+    <td>이어서 질문 <span class="tag tag-blue">hasHistory</span></td>
+    <td><code>QA_SYSTEM_PROMPT_CONTINUE</code></td>
+    <td>유형명 절대 언급 금지</td>
+  </tr>
+  <tr>
+    <td>요약 있음 <span class="tag tag-purple">safeSummary</span></td>
+    <td><code>CONTINUE + 요약 첨부</code></td>
+    <td>유형명 절대 언급 금지</td>
+  </tr>
+</table>
+
+<div class="note">
+  <strong>isFirstTurn 판별:</strong> <code>!hasHistory && !safeSummary</code><br>
+  summary만 있고 history가 비어도 첫 턴이 아님 &rarr; 스타일 정보 재전송 방지
+</div>
+</div>
+
+<!-- ============================== 4. CHAT FLOW ============================== -->
+<h2 id="chat-flow">4. 채팅 데이터 흐름</h2>
+
+<h3>fetchAnswer() 흐름</h3>
+<div class="card">
+<div class="flow">
+  <div class="flow-step">
+    <div class="flow-dot blue"></div>
+    <div class="flow-label"><strong>입력 검증</strong><br><span class="dim">userContext.trim() 확인, 중복 요청 방지</span></div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-dot blue"></div>
+    <div class="flow-label"><strong>히스토리 준비</strong><br>
+      <span class="dim">요약 없음 &rarr; chatHistory 전체 전송<br>
+      요약 있음 &rarr; <code>chatHistory.slice(SUMMARIZE_AT).slice(-4)</code> (최근 2턴만)</span></div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-dot green"></div>
+    <div class="flow-label"><strong>API 호출</strong><br><span class="dim">POST /api/analyze { mode:'question', history, summary, userContext }</span></div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-dot green"></div>
+    <div class="flow-label"><strong>응답 처리</strong><br><span class="dim">setAiAnswer &rarr; chatHistory에 [user, assistant] 추가 &rarr; slice(-16)</span></div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-dot purple"></div>
+    <div class="flow-label"><strong>요약 트리거 체크</strong><br><span class="dim">newHistory.length &ge; 8 && !chatSummary &rarr; triggerSummarize() (백그라운드)</span></div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-dot orange"></div>
+    <div class="flow-label"><strong>localStorage 저장</strong><br><span class="dim">useEffect로 chatHistory 변경 시 자동 저장 (updateChat)</span></div>
+  </div>
+</div>
+</div>
+
+<!-- ============================== 5. SUMMARIZE ============================== -->
+<h2 id="summarize">5. 요약 전략</h2>
+
+<div class="cols-2">
+<div class="card">
+  <h3>요약 흐름</h3>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-dot blue"></div>
+      <div class="flow-label"><strong>4턴 도달</strong> (메시지 8개)</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot green"></div>
+      <div class="flow-label"><strong>triggerSummarize()</strong><br><span class="dim">첫 8개 메시지를 "사용자: / AI:" 형식으로</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot purple"></div>
+      <div class="flow-label"><strong>요약 결과 저장</strong><br><span class="dim">setChatSummary(data.summary)</span></div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-dot orange"></div>
+      <div class="flow-label"><strong>이후 질문</strong><br><span class="dim">요약 + 최근 2턴만 전송</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>토큰 절감 효과</h3>
+  <table>
+    <tr><th>시점</th><th>전송량</th></tr>
+    <tr><td>1~4턴 (요약 전)</td><td>전체 히스토리 (최대 ~1,500 토큰)</td></tr>
+    <tr><td>5턴~ (요약 후)</td><td>요약 (~100) + 최근 4개 (~400) = ~500 토큰</td></tr>
+  </table>
+  <div class="note">
+    요약 실패 시 &rarr; chatSummary 빈 채로 유지, 전체 히스토리로 계속 진행<br>
+    중복 방지: <code>summarizingRef.current</code> 플래그
+  </div>
+</div>
+</div>
+
+<!-- ============================== 6. TOKENS ============================== -->
+<h2 id="tokens">6. 토큰 & 비용</h2>
+
+<div class="card">
+<table>
+  <tr><th>모드</th><th>입력 토큰 (추정)</th><th>출력 상한</th><th>비용 (per call)</th></tr>
+  <tr>
+    <td><span class="tag tag-green">analysis</span></td>
+    <td>800 ~ 1,100</td>
+    <td>1,500</td>
+    <td>~$0.01</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-blue">question</span> (요약 전)</td>
+    <td>500 ~ 1,500</td>
+    <td>600</td>
+    <td>~$0.005</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-blue">question</span> (요약 후)</td>
+    <td>400 ~ 700</td>
+    <td>600</td>
+    <td>~$0.003</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-purple">summarize</span></td>
+    <td>300 ~ 600</td>
+    <td>200</td>
+    <td>~$0.002</td>
+  </tr>
+</table>
+<div class="note">
+  모델: <code>x-ai/grok-4.1-fast</code> via OpenRouter<br>
+  최악 시나리오 (분석 1회 + 8턴 질문 + 요약 1회) &approx; <strong>$0.06</strong> (약 80원)
+</div>
+</div>
+
+<!-- ============================== 7. MODAL UX ============================== -->
+<h2 id="modal-ux">7. 모달 UX & 상태 전이</h2>
+
+<div class="card">
+<pre style="font-size:0.75rem;">
+                    ┌──────────────────────────────────────────────────────────────┐
+                    │                     BottomSheet (모달)                        │
+                    │                                                              │
+                    │   ┌─────────┐    fetchAnswer()    ┌──────────┐              │
+  "AI 조언" 클릭 ──>│   │  입력    │ ──────────────────> │  로딩    │              │
+                    │   │  phase   │                     │  phase   │              │
+                    │   └────┬────┘                     └─────┬────┘              │
+                    │        │                                │                    │
+                    │   "대화 지우기"                    응답 도착                  │
+                    │        │                                │                    │
+                    │        v                                v                    │
+                    │   handleDeleteChat()           ┌───────────────┐            │
+                    │   resetModal()                 │    답변 phase  │            │
+                    │        │                       │               │            │
+                    │        │                       │  "새 질문"     │            │
+                    │        └──────────<─────────── │   resetModal() │            │
+                    │                                │               │            │
+                    │                                │  "이어서"     │            │
+                    │        ┌──────────<─────────── │  continueChat()│            │
+                    │        │                       └───────────────┘            │
+                    │        v                                                     │
+                    │   입력 phase (히스토리 유지)                                  │
+                    └──────────────────────────────────────────────────────────────┘
+
+레이아웃:
+  모바일 → 하단 시트 (items-end, rounded-t-[20px], max-h-[85dvh])
+  PC     → 중앙 모달 (sm:items-center, sm:rounded-[20px], sm:max-h-[70vh])
+  공통   → 대화 영역 스크롤 (flex-1 overflow-y-auto), 버튼/입력 하단 고정 (shrink-0)
+</pre>
+</div>
+
+<h3>턴 제한 UI</h3>
+<div class="card">
+<table>
+  <tr><th>턴</th><th>메시지 수</th><th>상태</th><th>UI 표시</th></tr>
+  <tr><td>1~6턴</td><td>2~12</td><td>일반</td><td>&mdash;</td></tr>
+  <tr><td>7턴</td><td>14</td><td><code>chatLastTurn</code></td><td>"이어서 질문은 1번 더 가능해요"</td></tr>
+  <tr><td>8턴+</td><td>16+</td><td><code>chatMaxReached</code></td><td>"대화가 길어져서 새로 시작할게요" + 이어서 비활성화</td></tr>
+</table>
+</div>
+
+<h3>재방문 시 동작</h3>
+<div class="card">
+<table>
+  <tr><th>경로</th><th>판별</th><th>동작</th></tr>
+  <tr><td>신규 테스트 결과</td><td><code>!searchParams.has('hid')</code></td><td>AnalyzingScreen 표시 (1.8초)</td></tr>
+  <tr><td>이전 결과 "보기"</td><td><code>searchParams.has('hid')</code></td><td>애니메이션 스킵, 바로 결과</td></tr>
+</table>
+</div>
+
+<!-- ============================== 8. SECURITY ============================== -->
+<h2 id="security">8. 보안</h2>
+
+<div class="cols-2">
+<div class="card">
+  <h3><span class="tag tag-green">적용 완료</span></h3>
+  <table>
+    <tr><th>대상</th><th>방어</th></tr>
+    <tr><td>userContext</td><td><code>sanitizeUserInput()</code><br>코드블록/헤딩 제거 + <code>&lt;user_input&gt;</code> 태그 격리</td></tr>
+    <tr><td>history</td><td><code>sanitizeHistory()</code><br>user|assistant만 허용, content 2000자 제한</td></tr>
+    <tr><td>summary</td><td><code>sanitizeUserInput(summary.slice(0, 2000))</code></td></tr>
+    <tr><td>API 키</td><td>서버 전용 <code>process.env</code></td></tr>
+  </table>
+</div>
+<div class="card">
+  <h3><span class="tag tag-orange">미적용 (향후)</span></h3>
+  <table>
+    <tr><th>항목</th><th>내용</th></tr>
+    <tr><td>Rate Limiting</td><td>IP당 분당 10회 제한 (Cloudflare WAF)</td></tr>
+    <tr><td>개인정보 고지</td><td>외부 AI API 전송 안내 문구</td></tr>
+    <tr><td>API 키 관리</td><td>Cloudflare 배포 시 wrangler secret</td></tr>
+  </table>
+</div>
+</div>
+
+<!-- ============================== 9. HISTORY ============================== -->
+<h2 id="history">9. 히스토리 (localStorage)</h2>
+
+<div class="card">
+<pre>
+localStorage key: "integrity-history"
+
+HistoryEntry {
+  id:         string           // 자동 생성 UUID
+  createdAt:  string           // ISO datetime
+  styleKey:   string           // e.g. "principle-transparent-cooperative"
+  styleName:  string           // e.g. "정의의 조율자"
+  styleEmoji: string           // e.g. "⚖️"
+  scores:     { principle, transparency, independence }
+  answers:    number[]         // 15개 (0~3)
+  chat:       ChatMessage[]    // { role, content }[]
+}
+
+MAX_ENTRIES = 10  (초과 시 가장 오래된 항목 삭제)
+</pre>
+
+<table>
+  <tr><th>함수</th><th>용도</th></tr>
+  <tr><td><code>getHistory()</code></td><td>전체 목록 (최신 우선)</td></tr>
+  <tr><td><code>getHistoryEntry(id)</code></td><td>단일 항목 조회</td></tr>
+  <tr><td><code>addHistoryEntry(params)</code></td><td>새 항목 생성 (null if quota exceeded)</td></tr>
+  <tr><td><code>updateChat(id, chat)</code></td><td>채팅 배열만 갱신</td></tr>
+  <tr><td><code>clearChat(id)</code></td><td>채팅 비우기 (결과는 유지)</td></tr>
+  <tr><td><code>deleteHistoryEntry(id)</code></td><td>항목 전체 삭제</td></tr>
+</table>
+</div>
+
+<!-- ============================== 10. FILE MAP ============================== -->
+<h2 id="files">10. 파일 맵</h2>
+
+<div class="card">
+<table>
+  <tr><th>파일</th><th>역할</th></tr>
+  <tr><td><code>src/lib/ai.ts</code></td><td>OpenRouter/Grok API 호출 (chat 함수)</td></tr>
+  <tr><td><code>src/lib/constants.ts</code></td><td>공유 상수 (턴 제한, 길이 제한)</td></tr>
+  <tr><td><code>src/lib/history.ts</code></td><td>localStorage 히스토리 CRUD</td></tr>
+  <tr><td><code>src/lib/utils.ts</code></td><td>cn() 유틸리티, buildResultUrl()</td></tr>
+  <tr><td><code>src/data/questions.ts</code></td><td>15개 질문, 8개 유형, calculateResult()</td></tr>
+  <tr><td><code>src/types/analysis.ts</code></td><td>AnalysisResult 타입 + 검증</td></tr>
+  <tr><td><code>src/app/api/analyze/route.ts</code></td><td>API 엔드포인트 (3개 모드)</td></tr>
+  <tr><td><code>src/app/result/page.tsx</code></td><td>결과 화면 + 채팅 모달 (BottomSheet)</td></tr>
+  <tr><td><code>src/app/test/page.tsx</code></td><td>테스트 진행 화면</td></tr>
+  <tr><td><code>src/app/page.tsx</code></td><td>홈 (시작 + 히스토리 목록)</td></tr>
+  <tr><td><code>docs/security.md</code></td><td>보안 점검 사항 문서</td></tr>
+  <tr><td><code>docs/token-cost-analysis.md</code></td><td>토큰 비용 상세 분석</td></tr>
+  <tr><td><code>tests/security-and-summarize-simulation.ts</code></td><td>보안/요약/턴제한 시뮬레이션 (51건)</td></tr>
+</table>
+</div>
+
+<p class="updated">Last updated: 2026-03-24 &middot; Generated for developer reference</p>
+
+</body>
+</html>

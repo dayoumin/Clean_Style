@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>청렴 스타일 테스트 — 소개</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&display=swap');
+
+  :root {
+    --ink: #1a1a2e;
+    --ink-light: #3d3d5c;
+    --ink-muted: #71768a;
+    --ink-faint: #a0a4b4;
+    --surface: #f7f7f8;
+    --surface-warm: #eeeff1;
+    --surface-card: #ffffff;
+    --accent: #2d3a8c;
+    --accent-mid: #2d3a8c;
+    --accent-light: #b0b8d6;
+    --accent-wash: #f0f1f6;
+    --accent-glow: rgba(45, 58, 140, 0.06);
+    --violet: #2d3a8c;
+    --violet-wash: #f0f1f6;
+    --serif: 'Noto Serif KR', 'Batang', serif;
+    --sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--surface);
+    color: var(--ink);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── Slide Container ── */
+  .deck {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 5vh 8vw;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.6s var(--ease-out-expo), transform 0.6s var(--ease-out-expo), visibility 0s 0.6s;
+    will-change: opacity, transform;
+  }
+
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition-delay: 0s, 0s, 0s;
+  }
+
+  .slide.exit-up {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  /* ── Slide internal animations ── */
+  .slide.active .anim {
+    animation: revealUp 0.7s var(--ease-out-expo) both;
+  }
+  .slide.active .anim-d1 { animation-delay: 0.08s; }
+  .slide.active .anim-d2 { animation-delay: 0.16s; }
+  .slide.active .anim-d3 { animation-delay: 0.24s; }
+  .slide.active .anim-d4 { animation-delay: 0.32s; }
+  .slide.active .anim-d5 { animation-delay: 0.40s; }
+  .slide.active .anim-d6 { animation-delay: 0.48s; }
+  .slide.active .anim-d7 { animation-delay: 0.56s; }
+  .slide.active .anim-d8 { animation-delay: 0.64s; }
+
+  @keyframes revealUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Typography ── */
+  .section-label {
+    display: inline-block;
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .slide-title {
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: clamp(26px, 3.2vw, 42px);
+    line-height: 1.35;
+    color: var(--ink);
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+
+  .slide-body {
+    font-size: clamp(15px, 1.5vw, 19px);
+    line-height: 1.8;
+    color: var(--ink-light);
+    max-width: 760px;
+  }
+
+  /* ── Navigation ── */
+  .nav-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    z-index: 100;
+    background: linear-gradient(to top, var(--surface) 60%, transparent);
+    pointer-events: none;
+  }
+
+  .nav-bar > * { pointer-events: auto; }
+
+  .nav-back {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-back:hover {
+    color: var(--ink);
+  }
+
+  .nav-counter {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    letter-spacing: 0.5px;
+    min-width: 60px;
+  }
+  .nav-counter .current {
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 16px;
+  }
+
+  .nav-arrows {
+    display: flex;
+    gap: 8px;
+  }
+
+  .nav-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid var(--ink-faint);
+    background: var(--surface-card);
+    color: var(--ink-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .nav-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 4px 16px var(--accent-glow);
+  }
+  .nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: var(--ink-faint);
+    color: var(--ink-faint);
+  }
+  .nav-btn:disabled:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  .nav-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    stroke-width: 2;
+    fill: none;
+  }
+
+  .progress-track {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--surface-warm);
+    z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.5s var(--ease-out-expo);
+    border-radius: 0 2px 2px 0;
+  }
+
+  /* ── Side Indicator ── */
+  .side-indicator {
+    position: fixed;
+    left: 28px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 100;
+  }
+  .side-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    padding: 0;
+    position: relative;
+  }
+  .side-dot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ink-faint);
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+  }
+  .side-dot:hover::after {
+    background: var(--ink-muted);
+  }
+  .side-dot.active::after {
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+  }
+
+  @media (max-width: 768px) {
+    .side-indicator { left: 8px; gap: 6px; }
+    .side-dot { width: 24px; height: 24px; }
+  }
+
+  /* ── Keyboard hint ── */
+  .kb-hint {
+    position: fixed;
+    bottom: 64px;
+    right: 32px;
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.3px;
+    opacity: 1;
+    transition: opacity 1s ease;
+    z-index: 100;
+  }
+  .kb-hint.hidden { opacity: 0; pointer-events: none; }
+  .kb-hint kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    font-family: var(--sans);
+    font-size: 11px;
+    margin: 0 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+
+  /* ═══════════════════════════════════
+     SLIDE 1 — Title
+     ═══════════════════════════════════ */
+  .slide--title {
+    align-items: center;
+    text-align: center;
+    padding-bottom: 80px;
+    background:
+      var(--surface);
+  }
+
+  .title-org {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 32px;
+  }
+
+  .title-main {
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: clamp(36px, 5vw, 64px);
+    line-height: 1.25;
+    color: var(--ink);
+    margin-bottom: 16px;
+    letter-spacing: -0.03em;
+  }
+  .title-main em {
+    font-style: normal;
+    background: var(--accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .title-sub {
+    font-family: var(--sans);
+    font-size: clamp(16px, 1.8vw, 22px);
+    font-weight: 400;
+    color: var(--ink-muted);
+    letter-spacing: 1px;
+  }
+
+  .title-divider {
+    width: 48px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin: 28px auto;
+  }
+
+  .title-footer {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-faint);
+    margin-top: 8px;
+  }
+
+  /* ═══════════════════════════════════
+     SLIDE 2 — Comparison Table
+     ═══════════════════════════════════ */
+  .compare-table {
+    width: 100%;
+    max-width: 820px;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 24px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e5f0;
+    font-size: clamp(13px, 1.2vw, 15px);
+  }
+  .compare-table {
+    text-align: left;
+  }
+  .compare-table th,
+  .compare-table td {
+    padding: 14px 18px;
+    text-align: left;
+  }
+  .compare-table thead th {
+    background: var(--ink);
+    color: #fff;
+    font-weight: 600;
+    font-size: clamp(12px, 1.1vw, 14px);
+    letter-spacing: 0.3px;
+  }
+  .compare-table thead th:first-child {
+    border-radius: 12px 0 0 0;
+  }
+  .compare-table thead th:last-child {
+    border-radius: 0 12px 0 0;
+  }
+  .compare-table tbody td {
+    background: var(--surface-card);
+    border-top: 1px solid #f0f1f5;
+    color: var(--ink-light);
+    line-height: 1.6;
+  }
+  .compare-table tbody td:first-child {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .compare-table .tag-old,
+  .compare-table .tag-new {
+    display: block;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+  .compare-table .tag-old {
+    color: var(--ink-faint);
+  }
+  .compare-table .tag-new {
+    color: var(--accent);
+  }
+
+  /* ═══════════════════════════════════
+     SLIDE 3 — Value Cards
+     ═══════════════════════════════════ */
+  .value-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 24px;
+    max-width: 880px;
+  }
+  .value-card {
+    background: var(--surface-card);
+    border: 1px solid #e8eaf2;
+    border-radius: 14px;
+    padding: 26px 24px;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .value-card:hover {
+    border-color: var(--accent-light);
+    box-shadow: 0 8px 30px var(--accent-glow);
+  }
+  .value-card .vc-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  .value-card {
+    text-align: left;
+  }
+  .value-card h3 {
+    font-family: var(--serif);
+    font-size: clamp(15px, 1.5vw, 19px);
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .value-card p {
+    font-size: clamp(13px, 1.15vw, 16px);
+    color: var(--ink-muted);
+    line-height: 1.7;
+  }
+
+  /* ═══════════════════════════════════
+     SLIDE 4 — Flow
+     ═══════════════════════════════════ */
+  .flow-steps {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    margin-top: 36px;
+    max-width: 900px;
+  }
+  .flow-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+  .flow-num {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    box-shadow: 0 4px 16px rgba(45, 58, 140, 0.15);
+  }
+  .flow-step-title {
+    font-family: var(--serif);
+    font-size: clamp(15px, 1.5vw, 19px);
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .flow-step-desc {
+    font-size: clamp(12px, 1.15vw, 15px);
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+  .flow-connector {
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 14px;
+    flex-shrink: 0;
+  }
+  .flow-connector svg {
+    width: 24px;
+    height: 24px;
+    color: var(--accent-light);
+  }
+
+  /* ═══════════════════════════════════
+     SLIDE 5 — 8 Styles Grid
+     ═══════════════════════════════════ */
+  .style-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-top: 24px;
+    max-width: 880px;
+  }
+  .style-item {
+    background: var(--surface-card);
+    border: 1px solid #e8eaf2;
+    border-radius: 14px;
+    padding: 22px 14px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+  .style-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px var(--accent-glow);
+    border-color: var(--accent-light);
+  }
+  .style-item .si-emoji {
+    font-size: 32px;
+    margin-bottom: 8px;
+  }
+  .style-item .si-name {
+    font-family: var(--serif);
+    font-size: clamp(14px, 1.2vw, 17px);
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .style-item .si-traits {
+    font-size: 12px;
+    color: var(--ink-faint);
+    letter-spacing: 0.5px;
+  }
+
+  /* ═══════════════════════════════════
+     SLIDE 6 — Chat Example
+     ═══════════════════════════════════ */
+  .chat-demo {
+    max-width: 640px;
+    margin-top: 24px;
+    text-align: left;
+  }
+  .chat-frame {
+    background: var(--surface-card);
+    border: 1px solid #e2e5f0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+  }
+  .chat-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid #f0f1f5;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .chat-header-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .chat-header span {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .chat-header .chat-badge {
+    margin-left: auto;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: var(--accent-wash);
+    color: var(--accent);
+    letter-spacing: 0.3px;
+  }
+  .chat-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .chat-bubble {
+    max-width: 88%;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: clamp(13px, 1.2vw, 16px);
+    line-height: 1.7;
+  }
+  .chat-bubble.user {
+    align-self: flex-end;
+    background: var(--accent);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-bubble.ai {
+    align-self: flex-start;
+    background: var(--surface);
+    color: var(--ink-light);
+    border-bottom-left-radius: 4px;
+    border: 1px solid #eceef4;
+  }
+  .chat-footnote {
+    margin-top: 16px;
+    font-size: clamp(12px, 1.05vw, 14px);
+    color: var(--accent);
+    line-height: 1.7;
+    padding-left: 12px;
+    border-left: 2px solid var(--accent-light);
+  }
+
+  /* ═══════════════════════════════════
+     SLIDE 7 — Benefits
+     ═══════════════════════════════════ */
+  .benefit-list {
+    list-style: none;
+    max-width: 780px;
+    margin-top: 20px;
+  }
+  .benefit-list {
+    text-align: left;
+  }
+  .benefit-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #eceef4;
+    font-size: clamp(14px, 1.3vw, 17px);
+    color: var(--ink-light);
+    line-height: 1.7;
+  }
+  .benefit-list li:last-child { border-bottom: none; }
+  .benefit-check {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .benefit-list strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  /* ═══════════════════════════════════
+     SLIDE 8 — Closing
+     ═══════════════════════════════════ */
+  .slide--closing {
+    align-items: center;
+    text-align: center;
+    background:
+      var(--surface);
+  }
+  .closing-title {
+    font-family: var(--serif);
+    font-weight: 900;
+    font-size: clamp(28px, 4vw, 52px);
+    line-height: 1.3;
+    color: var(--ink);
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  .closing-body {
+    font-size: clamp(15px, 1.5vw, 19px);
+    color: var(--ink-muted);
+    line-height: 1.8;
+    max-width: 600px;
+  }
+  .closing-qr {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .closing-qr img {
+    border-radius: 8px;
+  }
+  .closing-qr span {
+    font-size: 13px;
+    color: var(--ink-muted);
+  }
+  .closing-org {
+    margin-top: 24px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-faint);
+    letter-spacing: 3px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .slide { padding: 4vh 6vw; }
+    .value-grid { grid-template-columns: 1fr; gap: 12px; }
+    .style-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .flow-steps { flex-direction: column; align-items: center; gap: 0; }
+    .flow-connector { transform: rotate(90deg); padding: 0; width: auto; height: 28px; }
+    .flow-step { width: 100%; max-width: 240px; }
+    .compare-table { font-size: 11px; }
+    .compare-table th, .compare-table td { padding: 10px 12px; }
+    .nav-bar { padding: 0 16px; }
+    .kb-hint { display: none; }
+    .chat-demo { max-width: 100%; }
+  }
+
+  @media (max-width: 480px) {
+    .slide { padding: 3vh 5vw; padding-bottom: 70px; }
+    .style-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ── Print ── */
+  @media print {
+    body { overflow: visible; }
+    .slide {
+      position: relative;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      page-break-after: always;
+      height: auto;
+      min-height: 100vh;
+    }
+    .nav-bar, .progress-track, .kb-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-track">
+  <div class="progress-fill" id="progress" style="width: 12.5%"></div>
+</div>
+
+<div class="side-indicator" id="sideIndicator">
+  <button class="side-dot active" data-index="0"></button>
+  <button class="side-dot" data-index="1"></button>
+  <button class="side-dot" data-index="2"></button>
+  <button class="side-dot" data-index="3"></button>
+  <button class="side-dot" data-index="4"></button>
+  <button class="side-dot" data-index="5"></button>
+  <button class="side-dot" data-index="6"></button>
+  <button class="side-dot" data-index="7"></button>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- ════════════════ SLIDE 1: Title ════════════════ -->
+  <div class="slide slide--title active" data-slide="1">
+    <div class="title-org anim">국립수산과학원 생명공학과</div>
+    <div class="title-main anim anim-d1">
+      <em>나의 청렴 스타일은?</em>
+    </div>
+    <div class="title-divider anim anim-d2"></div>
+    <div class="title-sub anim anim-d3">청렴 스타일 분석 + AI 개인별 맞춤 조언</div>
+    <div class="title-footer anim anim-d4" style="margin-top: 48px;">청렴 스타일 테스트 소개</div>
+  </div>
+
+  <!-- ════════════════ SLIDE 2: Background ════════════════ -->
+  <div class="slide" data-slide="2">
+    <div class="section-label anim">배경</div>
+    <h2 class="slide-title anim anim-d1">사람마다 다르기에,<br>개인별 맞춤 조언</h2>
+    <table class="compare-table anim anim-d3">
+      <thead>
+        <tr>
+          <th style="width:26%">구분</th>
+          <th style="width:37%"><span class="tag-old">기존 방식</span>주입식 교육</th>
+          <th style="width:37%"><span class="tag-new">본 도구</span>자기발견형</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>학습 방식</td><td>규정·사례 일방 전달</td><td>시나리오 응답 → 성향 분석</td></tr>
+        <tr><td>참여자 역할</td><td>수동적 수강</td><td>능동적 자기 탐색</td></tr>
+        <tr><td>결과물</td><td>공통 교안</td><td>개인별 8유형 분석 + 레이더 차트</td></tr>
+        <tr><td>후속 조언</td><td>없음 (교육 종료)</td><td>AI 대화형 맞춤 조언 (최대 8턴)</td></tr>
+        <tr><td>반복 효과</td><td>동일 내용 반복 → 피로감</td><td>질문마다 새로운 맞춤 답변</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════════ SLIDE 3: Core Value ════════════════ -->
+  <div class="slide" data-slide="3">
+    <div class="section-label anim">핵심 가치</div>
+    <h2 class="slide-title anim anim-d1">이 도구가 다른 점</h2>
+    <div class="value-grid">
+      <div class="value-card anim anim-d2">
+        <div class="vc-icon">🪞</div>
+        <h3>분석, 평가가 아닌 자기발견</h3>
+        <p>정답이 없는 15개 업무 시나리오에 답하면, 나의 자연스러운 판단 패턴을 <strong>원칙↔유연 · 투명↔신중 · 독립↔협력</strong> 3개 축으로 분석합니다. 옳고 그름을 따지지 않으며, 모든 유형이 각자의 강점을 가집니다.</p>
+      </div>
+      <div class="value-card anim anim-d3">
+        <div class="vc-icon">🤖</div>
+        <h3>분석된 스타일 기반 AI 맞춤 조언</h3>
+        <p>분석된 청렴 스타일을 바탕으로, 참여자가 궁금한 실제 업무 상황에 대해 AI가 <strong>해당 스타일의 강점은 살리고 약점은 보완하는 방향</strong>으로 맞춤 조언을 제공합니다.</p>
+      </div>
+      <div class="value-card anim anim-d4">
+        <div class="vc-icon">💬</div>
+        <h3>일회성이 아닌 대화형 상담</h3>
+        <p>결과를 보고 끝나는 것이 아니라, 궁금한 상황을 자유롭게 질문하고 이어서 대화할 수 있습니다. 대화가 길어지면 AI가 자동으로 맥락을 요약해 일관된 조언을 유지합니다.</p>
+      </div>
+      <div class="value-card anim anim-d5">
+        <div class="vc-icon">🎯</div>
+        <h3>실제 업무 맥락에 기반</h3>
+        <p>국립수산과학원 생명공학과의 실무 — 연구비 집행, 시약·장비 구매, 분석 용역 계약, 산학 협력 등 실제 마주치는 상황을 시나리오로 구성했습니다.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ SLIDE 4: How It Works ════════════════ -->
+  <div class="slide" data-slide="4">
+    <div class="section-label anim">진행 방식</div>
+    <h2 class="slide-title anim anim-d1">이용 흐름</h2>
+    <div class="flow-steps">
+      <div class="flow-step anim anim-d2">
+        <div class="flow-num">1</div>
+        <div class="flow-step-title">시나리오 응답</div>
+        <div class="flow-step-desc">15개 질문 · 약 3분</div>
+      </div>
+      <div class="flow-connector anim anim-d3">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M13 5l7 7-7 7"/>
+        </svg>
+      </div>
+      <div class="flow-step anim anim-d3">
+        <div class="flow-num">2</div>
+        <div class="flow-step-title">스타일 분석</div>
+        <div class="flow-step-desc">8유형 중 매칭 · 레이더 차트</div>
+      </div>
+      <div class="flow-connector anim anim-d4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M13 5l7 7-7 7"/>
+        </svg>
+      </div>
+      <div class="flow-step anim anim-d5">
+        <div class="flow-num">3</div>
+        <div class="flow-step-title">강점 · 팁 확인</div>
+        <div class="flow-step-desc">유형별 강점 · 주의점 · 실천 팁</div>
+      </div>
+      <div class="flow-connector anim anim-d6">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M13 5l7 7-7 7"/>
+        </svg>
+      </div>
+      <div class="flow-step anim anim-d7">
+        <div class="flow-num">4</div>
+        <div class="flow-step-title">AI 맞춤 상담</div>
+        <div class="flow-step-desc">내 스타일 기반 대화형 조언</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ SLIDE 5: 8 Styles ════════════════ -->
+  <div class="slide" data-slide="5">
+    <div class="section-label anim">8가지 유형</div>
+    <h2 class="slide-title anim anim-d1">8가지 청렴 스타일</h2>
+    <p class="slide-body anim anim-d2" style="margin-bottom: 8px;">3개 축의 조합으로 8가지 유형이 도출됩니다. 모든 유형은 고유한 강점을 가지며, 어떤 유형도 '나쁜' 유형이 아닙니다.</p>
+    <div class="style-grid">
+      <div class="style-item anim anim-d2"><div class="si-emoji">🛡️</div><div class="si-name">소신 수호자</div><div class="si-traits">원칙 · 투명 · 독립</div></div>
+      <div class="style-item anim anim-d3"><div class="si-emoji">⚖️</div><div class="si-name">정의의 조율자</div><div class="si-traits">원칙 · 투명 · 협력</div></div>
+      <div class="style-item anim anim-d4"><div class="si-emoji">🏔️</div><div class="si-name">묵묵한 파수꾼</div><div class="si-traits">원칙 · 신중 · 독립</div></div>
+      <div class="style-item anim anim-d5"><div class="si-emoji">🤝</div><div class="si-name">신중한 중재자</div><div class="si-traits">원칙 · 신중 · 협력</div></div>
+      <div class="style-item anim anim-d4"><div class="si-emoji">🚀</div><div class="si-name">실용주의 개척자</div><div class="si-traits">유연 · 투명 · 독립</div></div>
+      <div class="style-item anim anim-d5"><div class="si-emoji">💬</div><div class="si-name">열린 소통가</div><div class="si-traits">유연 · 투명 · 협력</div></div>
+      <div class="style-item anim anim-d6"><div class="si-emoji">🎯</div><div class="si-name">전략적 해결사</div><div class="si-traits">유연 · 신중 · 독립</div></div>
+      <div class="style-item anim anim-d7"><div class="si-emoji">🕊️</div><div class="si-name">온건한 조정자</div><div class="si-traits">유연 · 신중 · 협력</div></div>
+    </div>
+  </div>
+
+  <!-- ════════════════ SLIDE 6: AI Chat Example ════════════════ -->
+  <div class="slide" data-slide="6">
+    <div class="section-label anim">핵심 기능</div>
+    <h2 class="slide-title anim anim-d1">AI 맞춤 조언 —<br>스타일에 따라 달라지는 답변</h2>
+    <div class="chat-demo anim anim-d2">
+      <div class="chat-frame">
+        <div class="chat-header">
+          <div class="chat-header-dot"></div>
+          <span>AI 맞춤 조언</span>
+          <span class="chat-badge">소신 수호자</span>
+        </div>
+        <div class="chat-body">
+          <div class="chat-bubble user">같은 팀 선배가 출장 택시비를 실제보다 좀 올려서 정산하는 것 같아요. 금액이 크진 않지만, 알면서 모른 척하기도 찝찝하고...</div>
+          <div class="chat-bubble ai">원칙을 중시하는 「소신 수호자」답게 찝찝함을 그냥 넘기지 않으시는군요.<br><br>출장비 허위 정산은 금액과 관계없이 공금 부정사용에 해당하며, 알면서 묵인하면 본인에게도 리스크가 됩니다. 먼저 실제로 부풀린 것이 맞는지 사실관계를 확인하세요.<br><br>확인이 되면 기관 내부 신고 채널(감사실, 익명 제보)을 활용하는 것이 가장 안전해요. 그 소신이 조직을 지키는 힘이에요!</div>
+        </div>
+      </div>
+      <div class="chat-footnote anim anim-d3">
+        * 다른 유형(예: 온건한 조정자)이 같은 질문을 하면 "먼저 선배에게 부드럽게 물어보고, 스스로 정정할 기회를 주는 것도 방법이에요" 등 해당 스타일에 맞는 다른 관점의 조언이 제공됩니다.
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ SLIDE 7: Benefits ════════════════ -->
+  <div class="slide" data-slide="7">
+    <div class="section-label anim">기대 효과</div>
+    <h2 class="slide-title anim anim-d1">장점</h2>
+    <ul class="benefit-list">
+      <li class="anim anim-d2"><span class="benefit-check">✓</span><div><strong>개인화된 청렴 교육</strong> — 획일적 교안이 아닌, 참여자 각자의 성향에 맞춘 분석과 조언을 제공합니다.</div></li>
+      <li class="anim anim-d3"><span class="benefit-check">✓</span><div><strong>자발적 참여 유도</strong> — 3분이면 끝나는 가벼운 테스트 형식으로, "내 스타일을 알아본다"는 접근이 자발적 참여를 이끌어냅니다.</div></li>
+      <li class="anim anim-d4"><span class="benefit-check">✓</span><div><strong>실무 맥락 반영</strong> — 연구비 집행, 시약·장비 구매, 분석 용역 계약, 산학 협력 등 국립수산과학원 생명공학과 종사자가 실제로 마주치는 상황을 시나리오로 구성했습니다.</div></li>
+      <li class="anim anim-d5"><span class="benefit-check">✓</span><div><strong>AI 대화형 후속 학습</strong> — 자신의 스타일에 기반하여, 궁금한 업무 상황에 대해 AI와 자유롭게 대화하며 실질적인 조언을 받을 수 있습니다.</div></li>
+      <li class="anim anim-d6"><span class="benefit-check">✓</span><div><strong>긍정 중심 피드백</strong> — 모든 유형을 강점 위주로 설명하고, 주의점도 긍정적 제안으로 전달합니다.</div></li>
+      <li class="anim anim-d7"><span class="benefit-check">✓</span><div><strong>공유 · 재방문 가능</strong> — 결과를 이미지로 저장하여 동료와 비교해볼 수 있고, 이전 결과와 대화 기록을 다시 열람할 수 있습니다.</div></li>
+    </ul>
+  </div>
+
+  <!-- ════════════════ SLIDE 8: Closing ════════════════ -->
+  <div class="slide slide--closing" data-slide="8">
+    <div class="title-divider anim"></div>
+    <div class="closing-title anim anim-d1">듣는 교육에서,<br>발견하는 경험으로</div>
+    <div class="closing-body anim anim-d2">
+      나의 청렴 스타일을 알고, 그 스타일에 맞는 AI 맞춤 조언을 받는 것 —<br>
+      이것이 주입식 교육과 다른, 이 도구만의 가치입니다.
+    </div>
+    <div class="closing-qr anim anim-d3">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQMAAACXljzdAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABOklEQVRYhe2XsRHDIAxFxVG4zAgZhdHwaIySEVym4FD+FyZHnAwg7qKCwzwKy/76CJF/iCRlHJjsLdbtuNtz9U52DFgonMSn3Aueo3+Ct98OfvbGBWzRtgrBx8dfwO9YikgqXefrk64qLblJZKZXvbkkvYJZC79r2yUZgR1I5ynf4ZEwn7phKDkwk0fCpHonks80IP0ajcjKJFFCyJTuPxwpDL25JZKJblrM/Tc7cnsFeyZ0SxMT3Z9bcAyM/sAx0Ta3Bbe5ShyTHYNpBwcSpE+3DFMvth7B1DLN46iaVeWZ0EZBWMJUVRNxTs5AfyA0IFawinuSLAXrLYM1mSXtn52DS2KKtw7ynU9YmpwdfpHWRTU77AJEzsugLkRUrY/HUr7eszySdxpmOzhy9XoTd0hGBZc82c265B8vAM5jLSrZr9EAAAAASUVORK5CYII=" alt="QR 코드" width="120" height="120">
+      <span>QR 코드로 바로 시작하기</span>
+      <span style="font-size:12px; color:var(--ink-faint); letter-spacing:0.3px;">https://zrr.kr/Q2qAmU</span>
+    </div>
+    <div class="closing-org anim anim-d4">국립수산과학원 생명공학과</div>
+  </div>
+
+</div>
+
+<!-- Navigation -->
+<div class="nav-bar">
+  <a href="app-introduction.html" class="nav-back" id="navBack">← 돌아가기</a>
+  <div class="nav-counter"><span class="current" id="navCurrent">1</span> / 8</div>
+  <div class="nav-arrows">
+    <button class="nav-btn" id="btnPrev" disabled aria-label="이전 슬라이드">
+      <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button class="nav-btn" id="btnNext" aria-label="다음 슬라이드">
+      <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="kb-hint" id="kbHint"><kbd>←</kbd> <kbd>→</kbd> 키보드로 이동</div>
+
+<script>
+  (() => {
+    const slides = document.querySelectorAll('.slide');
+    const total = slides.length;
+    let current = 0;
+    let transitioning = false;
+
+    const progress = document.getElementById('progress');
+    const counter = document.getElementById('navCurrent');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const kbHint = document.getElementById('kbHint');
+    const sideDots = document.querySelectorAll('.side-dot');
+
+    function updateIndicator(idx) {
+      sideDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+    }
+
+    function goTo(index) {
+      if (index < 0 || index >= total || index === current || transitioning) return;
+      transitioning = true;
+
+      const dir = index > current ? 'exit-up' : '';
+      slides[current].classList.remove('active');
+      if (dir) slides[current].classList.add(dir);
+
+      setTimeout(() => {
+        slides[current].classList.remove(dir);
+        current = index;
+        slides[current].classList.add('active');
+        progress.style.width = ((current + 1) / total * 100) + '%';
+        counter.textContent = current + 1;
+        btnPrev.disabled = current === 0;
+        btnNext.disabled = current === total - 1;
+        updateIndicator(current);
+        transitioning = false;
+      }, 350);
+
+      // Hide keyboard hint after first navigation
+      if (kbHint && !kbHint.classList.contains('hidden')) {
+        kbHint.classList.add('hidden');
+      }
+    }
+
+    btnPrev.addEventListener('click', () => goTo(current - 1));
+    btnNext.addEventListener('click', () => goTo(current + 1));
+
+    sideDots.forEach(dot => {
+      dot.addEventListener('click', () => goTo(parseInt(dot.dataset.index)));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+        e.preventDefault();
+        goTo(current + 1);
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        goTo(current - 1);
+      }
+      if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+      if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    });
+
+    // Touch swipe support
+    let touchStartX = 0;
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].screenX - touchStartX;
+      const dy = e.changedTouches[0].screenY - touchStartY;
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+        if (dx < 0) goTo(current + 1);
+        else goTo(current - 1);
+      }
+    }, { passive: true });
+
+    // Auto-hide hint after 5s
+    setTimeout(() => {
+      if (kbHint && !kbHint.classList.contains('hidden')) {
+        kbHint.classList.add('hidden');
+      }
+    }, 5000);
+  })();
+</script>
+
+</body>
+</html>

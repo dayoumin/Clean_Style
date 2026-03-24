@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - UI Layout Guide (Mobile / PC)</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e1e4ed;
+    --text-dim: #8b90a0;
+    --accent: #6c8aff;
+    --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80;
+    --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c;
+    --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171;
+    --pink: #f472b6;
+    --pink-soft: rgba(244,114,182,0.12);
+    --purple: #a78bfa;
+    --purple-soft: rgba(167,139,250,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.25rem; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 2.5rem; }
+  h2 {
+    font-size: 1.15rem; font-weight: 700;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 0.95rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.5rem 0; }
+  th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-dim); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td code {
+    background: var(--surface2);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .tag {
+    display: inline-block; font-size: 0.68rem; padding: 0.1rem 0.45rem;
+    border-radius: 4px; font-weight: 600; margin-right: 0.25rem;
+  }
+  .tag-mobile { background: var(--pink-soft); color: var(--pink); }
+  .tag-pc { background: var(--accent-soft); color: var(--accent); }
+  .tag-shared { background: var(--green-soft); color: var(--green); }
+
+  .note {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    margin: 0.75rem 0;
+  }
+  .note.warn {
+    background: var(--orange-soft);
+    border-left-color: var(--orange);
+  }
+
+  /* Visual Layout Diagrams */
+  .layout-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin: 1rem 0;
+  }
+  @media (max-width: 700px) { .layout-compare { grid-template-columns: 1fr; } }
+
+  .device-frame {
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--surface2);
+  }
+  .device-label {
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.5rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .device-screen {
+    padding: 0;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* Mock UI elements */
+  .mock-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+  }
+  .mock-backdrop.mobile { justify-content: flex-end; }
+  .mock-backdrop.pc { justify-content: center; align-items: center; padding: 1rem; }
+
+  .mock-sheet {
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+  }
+  .mock-sheet.mobile {
+    border-radius: 16px 16px 0 0;
+    max-height: 85%;
+  }
+  .mock-sheet.pc {
+    border-radius: 16px;
+    width: 90%;
+    max-height: 70%;
+  }
+
+  .mock-header {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .mock-close {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: var(--text-dim);
+  }
+  .mock-scroll {
+    flex: 1;
+    overflow: hidden;
+    padding: 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .mock-scroll-label {
+    position: absolute;
+    right: 0.5rem;
+    font-size: 0.55rem;
+    color: var(--accent);
+    writing-mode: vertical-rl;
+    letter-spacing: 0.05em;
+  }
+  .mock-bubble {
+    padding: 0.35rem 0.6rem;
+    border-radius: 8px;
+    font-size: 0.6rem;
+    line-height: 1.4;
+    max-width: 80%;
+  }
+  .mock-bubble.user {
+    background: var(--accent);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 3px;
+  }
+  .mock-bubble.ai {
+    background: var(--surface2);
+    color: var(--text);
+    align-self: flex-start;
+    border-bottom-left-radius: 3px;
+  }
+  .mock-bubble.ai.latest {
+    background: var(--accent-soft);
+    border: 1px solid rgba(108,138,255,0.25);
+  }
+  .mock-footer {
+    flex-shrink: 0;
+    border-top: 1px solid var(--border);
+    padding: 0.5rem 0.6rem;
+    display: flex;
+    gap: 0.4rem;
+  }
+  .mock-btn {
+    flex: 1;
+    padding: 0.3rem;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 0.6rem;
+    font-weight: 600;
+  }
+  .mock-btn.secondary { background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border); }
+  .mock-btn.primary { background: var(--accent); color: white; }
+  .mock-textarea {
+    width: 100%;
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-size: 0.6rem;
+    min-height: 2.2rem;
+    margin-bottom: 0.3rem;
+  }
+  .mock-msg {
+    text-align: center;
+    font-size: 0.55rem;
+    color: var(--text-dim);
+    padding: 0.2rem 0;
+  }
+
+  .arrow-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    margin: 0.3rem 0;
+  }
+  .arrow-label .arrow { color: var(--accent); font-weight: bold; }
+
+  .updated { color: var(--text-dim); font-size: 0.75rem; text-align: center; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<h1><span>Clean Style</span> UI Layout Guide</h1>
+<p class="subtitle">모바일 / PC 반응형 레이아웃 & 컴포넌트 배치 참고</p>
+
+<!-- ============================== 1. BREAKPOINT ============================== -->
+<h2>1. 반응형 브레이크포인트</h2>
+
+<div class="card">
+<table>
+  <tr><th>구분</th><th>Tailwind 접두사</th><th>너비</th><th>적용 대상</th></tr>
+  <tr>
+    <td><span class="tag tag-mobile">모바일</span></td>
+    <td>(기본값)</td>
+    <td>&lt; 640px</td>
+    <td>전체 앱 기본 스타일</td>
+  </tr>
+  <tr>
+    <td><span class="tag tag-pc">PC/태블릿</span></td>
+    <td><code>sm:</code></td>
+    <td>&ge; 640px</td>
+    <td>모달 위치, 패딩, 둥근 모서리</td>
+  </tr>
+</table>
+<div class="note">앱 전체에 <code>max-w-md</code> (448px) 제한이 있어 PC에서도 모바일과 유사한 너비를 유지합니다.</div>
+</div>
+
+<!-- ============================== 2. BOTTOMSHEET ============================== -->
+<h2>2. BottomSheet (AI 조언 모달)</h2>
+
+<h3>모바일 vs PC 비교</h3>
+<div class="card">
+<table>
+  <tr><th>속성</th><th><span class="tag tag-mobile">모바일</span></th><th><span class="tag tag-pc">PC (sm:)</span></th></tr>
+  <tr><td>정렬</td><td><code>items-end</code> (하단 고정)</td><td><code>sm:items-center</code> (중앙)</td></tr>
+  <tr><td>패딩</td><td>없음 (화면 꽉 참)</td><td><code>sm:p-4</code></td></tr>
+  <tr><td>둥근 모서리</td><td><code>rounded-t-[20px]</code> (상단만)</td><td><code>sm:rounded-[20px]</code> (전체)</td></tr>
+  <tr><td>최대 높이</td><td><code>max-h-[85dvh]</code></td><td><code>sm:max-h-[70vh]</code></td></tr>
+  <tr><td>너비</td><td colspan="2"><code>w-full max-w-md</code> (공통)</td></tr>
+</table>
+</div>
+
+<div class="note warn">
+  <strong>dvh vs vh:</strong> 모바일에서 <code>dvh</code> (dynamic viewport height)를 사용하여 주소바/키보드로 인한 뷰포트 변화에 대응합니다.
+  <code>vh</code>는 키보드가 올라와도 변하지 않아 콘텐츠가 잘릴 수 있습니다.
+</div>
+
+<!-- Visual comparison -->
+<h3>시각적 비교</h3>
+<div class="layout-compare">
+  <!-- Mobile -->
+  <div>
+    <div class="device-frame" style="max-width:260px;margin:0 auto;">
+      <div class="device-label"><span class="tag tag-mobile">Mobile</span> 답변 phase</div>
+      <div class="device-screen" style="height:380px;">
+        <div style="flex:1;background:var(--surface2);opacity:0.3;"></div>
+        <div class="mock-backdrop mobile">
+          <div style="flex:1"></div>
+          <div class="mock-sheet mobile" style="height:75%;">
+            <div class="mock-header">
+              <span>AI 맞춤 조언</span>
+              <div class="mock-close">✕</div>
+            </div>
+            <div class="mock-scroll" style="position:relative;">
+              <span class="mock-scroll-label" style="top:0.3rem;">scroll ↕</span>
+              <div class="mock-bubble user">질문 내용...</div>
+              <div class="mock-bubble ai">이전 답변...</div>
+              <div class="mock-bubble user">이어서 질문...</div>
+              <div class="mock-bubble ai latest">최신 답변 (강조)</div>
+            </div>
+            <div class="mock-footer" style="flex-direction:column;gap:0.3rem;">
+              <div class="mock-msg">이어서 질문은 1번 더 가능해요</div>
+              <div style="display:flex;gap:0.4rem;">
+                <div class="mock-btn secondary">새 질문</div>
+                <div class="mock-btn primary">이어서</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PC -->
+  <div>
+    <div class="device-frame" style="max-width:400px;margin:0 auto;">
+      <div class="device-label"><span class="tag tag-pc">PC / Tablet</span> 답변 phase</div>
+      <div class="device-screen" style="height:380px;">
+        <div class="mock-backdrop pc">
+          <div class="mock-sheet pc" style="height:65%;">
+            <div class="mock-header">
+              <span>AI 맞춤 조언</span>
+              <div class="mock-close">✕</div>
+            </div>
+            <div class="mock-scroll" style="position:relative;">
+              <span class="mock-scroll-label" style="top:0.3rem;">scroll ↕</span>
+              <div class="mock-bubble user">질문 내용...</div>
+              <div class="mock-bubble ai">이전 답변...</div>
+              <div class="mock-bubble user">이어서 질문...</div>
+              <div class="mock-bubble ai latest">최신 답변 (강조)</div>
+            </div>
+            <div class="mock-footer" style="flex-direction:column;gap:0.3rem;">
+              <div class="mock-msg">이어서 질문은 1번 더 가능해요</div>
+              <div style="display:flex;gap:0.4rem;">
+                <div class="mock-btn secondary">새 질문</div>
+                <div class="mock-btn primary">이어서</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== 3. MODAL PHASES ============================== -->
+<h2>3. 모달 3가지 Phase 레이아웃</h2>
+
+<div class="layout-compare" style="grid-template-columns: repeat(3, 1fr);">
+  <!-- Phase 1: Input -->
+  <div>
+    <div class="device-frame">
+      <div class="device-label">입력 phase</div>
+      <div class="device-screen" style="height:280px;">
+        <div class="mock-backdrop mobile" style="position:relative;">
+          <div style="flex:1"></div>
+          <div class="mock-sheet mobile" style="height:70%;">
+            <div class="mock-header"><span>AI 맞춤 조언</span><div class="mock-close">✕</div></div>
+            <div class="mock-scroll">
+              <div class="mock-bubble user" style="opacity:0.5">이전 질문</div>
+              <div class="mock-bubble ai" style="opacity:0.5">이전 답변</div>
+            </div>
+            <div class="mock-footer" style="flex-direction:column;gap:0.3rem;">
+              <div class="mock-textarea">이어서 질문해주세요</div>
+              <div class="mock-btn primary" style="width:100%">질문하기</div>
+              <div style="text-align:center;font-size:0.55rem;color:var(--text-dim);">대화 지우기</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="arrow-label"><span class="arrow">&darr;</span> 히스토리: flex-1 scroll / 입력: shrink-0 고정</div>
+  </div>
+
+  <!-- Phase 2: Loading -->
+  <div>
+    <div class="device-frame">
+      <div class="device-label">로딩 phase</div>
+      <div class="device-screen" style="height:280px;">
+        <div class="mock-backdrop mobile" style="position:relative;">
+          <div style="flex:1"></div>
+          <div class="mock-sheet mobile" style="height:70%;">
+            <div class="mock-header"><span>AI 맞춤 조언</span><div class="mock-close">✕</div></div>
+            <div class="mock-scroll" style="align-items:stretch;">
+              <div class="mock-bubble user">현재 질문...</div>
+              <div style="text-align:center;padding:1rem 0;">
+                <div style="width:16px;height:16px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;margin:0 auto 0.3rem;animation:spin 1s linear infinite;"></div>
+                <div style="font-size:0.6rem;color:var(--accent);font-weight:600;">답변을 작성하고 있어요...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="arrow-label"><span class="arrow">&darr;</span> 전체 영역이 하나의 스크롤 컨테이너</div>
+  </div>
+
+  <!-- Phase 3: Answer -->
+  <div>
+    <div class="device-frame">
+      <div class="device-label">답변 phase</div>
+      <div class="device-screen" style="height:280px;">
+        <div class="mock-backdrop mobile" style="position:relative;">
+          <div style="flex:1"></div>
+          <div class="mock-sheet mobile" style="height:70%;">
+            <div class="mock-header"><span>AI 맞춤 조언</span><div class="mock-close">✕</div></div>
+            <div class="mock-scroll">
+              <div class="mock-bubble user">질문...</div>
+              <div class="mock-bubble ai latest">답변 (강조 스타일)</div>
+              <div style="height:1px;"></div>
+            </div>
+            <div class="mock-footer" style="flex-direction:column;gap:0.3rem;">
+              <div style="display:flex;gap:0.4rem;">
+                <div class="mock-btn secondary">새 질문</div>
+                <div class="mock-btn primary">이어서</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="arrow-label"><span class="arrow">&darr;</span> 대화: flex-1 scroll / 버튼: shrink-0 고정</div>
+  </div>
+</div>
+
+@keyframes spin { to { transform: rotate(360deg); } }
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+
+<!-- ============================== 4. FLEX STRUCTURE ============================== -->
+<h2>4. Flex 컨테이너 구조</h2>
+
+<div class="card">
+<pre style="font-size:0.78rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1rem;overflow-x:auto;">
+BottomSheet (flex-col, max-h-[85dvh] / sm:max-h-[70vh])
+├── Header (shrink-0)
+│   ├── "AI 맞춤 조언" 제목
+│   └── ✕ 닫기 버튼
+│
+├── [답변 phase]
+│   ├── 대화 영역 (flex-1 overflow-y-auto px-5 py-4)  ← SCROLL_AREA 상수
+│   │   ├── ChatBubbles: 이전 히스토리 (chatHistory.slice(0,-2))
+│   │   ├── ChatBubbles: 현재 질문 (user, 우측 정렬)
+│   │   ├── 최신 답변 (좌측, 강조 border)
+│   │   └── scrollAnchorRef (자동 스크롤 대상)
+│   └── 하단 고정 (shrink-0 border-t px-5 py-3)
+│       ├── 턴 안내 메시지 (조건부)
+│       └── [새 질문] [이어서] 버튼 행
+│
+├── [로딩 phase]
+│   └── 전체 스크롤 (flex-1 overflow-y-auto px-5 py-4)  ← SCROLL_AREA
+│       ├── ChatBubbles: 히스토리 + 현재 질문
+│       └── 스피너 + "답변을 작성하고 있어요..."
+│
+└── [입력 phase]
+    ├── 히스토리 (flex-1 overflow-y-auto, 있을 때만 렌더)  ← SCROLL_AREA
+    │   └── ChatBubbles: chatHistory 전체
+    └── 하단 고정 (shrink-0, border-t 조건부)
+        ├── textarea (3행, 500자 제한)
+        ├── 에러 메시지 (조건부)
+        ├── [질문하기] 버튼
+        └── [대화 지우기] (히스토리 있을 때만)
+</pre>
+</div>
+
+<div class="note">
+  <strong>SCROLL_AREA</strong> = <code>'flex-1 space-y-3 overflow-y-auto px-5 py-4'</code><br>
+  3개 phase에서 공통으로 사용하는 스크롤 컨테이너 클래스 (상수로 추출됨)
+</div>
+
+<!-- ============================== 5. RESULT PAGE ============================== -->
+<h2>5. 결과 페이지 전체 레이아웃</h2>
+
+<div class="card">
+<pre style="font-size:0.78rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1rem;overflow-x:auto;">
+ResultContent (flex flex-col)
+│
+├── [캡처 영역] (ref={captureRef}, animate-slide-up)
+│   │
+│   ├── 유형 카드 (result-gradient)
+│   │   ├── 이모지 (40px)
+│   │   ├── "당신의 청렴 스타일"
+│   │   ├── 유형명 (24px bold)
+│   │   └── 설명 텍스트
+│   │
+│   ├── 성향 레이더 차트 (StyleRadarChart)
+│   │   └── 6축 시각화 (recharts)
+│   │
+│   ├── 탭 카드 (강점 / 주의 / 팁)
+│   │   ├── 3개 탭 배지 (rounded-full)
+│   │   └── 선택된 탭 내용 (텍스트)
+│   │
+│   └── "AI 맞춤 조언 받기" 버튼
+│       └── 대화 수 배지 (chatHistory.length / 2)
+│
+├── 하단 버튼 (mt-auto, 바닥 고정)
+│   ├── [다시 하기] → router.push('/')
+│   └── [이미지 저장] → html2canvas 캡처
+│
+└── BottomSheet 모달 (showModal 조건부)
+    └── (위 섹션 4 참조)
+</pre>
+</div>
+
+<!-- ============================== 6. CHAT BUBBLES ============================== -->
+<h2>6. ChatBubbles 스타일링</h2>
+
+<div class="card">
+<table>
+  <tr><th>요소</th><th>User (우측)</th><th>AI (좌측)</th><th>AI 최신 답변</th></tr>
+  <tr><td>정렬</td><td><code>justify-end</code></td><td><code>justify-start</code></td><td><code>justify-start</code></td></tr>
+  <tr><td>배경</td><td><code>--color-primary</code></td><td><code>--color-card</code></td><td><code>--color-primary-soft</code></td></tr>
+  <tr><td>텍스트</td><td>white</td><td><code>--color-text-secondary</code></td><td><code>--color-text-secondary</code></td></tr>
+  <tr><td>모서리</td><td><code>rounded-br-sm</code></td><td><code>rounded-bl-sm</code></td><td><code>rounded-bl-sm</code> + border</td></tr>
+  <tr><td>최대 너비</td><td colspan="3"><code>max-w-[85%]</code> (공통)</td></tr>
+  <tr><td>텍스트 크기</td><td colspan="3"><code>text-[13px] leading-relaxed</code> (공통)</td></tr>
+  <tr><td>줄바꿈</td><td colspan="3"><code>whitespace-pre-line</code> (공통 &mdash; AI \n 대응)</td></tr>
+</table>
+<div class="note">
+  최신 답변은 별도 렌더: <code>border border-[--color-primary-muted] bg-[--color-primary-soft]</code><br>
+  이전 대화는 <code>ChatBubbles</code> 컴포넌트로 일괄 렌더링
+</div>
+</div>
+
+<!-- ============================== 7. AUTO SCROLL ============================== -->
+<h2>7. 자동 스크롤</h2>
+
+<div class="card">
+<table>
+  <tr><th>항목</th><th>구현</th></tr>
+  <tr><td>트리거</td><td><code>useEffect([aiAnswer])</code> &mdash; 답변 문자열 변경 시</td></tr>
+  <tr><td>대상</td><td><code>scrollAnchorRef</code> (대화 영역 맨 아래 빈 div)</td></tr>
+  <tr><td>방식</td><td><code>scrollIntoView({ behavior: 'smooth' })</code></td></tr>
+  <tr><td>지연</td><td>100ms (DOM 페인트 대기)</td></tr>
+  <tr><td>클린업</td><td><code>clearTimeout</code> 반환 (언마운트 시 정리)</td></tr>
+</table>
+</div>
+
+<!-- ============================== 8. CHECKLIST ============================== -->
+<h2>8. 수정 시 체크리스트</h2>
+
+<div class="card">
+<table>
+  <tr><th>변경 영역</th><th>확인 사항</th></tr>
+  <tr><td>BottomSheet 높이/너비 변경</td><td>모바일 <code>85dvh</code> + PC <code>70vh</code> 둘 다 테스트, 키보드 올라올 때 확인</td></tr>
+  <tr><td>스크롤 영역 추가/변경</td><td><code>SCROLL_AREA</code> 상수 사용 여부, <code>flex-1</code> + <code>overflow-y-auto</code> 쌍 확인</td></tr>
+  <tr><td>하단 고정 영역 추가</td><td><code>shrink-0</code> + <code>border-t</code> 필수, 부모가 <code>flex-col</code>인지 확인</td></tr>
+  <tr><td>ChatBubbles 스타일 변경</td><td>히스토리 버블 (ChatBubbles) + 최신 답변 (인라인) 두 곳 모두 수정</td></tr>
+  <tr><td>새 모달 phase 추가</td><td>children으로 직접 전달 &mdash; BottomSheet는 래핑 div 없음, children이 flex-col 내부임을 인지</td></tr>
+  <tr><td>턴 제한 변경</td><td><code>constants.ts</code> 수정 후 chatMaxReached/chatLastTurn 계산 확인</td></tr>
+  <tr><td>브레이크포인트 추가</td><td>현재 <code>sm:</code> 하나만 사용 &mdash; <code>md:</code> / <code>lg:</code> 추가 시 모달 내부도 대응 필요</td></tr>
+</table>
+</div>
+
+<div class="note warn">
+  <strong>BottomSheet 주의:</strong> children은 flex-col 컨테이너에 직접 들어갑니다 (래핑 div 없음).
+  따라서 children이 <code>flex-1</code> / <code>shrink-0</code>을 직접 가져야 하며, 새 phase 추가 시 이 구조를 따라야 합니다.
+</div>
+
+<p class="updated">Last updated: 2026-03-24 &middot; Generated for developer reference</p>
+
+</body>
+</html>

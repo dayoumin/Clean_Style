@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>국립수산과학원 생명공학과 — 청렴 스타일 테스트 소개</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #1a1a2e;
+      background: #f8f9fc;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── 레이아웃: 사이드바 + 본문 ── */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── 좌측 사이드바 ── */
+    .sidebar {
+      width: 240px;
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      padding: 32px 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 0 24px;
+      margin-bottom: 32px;
+    }
+    .sidebar-logo .logo-text {
+      font-size: 15px;
+      font-weight: 800;
+      color: #1e293b;
+      line-height: 1.3;
+    }
+    .sidebar-logo .logo-sub {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+    .sidebar nav {
+      display: flex;
+      flex-direction: column;
+    }
+    .nav-group {
+      margin-bottom: 8px;
+    }
+    .nav-group-title {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #94a3b8;
+      padding: 0 24px;
+      margin-bottom: 8px;
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #64748b;
+      text-decoration: none;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+    }
+    .nav-link:hover {
+      background: #f8fafc;
+      color: #1e293b;
+    }
+    .nav-link.active {
+      background: #eef2ff;
+      color: #6366f1;
+      font-weight: 600;
+      border-left-color: #6366f1;
+    }
+    .nav-link .nav-icon {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+    }
+    .nav-divider {
+      height: 1px;
+      background: #f1f5f9;
+      margin: 12px 24px;
+    }
+
+    /* ── 본문 ── */
+    .main {
+      flex: 1;
+      margin-left: 240px;
+      padding: 48px 56px 80px;
+      max-width: calc(100% - 240px);
+    }
+    .content-area {
+      max-width: 780px;
+    }
+
+    /* ── 페이지 전환 ── */
+    .page-section {
+      display: none;
+    }
+    .page-section.active {
+      display: block;
+    }
+
+    /* ── 헤더 ── */
+    .page-header {
+      margin-bottom: 48px;
+    }
+    .page-header .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    .page-header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.35;
+      color: #1a1a2e;
+      margin-bottom: 10px;
+    }
+    .page-header h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .page-header .subtitle {
+      font-size: 15px;
+      color: #64748b;
+      max-width: 520px;
+    }
+
+    /* ── 공통 섹션 ── */
+    section {
+      margin-bottom: 48px;
+    }
+    .section-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: #6366f1;
+      margin-bottom: 10px;
+    }
+    section h2 {
+      font-size: 21px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: #1e293b;
+    }
+    section p {
+      font-size: 15px;
+      color: #475569;
+      margin-bottom: 12px;
+    }
+
+    /* ── 핵심 가치 카드 ── */
+    .value-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .value-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 24px 22px;
+    }
+    .value-card .icon {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
+    .value-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #1e293b;
+    }
+    .value-card p {
+      font-size: 13.5px;
+      color: #64748b;
+      margin: 0;
+    }
+
+    /* ── 비교 테이블 ── */
+    .compare-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 20px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .compare-table th,
+    .compare-table td {
+      padding: 14px 18px;
+      text-align: left;
+      font-size: 13.5px;
+    }
+    .compare-table thead th {
+      background: #f1f5f9;
+      font-weight: 700;
+      color: #475569;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+    .compare-table tbody td {
+      background: #fff;
+      border-top: 1px solid #f1f5f9;
+      color: #475569;
+    }
+    .tag-old,
+    .tag-new {
+      display: block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .tag-old {
+      color: #94a3b8;
+    }
+    .tag-new {
+      color: #6366f1;
+    }
+
+    /* ── 플로우 ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px 18px;
+      flex: 1;
+      min-width: 140px;
+    }
+    .flow-step .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .flow-step .step-text {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .flow-step .step-desc {
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 1px;
+    }
+    .flow-arrow {
+      font-size: 16px;
+      color: #cbd5e1;
+      flex-shrink: 0;
+    }
+
+    /* ── 8유형 그리드 ── */
+    .style-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .style-item {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 18px 14px;
+      text-align: center;
+    }
+    .style-item .emoji { font-size: 30px; margin-bottom: 6px; }
+    .style-item .name { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 3px; }
+    .style-item .desc { font-size: 11px; color: #94a3b8; }
+
+    /* ── AI 하이라이트 ── */
+    .ai-highlight {
+      background: linear-gradient(135deg, #eef2ff, #faf5ff);
+      border: 1px solid #c7d2fe;
+      border-radius: 16px;
+      padding: 28px;
+      margin-top: 20px;
+    }
+    .ai-highlight h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #4338ca;
+      margin-bottom: 14px;
+    }
+    .ai-highlight .chat-example {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px;
+      margin-top: 14px;
+    }
+    .chat-bubble {
+      margin-bottom: 10px;
+      display: flex;
+    }
+    .chat-bubble.user { justify-content: flex-end; }
+    .chat-bubble .bubble {
+      max-width: 78%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .chat-bubble.user .bubble {
+      background: #6366f1;
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-bubble.ai .bubble {
+      background: #f1f5f9;
+      color: #475569;
+      border-bottom-left-radius: 4px;
+    }
+
+    /* ── 장점 리스트 ── */
+    .benefit-list {
+      list-style: none;
+      margin-top: 16px;
+    }
+    .benefit-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 14px;
+      color: #475569;
+    }
+    .benefit-list li:last-child { border-bottom: none; }
+    .benefit-list .check {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #f0fdf4;
+      color: #16a34a;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── 요약 박스 ── */
+    .summary-box {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 16px;
+      padding: 32px 28px;
+      color: #fff;
+      text-align: center;
+    }
+    .summary-box h2 { color: #fff; font-size: 19px; margin-bottom: 10px; }
+    .summary-box p { color: rgba(255,255,255,0.85); font-size: 14px; max-width: 560px; margin: 0 auto; }
+
+    /* ══════════════════════════════════════════
+       사례 분석 페이지 전용 스타일
+       ══════════════════════════════════════════ */
+
+    /* ── 질문 배너 ── */
+    .case-question-banner {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      border: 1px solid #fbbf24;
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 36px;
+    }
+    .case-question-banner .label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #92400e;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .case-question-banner .question {
+      font-size: 17px;
+      font-weight: 700;
+      color: #78350f;
+      line-height: 1.5;
+    }
+
+    /* ── 유형별 답변 카드 ── */
+    .response-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .response-card:hover {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+    .response-card-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 22px;
+      background: #f8fafc;
+      border-bottom: 1px solid #f1f5f9;
+      cursor: pointer;
+      user-select: none;
+    }
+    .response-card-header .rc-emoji {
+      font-size: 28px;
+    }
+    .response-card-header .rc-info {
+      flex: 1;
+    }
+    .response-card-header .rc-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1e293b;
+    }
+    .response-card-header .rc-traits {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+    .response-card-header .rc-scores {
+      display: flex;
+      gap: 6px;
+    }
+    .score-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #eef2ff;
+      color: #6366f1;
+    }
+    .response-card-body {
+      padding: 20px 22px;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #475569;
+    }
+    .response-card-body p {
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .response-card-body p:last-child {
+      margin-bottom: 0;
+    }
+    .response-card-body .encouragement {
+      color: #6366f1;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+
+    /* ── 차이점 분석 영역 ── */
+    .analysis-section {
+      margin-top: 48px;
+    }
+    .analysis-section h2 {
+      font-size: 21px;
+      margin-bottom: 24px;
+    }
+
+    .common-points {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 14px;
+      padding: 24px 26px;
+      margin-bottom: 24px;
+    }
+    .common-points h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #166534;
+      margin-bottom: 12px;
+    }
+    .common-points ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .common-points li {
+      font-size: 14px;
+      color: #475569;
+      padding: 4px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+    .common-points li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: #86efac;
+      font-weight: 700;
+    }
+
+    /* ── 축별 분석 카드 ── */
+    .axis-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 24px 26px;
+      margin-bottom: 16px;
+    }
+    .axis-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .axis-card h3 .axis-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #6366f1;
+      color: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .axis-compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .axis-side {
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .axis-side.side-a {
+      background: #eef2ff;
+    }
+    .axis-side.side-b {
+      background: #faf5ff;
+    }
+    .axis-side h4 {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .axis-side.side-a h4 { color: #4338ca; }
+    .axis-side.side-b h4 { color: #7c3aed; }
+    .axis-side p {
+      font-size: 13px;
+      color: #475569;
+      margin: 0;
+      line-height: 1.7;
+    }
+    .axis-side .quote {
+      display: block;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #6366f1;
+      font-weight: 500;
+      font-style: italic;
+    }
+
+    /* ── 사례 결론 ── */
+    .case-conclusion {
+      background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+      border: 1px solid #86efac;
+      border-radius: 14px;
+      padding: 28px;
+      margin-top: 36px;
+      text-align: center;
+    }
+    .case-conclusion h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #166534;
+      margin-bottom: 10px;
+    }
+    .case-conclusion p {
+      font-size: 14px;
+      color: #475569;
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    /* ── 푸터 ── */
+    .footer {
+      text-align: center;
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+
+    /* ── PPT 배너 ── */
+    .ppt-banner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      background: #f8f9fb;
+      border: 1px solid #e2e5f0;
+      border-radius: 12px;
+      text-decoration: none;
+      color: #1a1a2e;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .ppt-banner:hover {
+      border-color: #6366f1;
+      box-shadow: 0 2px 12px rgba(99, 102, 241, 0.08);
+    }
+    .ppt-banner-icon { font-size: 24px; flex-shrink: 0; }
+    .ppt-banner-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .ppt-banner-text strong {
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .ppt-banner-text span {
+      font-size: 12px;
+      color: #64748b;
+    }
+    .ppt-banner-arrow {
+      margin-left: auto;
+      font-size: 18px;
+      color: #6366f1;
+      font-weight: 600;
+    }
+
+    /* ── QR 배너 ── */
+    .qr-banner {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      background: #f8f9fb;
+      border: 1px solid #e2e5f0;
+      border-radius: 12px;
+    }
+    .qr-banner img {
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .qr-banner-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .qr-banner-text strong {
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+    .qr-banner-text span {
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    /* ── 인쇄 ── */
+    @media print {
+      .sidebar { display: none; }
+      .main { margin-left: 0; max-width: 100%; padding: 20px; }
+      body { background: #fff; }
+      .response-card:hover, .value-card:hover { box-shadow: none; }
+      section, .response-card, .axis-card { page-break-inside: avoid; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; max-width: 100%; padding: 32px 20px 60px; }
+      .value-grid { grid-template-columns: 1fr; }
+      .style-grid { grid-template-columns: repeat(2, 1fr); }
+      .flow { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+      .axis-compare { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+
+    <!-- ══════════════ 좌측 사이드바 ══════════════ -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-text">청렴 스타일 테스트</div>
+        <div class="logo-sub"></div>
+      </div>
+
+      <nav>
+        <div class="nav-group">
+          <div class="nav-group-title">소개</div>
+          <a href="#" class="nav-link active" data-page="intro" data-section="background">
+            <span class="nav-icon">·</span> 기존 교육의 한계
+          </a>
+          <a href="#" class="nav-link" data-page="intro" data-section="core-value">
+            <span class="nav-icon">·</span> 핵심 가치
+          </a>
+          <a href="#" class="nav-link" data-page="intro" data-section="how-it-works">
+            <span class="nav-icon">·</span> 이용 흐름
+          </a>
+          <a href="#" class="nav-link" data-page="intro" data-section="styles">
+            <span class="nav-icon">·</span> 8가지 유형
+          </a>
+          <a href="#" class="nav-link" data-page="intro" data-section="ai-advice">
+            <span class="nav-icon">·</span> AI 맞춤 조언
+          </a>
+          <a href="#" class="nav-link" data-page="intro" data-section="benefits">
+            <span class="nav-icon">·</span> 장점
+          </a>
+        </div>
+
+        <div class="nav-divider"></div>
+
+        <div class="nav-group">
+          <div class="nav-group-title">사례 분석</div>
+          <a href="#" class="nav-link" data-page="case" data-section="case-top">
+            <span class="nav-icon">·</span> 8유형 답변 비교
+          </a>
+          <a href="#" class="nav-link" data-page="case" data-section="case-analysis">
+            <span class="nav-icon">·</span> 축별 차이 분석
+          </a>
+        </div>
+
+        <div class="nav-divider"></div>
+
+        <a href="app-introduction-slides.html" class="nav-link" style="color: var(--accent, #6366f1);">
+          <span class="nav-icon">▶</span> 슬라이드 보기
+        </a>
+      </nav>
+    </aside>
+
+    <!-- ══════════════ 본문 ══════════════ -->
+    <main class="main">
+      <div class="content-area">
+
+        <!-- PPT 슬라이드 안내 배너 -->
+        <a href="app-introduction-slides.html" class="ppt-banner">
+          <span class="ppt-banner-icon">▶</span>
+          <span class="ppt-banner-text">
+            <strong>슬라이드 버전으로 보기</strong>
+          </span>
+          <span class="ppt-banner-arrow">→</span>
+        </a>
+
+        <div class="qr-banner">
+          <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQMAAACXljzdAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABOklEQVRYhe2XsRHDIAxFxVG4zAgZhdHwaIySEVym4FD+FyZHnAwg7qKCwzwKy/76CJF/iCRlHJjsLdbtuNtz9U52DFgonMSn3Aueo3+Ct98OfvbGBWzRtgrBx8dfwO9YikgqXefrk64qLblJZKZXvbkkvYJZC79r2yUZgR1I5ynf4ZEwn7phKDkwk0fCpHonks80IP0ajcjKJFFCyJTuPxwpDL25JZKJblrM/Tc7cnsFeyZ0SxMT3Z9bcAyM/sAx0Ta3Bbe5ShyTHYNpBwcSpE+3DFMvth7B1DLN46iaVeWZ0EZBWMJUVRNxTs5AfyA0IFawinuSLAXrLYM1mSXtn52DS2KKtw7ynU9YmpwdfpHWRTU77AJEzsugLkRUrY/HUr7eszySdxpmOzhy9XoTd0hGBZc82c265B8vAM5jLSrZr9EAAAAASUVORK5CYII=" alt="QR 코드" width="80" height="80">
+          <div class="qr-banner-text">
+            <strong>QR 코드로 바로 시작</strong>
+            <span>모바일에서 스캔하거나 주소를 입력하여 시작할 수 있습니다</span>
+            <span style="color:#6366f1; font-size:13px; font-weight:500;">https://zrr.kr/Q2qAmU</span>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════
+             페이지 1: 소개
+             ═══════════════════════════════════════ -->
+        <div id="page-intro" class="page-section active">
+
+          <header class="page-header" id="background">
+            <div class="badge">소개</div>
+            <h1><em>나의 청렴 스타일은?</em></h1>
+            <p class="subtitle">
+              국립수산과학원 생명공학과 구성원을 위한 청렴 지원 도구 —
+              주입식 교육이 아닌, 스스로 자신의 청렴 스타일을 발견하고
+              AI가 개인별 스타일에 맞춤 조언을 제공합니다
+            </p>
+          </header>
+
+          <!-- 기존 교육의 한계 -->
+          <section>
+            <span class="section-label">Background</span>
+            <h2>기존 청렴 교육의 한계</h2>
+            <p>
+              기존 청렴 교육은 규정과 사례를 일방적으로 전달하는 <strong>주입식 학습</strong>에 머무르는 경우가 많습니다.
+              동일한 내용을 반복해서 듣다 보면 참여자의 관심은 떨어지고, 실제 업무 상황에서의 판단력 향상으로 이어지기 어렵습니다.
+            </p>
+            <table class="compare-table">
+              <thead>
+                <tr>
+                  <th style="width:40%">구분</th>
+                  <th style="width:30%"><span class="tag-old">기존 방식</span>주입식 교육</th>
+                  <th style="width:30%"><span class="tag-new">본 도구</span>자기발견형</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>학습 방식</strong></td>
+                  <td>규정·사례 일방 전달</td>
+                  <td>시나리오 응답 → 성향 분석</td>
+                </tr>
+                <tr>
+                  <td><strong>참여자 역할</strong></td>
+                  <td>수동적 수강</td>
+                  <td>능동적 자기 탐색</td>
+                </tr>
+                <tr>
+                  <td><strong>결과물</strong></td>
+                  <td>공통 교안</td>
+                  <td>개인별 8유형 분석 + 레이더 차트</td>
+                </tr>
+                <tr>
+                  <td><strong>후속 조언</strong></td>
+                  <td>없음 (교육 종료)</td>
+                  <td>AI 대화형 맞춤 조언 (최대 8턴)</td>
+                </tr>
+                <tr>
+                  <td><strong>반복 효과</strong></td>
+                  <td>동일 내용 반복 → 피로감</td>
+                  <td>질문마다 새로운 맞춤 답변</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <!-- 핵심 가치 -->
+          <section id="core-value">
+            <span class="section-label">Core Value</span>
+            <h2>이 도구가 다른 점</h2>
+            <div class="value-grid">
+              <div class="value-card">
+                <div class="icon">🪞</div>
+                <h3>평가가 아닌 자기발견</h3>
+                <p>
+                  정답이 없는 15개 업무 시나리오에 답하면, 나의 자연스러운 판단 패턴을
+                  <strong>원칙↔유연 · 투명↔신중 · 독립↔협력</strong> 3개 축으로 분석합니다.
+                  옳고 그름을 따지지 않으며, 모든 유형이 각자의 강점을 가집니다.
+                </p>
+              </div>
+              <div class="value-card">
+                <div class="icon">🤖</div>
+                <h3>분석된 스타일 기반 AI 맞춤 조언</h3>
+                <p>
+                  분석된 청렴 스타일을 바탕으로, 참여자가 궁금한 실제 업무 상황에 대해
+                  AI가 <strong>해당 스타일의 강점은 살리고 약점은 보완하는 방향</strong>으로
+                  맞춤 조언을 제공합니다. 같은 질문도 유형에 따라 다른 답변이 나옵니다.
+                </p>
+              </div>
+              <div class="value-card">
+                <div class="icon">💬</div>
+                <h3>일회성이 아닌 대화형 상담</h3>
+                <p>
+                  결과를 보고 끝나는 것이 아니라, 궁금한 상황을 자유롭게 질문하고
+                  이어서 대화할 수 있습니다. 대화가 길어지면 AI가 자동으로 맥락을 요약해
+                  일관된 조언을 유지합니다.
+                </p>
+              </div>
+              <div class="value-card">
+                <div class="icon">🎯</div>
+                <h3>실제 업무 맥락에 기반</h3>
+                <p>
+                  국립수산과학원 생명공학과의 실무 — 연구비 집행, 시약·장비 구매, 분석 용역 계약, 산학 협력 등
+                  실제 마주치는 상황을 시나리오로 구성했습니다.
+                  결과와 조언도 해당 업무 맥락에 맞춰 제공됩니다.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 이용 흐름 -->
+          <section id="how-it-works">
+            <span class="section-label">How It Works</span>
+            <h2>이용 흐름</h2>
+            <div class="flow">
+              <div class="flow-step">
+                <div class="step-num">1</div>
+                <div>
+                  <div class="step-text">시나리오 응답</div>
+                  <div class="step-desc">15개 질문 · 약 3분</div>
+                </div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step">
+                <div class="step-num">2</div>
+                <div>
+                  <div class="step-text">스타일 분석</div>
+                  <div class="step-desc">8유형 중 매칭 · 레이더 차트</div>
+                </div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step">
+                <div class="step-num">3</div>
+                <div>
+                  <div class="step-text">강점 · 팁 확인</div>
+                  <div class="step-desc">유형별 강점 · 주의점 · 실천 팁</div>
+                </div>
+              </div>
+              <div class="flow-arrow">→</div>
+              <div class="flow-step">
+                <div class="step-num">4</div>
+                <div>
+                  <div class="step-text">AI 맞춤 상담</div>
+                  <div class="step-desc">내 스타일 기반 대화형 조언</div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 8가지 유형 -->
+          <section id="styles">
+            <span class="section-label">8 Styles</span>
+            <h2>8가지 청렴 스타일</h2>
+            <p>3개 축의 조합으로 8가지 유형이 도출됩니다. 모든 유형은 고유한 강점을 가지며, 어떤 유형도 '나쁜' 유형이 아닙니다.</p>
+            <div class="style-grid">
+              <div class="style-item">
+                <div class="emoji">🛡️</div>
+                <div class="name">소신 수호자</div>
+                <div class="desc">원칙 · 투명 · 독립</div>
+              </div>
+              <div class="style-item">
+                <div class="emoji">⚖️</div>
+                <div class="name">정의의 조율자</div>
+                <div class="desc">원칙 · 투명 · 협력</div>
+              </div>
+              <div class="style-item">
+                <div class="emoji">🏔️</div>
+                <div class="name">묵묵한 파수꾼</div>
+                <div class="desc">원칙 · 신중 · 독립</div>
+              </div>
+              <div class="style-item">
+                <div class="emoji">🤝</div>
+                <div class="name">신중한 중재자</div>
+                <div class="desc">원칙 · 신중 · 협력</div>
+              </div>
+              <div class="style-item">
+                <div class="emoji">🚀</div>
+                <div class="name">실용주의 개척자</div>
+                <div class="desc">유연 · 투명 · 독립</div>
+              </div>
+              <div class="style-item">
+                <div class="emoji">💬</div>
+                <div class="name">열린 소통가</div>
+                <div class="desc">유연 · 투명 · 협력</div>
+              </div>
+              <div class="style-item">
+                <div class="emoji">🎯</div>
+                <div class="name">전략적 해결사</div>
+                <div class="desc">유연 · 신중 · 독립</div>
+              </div>
+              <div class="style-item">
+                <div class="emoji">🕊️</div>
+                <div class="name">온건한 조정자</div>
+                <div class="desc">유연 · 신중 · 협력</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- AI 맞춤 조언 -->
+          <section id="ai-advice">
+            <span class="section-label">Key Feature</span>
+            <h2>AI 맞춤 조언 — 스타일에 따라 달라지는 답변</h2>
+            <p>
+              같은 상황을 질문하더라도, 분석된 청렴 스타일에 따라 AI의 조언 방향이 달라집니다.
+              독립 성향이 강한 참여자에게는 협업 보완 조언을, 유연 성향이 강한 참여자에게는 기록 습관 조언을 제공하는 식입니다.
+            </p>
+            <div class="ai-highlight">
+              <h3>예시: "같은 팀 선배가 출장비를 부풀려 정산하는 것 같은데..."</h3>
+              <div class="chat-example">
+                <div class="chat-bubble user">
+                  <div class="bubble">같은 팀 선배가 출장 택시비를 실제보다 좀 올려서 정산하는 것 같아요. 금액이 크진 않지만, 알면서 모른 척하기도 찝찝하고...</div>
+                </div>
+                <div class="chat-bubble ai">
+                  <div class="bubble">
+                    원칙을 중시하는 「소신 수호자」답게 찝찝함을 그냥 넘기지 않으시는군요.<br/><br/>
+                    출장비 허위 정산은 금액과 관계없이 공금 부정사용에 해당하며,
+                    알면서 묵인하면 본인에게도 리스크가 됩니다.
+                    먼저 실제로 부풀린 것이 맞는지 사실관계를 확인하세요.<br/><br/>
+                    확인이 되면 기관 내부 신고 채널(감사실, 익명 제보)을 활용하는 것이 가장 안전해요.
+                    그 소신이 조직을 지키는 힘이에요!
+                  </div>
+                </div>
+              </div>
+              <p style="margin-top: 16px; font-size: 13px; color: #6366f1;">
+                * 다른 유형(예: 온건한 조정자)이 같은 질문을 하면 "먼저 선배에게 부드럽게 물어보고, 스스로 정정할 기회를 주는 것도 방법이에요" 등 해당 스타일에 맞는 다른 관점의 조언이 제공됩니다.
+                → <a href="#" class="case-link" style="color: #4338ca; font-weight: 600; text-decoration: underline;" data-page="case">사례 분석에서 8유형 전체 비교 보기</a>
+              </p>
+            </div>
+          </section>
+
+          <!-- 장점 -->
+          <section id="benefits">
+            <span class="section-label">Benefits</span>
+            <h2>장점</h2>
+            <ul class="benefit-list">
+              <li>
+                <span class="check">✓</span>
+                <div>
+                  <strong>개인화된 청렴 교육</strong> — 획일적 교안이 아닌, 참여자 각자의 성향에 맞춘 분석과 조언을 제공합니다.
+                  같은 조직 내에서도 사람마다 다른 피드백을 받을 수 있습니다.
+                </div>
+              </li>
+              <li>
+                <span class="check">✓</span>
+                <div>
+                  <strong>자발적 참여 유도</strong> — 3분이면 끝나는 가벼운 테스트 형식으로, 정답 없이 자신의 성향을 탐색하는 구조입니다.
+                  "교육을 받는다"가 아닌 "내 스타일을 알아본다"는 접근이 자발적 참여를 이끌어냅니다.
+                </div>
+              </li>
+              <li>
+                <span class="check">✓</span>
+                <div>
+                  <strong>실무 맥락 반영</strong> — 연구비 집행, 시약·장비 구매, 분석 용역 계약, 산학 협력 등
+                  국립수산과학원 생명공학과 종사자가 실제로 마주치는 상황을 시나리오로 구성했습니다.
+                </div>
+              </li>
+              <li>
+                <span class="check">✓</span>
+                <div>
+                  <strong>AI 대화형 후속 학습</strong> — 결과를 보고 끝이 아닙니다.
+                  자신의 스타일에 기반하여, 궁금한 업무 상황에 대해 AI와 자유롭게 대화하며 실질적인 조언을 받을 수 있습니다.
+                </div>
+              </li>
+              <li>
+                <span class="check">✓</span>
+                <div>
+                  <strong>긍정 중심 피드백</strong> — 모든 유형을 강점 위주로 설명하고, 주의점도 "~하면 더 빛날 수 있어요" 같은 긍정적 제안으로 전달합니다.
+                  청렴을 부담이 아닌 자기발견의 기회로 경험하게 합니다.
+                </div>
+              </li>
+              <li>
+                <span class="check">✓</span>
+                <div>
+                  <strong>공유 · 재방문 가능</strong> — 결과를 이미지로 저장하여 동료와 비교해볼 수 있고,
+                  이전 결과와 대화 기록을 다시 열람할 수 있어 지속적인 자기 점검이 가능합니다.
+                </div>
+              </li>
+            </ul>
+          </section>
+
+          <div class="summary-box">
+            <h2>듣는 교육에서, 발견하는 경험으로</h2>
+            <p>
+              나의 청렴 스타일을 알고, 그 스타일에 맞는 AI 맞춤 조언을 받는 것 —<br/>
+              이것이 주입식 교육과 다른, 이 도구만의 가치입니다.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- ═══════════════════════════════════════
+             페이지 2: 사례 분석
+             ═══════════════════════════════════════ -->
+        <div id="page-case" class="page-section">
+
+          <header class="page-header" id="case-top">
+            <div class="badge">사례 분석</div>
+            <h1>같은 질문, <em>8가지 다른 조언</em></h1>
+            <p class="subtitle">
+              동일한 업무 상황에 대해 8개 청렴 유형이 각각 어떤 조언을 받는지 실제 AI 응답을 비교합니다.
+              핵심 원칙은 유지하면서, 유형별 강점과 보완 방향이 달라지는 것을 확인할 수 있습니다.
+            </p>
+          </header>
+
+          <!-- 질문 배너 -->
+          <div class="case-question-banner">
+            <div class="label">테스트 질문</div>
+            <div class="question">"연구비로 구매한 노트북을 집에 가져가서 개인 업무에도 사용해도 될까요?"</div>
+          </div>
+
+          <!-- 8유형 답변 -->
+          <section>
+            <span class="section-label">8 Responses</span>
+            <h2>유형별 AI 답변</h2>
+            <p>아래는 동일 질문에 대해 각 유형의 성향 점수를 반영하여 AI가 생성한 실제 답변입니다.</p>
+
+            <!-- 소신 수호자 -->
+            <div class="response-card">
+              <div class="response-card-header">
+                <span class="rc-emoji">🛡️</span>
+                <div class="rc-info">
+                  <div class="rc-name">소신 수호자</div>
+                  <div class="rc-traits">원칙 뚜렷 · 투명 · 독립</div>
+                </div>
+                <div class="rc-scores">
+                  <span class="score-pill">원칙 +5</span>
+                  <span class="score-pill">투명 +3</span>
+                  <span class="score-pill">독립 +4</span>
+                </div>
+              </div>
+              <div class="response-card-body">
+                <p>원칙을 중시하는 「소신 수호자」답게 규정을 먼저 확인하시려는군요.</p>
+                <p>연구비 노트북은 연구 목적으로만 사용해야 하며, 개인 업무 사용은 공공재정관리법상 <strong>금지</strong>입니다.</p>
+                <p>집에 가져가는 건 기관 규정에 따라 허용될 수 있지만, 로그와 사용 내역을 연구 전용으로 엄격히 분리하세요. 개인 업무는 별도 노트북을 사용하고, 불확실하면 <strong>한 명의 상급자에게만 공유</strong>해 확인해보세요.</p>
+                <p class="encouragement">당신의 소신이 청렴을 지켜줄 거예요!</p>
+              </div>
+            </div>
+
+            <!-- 정의의 조율자 -->
+            <div class="response-card">
+              <div class="response-card-header">
+                <span class="rc-emoji">⚖️</span>
+                <div class="rc-info">
+                  <div class="rc-name">정의의 조율자</div>
+                  <div class="rc-traits">원칙 · 투명 · 협력</div>
+                </div>
+                <div class="rc-scores">
+                  <span class="score-pill">원칙 +4</span>
+                  <span class="score-pill">투명 +3</span>
+                  <span class="score-pill">협력 -3</span>
+                </div>
+              </div>
+              <div class="response-card-body">
+                <p>규정을 중시하는 「정의의 조율자」답게 안전한 사용을 확인하려 하시는군요.</p>
+                <p>연구비 구매 노트북은 공공재산으로 국가재정법상 공무 전용 원칙입니다. 집에 가져가기는 재택근무 승인 시 가능하나, 개인 업무 사용은 금지되어 청탁금지법 위반 우려가 있어요.</p>
+                <p><strong>팀원이나 상사와 공유해 기관 규정을 함께 확인</strong>하고, 공용만 사용하며 개인 업무는 별도 기기로 분리하세요. 클라우드나 가상환경으로 업무 구분하면 더 투명합니다.</p>
+                <p class="encouragement">팀과 함께라면 더 안심될 거예요!</p>
+              </div>
+            </div>
+
+            <!-- 묵묵한 파수꾼 -->
+            <div class="response-card">
+              <div class="response-card-header">
+                <span class="rc-emoji">🏔️</span>
+                <div class="rc-info">
+                  <div class="rc-name">묵묵한 파수꾼</div>
+                  <div class="rc-traits">원칙 · 신중 · 독립</div>
+                </div>
+                <div class="rc-scores">
+                  <span class="score-pill">원칙 +4</span>
+                  <span class="score-pill">신중 -3</span>
+                  <span class="score-pill">독립 +4</span>
+                </div>
+              </div>
+              <div class="response-card-body">
+                <p>조용히 원칙을 지키려는 「묵묵한 파수꾼」답게 안전한 방법을 찾으시는군요.</p>
+                <p>연구비 구매 자산은 공공 목적으로만 사용해야 하며, 개인 업무 병용은 연구비 관리 규정(국가연구개발사업 관리규정 제18조)에 <strong>위반될 수 있습니다</strong>.</p>
+                <p>집에 가져가기 자체는 기관 규정에 따라 허용될 수 있으니, 먼저 행정팀에 확인하세요. 혼자 판단하시기 쉽지만, <strong>상사 한 분에게 간단히 공유하며 의견을 구해보는 게 좋습니다</strong>.</p>
+                <p class="encouragement">원칙 지키며 현명한 선택 되세요!</p>
+              </div>
+            </div>
+
+            <!-- 신중한 중재자 -->
+            <div class="response-card">
+              <div class="response-card-header">
+                <span class="rc-emoji">🤝</span>
+                <div class="rc-info">
+                  <div class="rc-name">신중한 중재자</div>
+                  <div class="rc-traits">원칙 · 신중 · 협력</div>
+                </div>
+                <div class="rc-scores">
+                  <span class="score-pill">원칙 +3</span>
+                  <span class="score-pill">신중 -4</span>
+                  <span class="score-pill">협력 -3</span>
+                </div>
+              </div>
+              <div class="response-card-body">
+                <p>신중하게 상황을 파악하시려는 「신중한 중재자」답게 좋은 질문이네요.</p>
+                <p>연구비 구매 장비는 국가연구개발사업 관리규정상 연구 목적으로 한정되니, 개인 업무 병행은 피하세요.</p>
+                <p>집에 가져가려면 먼저 기관 규정을 확인하고 <strong>팀장님께 상황 공유하며 승인</strong> 받으세요. 대안으로 연구용 계정과 개인 계정을 철저히 분리해 사용 로그를 기록하면 안전합니다.</p>
+                <p class="encouragement">원칙 지키며 팀과 협의하는 당신의 방식이 빛을 발할 거예요!</p>
+              </div>
+            </div>
+
+            <!-- 실용주의 개척자 -->
+            <div class="response-card">
+              <div class="response-card-header">
+                <span class="rc-emoji">🚀</span>
+                <div class="rc-info">
+                  <div class="rc-name">실용주의 개척자</div>
+                  <div class="rc-traits">유연 · 투명 · 독립</div>
+                </div>
+                <div class="rc-scores">
+                  <span class="score-pill">유연 -3</span>
+                  <span class="score-pill">투명 +2</span>
+                  <span class="score-pill">독립 +5</span>
+                </div>
+              </div>
+              <div class="response-card-body">
+                <p>상황에 맞게 판단하는 「실용주의 개척자」답게 실용적인 고민이시네요.</p>
+                <p>연구비 노트북은 공공 자산으로, 국가연구개발사업 관리규정상 공무 외 개인 용도 사용이 <strong>원칙적으로 금지</strong>됩니다.</p>
+                <p>집에 가져가기는 재택근무 승인 후 가능하지만, 개인 업무는 별도 기기로 분리하세요. 과정을 <strong>상급자 한 분에게 공유</strong>하고 사용 로그를 간단히 기록하면 투명성과 안전이 보장됩니다.</p>
+                <p><strong>유연한 판단 근거를 한 줄 메모로 남겨두세요.</strong></p>
+                <p class="encouragement">당신의 주도력이 청렴을 지켜줄 거예요!</p>
+              </div>
+            </div>
+
+            <!-- 열린 소통가 -->
+            <div class="response-card">
+              <div class="response-card-header">
+                <span class="rc-emoji">💬</span>
+                <div class="rc-info">
+                  <div class="rc-name">열린 소통가</div>
+                  <div class="rc-traits">유연 · 투명 · 협력</div>
+                </div>
+                <div class="rc-scores">
+                  <span class="score-pill">유연 -3</span>
+                  <span class="score-pill">투명 +3</span>
+                  <span class="score-pill">협력 -4</span>
+                </div>
+              </div>
+              <div class="response-card-body">
+                <p>모두와 공유하며 유연하게 진행하는 「열린 소통가」답게, 안전한 사용법을 확인해보세요.</p>
+                <p>연구비 노트북은 연구 목적으로만 사용해야 하며(국가R&D사업 관리규정 제17조), 개인 업무는 별도 기기로 분리하세요.</p>
+                <p>집에 가져가기는 출퇴근 시 가능하지만, <strong>사용 목적을 간단히 기록하고 팀장에게 공유</strong>하면 투명성이 더 빛납니다. 유연한 판단 시 규정 한 줄 메모를 남겨두면 추후 확인이 수월해요.</p>
+                <p class="encouragement">공유로 청렴을 지켜가세요!</p>
+              </div>
+            </div>
+
+            <!-- 전략적 해결사 -->
+            <div class="response-card">
+              <div class="response-card-header">
+                <span class="rc-emoji">🎯</span>
+                <div class="rc-info">
+                  <div class="rc-name">전략적 해결사</div>
+                  <div class="rc-traits">유연 · 신중 · 독립</div>
+                </div>
+                <div class="rc-scores">
+                  <span class="score-pill">유연 -4</span>
+                  <span class="score-pill">신중 -3</span>
+                  <span class="score-pill">독립 +5</span>
+                </div>
+              </div>
+              <div class="response-card-body">
+                <p>상황을 전략적으로 판단하는 「전략적 해결사」답게 안전한 방법을 모색 중이시네요.</p>
+                <p>연구비 구매 노트북은 국가재정법상 공공 목적 전용이 원칙이며, 개인 업무 사용은 금지될 수 있습니다. 집 반입은 업무 필요 시 기관 규정 확인 후 보고하세요.</p>
+                <p>개인 업무는 별도 기기 사용하고, <strong>사용 내역을 한 줄씩 기록</strong>하면 신중함이 빛납니다. <strong>독립적으로 결정 전에 상급자 한 분에게 공유</strong>해보세요.</p>
+                <p class="encouragement">현명한 선택 되실 거예요!</p>
+              </div>
+            </div>
+
+            <!-- 온건한 조정자 -->
+            <div class="response-card">
+              <div class="response-card-header">
+                <span class="rc-emoji">🕊️</span>
+                <div class="rc-info">
+                  <div class="rc-name">온건한 조정자</div>
+                  <div class="rc-traits">유연 · 신중 · 협력</div>
+                </div>
+                <div class="rc-scores">
+                  <span class="score-pill">유연 -5</span>
+                  <span class="score-pill">신중 -3</span>
+                  <span class="score-pill">협력 -4</span>
+                </div>
+              </div>
+              <div class="response-card-body">
+                <p>팀 합의로 부드럽게 풀어가는 「온건한 조정자」답게, 안전한 사용 방식을 고민 중이시네요.</p>
+                <p>연구비 구매 자산은 공공기관법상 공용 목적으로 한정되니, 개인 업무 병행은 규정 위반 위험이 있어요.</p>
+                <p>먼저 기관 자산관리 규정을 확인하고, <strong>팀장에게 "집에서 연구 업무 위해 가져가도 될까요?"라고 간단히 문의</strong>하세요. 사용 시 연구 업무 로그를 간단히 기록하고, 개인 파일은 별도 분리하면 투명하게 관리할 수 있습니다.</p>
+                <p class="encouragement">작은 합의부터 시작하면 불안 없이 진행돼요. 항상 현명한 선택 하세요!</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 차이점 분석 -->
+          <div class="analysis-section" id="case-analysis">
+            <span class="section-label">Analysis</span>
+            <h2>축별 차이 분석</h2>
+
+            <div class="common-points">
+              <h3>8개 유형 공통 — 핵심 원칙은 동일</h3>
+              <ul>
+                <li>"개인 업무 사용은 금지 / 규정 위반" — 핵심 결론이 동일합니다</li>
+                <li>"별도 기기로 분리" — 대안 제시가 공통입니다</li>
+                <li>관련 법규(국가재정법, 연구비 관리규정 등)를 언급합니다</li>
+                <li>격려하는 톤으로 마무리합니다</li>
+              </ul>
+            </div>
+
+            <!-- 축 1 -->
+            <div class="axis-card">
+              <h3><span class="axis-num">1</span> 원칙 vs 유연 — 톤과 단호함의 차이</h3>
+              <div class="axis-compare">
+                <div class="axis-side side-a">
+                  <h4>원칙 성향</h4>
+                  <p>
+                    규정을 먼저 제시하고, 예외 없이 준수할 것을 강조합니다.
+                    표현도 보다 단호합니다.
+                  </p>
+                  <span class="quote">"금지입니다" · "엄격히 분리" · "위반될 수 있습니다"</span>
+                </div>
+                <div class="axis-side side-b">
+                  <h4>유연 성향</h4>
+                  <p>
+                    현실적 대안(재택근무 승인, 로그 기록)을 먼저 제시하고,
+                    유연한 판단의 근거를 남길 것을 보완 조언합니다.
+                  </p>
+                  <span class="quote">"원칙적으로 금지" · "판단 근거를 한 줄 메모로 남겨두세요"</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 축 2 -->
+            <div class="axis-card">
+              <h3><span class="axis-num">2</span> 독립 vs 협력 — 행동 제안의 방향</h3>
+              <div class="axis-compare">
+                <div class="axis-side side-a">
+                  <h4>독립 성향</h4>
+                  <p>
+                    혼자 결정하는 경향을 보완하기 위해
+                    <strong>최소한의 공유</strong>를 제안합니다.
+                  </p>
+                  <span class="quote">"상급자 한 분에게만 공유" · "한 명에게 확인"</span>
+                </div>
+                <div class="axis-side side-b">
+                  <h4>협력 성향</h4>
+                  <p>
+                    기존 협력 성향을 살려
+                    <strong>팀 합의 과정</strong>을 자연스럽게 제안합니다.
+                  </p>
+                  <span class="quote">"팀원이나 상사와 공유해 함께 확인" · "팀과 함께라면 더 안심"</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 축 3 -->
+            <div class="axis-card">
+              <h3><span class="axis-num">3</span> 투명 vs 신중 — 기록과 공개의 강조도</h3>
+              <div class="axis-compare">
+                <div class="axis-side side-a">
+                  <h4>투명 성향</h4>
+                  <p>
+                    이미 투명한 성향이므로,
+                    <strong>공개 방법의 구체적 팁</strong>을 제공합니다.
+                  </p>
+                  <span class="quote">"클라우드나 가상환경으로 업무 구분하면 더 투명" · "사용 목적을 기록하고 팀장에게 공유"</span>
+                </div>
+                <div class="axis-side side-b">
+                  <h4>신중 성향</h4>
+                  <p>
+                    신중함을 장점으로 인정하면서,
+                    <strong>공유 시점을 빠르게</strong> 하라는 보완 조언을 합니다.
+                  </p>
+                  <span class="quote">"행정팀에 확인" · "사용 내역을 한 줄씩 기록하면 신중함이 빛남"</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 사례 결론 -->
+            <div class="case-conclusion">
+              <h3>동일한 질문, 다른 맞춤 조언</h3>
+              <p>
+                3개 축(원칙↔유연, 투명↔신중, 독립↔협력)의 점수 조합에 따라
+                조언의 <strong>톤, 행동 제안 방향, 보완 포인트</strong>가 모두 달라집니다.<br/>
+                핵심 원칙(규정 준수)은 동일하게 유지하면서,
+                각 참여자의 <strong>강점은 살리고 약점은 보완</strong>하는 맞춤 조언이 작동하고 있습니다.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+        <footer class="footer">
+          국립수산과학원 생명공학과 — 청렴 스타일 테스트 소개
+        </footer>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ── 내비게이션 스크립트 ── -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const navLinks = document.querySelectorAll('.nav-link');
+      const caseLinks = document.querySelectorAll('.case-link');
+      const pages = document.querySelectorAll('.page-section');
+
+      function switchTo(pageName, sectionId) {
+        // 페이지 전환
+        pages.forEach(p => p.classList.remove('active'));
+        const target = document.getElementById('page-' + pageName);
+        if (target) target.classList.add('active');
+
+        // 내비 활성 상태
+        navLinks.forEach(l => l.classList.remove('active'));
+        const activeLink = document.querySelector(`.nav-link[data-page="${pageName}"][data-section="${sectionId}"]`);
+        if (activeLink) activeLink.classList.add('active');
+
+        // 섹션으로 스크롤
+        if (sectionId) {
+          const el = document.getElementById(sectionId);
+          if (el) {
+            setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+          }
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const page = link.dataset.page;
+          const section = link.dataset.section;
+          switchTo(page, section);
+        });
+      });
+
+      // "사례 분석에서 8유형 전체 비교 보기" 링크
+      caseLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          switchTo('case', 'case-top');
+        });
+      });
+
+      // 스크롤 시 내비 하이라이트 업데이트
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            if (!id) return;
+            const link = document.querySelector(`.nav-link[data-section="${id}"]`);
+            if (link) {
+              navLinks.forEach(l => l.classList.remove('active'));
+              link.classList.add('active');
+            }
+          }
+        });
+      }, { rootMargin: '-20% 0px -60% 0px' });
+
+      document.querySelectorAll('[id]').forEach(el => {
+        if (el.id.startsWith('page-')) return;
+        observer.observe(el);
+      });
+    });
+  </script>
+</body>
+</html>
