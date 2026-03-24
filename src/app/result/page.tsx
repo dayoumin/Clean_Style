@@ -134,6 +134,7 @@ function ResultContent() {
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
   const [chatSummary, setChatSummary] = useState('');
   const summarizingRef = useRef(false);
+  const summarizeAbortRef = useRef<AbortController | null>(null);
 
   const historyId = searchParams.get('hid') ?? '';
   const styleKey = searchParams.get('style') ?? '';
@@ -152,6 +153,34 @@ function ResultContent() {
     }
   }, [aiAnswer]);
 
+  const triggerSummarize = async (messages: { role: 'user' | 'assistant'; content: string }[]) => {
+    if (summarizingRef.current) return;
+    summarizingRef.current = true;
+    summarizeAbortRef.current?.abort();
+    const controller = new AbortController();
+    summarizeAbortRef.current = controller;
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: 'summarize',
+          history: messages.slice(0, SUMMARIZE_AT_MESSAGES),
+          styleKey,
+        }),
+        signal: controller.signal,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setChatSummary(data.summary);
+      }
+    } catch {
+      // 요약 실패/취소 시 무시 — 전체 히스토리로 계속 진행
+    } finally {
+      summarizingRef.current = false;
+    }
+  };
+
   // historyId 변경 시 채팅 로드 (없으면 리셋)
   const chatLoadedRef = useRef(false);
   useEffect(() => {
@@ -163,6 +192,10 @@ function ResultContent() {
     if (entry?.chat.length) {
       chatLoadedRef.current = true;
       setChatHistory(entry.chat);
+      // 재방문 시 히스토리가 충분하면 즉시 요약 생성
+      if (entry.chat.length >= SUMMARIZE_AT_MESSAGES) {
+        triggerSummarize(entry.chat);
+      }
     } else {
       setChatHistory([]);
     }
@@ -199,6 +232,7 @@ function ResultContent() {
   };
 
   const resetModal = () => {
+    summarizeAbortRef.current?.abort();
     clearChatUI();
     setChatHistory([]);
     setChatSummary('');
@@ -214,30 +248,6 @@ function ResultContent() {
   };
 
   const continueChat = clearChatUI;
-
-  const triggerSummarize = async (messages: { role: 'user' | 'assistant'; content: string }[]) => {
-    if (summarizingRef.current) return;
-    summarizingRef.current = true;
-    try {
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mode: 'summarize',
-          history: messages.slice(0, SUMMARIZE_AT_MESSAGES),
-          styleKey,
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setChatSummary(data.summary);
-      }
-    } catch {
-      // 요약 실패 시 무시 — 전체 히스토리로 계속 진행
-    } finally {
-      summarizingRef.current = false;
-    }
-  };
 
   const fetchAnswer = async () => {
     if (aiLoading || !userContext.trim()) return;

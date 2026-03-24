@@ -106,6 +106,7 @@ const QA_SYSTEM_PROMPT_CONTINUE = `${QA_BASE}
 
 // 대화 요약 프롬프트
 const SUMMARIZE_SYSTEM_PROMPT = `아래 대화를 3문장 이내로 요약하세요.
+- 사용자의 청렴 스타일 유형명을 반드시 포함
 - 사용자의 주요 관심사와 질문 주제
 - AI가 제공한 핵심 조언 내용
 - 간결하고 명확하게, 일반 텍스트로만 응답`;
@@ -377,8 +378,8 @@ export async function POST(request: NextRequest) {
           ? `${basePrompt}\n\n## 이전 대화 요약\n${safeSummary}`
           : basePrompt;
         const cleanedQuestion = sanitizeUserInput(userContext);
-        const isFirstTurn = !hasHistory && !safeSummary;
-        const userMessage = isFirstTurn
+        const needsStyleContext = !hasHistory;
+        const userMessage = needsStyleContext
           ? `나의 청렴 스타일: ${style.name} (${style.description})\n\n질문: ${cleanedQuestion}`
           : cleanedQuestion;
 
