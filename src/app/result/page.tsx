@@ -97,7 +97,7 @@ function ResultContent() {
   const [capturing, setCapturing] = useState(false);
   const [userContext, setUserContext] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
-  const toastTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [activeTab, setActiveTab] = useState<'strength' | 'caution' | 'tip'>('strength');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
   const [chatSummary, setChatSummary] = useState('');
