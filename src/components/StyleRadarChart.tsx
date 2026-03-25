@@ -75,7 +75,7 @@ export default function StyleRadarChart({ sixAxis }: StyleRadarChartProps) {
   return (
     <ChartContainer
       config={chartConfig}
-      className="mx-auto max-h-[280px] w-full"
+      className="mx-auto max-h-[240px] w-full"
     >
       <RadarChart data={data} cx="50%" cy="50%" outerRadius="75%">
         <defs>

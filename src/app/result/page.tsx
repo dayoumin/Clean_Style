@@ -88,7 +88,7 @@ function ResultContent() {
   const abortRef = useRef<AbortController | null>(null);
   const scrollAnchorRef = useRef<HTMLDivElement>(null);
   const isRevisit = searchParams.has('hid');
-  const isShared = !searchParams.has('hid');
+  const isShared = !isRevisit;
   const [analyzing, setAnalyzing] = useState(!isRevisit && !isShared);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAnswer, setAiAnswer] = useState('');
@@ -97,6 +97,7 @@ function ResultContent() {
   const [capturing, setCapturing] = useState(false);
   const [userContext, setUserContext] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout>>();
   const [activeTab, setActiveTab] = useState<'strength' | 'caution' | 'tip'>('strength');
   const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'assistant'; content: string }[]>([]);
   const [chatSummary, setChatSummary] = useState('');
@@ -111,6 +112,7 @@ function ResultContent() {
     return () => {
       abortRef.current?.abort();
       summarizeAbortRef.current?.abort();
+      clearTimeout(toastTimerRef.current);
     };
   }, []);
 
@@ -123,9 +125,9 @@ function ResultContent() {
   }, [aiAnswer]);
 
   const triggerSummarize = async (messages: { role: 'user' | 'assistant'; content: string }[]) => {
-    if (summarizingRef.current) return;
-    summarizingRef.current = true;
+    // in-flight 요약이 있으면 취소하고 최신으로 교체 (유실 방지)
     summarizeAbortRef.current?.abort();
+    summarizingRef.current = true;
     const controller = new AbortController();
     summarizeAbortRef.current = controller;
     try {
@@ -155,6 +157,8 @@ function ResultContent() {
   // historyId 변경 시 채팅 로드 (없으면 리셋)
   const chatLoadedRef = useRef(false);
   useEffect(() => {
+    setChatSummary('');
+    setSummarizedUpTo(0);
     if (!historyId) {
       setChatHistory([]);
       return;
@@ -203,7 +207,9 @@ function ResultContent() {
   };
 
   const resetModal = () => {
+    abortRef.current?.abort();
     summarizeAbortRef.current?.abort();
+    setAiLoading(false);
     clearChatUI();
     setChatHistory([]);
     setChatSummary('');
@@ -365,8 +371,11 @@ function ResultContent() {
     const url = new URL(window.location.href);
     url.searchParams.delete('hid');
     navigator.clipboard.writeText(url.toString()).then(() => {
+      clearTimeout(toastTimerRef.current);
       setToastVisible(true);
-      setTimeout(() => setToastVisible(false), 2000);
+      toastTimerRef.current = setTimeout(() => setToastVisible(false), 2000);
+    }).catch(() => {
+      // clipboard API 실패 시 무시 (non-secure context 등)
     });
   };
 
