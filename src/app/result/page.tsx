@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { styleTypes, computeSixAxisScores, type StyleType } from '@/data/questions';
 import StyleRadarChart from '@/components/StyleRadarChart';
 import type html2canvasType from 'html2canvas';
-import { MAX_HISTORY_MESSAGES, SUMMARIZE_AT_MESSAGES } from '@/lib/constants';
+import { MAX_HISTORY_MESSAGES, SUMMARIZE_AT_MESSAGES, MAX_QUESTION_LENGTH } from '@/lib/constants';
 import { getHistoryEntry, updateChat, clearChat } from '@/lib/history';
 import BottomSheet from '@/components/BottomSheet';
 import { cn } from '@/lib/utils';
@@ -503,9 +503,36 @@ function ResultContent() {
       {/* AI 조언 모달 — 본인만 */}
       {!isShared && showModal && (
         <BottomSheet title="✨ AI 맞춤 조언" onClose={() => { if (!aiLoading) { setShowModal(false); closeModal(); } }}>
-          {aiAnswer ? (
+          {aiLoading ? (
             <>
-              {/* 대화 영역 — 스크롤 */}
+              <div className={SCROLL_AREA}>
+                <ChatBubbles messages={chatHistory} />
+                <ChatBubbles messages={[{ role: 'user', content: userContext }]} />
+                {aiAnswer ? (
+                  <div className="flex justify-start">
+                    <div className="max-w-[85%] rounded-[var(--radius-md)] rounded-bl-sm border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-3.5 py-2.5">
+                      <p className="text-[13px] leading-relaxed text-[var(--color-text-secondary)] whitespace-pre-line">{aiAnswer}<span className="inline-block w-1.5 h-4 bg-[var(--color-primary-accent)] animate-pulse ml-0.5 align-text-bottom" /></p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="py-4 text-center">
+                    <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-primary-accent)] border-t-transparent mb-3" />
+                    <p className="text-[14px] font-semibold text-[var(--color-primary-accent)]">답변을 작성하고 있어요...</p>
+                  </div>
+                )}
+                <div ref={scrollAnchorRef} />
+              </div>
+              <div className="shrink-0 border-t border-[var(--color-border)] px-5 py-3">
+                <button
+                  onClick={() => { abortRef.current?.abort(); setAiLoading(false); }}
+                  className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
+                >
+                  중단
+                </button>
+              </div>
+            </>
+          ) : aiAnswer ? (
+            <>
               <div className={SCROLL_AREA}>
                 <ChatBubbles messages={chatHistory.slice(0, -2)} />
                 <ChatBubbles messages={[{ role: 'user', content: userContext }]} />
@@ -517,7 +544,6 @@ function ResultContent() {
                 <div ref={scrollAnchorRef} />
               </div>
 
-              {/* 하단 고정 액션 */}
               <div className="shrink-0 space-y-2 border-t border-[var(--color-border)] px-5 py-3">
                 {chatMaxReached && (
                   <p className="text-center text-[12px] text-[var(--color-text-muted)]">
@@ -546,15 +572,6 @@ function ResultContent() {
                 </div>
               </div>
             </>
-          ) : aiLoading ? (
-            <div className={SCROLL_AREA}>
-              <ChatBubbles messages={chatHistory} />
-              <ChatBubbles messages={[{ role: 'user', content: userContext }]} />
-              <div className="py-4 text-center">
-                <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-primary-accent)] border-t-transparent mb-3" />
-                <p className="text-[14px] font-semibold text-[var(--color-primary-accent)]">답변을 작성하고 있어요...</p>
-              </div>
-            </div>
           ) : (
             <>
               {/* 대화 히스토리 — 스크롤 (있을 때만) */}
@@ -566,24 +583,36 @@ function ResultContent() {
 
               {/* 하단 입력 */}
               <div className={cn('shrink-0 space-y-3 px-5 py-3', chatHistory.length > 0 ? 'border-t border-[var(--color-border)]' : 'pt-0')}>
-                <textarea
-                  value={userContext}
-                  onChange={(e) => setUserContext(e.target.value)}
-                  maxLength={500}
-                  placeholder={chatHistory.length > 0 ? "이어서 질문해주세요" : "궁금한 상황을 자유롭게 질문해주세요"}
-                  className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-[14px] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-accent)]"
-                  rows={3}
-                />
+                <div className="relative">
+                  <textarea
+                    value={userContext}
+                    onChange={(e) => setUserContext(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (userContext.trim()) fetchAnswer(); } }}
+                    maxLength={MAX_QUESTION_LENGTH}
+                    placeholder={chatHistory.length > 0 ? "이어서 질문해주세요" : "궁금한 상황을 자유롭게 질문해주세요"}
+                    className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 pr-14 text-[14px] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-accent)]"
+                    rows={3}
+                  />
+                  <span className="absolute bottom-2 right-3 text-[11px] text-[var(--color-text-muted)]">{userContext.length}/{MAX_QUESTION_LENGTH}</span>
+                </div>
                 {aiError && (
                   <p className="text-[13px] text-red-500">답변 생성에 실패했어요. 다시 시도해주세요.</p>
                 )}
-                <button
-                  onClick={fetchAnswer}
-                  disabled={!userContext.trim()}
-                  className="w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  질문하기
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => { setShowModal(false); closeModal(); }}
+                    className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-3 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
+                  >
+                    닫기
+                  </button>
+                  <button
+                    onClick={fetchAnswer}
+                    disabled={!userContext.trim()}
+                    className="flex-[2] rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    질문하기
+                  </button>
+                </div>
                 {chatHistory.length > 0 && (
                   <button
                     onClick={handleDeleteChat}

@@ -19,6 +19,14 @@
 - MAX_HISTORY_MESSAGES = 20 (10턴 = user+assistant 20개)
 - SUMMARIZE_AT_MESSAGES = 8 (4턴마다 요약 트리거)
 - MAX_CONTENT_LENGTH = 2000 (메시지당 최대 길이)
+- MAX_QUESTION_LENGTH = 500 (사용자 질문 입력 제한)
+
+### 정량 참고
+- AI 모델: x-ai/grok-4.1-fast (OpenRouter 경유, 입력 ~$5/1M tokens)
+- 평균 메시지 길이: user ~50토큰, assistant ~150토큰
+- 20메시지 전체 전송 시 약 2,000토큰 (≈$0.01)
+- 스트리밍 타임아웃: 30s (non-stream: 10s) — 600토큰 생성에 ~5-15s 소요
+- describeScores 임계값: ±1(약간), ±3(뚜렷) — 15문항 기준 점수 범위 -13~+14, 시뮬레이션 평균 ±3 이내
 
 ### 스트리밍 (SSE)
 - 서버: `chatStream()` → OpenRouter API에 `stream: true` 요청 → SSE ReadableStream 반환
@@ -45,7 +53,7 @@
 ## 검토 요청 사항
 
 ### A. 스트리밍 안정성
-1. `chatStream()`의 `cancel()` 콜백이 Cloudflare Workers 환경에서 확실히 호출되나? CF에서 클라이언트 disconnect 시 ReadableStream.cancel()이 보장되지 않는다는 보고가 있음
+1. `chatStream()`의 `cancel()` 콜백이 Cloudflare Workers 환경에서 확실히 호출되나? (확실하지 않으면 "불확실"로 표시하고, 출처가 있으면 링크 첨부)
 2. 서버에서 OpenRouter error frame(`chunk.error`)은 감지하고 SSE 에러로 전달. 하지만 malformed JSON chunk는 `catch { continue }`로 스킵됨 — 에러가 malformed chunk에 담겨오면 유실 가능한가?
 3. 5토큰 배치 갱신(`tokenCount % 5 === 0`) — 마지막 토큰이 5의 배수가 아닐 때 `if (tokenCount % 5 !== 0) setAiAnswer(fullAnswer)` 로 마무리. 이 패턴에 엣지 케이스는?
 
@@ -53,7 +61,7 @@
 1. `summarizedUpTo`가 히스토리 trim에 연동됨: `Math.max(0, summarizedUpTo - trimmed)`. 이 계산이 모든 경우에 올바른가?
 2. 요약 실패 시 `summarizedUpTo`는 갱신 안 됨 → `chatHistory.slice(summarizedUpTo)`가 전체 미요약 히스토리를 보냄. 이 fallback이 토큰 비용 면에서 괜찮은가? (최대 20메시지 전체 전송)
 3. 재방문 시 `chatSummary=''`, `summarizedUpTo=0`이지만 localStorage에서 12메시지 로드 → 즉시 요약 트리거 → 성공 시 `summarizedUpTo=12` → 다음 질문에서 `slice(12)` = 빈 배열. 이 흐름이 정확한가?
-4. `triggerSummarize`의 closure가 `chatSummary`를 캡처 — setChatHistory 직후 동기 호출인데, 이 시점의 chatSummary가 최신인가?
+4. `triggerSummarize`는 in-flight 요약을 abort하고 최신으로 교체하는 방식. abort 후 새 요청 사이에 race condition이 있는가? closure가 `chatSummary`를 캡처하는데 이 시점의 값이 최신인가?
 5. 4턴(8msg), 8턴(16msg)에서 트리거. 그런데 10턴(20msg)에서는 `20/2=10, 10%4=2`이므로 트리거 안 됨. 이게 의도된 건가?
 
 ### C. 성향 반영 프롬프트
@@ -202,8 +210,11 @@ const fetchAnswer = async () => {
 
 ```typescript
 const triggerSummarize = async (messages) => {
-  if (summarizingRef.current) return;
+  // in-flight 요약이 있으면 취소하고 최신으로 교체 (유실 방지)
+  summarizeAbortRef.current?.abort();
   summarizingRef.current = true;
+  const controller = new AbortController();
+  summarizeAbortRef.current = controller;
   try {
     const res = await fetch('/api/analyze', {
       body: JSON.stringify({
@@ -212,13 +223,14 @@ const triggerSummarize = async (messages) => {
         summary: chatSummary || undefined,
         styleKey,
       }),
+      signal: controller.signal,
     });
     if (res.ok) {
       const data = await res.json();
       setChatSummary(data.summary);
       setSummarizedUpTo(messages.length);
     }
-  } catch { /* 실패 시 무시 */ }
+  } catch { /* 실패/취소 시 무시 — 전체 히스토리로 계속 진행 */ }
   finally { summarizingRef.current = false; }
 };
 ```
@@ -301,6 +313,9 @@ const resetModal = () => {
 
 ## 응답 형식
 
-각 검토 항목(A~E)별로 짧게 코멘트하고, 마지막에 심각도별 정리해줘.
-특히 Cloudflare Workers에서의 스트리밍 호환성, summarizedUpTo 로직 정합성, 요약 토큰 비용에 비중을 둬줘.
+1. **확정 이슈 (Findings)** — 코드에서 확인 가능한 결함. 심각도(High/Medium/Low) + 근거 라인 표시
+2. **추정/의견** — 코드만으로 확정 불가하지만 리스크가 있는 항목. "추정" 명시
+3. **불확실** — 외부 플랫폼 동작(CF Workers, OpenRouter 등) 관련. 출처가 없으면 "불확실"로 남기고 추측하지 마
+
+우선순위: summarizedUpTo 로직 정합성 > 스트리밍 abort 완전성 > 토큰 비용
 ```

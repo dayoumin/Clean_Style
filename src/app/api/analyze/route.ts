@@ -3,7 +3,7 @@ import { chat, chatStream } from '@/lib/ai';
 import { styleTypes, questions, calculateResult } from '@/data/questions';
 import { isValidAnalysisResult } from '@/types/analysis';
 import type { AnalysisResult } from '@/types/analysis';
-import { MAX_HISTORY_MESSAGES, MAX_CONTENT_LENGTH, SUMMARIZE_AT_MESSAGES } from '@/lib/constants';
+import { MAX_HISTORY_MESSAGES, MAX_CONTENT_LENGTH, SUMMARIZE_AT_MESSAGES, MAX_QUESTION_LENGTH } from '@/lib/constants';
 
 // ── 보안: 입력 sanitize ──
 
@@ -84,7 +84,7 @@ const QA_BASE = `당신은 공공 연구기관 종사자를 위한 청렴 조언
 
 ## 응답 원칙
 - 5~7문장 이내로 핵심만 간결하게
-- 2~3문장마다 줄바꿈(\\n)을 넣어 가독성을 높이세요
+- 2~3문장마다 빈 줄을 넣어 가독성을 높이세요
 - 관련 규정이나 주의점이 있으면 짧게 언급
 - 마지막에 한 줄 격려
 - JSON이 아닌 일반 텍스트로 응답`;
@@ -365,8 +365,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid style' }, { status: 400 });
     }
 
-    if (userContext && (typeof userContext !== 'string' || userContext.length > 500)) {
-      return NextResponse.json({ error: 'userContext must be string under 500 chars' }, { status: 400 });
+    if (userContext && (typeof userContext !== 'string' || userContext.length > MAX_QUESTION_LENGTH)) {
+      return NextResponse.json({ error: `userContext must be string under ${MAX_QUESTION_LENGTH} chars` }, { status: 400 });
     }
 
     // ── 요약 모드: 대화 히스토리를 3문장으로 축약 (롤링 요약 지원) ──

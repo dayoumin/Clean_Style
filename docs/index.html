@@ -11,55 +11,169 @@
     background: #0f1117;
     color: #e1e4ed;
     display: flex;
-    justify-content: center;
-    padding: 4rem 1.5rem;
+    height: 100vh;
   }
-  .wrap { max-width: 480px; width: 100%; }
-  h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 2rem; }
-  h1 span { color: #6c8aff; }
-  a {
+
+  /* 좌측 사이드바 */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: #13151d;
+    border-right: 1px solid #2e3345;
+    padding: 24px 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar h1 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    padding: 0 20px;
+    margin-bottom: 24px;
+  }
+  .sidebar h1 span { color: #6c8aff; }
+
+  .nav-group { margin-bottom: 20px; }
+  .nav-group-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #5a5f73;
+    padding: 0 20px;
+    margin-bottom: 6px;
+  }
+  .nav-link {
     display: block;
-    padding: 1rem 1.25rem;
-    margin-bottom: 0.75rem;
-    background: #1a1d27;
-    border: 1px solid #2e3345;
-    border-radius: 12px;
-    color: #e1e4ed;
+    padding: 8px 20px;
+    font-size: 13px;
+    color: #8b90a0;
     text-decoration: none;
-    transition: border-color 0.15s;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+    cursor: pointer;
   }
-  a:hover { border-color: #6c8aff; }
-  a strong { display: block; font-size: 0.95rem; margin-bottom: 0.2rem; }
-  a span { font-size: 0.78rem; color: #8b90a0; }
+  .nav-link:hover {
+    color: #e1e4ed;
+    background: rgba(108, 138, 255, 0.06);
+    border-left-color: #6c8aff;
+  }
+  .nav-link.active {
+    color: #6c8aff;
+    background: rgba(108, 138, 255, 0.1);
+    border-left-color: #6c8aff;
+    font-weight: 600;
+  }
+
+  /* 우측 콘텐츠 */
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .content iframe {
+    flex: 1;
+    width: 100%;
+    border: none;
+    background: #0f1117;
+  }
+  .welcome {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #5a5f73;
+  }
+  .welcome .icon { font-size: 48px; opacity: 0.3; }
+  .welcome p { font-size: 14px; }
+
+  /* 모바일 대응 */
+  @media (max-width: 640px) {
+    body { flex-direction: column; }
+    .sidebar {
+      width: 100%;
+      min-width: 100%;
+      height: auto;
+      max-height: 40vh;
+      border-right: none;
+      border-bottom: 1px solid #2e3345;
+    }
+    .content { min-height: 60vh; }
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
+
+<nav class="sidebar">
   <h1><span>Clean Style</span> Docs</h1>
-  <a href="scoring-and-validity.html">
-    <strong>Scoring & Validity</strong>
-    <span>3축 점수 체계, 8유형 판정, 이론적 근거, 검증 상태, 시뮬레이션</span>
-  </a>
-  <a href="chat-flow-reference.html">
-    <strong>Chat Flow Reference</strong>
-    <span>API 모드, 채팅 흐름, 요약, 토큰, 보안, 파일 맵</span>
-  </a>
-  <a href="ui-layout-guide.html">
-    <strong>UI Layout Guide</strong>
-    <span>모바일/PC 반응형, BottomSheet 구조, 수정 체크리스트</span>
-  </a>
-  <a href="security.md">
-    <strong>Security</strong>
-    <span>보안 점검 사항 (Markdown)</span>
-  </a>
-  <a href="design-decisions.md">
-    <strong>Design Decisions</strong>
-    <span>설계 결정 기록 (Markdown)</span>
-  </a>
-  <a href="token-cost-analysis.md">
-    <strong>Token Cost Analysis</strong>
-    <span>토큰 비용 상세 분석 (Markdown)</span>
-  </a>
-</div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">설계 & 검증</div>
+    <a class="nav-link" data-src="scoring-and-validity.html">Scoring & Validity</a>
+    <a class="nav-link" data-src="design-decisions.md" data-external>Design Decisions</a>
+    <a class="nav-link" data-src="question-review-prompt.md" data-external>Question Review Prompt</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">기술 문서</div>
+    <a class="nav-link" data-src="chat-flow-reference.html">Chat Flow Reference</a>
+    <a class="nav-link" data-src="ui-layout-guide.html">UI Layout Guide</a>
+    <a class="nav-link" data-src="token-cost-analysis.md" data-external>Token Cost Analysis</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">보안</div>
+    <a class="nav-link" data-src="security.md" data-external>Security</a>
+    <a class="nav-link" data-src="code-review-prompt.md" data-external>Code Review Prompt</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">PWA</div>
+    <a class="nav-link" data-src="pwa-icon-mockups.html">PWA Icon Mockups</a>
+    <a class="nav-link" data-src="pwa-plan.html">PWA Plan</a>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">소개</div>
+    <a class="nav-link" data-src="app-introduction.html">App Introduction</a>
+    <a class="nav-link" data-src="app-introduction-slides.html">Slides</a>
+  </div>
+</nav>
+
+<main class="content" id="content">
+  <div class="welcome">
+    <div class="icon">📄</div>
+    <p>좌측 목차에서 문서를 선택하세요</p>
+  </div>
+</main>
+
+<script>
+  const content = document.getElementById('content');
+  const links = document.querySelectorAll('.nav-link');
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      const src = link.dataset.src;
+      const isExternal = link.hasAttribute('data-external');
+
+      // active 표시
+      links.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+
+      if (isExternal) {
+        // markdown 등은 새 탭
+        window.open(src, '_blank');
+        return;
+      }
+
+      // HTML은 iframe으로 표시
+      content.innerHTML = `<iframe src="${src}"></iframe>`;
+    });
+  });
+</script>
+
 </body>
 </html>

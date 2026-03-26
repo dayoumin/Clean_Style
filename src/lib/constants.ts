@@ -6,3 +6,6 @@ export const SUMMARIZE_AT_MESSAGES = 8;
 
 // history 메시지 1건당 최대 허용 길이
 export const MAX_CONTENT_LENGTH = 2000;
+
+// 사용자 질문 입력 최대 글자 수
+export const MAX_QUESTION_LENGTH = 500;
