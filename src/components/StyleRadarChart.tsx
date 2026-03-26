@@ -14,7 +14,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import type { SixAxisScores } from '@/data/questions';
+import { AXIS_MAXIMUMS, type SixAxisScores } from '@/data/questions';
 
 interface StyleRadarChartProps {
   sixAxis: SixAxisScores;
@@ -66,11 +66,11 @@ export default function StyleRadarChart({ sixAxis }: StyleRadarChartProps) {
   const gradientId = `radarGradient-${id}`;
   const strokeId = `radarStroke-${id}`;
 
-  const data: ChartDataItem[] = AXES.map(({ key, label }) => ({
-    axis: label,
-    label,
-    score: Math.min(sixAxis[key], DISPLAY_MAX),
-  }));
+  const data: ChartDataItem[] = AXES.map(({ key, label }) => {
+    const max = AXIS_MAXIMUMS[key];
+    const normalized = max > 0 ? Math.min(Math.round((sixAxis[key] / max) * DISPLAY_MAX), DISPLAY_MAX) : 0;
+    return { axis: label, label, score: normalized };
+  });
 
   return (
     <ChartContainer

@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - Transparency & Prudence Research</title>
+<style>
+  :root, [data-theme="light"] {
+    --bg: #f8f9fb;
+    --surface: #ffffff;
+    --surface2: #f1f3f5;
+    --border: #e2e5ec;
+    --text: #1a1d27;
+    --text-dim: #6b7280;
+    --accent: #4263eb;
+    --accent-soft: rgba(66,99,235,0.08);
+    --green: #16a34a;
+    --green-soft: rgba(22,163,74,0.08);
+    --orange: #ea580c;
+    --orange-soft: rgba(234,88,12,0.08);
+    --red: #dc2626;
+    --red-soft: rgba(220,38,38,0.08);
+    --purple: #7c3aed;
+    --purple-soft: rgba(124,58,237,0.08);
+    --yellow: #ca8a04;
+    --yellow-soft: rgba(202,138,4,0.08);
+    --teal: #0d9488;
+    --teal-soft: rgba(13,148,136,0.08);
+  }
+  [data-theme="dark"] {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e1e4ed;
+    --text-dim: #8b90a0;
+    --accent: #6c8aff;
+    --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80;
+    --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c;
+    --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171;
+    --red-soft: rgba(248,113,113,0.12);
+    --purple: #a78bfa;
+    --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #facc15;
+    --yellow-soft: rgba(250,204,21,0.12);
+    --teal: #2dd4bf;
+    --teal-soft: rgba(45,212,191,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .doc-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.25rem; line-height: 1.4; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+  .tag {
+    font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.6rem;
+    border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tag--blue { background: var(--accent-soft); color: var(--accent); }
+  .tag--purple { background: var(--purple-soft); color: var(--purple); }
+  .tag--teal { background: var(--teal-soft); color: var(--teal); }
+  .tag--orange { background: var(--orange-soft); color: var(--orange); }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .toc-title {
+    font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 0.75rem;
+  }
+  .toc ol { padding-left: 1.25rem; }
+  .toc li { margin-bottom: 0.3rem; }
+  .toc a {
+    color: var(--accent); text-decoration: none; font-size: 0.88rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: #94adff; text-decoration: underline; }
+
+  /* Sections */
+  h2 {
+    font-size: 1.2rem; font-weight: 700; margin: 3rem 0 1rem;
+    padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  h2 .num { color: var(--accent); margin-right: 0.4rem; }
+  h3 {
+    font-size: 1rem; font-weight: 600; margin: 2rem 0 0.75rem;
+    color: var(--purple);
+  }
+
+  p { margin-bottom: 1rem; font-size: 0.92rem; color: var(--text); }
+
+  /* Cards */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
+  }
+  .card-title {
+    font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  /* Key insight callout */
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    font-size: 0.88rem;
+  }
+  .callout--orange {
+    background: var(--orange-soft);
+    border-left-color: var(--orange);
+  }
+  .callout--green {
+    background: var(--green-soft);
+    border-left-color: var(--green);
+  }
+  .callout--purple {
+    background: var(--purple-soft);
+    border-left-color: var(--purple);
+  }
+  .callout strong { color: var(--accent); }
+  .callout--orange strong { color: var(--orange); }
+  .callout--green strong { color: var(--green); }
+  .callout--purple strong { color: var(--purple); }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto; margin: 1.5rem 0;
+    border: 1px solid var(--border); border-radius: 12px;
+  }
+  table {
+    width: 100%; border-collapse: collapse; font-size: 0.82rem;
+  }
+  thead { background: var(--surface2); }
+  th {
+    padding: 0.75rem 1rem; text-align: left; font-weight: 700;
+    color: var(--accent); border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
+    vertical-align: top; line-height: 1.6;
+  }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(108,138,255,0.04); }
+  .cell-label {
+    font-weight: 600; color: var(--accent); display: block; margin-bottom: 0.15rem;
+  }
+
+  /* Sup references */
+  sup {
+    color: var(--accent); font-size: 0.7rem; font-weight: 700;
+    cursor: default;
+  }
+
+  /* Reference list */
+  .ref-list { list-style: none; padding: 0; }
+  .ref-list li {
+    font-size: 0.78rem; color: var(--text-dim); padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 0.5rem;
+  }
+  .ref-list li:last-child { border-bottom: none; }
+  .ref-num {
+    color: var(--accent); font-weight: 700; min-width: 1.5rem;
+    flex-shrink: 0;
+  }
+  .ref-list a {
+    color: var(--text-dim); text-decoration: none;
+    word-break: break-all;
+  }
+  .ref-list a:hover { color: var(--accent); }
+
+  /* Diagram */
+  .diagram {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0;
+    text-align: center;
+  }
+  .diagram-row {
+    display: flex; justify-content: center; align-items: center;
+    gap: 1rem; flex-wrap: wrap; margin: 0.75rem 0;
+  }
+  .diagram-box {
+    padding: 0.6rem 1rem; border-radius: 8px;
+    font-size: 0.8rem; font-weight: 600;
+  }
+  .diagram-box--blue { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); }
+  .diagram-box--purple { background: var(--purple-soft); color: var(--purple); border: 1px solid var(--border); }
+  .diagram-box--orange { background: var(--orange-soft); color: var(--orange); border: 1px solid var(--border); }
+  .diagram-box--green { background: var(--green-soft); color: var(--green); border: 1px solid var(--border); }
+  .diagram-box--teal { background: var(--teal-soft); color: var(--teal); border: 1px solid var(--border); }
+  .diagram-arrow { color: var(--text-dim); font-size: 1.2rem; }
+  .diagram-label { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem; }
+
+  /* Pill list */
+  .pill-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0 1rem; }
+  .pill {
+    font-size: 0.78rem; padding: 0.35rem 0.75rem;
+    border-radius: 8px; font-weight: 500;
+    background: var(--surface); border: 1px solid var(--border);
+  }
+
+  /* Numbered list in callout */
+  .num-list { padding-left: 1.25rem; margin: 0.5rem 0; }
+  .num-list li { margin-bottom: 0.4rem; font-size: 0.88rem; }
+
+  /* Accordion for references */
+  .ref-accordion {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .ref-toggle {
+    padding: 1rem 1.25rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.15s;
+  }
+  .ref-toggle:hover { background: var(--accent-soft); }
+  .ref-toggle::before { content: '\25B6'; font-size: 0.65rem; transition: transform 0.2s; }
+  .ref-accordion[open] .ref-toggle::before { transform: rotate(90deg); }
+  .ref-accordion[open] .ref-toggle { border-bottom: 1px solid var(--border); }
+  .ref-accordion .ref-list { padding: 0.5rem 1.25rem; }
+
+  /* Theme toggle */
+  .theme-toggle {
+    position: fixed; top: 1rem; right: 1rem; z-index: 100;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .theme-toggle:hover { border-color: var(--accent); transform: scale(1.05); }
+
+  /* Back to top */
+  .back-top {
+    display: inline-block; margin-top: 2rem;
+    color: var(--accent); font-size: 0.82rem;
+    text-decoration: none; transition: opacity 0.15s;
+  }
+  .back-top:hover { opacity: 0.7; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    body { padding: 1rem; }
+    h1 { font-size: 1.3rem; }
+    .diagram-row { flex-direction: column; gap: 0.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="doc-header" id="top">
+  <h1><span>Transparency & Prudence</span> in Organizational Behavior</h1>
+  <p class="subtitle">조직행동론 및 공직 윤리에서의 투명성과 신중성 &mdash; 성향적 차원과 행정적 딜레마에 대한 심층 연구</p>
+  <div class="tags">
+    <span class="tag tag--blue">조직행동론</span>
+    <span class="tag tag--purple">긍정심리학</span>
+    <span class="tag tag--teal">공직 윤리</span>
+    <span class="tag tag--orange">투명성 역설</span>
+  </div>
+</header>
+
+<!-- TOC -->
+<nav class="toc">
+  <div class="toc-title">목차</div>
+  <ol>
+    <li><a href="#sec1">서론: 투명성과 신중성의 긴장 관계</a></li>
+    <li><a href="#sec2">개인 성향 척도에서의 측정: 대립적 축인가, 독립적 차원인가?</a></li>
+    <li><a href="#sec3">투명성 역설과 감시의 딜레마</a></li>
+    <li><a href="#sec4">하위 요소로서의 투명성과 매개적 역할</a></li>
+    <li><a href="#sec5">공직 윤리: '즉시 보고' vs '충분히 확인 후 보고'</a></li>
+    <li><a href="#sec6">행정 재량과 투명성의 상호 작용</a></li>
+    <li><a href="#sec7">결론 및 종합적 시사점</a></li>
+    <li><a href="#refs">참고 자료</a></li>
+  </ol>
+</nav>
+
+<!-- Section 1 -->
+<section id="sec1">
+  <h2><span class="num">1.</span> 서론: 투명성과 신중성의 인식론적 및 실천적 긴장 관계</h2>
+
+  <p>현대의 조직행동론(Organizational Behavior)과 공직 윤리(Public Ethics) 패러다임에서 <strong>투명성(Transparency)</strong>은 조직의 신뢰성을 구축하고 대리인 문제를 해결하며 거버넌스의 책무성을 담보하는 가장 핵심적인 규범적 가치로 자리매김해 왔다. 특히 1990년대 이후 신공공관리론(NPM)의 부상과 엔론(Enron), 월드콤(WorldCom) 등 대형 기업의 회계 부정 사태를 거치면서, 사베인스-옥슬리법(Sarbanes-Oxley Act)과 같은 연방 차원의 정보 공개 요구가 제도화되었다.<sup>1</sup></p>
+
+  <div class="callout">
+    <strong>핵심 논제:</strong> 통제되지 않은 투명성은 개인의 방어적 기제를 자극하거나, 확인되지 않은 정보의 성급한 확산을 초래하여 <strong>신중성(Prudence)</strong> 및 <strong>주의성(Caution)</strong>과 정면으로 충돌하는 역설적 상황을 발생시킨다 &mdash; 이른바 '투명성 역설(Transparency Paradox)'<sup>2</sup>
+  </div>
+
+  <p>본 보고서는 심리학적 성향 측정 메커니즘과 조직행동론의 실증 연구들, 그리고 공공 행정 및 규제 프레임워크를 바탕으로 투명성과 신중성의 관계를 세밀하게 해부한다.</p>
+
+  <div class="pill-list">
+    <span class="pill">VIA 강점 분류 체계</span>
+    <span class="pill">HEXACO 성격 모델</span>
+    <span class="pill">진정성 리더십 이론</span>
+    <span class="pill">이중 계층 보고 프레임워크</span>
+  </div>
+</section>
+
+<!-- Section 2 -->
+<section id="sec2">
+  <h2><span class="num">2.</span> 개인 성향 척도에서의 투명성과 신중성의 측정</h2>
+
+  <div class="callout--green callout">
+    <strong>핵심 결론:</strong> '투명성'과 '신중성/주의성'을 양극단(Bipolar axis)으로 측정한 주류 모형은 존재하지 않는다. 두 개념은 <em>체계적으로 독립된 성향 차원</em>으로 분류된다. 한 개인이 고도의 투명성과 고도의 신중성을 동시에 지닐 수 있다.
+  </div>
+
+  <h3>2.1 VIA 강점 분류 체계 (Values in Action)</h3>
+  <p>피터슨과 셀리그만(Peterson &amp; Seligman)이 정립한 VIA 성격 강점 분류 체계는 6개의 핵심 미덕과 24개 성격 강점으로 구성된다.<sup>4</sup></p>
+
+  <div class="diagram">
+    <div class="diagram-label">VIA 강점 분류 체계에서의 위치</div>
+    <div class="diagram-row">
+      <div>
+        <div class="diagram-box diagram-box--blue">용기 (Courage)</div>
+        <div class="diagram-label">상위 미덕</div>
+      </div>
+      <div class="diagram-arrow">&rarr;</div>
+      <div>
+        <div class="diagram-box diagram-box--blue">정직/진실성 (Honesty)</div>
+        <div class="diagram-label">= 투명성</div>
+      </div>
+    </div>
+    <div style="color:var(--text-dim); font-size:0.8rem; margin: 0.5rem 0;">vs (독립적 차원)</div>
+    <div class="diagram-row">
+      <div>
+        <div class="diagram-box diagram-box--purple">절제 (Temperance)</div>
+        <div class="diagram-label">상위 미덕</div>
+      </div>
+      <div class="diagram-arrow">&rarr;</div>
+      <div>
+        <div class="diagram-box diagram-box--purple">신중성 (Prudence)</div>
+        <div class="diagram-label">= 인지적 통제 능력</div>
+      </div>
+    </div>
+  </div>
+
+  <p>투명성(정직)을 극대화하려는 동기는 상황적 리스크를 피하려는 신중성과 필연적으로 부딪힌다 &mdash; 이를 <strong>'강점의 역설(Strengths Paradox)'</strong>이라 칭한다.<sup>6</sup> 54개국 11만 명 이상을 대상으로 한 교차 문화 연구에서 미국 내 정직은 상위권, 신중성은 하위권에 머물러 강점 간 발현 빈도가 독립적으로 변동함이 확인되었다.<sup>8</sup></p>
+
+  <h3>2.2 HEXACO 성격 모델</h3>
+  <p>6요인 성격 구조 모델인 HEXACO에서도 투명성과 신중성은 엄격히 분리된 거시적 차원에 귀속된다.<sup>10</sup></p>
+
+  <div class="card">
+    <div class="card-title">HEXACO 체계에서의 분리</div>
+    <div class="diagram-row" style="justify-content:flex-start; gap:2rem;">
+      <div>
+        <div class="diagram-box diagram-box--blue">정직-겸손성 (Honesty-Humility)</div>
+        <div class="diagram-label">투명성, 기만하지 않음, 진정성</div>
+      </div>
+      <div>
+        <div class="diagram-box diagram-box--purple">성실성 (Conscientiousness)</div>
+        <div class="diagram-label">하위 파셋: 신중성 (Prudence)</div>
+      </div>
+    </div>
+    <p style="margin-top:0.75rem; font-size:0.85rem; color:var(--text-dim);">정직-겸손성은 권력 남용 방지 예측, 성실성의 신중성은 업무 오류 회피 예측 &mdash; 통계적으로 직교(Orthogonal)하거나 독립적 공분산 구조<sup>11</sup></p>
+  </div>
+
+  <h3>2.3 NEO-PI-R 척도에서의 개방성과 투명성의 분리</h3>
+  <p>NEO-PI-R의 '개방성(Openness to Experience)'은 상상력, 미학적 감수성, 지적 호기심 등 인지적 탐색의 수용성을 의미하며, 타인에게 정보를 투명하게 공개하는 윤리적/관계적 투명성과는 <strong>질적으로 다른 개념</strong>이다.<sup>12,13</sup></p>
+
+  <!-- Table 1 -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>측정 프레임워크</th>
+          <th>투명성의 포섭 영역</th>
+          <th>신중성의 포섭 영역</th>
+          <th>두 변수 간 관계</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>VIA 강점 분류 체계</strong><sup>4</sup></td>
+          <td><span class="cell-label">미덕: 용기</span>강점: 정직/진실성</td>
+          <td><span class="cell-label">미덕: 절제</span>강점: 신중성</td>
+          <td>상호 독립적, '강점의 역설' 발생</td>
+        </tr>
+        <tr>
+          <td><strong>HEXACO 모델</strong><sup>10</sup></td>
+          <td><span class="cell-label">거시 차원</span>정직-겸손성 (Honesty-Humility)</td>
+          <td><span class="cell-label">거시 차원</span>성실성의 하위 파셋</td>
+          <td>직교(Orthogonal) 또는 독립적 공분산 구조</td>
+        </tr>
+        <tr>
+          <td><strong>NEO-PI-R 척도</strong><sup>12</sup></td>
+          <td>직접 대응 항목 부재 (성실성/우호성 파셋으로 분산)</td>
+          <td>성실성의 파셋 및 불안정성 척도의 역방향 조절 변수</td>
+          <td>개방성(Openness)과 인지적으로 완전히 구별됨</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Section 3 -->
+<section id="sec3">
+  <h2><span class="num">3.</span> 투명성 역설과 감시의 딜레마</h2>
+
+  <p>성향적 차원에서는 독립적인 변수로 측정되지만, 이를 조직의 정보 설계, 인사 관리, 행동 제어 메커니즘으로 환원할 경우 투명성과 신중성은 강력한 <strong>길항적 상쇄 관계(Trade-off)</strong>를 갖는다.</p>
+
+  <h3>3.1 에단 번스타인의 투명성 역설</h3>
+
+  <div class="callout--orange callout">
+    <strong>투명성 역설(Transparency Paradox):</strong> 극단적 투명성에 노출된 구성원들은 감시를 피하기 위해 오히려 행동을 은폐하거나 방어적 기제를 작동시킨다. 관리자가 모든 것을 볼 수 있도록 설계된 시스템이 진정한 정보 흐름을 막고 학습을 저해한다.<sup>2</sup>
+  </div>
+
+  <p>프라이버시가 보장되는 환경, 즉 적절한 은폐의 여지가 주어졌을 때 구성원들이 비로소 리스크를 감수하고 혁신적인 업무 방식을 공유한다. 이는 브라에스 역설(Braess' Paradox)에 비유되기도 한다 &mdash; 교통망에서 새 도로를 추가하는 것이 오히려 전체 병목을 증가시키는 것과 동일한 원리.<sup>18</sup></p>
+
+  <h3>3.2 보상 불평등과 비윤리적 예산 슬랙</h3>
+  <p>불평등한 보상 구조가 투명하게 공개될 경우, 하급자들은 <strong>예산 슬랙(Budgetary Slack)</strong>을 조성하는 비윤리적 행위를 강화한다 &mdash; 수익 예측치를 고의로 낮추거나 비용을 과장하여 인센티브를 쉽게 얻도록 안전망을 치는 것이다. 이러한 행위가 상호 관찰될 경우 새로운 조직 규범으로 고착화된다.<sup>17</sup></p>
+
+  <h3>3.3 리스크 관리에서의 정책적 조율</h3>
+  <p>ESG 공시는 기업의 투명성을 강제하며 경영진으로 하여금 리스크 감수에 더 높은 수준의 신중성을 기하도록 유도한다.<sup>20</sup> 거시적 리스크 거버넌스 차원에서 각국 규제 당국은 불확실성을 낱낱이 공개하는 방식과, 과학적 근거 완비까지 억제하는 '정치적 신중성' 사이에서 관리 스타일을 달리한다.<sup>21</sup></p>
+</section>
+
+<!-- Section 4 -->
+<section id="sec4">
+  <h2><span class="num">4.</span> 하위 요소로서의 투명성과 매개적 역할</h2>
+
+  <p>투명성 자체가 최상위 독립 차원으로 존재하기보다, '개방성', '책무성', '진정성'과 같은 더 넓은 개념의 <strong>필수 하위 요소(Sub-dimension)</strong>로 종속되어 규정되는 경향이 강하다.</p>
+
+  <h3>4.1 진정성 리더십 (Authentic Leadership)</h3>
+
+  <div class="diagram">
+    <div class="diagram-label" style="margin-bottom:1rem;">진정성 리더십(ALQ) 4가지 하위 차원</div>
+    <div class="diagram-row">
+      <div class="diagram-box diagram-box--teal">자아 인식<br><small>Self-awareness</small></div>
+      <div class="diagram-box diagram-box--blue">관계적 투명성<br><small>Relational Transparency</small></div>
+      <div class="diagram-box diagram-box--orange">내재화된 도덕적 관점<br><small>Internalized Moral Perspective</small></div>
+      <div class="diagram-box diagram-box--purple">균형 잡힌 정보 처리<br><small>Balanced Processing = 신중성</small></div>
+    </div>
+  </div>
+
+  <div class="callout--purple callout">
+    <strong>관계적 투명성</strong>은 단독으로 기능할 경우 조직에 혼란이나 불안을 초래할 수 있다. <strong>균형 잡힌 정보 처리(신중성)</strong>와 결합할 때 비로소 심리적 안전감(Psychological Safety)과 신뢰를 고취시키는 긍정적 효과로 환원된다.<sup>24,28</sup>
+  </div>
+
+  <h3>4.2 거버넌스 구조 내 매개 변수</h3>
+  <p>공공 행정학에서 투명성은 그 자체가 목적이 아니라, 개방형 정부를 실현하고 공직자의 <strong>책무성(Accountability)</strong>을 달성하기 위해 동원되는 절차적 하위 메커니즘이다.<sup>30</sup> 단순 데이터 공개(Open Data)만으로는 진정한 투명성이 달성되지 않는다.<sup>31</sup></p>
+
+  <!-- Table 2 -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>상위 개념</th>
+          <th>투명성의 하위 차원적 역할</th>
+          <th>병존하는 보완/통제 차원</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>진정성 리더십</strong><sup>24</sup></td>
+          <td>관계적 투명성: 숨은 의도 없이 진실된 정보와 감정을 타인과 공유</td>
+          <td>균형 잡힌 정보 처리: 다양한 데이터를 편견 없이 수집, 신중히 결정</td>
+        </tr>
+        <tr>
+          <td><strong>열린 거버넌스 &amp; 책무성</strong><sup>31</sup></td>
+          <td>정보 개방 기제: 공공의 검증을 위해 데이터를 제약 없이 가용 상태로 만드는 절차적 기능</td>
+          <td>책무성 규명: 공개된 정보를 바탕으로 행위의 정당성을 평가하고 제재하는 사후 장치</td>
+        </tr>
+        <tr>
+          <td><strong>기업 정보 공시 (ESG)</strong><sup>20</sup></td>
+          <td>이해관계자 공시: 환경 및 지배구조 데이터를 외부에 시의적절하게 알림</td>
+          <td>내부 감사 및 정확성 검증: 정보의 무결성을 확보하기 위한 신중한 사전 프로세스</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Section 5 -->
+<section id="sec5">
+  <h2><span class="num">5.</span> 공직 윤리: '즉시 보고' vs '충분히 확인 후 보고'</h2>
+
+  <p>"즉시 보고"와 "충분히 확인 후 보고" 간의 갈등은 행정의 투명성(속도, 알 권리, 시의성)과 신중성(정확성, 리스크 관리, 절차적 보장)이 정면으로 맞붙는 공직 윤리의 핵심 딜레마이다.</p>
+
+  <h3>5.1 DCA-투명성 척도: 시의성 vs 정확성</h3>
+
+  <p>호시에프 등(Hossiep et al., 2021)의 DCA-투명성 척도는 정보 공유의 품질을 5가지 분리 가능한 하위 차원으로 측정한다.<sup>41</sup></p>
+
+  <div class="card">
+    <div class="card-title">DCA-투명성 척도 5차원</div>
+    <div class="pill-list">
+      <span class="pill" style="border-color:var(--accent); color:var(--accent);">공개성 (Disclosure)</span>
+      <span class="pill" style="border-color:var(--teal); color:var(--teal);">명확성 (Clarity)</span>
+      <span class="pill" style="border-color:var(--green); color:var(--green);">정확성 (Accuracy)</span>
+      <span class="pill" style="border-color:var(--orange); color:var(--orange);">시의성 (Timeliness)</span>
+      <span class="pill" style="border-color:var(--purple); color:var(--purple);">적절성 (Relevance)</span>
+    </div>
+    <p style="font-size:0.85rem; color:var(--text-dim); margin:0;">시의성(즉시 보고)을 극대화하면 정확성이 떨어지고, 정확성을 극대화하면 시의성(골든타임)이 훼손된다.<sup>42</sup></p>
+  </div>
+
+  <h3>5.2 속도 vs 정확성 (Speed vs. Accuracy)</h3>
+
+  <div class="callout--orange callout">
+    <strong>즉시 보고의 위험:</strong> 불완전한 초기 정보의 즉시 공개는 잘못된 정보(Misinformation) 확산, 명예 훼손, 사회적 혼란, 구조 자원의 오배분을 초래한다. (예: #EndSARS 시위, 보스턴 마라톤 테러 보도, 허리케인 카트리나)<sup>51,54</sup>
+  </div>
+
+  <div class="callout--purple callout">
+    <strong>지연 보고의 위험:</strong> 과도한 사실 검증에 집착한 보고 지연은 골든타임을 놓치게 하는 치명적 윤리 위반이며, 무사안일주의 및 권력 편향의 은폐 남용으로 해석될 수 있다.<sup>54,58</sup>
+  </div>
+
+  <p>옥스퍼드 로이터 저널리즘 연구소는 <strong>'투명한 불확실성(Transparent Uncertainty)' 모델</strong>을 대안으로 권장한다 &mdash; 오류 가능성을 감수하더라도 가용한 정보를 최대한 빠르게 제공하여 적합성(Relevance)을 유지해야 한다.<sup>53</sup></p>
+
+  <h3>5.3 이중 계층형 보고 시스템 (Two-Tiered Reporting)</h3>
+
+  <p>고도 규제 산업(제약, 환경, 보안, 금융)에서는 '즉시성'과 '정확성'을 양자택일이 아닌, 시간차를 둔 <strong>독립된 법적 의무</strong>로 부과한다.</p>
+
+  <div class="diagram">
+    <div class="diagram-label" style="margin-bottom:1rem;">이중 계층 보고 프레임워크</div>
+    <div class="diagram-row">
+      <div class="diagram-box diagram-box--orange" style="min-width:180px;">
+        <div>1단계: 즉시 경보</div>
+        <small>Initial Reporting</small>
+      </div>
+      <div class="diagram-arrow">&rarr;</div>
+      <div class="diagram-box diagram-box--green" style="min-width:180px;">
+        <div>2단계: 검증 심층 보고</div>
+        <small>Verified Follow-up</small>
+      </div>
+    </div>
+    <div class="diagram-row" style="margin-top:0.5rem;">
+      <div style="font-size:0.75rem; color:var(--orange); max-width:200px;">은폐 억지 + 통제권 확보<br>인과관계 미확인 OK</div>
+      <div style="width:2rem;"></div>
+      <div style="font-size:0.75rem; color:var(--green); max-width:200px;">원인 분석 + 책임 규명<br>데이터 무결성 확보</div>
+    </div>
+  </div>
+
+  <!-- Table 3 -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>보고 체계 차원</th>
+          <th>핵심 가치</th>
+          <th>목표 및 긍정적 효과</th>
+          <th>부작용 및 한계</th>
+          <th>제도적 사례</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>즉시 보고</strong></td>
+          <td style="color:var(--orange);">투명성, 시의성</td>
+          <td>위기 상황 신속 공유, 골든타임 확보, 은폐 차단</td>
+          <td>미확인 정보 확산, 과잉 패닉, 자원 오배분</td>
+          <td>임상시험 SAE 즉각 통보<sup>60</sup>, 사이버 침해 초기 경보<sup>65</sup></td>
+        </tr>
+        <tr>
+          <td><strong>확인 후 보고</strong></td>
+          <td style="color:var(--green);">신중성, 정확성</td>
+          <td>근본 원인 분석, 책임 규명, 장기 데이터 보존</td>
+          <td>보고 지연, 적시 구조 실패, 은폐 의혹</td>
+          <td>FDA 후속 서면 보고<sup>61</sup>, 환경 감사 데이터 검증<sup>40</sup></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Section 6 -->
+<section id="sec6">
+  <h2><span class="num">6.</span> 행정 재량(Administrative Discretion)과 투명성</h2>
+
+  <p>행정적 신중성(Administrative Prudence)은 정보의 사실 확인을 넘어, 해당 정보가 공개되었을 때 미칠 정치적/사회적 파장을 숙고하는 <strong>재량권 행사</strong>를 본질적으로 수반한다.<sup>72</sup></p>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--red);">재량권 남용의 위험</div>
+    <p style="font-size:0.88rem;">'확인 후 조치 및 보고'라는 신중성과 듀 프로세스(Due process)의 명분이 실상은 상부의 책임 면피나 부패를 감추는 수단, 즉 <strong>불투명성을 합리화하는 방패막이</strong>로 전락할 위험이 매우 높다.<sup>58</sup></p>
+  </div>
+
+  <div class="callout">
+    <strong>투명성</strong> = 공공의 알 권리 보장 및 견제 (외부적 요구)<br>
+    <strong>신중성</strong> = 절차적 정당성 확보 및 인권 보호 (내부적 가치)<br><br>
+    알렉산더 비켈(Bickel)이 말한 '수동적 미덕(Passive virtues)' &mdash; 사안의 시기를 늦추거나 개입을 미루는 행정적 신중성<sup>73</sup>
+  </div>
+
+  <p>한국은 <strong>'국민신문고(e-People)'</strong>나 <strong>'공직윤리시스템(PETI)'</strong> 등 디지털 시스템을 도입하여, 공무원들의 자의적 은폐나 보고 지연을 물리적으로 통제하고 투명성을 절차적으로 보장하고 있다.<sup>76</sup></p>
+</section>
+
+<!-- Section 7 -->
+<section id="sec7">
+  <h2><span class="num">7.</span> 결론 및 종합적 시사점</h2>
+
+  <div class="callout--green callout">
+    <strong>종합 결론:</strong> '투명성'과 '신중성'은 1차원적 양극단 모델로는 설명될 수 없으며, <em>다차원적으로 얽혀 있는 고도의 복합적 관계</em>이다.
+  </div>
+
+  <div class="card">
+    <div class="card-title">1. 성향 척도 내 독립된 차원으로서의 병존</div>
+    <p style="font-size:0.88rem; margin:0;">VIA, HEXACO 등에서 정직/투명성과 신중/절제성은 완전히 별개의 요인으로 측정되며 독립된 공분산을 지닌다. 무조건적 투명성 확대는 '투명성 역설'을 발생시키므로, 치밀한 조직 설계를 통해 동시적으로 밸런싱해야 한다.</p>
+  </div>
+  <div class="card">
+    <div class="card-title">2. 하위 차원(Sub-dimension)으로서 투명성의 역할</div>
+    <p style="font-size:0.88rem; margin:0;">진정성 리더십에서 '관계적 투명성'은 '균형 잡힌 정보 처리(신중성)'에 의해 통제될 때만 올바르게 기능한다. 거버넌스에서도 투명성은 '책무성(Accountability)'을 완성하기 위한 수단적 메커니즘이다.</p>
+  </div>
+  <div class="card">
+    <div class="card-title">3. 이중적 구조화를 통한 딜레마 해소</div>
+    <p style="font-size:0.88rem; margin:0;">현대 규제 시스템은 '초기 즉시 경보(은폐 억지 + 통제권 확보)'와 '사후 검증 보고(원인 분석 + 책임 규명)'를 이원화된 절차적 프레임워크로 분리하여 윤리적 딜레마를 구조적으로 해소하고 있다.</p>
+  </div>
+
+  <p style="margin-top:1.5rem;">건강한 의사결정 구조를 위해서는 투명성과 신중성 중 어느 하나를 취사선택하는 단선적 접근에서 탈피해야 한다. 투명성이 담보하는 개방성의 부작용을 인지하고, 절차적 정확성과 판단의 유보를 의미하는 신중성 및 행정적 재량의 합리적 통제를 통해 보완하는 <strong>다층적이고 입체적인 시스템 설계</strong>가 필수적이다.</p>
+</section>
+
+<!-- References -->
+<section id="refs">
+  <h2><span class="num">&bull;</span> 참고 자료</h2>
+  <details class="ref-accordion">
+    <summary class="ref-toggle">전체 참고문헌 보기 (35건)</summary>
+    <ul class="ref-list">
+      <li><span class="ref-num">1</span><span><a href="https://www.cambridge.org/core/books/nextgeneration-ethics/transparency-the-what-why-and-how-of-organizational-effectiveness-and-ethics/ECE87FF9CC41DB45F8782B8CC0515A00" target="_blank" rel="noopener">Transparency: The What, Why, and How of Organizational Effectiveness and Ethics &mdash; Cambridge University Press</a></span></li>
+      <li><span class="ref-num">2</span><span><a href="https://www.hbs.edu/ris/Publication%20Files/BernsteinE-MakingTransparencyTransparent-AMA2017HBS_1ffde6a8-90b5-4dcb-8014-c2eea12b78bf.pdf" target="_blank" rel="noopener">Bernstein, E. &mdash; Making Transparency Transparent: The Evolution of Observation in Management Theory &mdash; Harvard Business School</a></span></li>
+      <li><span class="ref-num">3</span><span><a href="https://shs.cairn.info/journal-revue-internationale-de-psychosociologie-de-gestion-des-comportements-organisati-2024-80-page-79?lang=en" target="_blank" rel="noopener">The Illusion of Transparency: Examining Power Dynamics in AI Implementation Strategies</a></span></li>
+      <li><span class="ref-num">4</span><span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11891963/" target="_blank" rel="noopener">Character strength traits, states, and emotional well-being: A daily diary study &mdash; PMC</a></span></li>
+      <li><span class="ref-num">5</span><span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7751260/" target="_blank" rel="noopener">Using the VIA Classification to Advance a Psychological Science of Virtue &mdash; PMC/NIH</a></span></li>
+      <li><span class="ref-num">6</span><span><a href="https://www.biripublishing.com/blogs/character-strengths/when-strengths-collide-managing-conflicts-between-your-character-strengths" target="_blank" rel="noopener">When Strengths Collide: Managing Conflicts Between Your Character Strengths &mdash; Biri Publishing</a></span></li>
+      <li><span class="ref-num">7</span><span><a href="https://www.emerald.com/sbr/article/19/1/113/1238810/Prudence-as-an-ethical-foundation-for-risk" target="_blank" rel="noopener">Prudence as an ethical foundation for risk management &mdash; Emerald Publishing</a></span></li>
+      <li><span class="ref-num">8</span><span><a href="https://ppc.sas.upenn.edu/sites/default/files/cs54nations.pdf" target="_blank" rel="noopener">Character strengths in fifty-four nations and the fifty US states &mdash; Positive Psychology Center</a></span></li>
+      <li><span class="ref-num">9</span><span><a href="https://www.viacharacter.org/research/findings/universality-prevalence-and-general-findings" target="_blank" rel="noopener">Universality, Prevalence, and General Findings &mdash; VIA Character Strengths</a></span></li>
+      <li><span class="ref-num">10</span><span><a href="https://d-nb.info/1276239564/34" target="_blank" rel="noopener">The Nomological Net of the HEXACO Model of Personality: A Large-Scale Meta-Analytic Investigation</a></span></li>
+      <li><span class="ref-num">11</span><span><a href="https://ajopa.org/index.php/ajopa/article/view/31/156" target="_blank" rel="noopener">The manifestation of the 10 personality aspects amongst the facets of the BTI &mdash; African Journal of Psychological Assessment</a></span></li>
+      <li><span class="ref-num">12</span><span><a href="http://jenni.uchicago.edu/econ-psych-traits/John_Srivastava_1995_big5.pdf" target="_blank" rel="noopener">John &amp; Srivastava &mdash; The Big Five Trait Taxonomy: History, Measurement and Theoretical Perspectives</a></span></li>
+      <li><span class="ref-num">13</span><span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8506218/" target="_blank" rel="noopener">Associations Between Openness Facets, Prejudice, and Tolerance: A Scoping Review With Meta-Analysis &mdash; PMC</a></span></li>
+      <li><span class="ref-num">14</span><span><a href="https://www.cambridge.org/core/books/cambridge-handbook-of-creativity-and-personality-research/opennessintellect/5F06D70F0FE4A53C2530522727762A49" target="_blank" rel="noopener">Openness/Intellect &mdash; Cambridge Handbook of Creativity and Personality Research</a></span></li>
+      <li><span class="ref-num">15</span><span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12758732/" target="_blank" rel="noopener">Understanding and assessing personality across cultures: A scoping review &mdash; PMC/NIH</a></span></li>
+      <li><span class="ref-num">16</span><span><a href="https://journals.aom.org/doi/abs/10.5465/annals.2014.0076" target="_blank" rel="noopener">Making Transparency Transparent &mdash; Academy of Management Annals</a></span></li>
+      <li><span class="ref-num">17</span><span><a href="https://www.cpaontario.ca/insights/thought-leadership/transparency-vs-honesty" target="_blank" rel="noopener">Transparency vs Honesty: A Workplace Trade Off &mdash; CPA Ontario</a></span></li>
+      <li><span class="ref-num">18</span><span><a href="https://mlg.eng.cam.ac.uk/adrian/transparency.pdf" target="_blank" rel="noopener">Transparency: Motivations and Challenges? &mdash; MLG Cambridge</a></span></li>
+      <li><span class="ref-num">20</span><span><a href="https://www.mdpi.com/2227-9091/13/12/232" target="_blank" rel="noopener">Bridging Transparency and Risk Nexus: Does ESG Performance, Financial Reporting Quality, and Corporate Risk-Taking Matter? &mdash; MDPI</a></span></li>
+      <li><span class="ref-num">21</span><span><a href="https://irgc.org/wp-content/uploads/2018/09/IRGC_WP_No_1_Risk_Governance__reprinted_version_3.pdf" target="_blank" rel="noopener">Risk Governance &mdash; IRGC</a></span></li>
+      <li><span class="ref-num">23</span><span><a href="https://www.researchgate.net/publication/228352991_Authentic_Leadership_Development_and_Validation_of_a_Theory-Based_Measure" target="_blank" rel="noopener">Walumbwa et al. &mdash; Authentic Leadership: Development and Validation of a Theory-Based Measure</a></span></li>
+      <li><span class="ref-num">24</span><span><a href="https://www.emerald.com/ccij/article/29/3/430/1233718/When-relational-transparency-backfires-examining" target="_blank" rel="noopener">When relational transparency backfires: authentic leadership &amp; employee trust during COVID-19 &mdash; Emerald</a></span></li>
+      <li><span class="ref-num">25</span><span><a href="https://sajhrm.co.za/index.php/sajhrm/article/view/1235/1986" target="_blank" rel="noopener">A confirmatory factor analytic study of an authentic leadership measure in Nigeria</a></span></li>
+      <li><span class="ref-num">26</span><span><a href="https://scholar.valpo.edu/cgi/viewcontent.cgi?article=1226&context=jvbl" target="_blank" rel="noopener">Authentic Leadership and Leadership Ethics: Proposing A New Perspective &mdash; ValpoScholar</a></span></li>
+      <li><span class="ref-num">28</span><span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12698996/" target="_blank" rel="noopener">Effect of Nursing Leaders' Moral Leadership on Nurses' and Teams' Psychological Safety &mdash; PMC</a></span></li>
+      <li><span class="ref-num">30</span><span><a href="https://www.mdpi.com/2071-1050/12/14/5834" target="_blank" rel="noopener">Transparency as a Key Element in Accountability in Non-Profit Organizations &mdash; MDPI</a></span></li>
+      <li><span class="ref-num">31</span><span><a href="https://www.researchgate.net/publication/318356577_Open_data_Accountability_and_transparency" target="_blank" rel="noopener">Open data: Accountability and transparency &mdash; ResearchGate</a></span></li>
+      <li><span class="ref-num">35</span><span><a href="https://bioone.org/journalArticle/Download?urlId=10.1505%2F146554817822272330" target="_blank" rel="noopener">A Theoretical Framework for Transparency and Accountability: Empirical Lessons from Participatory Forest Management &mdash; BioOne</a></span></li>
+      <li><span class="ref-num">38</span><span><a href="https://www.emerald.com/sampj/article-split/14/4/852/336227/The-failure-of-transparency-as-self-regulation" target="_blank" rel="noopener">The failure of transparency as self-regulation &mdash; Emerald Publishing</a></span></li>
+      <li><span class="ref-num">41</span><span><a href="https://zis.gesis.org/s//skala/openScale/391" target="_blank" rel="noopener">German Version of the Extended DCA-Transparency Scale &mdash; ZIS/GESIS</a></span></li>
+      <li><span class="ref-num">42</span><span><a href="https://econtent.hogrefe.com/doi/10.1026/0932-4089/a000360" target="_blank" rel="noopener">Hossiep et al. &mdash; DCA-Transparency: Validation and Extension of a German Scale &mdash; Hogrefe</a></span></li>
+      <li><span class="ref-num">50</span><span><a href="https://www.publicnow.com/view/E5B23269C55BF48EC5048A4D1B8CC3CDB41D093E" target="_blank" rel="noopener">Speed vs. accuracy: Journalism's ethical balancing act &mdash; Public Technologies</a></span></li>
+      <li><span class="ref-num">51</span><span><a href="https://www.multiresearchjournal.com/admin/uploads/archives/archive-1755773833.pdf" target="_blank" rel="noopener">Speed Vs. Accuracy in Digital Journalism: Nigeria, US, UK &mdash; Multi Research Journal</a></span></li>
+      <li><span class="ref-num">53</span><span><a href="https://reutersinstitute.politics.ox.ac.uk/our-research/speed-vs-accuracy-time-crisis" target="_blank" rel="noopener">Speed vs Accuracy in Time of Crisis &mdash; Reuters Institute, Oxford</a></span></li>
+      <li><span class="ref-num">54</span><span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC8910184/" target="_blank" rel="noopener">Quality of National Disease Surveillance Reporting before and during COVID-19 &mdash; PMC</a></span></li>
+      <li><span class="ref-num">58</span><span><a href="https://journal.kci.go.kr/kltp/archive/articleView?artiId=ART003274390" target="_blank" rel="noopener">경찰의 행정재량과 징계제도의 법적 한계 및 인권친화적 개선방안 &mdash; Korea Journal Central</a></span></li>
+      <li><span class="ref-num">59</span><span><a href="https://www.researchgate.net/publication/380340537_Administrative_Discretion_in_the_Transparent_Bureaucracy" target="_blank" rel="noopener">Administrative Discretion in the Transparent Bureaucracy &mdash; ResearchGate</a></span></li>
+      <li><span class="ref-num">60</span><span><a href="https://database.ich.org/sites/default/files/ICH_E6%28R3%29_Step4_FinalGuideline_2025_0106.pdf" target="_blank" rel="noopener">ICH E6(R3): Guideline for Good Clinical Practice &mdash; ICH</a></span></li>
+      <li><span class="ref-num">61</span><span><a href="https://www.ema.europa.eu/en/documents/scientific-guideline/ich-guideline-good-clinical-practice-e6r2-step-5-revision-2_en.pdf" target="_blank" rel="noopener">ICH E6(R2): Guideline for Good Clinical Practice &mdash; EMA</a></span></li>
+      <li><span class="ref-num">64</span><span><a href="https://www.fda.gov/media/169633/download" target="_blank" rel="noopener">FDA Cybersecurity &amp; Clinical Trial Reporting 2018-2022 &mdash; FDA</a></span></li>
+      <li><span class="ref-num">66</span><span><a href="https://aphanet.pharmacist.com/sites/default/files/files/Lecture13-ReportingSystems.ppt" target="_blank" rel="noopener">Medication Error Reporting Systems and Disclosing Errors to Patients &mdash; American Pharmacists Association</a></span></li>
+      <li><span class="ref-num">67</span><span><a href="https://www.tandfonline.com/doi/full/10.2147/RMHP.S305217" target="_blank" rel="noopener">Occupational Violence and Staff Safety in Health-Care: A Cross-Sectional Study &mdash; Taylor &amp; Francis</a></span></li>
+      <li><span class="ref-num">72</span><span><a href="https://dinastires.org/JLPH/article/download/2582/1983/18660" target="_blank" rel="noopener">A Legal Analysis of Administrative Disputes Related To The Transfer of Civil Servants &mdash; Dinasti Research</a></span></li>
+      <li><span class="ref-num">73</span><span><a href="https://administrativelawreview.org/wp-content/uploads/sites/2/2019/01/Jacobs_66.3.pdf" target="_blank" rel="noopener">The Administrative State's Passive Virtues &mdash; Administrative Law Review</a></span></li>
+      <li><span class="ref-num">74</span><span><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12747445/" target="_blank" rel="noopener">Respecting privacy and upholding confidentiality: core ethical duties &mdash; PMC/NIH</a></span></li>
+      <li><span class="ref-num">75</span><span><a href="https://www.againstcorruption.eu/publication-theme/collective-action/" target="_blank" rel="noopener">Publication Theme: Collective Action &mdash; European Research Centre for Anti-Corruption</a></span></li>
+      <li><span class="ref-num">76</span><span><a href="https://www.undp.org/sites/g/files/zskgke326/files/2025-01/undp-seoul-thinkpiece-rok-anti-corruption-good-governance-through-digitalization-2024.pdf" target="_blank" rel="noopener">Korea's Anti-Corruption and Good Governance through Digitalization &mdash; UNDP</a></span></li>
+    </ul>
+  </details>
+</section>
+
+<a class="back-top" href="#top">&uarr; 맨 위로</a>
+
+<button class="theme-toggle" id="themeToggle" title="라이트/다크 모드 전환">&#9788;</button>
+<script>
+(function(){
+  const btn = document.getElementById('themeToggle');
+  const html = document.documentElement;
+  const saved = localStorage.getItem('research-theme');
+  if (saved) { html.setAttribute('data-theme', saved); }
+  function update() {
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    btn.textContent = isDark ? '\u2600' : '\u263E';
+    btn.title = isDark ? '라이트 모드로 전환' : '다크 모드로 전환';
+  }
+  update();
+  btn.addEventListener('click', function(){
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('research-theme', next);
+    update();
+  });
+})();
+</script>
+
+</body>
+</html>

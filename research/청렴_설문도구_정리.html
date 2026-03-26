@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - 청렴 성향·윤리적 의사결정 설문도구 정리</title>
+<style>
+  :root, [data-theme="light"] {
+    --bg: #f8f9fb;
+    --surface: #ffffff;
+    --surface2: #f1f3f5;
+    --border: #e2e5ec;
+    --text: #1a1d27;
+    --text-dim: #6b7280;
+    --accent: #4263eb;
+    --accent-soft: rgba(66,99,235,0.08);
+    --green: #16a34a;
+    --green-soft: rgba(22,163,74,0.08);
+    --orange: #ea580c;
+    --orange-soft: rgba(234,88,12,0.08);
+    --red: #dc2626;
+    --red-soft: rgba(220,38,38,0.08);
+    --purple: #7c3aed;
+    --purple-soft: rgba(124,58,237,0.08);
+    --yellow: #ca8a04;
+    --yellow-soft: rgba(202,138,4,0.08);
+    --teal: #0d9488;
+    --teal-soft: rgba(13,148,136,0.08);
+  }
+  [data-theme="dark"] {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e1e4ed;
+    --text-dim: #8b90a0;
+    --accent: #6c8aff;
+    --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80;
+    --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c;
+    --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171;
+    --red-soft: rgba(248,113,113,0.12);
+    --purple: #a78bfa;
+    --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #facc15;
+    --yellow-soft: rgba(250,204,21,0.12);
+    --teal: #2dd4bf;
+    --teal-soft: rgba(45,212,191,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .doc-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+  h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.25rem; line-height: 1.4; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+  .tag { font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.6rem; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .tag--blue { background: var(--accent-soft); color: var(--accent); }
+  .tag--purple { background: var(--purple-soft); color: var(--purple); }
+  .tag--teal { background: var(--teal-soft); color: var(--teal); }
+  .tag--orange { background: var(--orange-soft); color: var(--orange); }
+  .tag--green { background: var(--green-soft); color: var(--green); }
+
+  /* TOC */
+  .toc { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; margin-bottom: 2.5rem; }
+  .toc-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 0.75rem; }
+  .toc ol { padding-left: 1.25rem; }
+  .toc li { margin-bottom: 0.3rem; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.88rem; }
+  .toc a:hover { color: #94adff; text-decoration: underline; }
+
+  /* Sections */
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+  h2 .num { color: var(--accent); margin-right: 0.4rem; }
+  h3 { font-size: 1rem; font-weight: 600; margin: 2rem 0 0.75rem; color: var(--purple); }
+  p { margin-bottom: 1rem; font-size: 0.92rem; }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+  .card-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+
+  /* Callout */
+  .callout { background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin: 1.5rem 0; font-size: 0.88rem; }
+  .callout--orange { background: var(--orange-soft); border-left-color: var(--orange); }
+  .callout--green { background: var(--green-soft); border-left-color: var(--green); }
+  .callout--purple { background: var(--purple-soft); border-left-color: var(--purple); }
+  .callout--teal { background: var(--teal-soft); border-left-color: var(--teal); }
+  .callout strong { color: var(--accent); }
+  .callout--orange strong { color: var(--orange); }
+  .callout--green strong { color: var(--green); }
+  .callout--purple strong { color: var(--purple); }
+  .callout--teal strong { color: var(--teal); }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; margin: 1.5rem 0; border: 1px solid var(--border); border-radius: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  thead { background: var(--surface2); }
+  th { padding: 0.75rem 1rem; text-align: left; font-weight: 700; color: var(--accent); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.6; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(108,138,255,0.04); }
+  .cell-label { font-weight: 600; color: var(--accent); display: block; margin-bottom: 0.15rem; }
+
+  /* Tool card (special) */
+  .tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+  .tool-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+  .tool-card-name { font-size: 1.05rem; font-weight: 700; }
+  .tool-card-badge { font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; text-transform: uppercase; }
+  .tool-card-grid { display: grid; grid-template-columns: 140px 1fr; gap: 0.25rem 1rem; font-size: 0.85rem; }
+  .tool-card-grid dt { color: var(--text-dim); font-weight: 600; padding: 0.3rem 0; }
+  .tool-card-grid dd { padding: 0.3rem 0; }
+  .tool-card-summary { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.88rem; }
+
+  /* Badge colors */
+  .badge-intl { background: var(--accent-soft); color: var(--accent); }
+  .badge-kr { background: var(--teal-soft); color: var(--teal); }
+  .badge-new { background: var(--green-soft); color: var(--green); }
+
+  /* Pills */
+  .pill-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0 1rem; }
+  .pill { font-size: 0.78rem; padding: 0.35rem 0.75rem; border-radius: 8px; font-weight: 500; background: var(--surface); border: 1px solid var(--border); }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 2rem; margin: 1.5rem 0; }
+  .timeline::before { content: ''; position: absolute; left: 0.5rem; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .timeline-item { position: relative; margin-bottom: 1.25rem; }
+  .timeline-item::before { content: ''; position: absolute; left: -1.75rem; top: 0.4rem; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+  .timeline-year { font-size: 0.75rem; font-weight: 700; color: var(--accent); }
+  .timeline-text { font-size: 0.85rem; color: var(--text-dim); }
+
+  /* Guide list */
+  .guide-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+  .guide-item-q { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.4rem; color: var(--accent); }
+  .guide-item-a { font-size: 0.85rem; color: var(--text-dim); }
+
+  /* Accordion */
+  .ref-accordion { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .ref-toggle { padding: 1rem 1.25rem; font-size: 0.88rem; font-weight: 600; color: var(--accent); cursor: pointer; list-style: none; display: flex; align-items: center; gap: 0.5rem; transition: background 0.15s; }
+  .ref-toggle:hover { background: var(--accent-soft); }
+  .ref-toggle::before { content: '\25B6'; font-size: 0.65rem; transition: transform 0.2s; }
+  .ref-accordion[open] .ref-toggle::before { transform: rotate(90deg); }
+  .ref-accordion[open] .ref-toggle { border-bottom: 1px solid var(--border); }
+  .ref-accordion .ref-list { padding: 0.5rem 1.25rem; }
+  .ref-list { list-style: none; padding: 0; }
+  .ref-list li { font-size: 0.78rem; color: var(--text-dim); padding: 0.5rem 0; border-bottom: 1px solid rgba(46,51,69,0.5); }
+  .ref-list li:last-child { border-bottom: none; }
+
+  /* Theme toggle */
+  .theme-toggle {
+    position: fixed; top: 1rem; right: 1rem; z-index: 100;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .theme-toggle:hover { border-color: var(--accent); transform: scale(1.05); }
+
+  /* Back to top */
+  .back-top { display: inline-block; margin-top: 2rem; color: var(--accent); font-size: 0.82rem; text-decoration: none; }
+  .back-top:hover { opacity: 0.7; }
+
+  @media (max-width: 640px) {
+    body { padding: 1rem; }
+    h1 { font-size: 1.3rem; }
+    .tool-card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="doc-header" id="top">
+  <h1><span>청렴 성향 &middot; 윤리적 의사결정</span> 설문도구 심층 정리</h1>
+  <p class="subtitle">공공기관 종사자 대상 EDM &middot; 도덕 판단 &middot; 청렴(Integrity) 성향 측정 도구</p>
+  <div class="tags">
+    <span class="tag tag--blue">EDM</span>
+    <span class="tag tag--purple">도덕 판단</span>
+    <span class="tag tag--teal">청렴 성향</span>
+    <span class="tag tag--green">공직 윤리</span>
+    <span class="tag tag--orange">설문 설계</span>
+  </div>
+</header>
+
+<!-- TOC -->
+<nav class="toc">
+  <div class="toc-title">목차</div>
+  <ol>
+    <li><a href="#summary">Executive Summary</a></li>
+    <li><a href="#intl">국제 표준 EDM &middot; 도덕 판단 도구 (4종)</a></li>
+    <li><a href="#kr">한국 공공부문 맥락 도구 (3종)</a></li>
+    <li><a href="#compare">비교 분석 및 선택 가이드</a></li>
+    <li><a href="#refs">참고문헌</a></li>
+  </ol>
+</nav>
+
+<!-- Executive Summary -->
+<section id="summary">
+  <h2><span class="num">1.</span> Executive Summary</h2>
+
+  <div class="callout">
+    <strong>핵심 결론 4가지:</strong>
+    <ol class="num-list" style="padding-left:1.25rem; margin-top:0.5rem;">
+      <li><strong>DIT-2</strong>가 국제적으로 가장 널리 쓰이나, 센터 채점 서비스 종속이 실무 적용의 큰 제약</li>
+      <li><strong>MJT/MCT</strong>는 태도가 아닌 '역량(competence)'을 구조적으로 산출 &mdash; 일반 리커트 척도와 용도가 다름</li>
+      <li>공직 맥락의 딜레마에는 <strong>MES</strong>(시나리오 기반) 또는 국내 <strong>공직윤리/청렴 동기 척도</strong>가 보완적으로 유용</li>
+      <li>Rest 4요소(민감성&ndash;판단&ndash;동기&ndash;실행) 단위 측정은 <strong>EDM-CS</strong>로 가능하나, 공공기관 표본 재타당화 필수</li>
+    </ol>
+  </div>
+
+  <div class="pill-list">
+    <span class="pill">MJT/MCT</span>
+    <span class="pill">DIT-2</span>
+    <span class="pill">MES</span>
+    <span class="pill">EDM-CS</span>
+    <span class="pill">동기론적 공직윤리 척도</span>
+    <span class="pill">공직가치 모형</span>
+    <span class="pill">KIPF 실험설문</span>
+  </div>
+</section>
+
+<!-- International Tools -->
+<section id="intl">
+  <h2><span class="num">2.</span> 국제 표준 EDM &middot; 도덕 판단 도구</h2>
+
+  <!-- MJT/MCT -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">MJT / MCT</span>
+      <span class="tool-card-badge badge-intl">국제 표준</span>
+    </div>
+    <dl class="tool-card-grid">
+      <dt>정식 명칭</dt>
+      <dd>Moral Judgment Test / Moral Competence Test</dd>
+      <dt>개발자</dt>
+      <dd>Georg Lind (1970s~)</dd>
+      <dt>측정 대상</dt>
+      <dd>10세 이상 (아동~성인, 직역 무관)</dd>
+      <dt>핵심 지표</dt>
+      <dd><strong>C-index (C-score)</strong> &mdash; 논증의 도덕적 질에 근거한 판단 '역량'</dd>
+      <dt>문항 구조</dt>
+      <dd>2개 딜레마 &times; 찬반 논증 평가 = <strong>26개 반응항목</strong><br>척도: &minus;4(매우 반대) ~ +4(매우 찬성)</dd>
+      <dt>신뢰도</dt>
+      <dd>Test-retest r=0.90 / 한국어판 &alpha;=0.669</dd>
+      <dt>한국어판</dt>
+      <dd>박건영(2014) 표준화 &middot; 타당화 연구 존재</dd>
+      <dt>접근성</dt>
+      <dd>저자 무료 제공, <strong style="color:var(--orange);">개인 선발/진단 목적 사용 불가</strong></dd>
+    </dl>
+    <div class="tool-card-summary">
+      <strong>핵심:</strong> 태도 자기보고가 아닌 '반대 논증 평가 과제'를 통한 역량 산출. 청렴교육 전후 변화 평가에 강점. 채점/해석이 구조적이며 일반 합산점수와 다름.
+    </div>
+  </div>
+
+  <!-- DIT-2 -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">DIT-2</span>
+      <span class="tool-card-badge badge-intl">국제 표준</span>
+    </div>
+    <dl class="tool-card-grid">
+      <dt>정식 명칭</dt>
+      <dd>Defining Issues Test, Version 2</dd>
+      <dt>개발자</dt>
+      <dd>Rest, Narvaez, Thoma, Bebeau (1999)</dd>
+      <dt>핵심 지표</dt>
+      <dd>3개 발달적 스키마: 개인적 이익 / 규범 유지 / 후기-관습(원리 중심)</dd>
+      <dt>문항 구조</dt>
+      <dd><strong>5개 딜레마</strong> &times; 고려사항 중요도 평가(rating) + 순위(ranking)</dd>
+      <dt>신뢰도</dt>
+      <dd>N2 &alpha;=0.81 (스토리 단위), DIT1-P &alpha;=0.76</dd>
+      <dt>한국어판</dt>
+      <dd>KDIT(한국판) 사용 사례 보고 (간호대학생 등)</dd>
+      <dt>접근성</dt>
+      <dd><strong style="color:var(--orange);">센터 채점 서비스 종속 (자체 채점 불가)</strong></dd>
+    </dl>
+    <div class="tool-card-summary">
+      <strong>핵심:</strong> 도덕 추론 발달을 스키마 관점에서 측정하는 대표 도구. 국제 비교/발달 수준 비교에 최적. 단, 채점 서비스 비용/일정/데이터 보안을 사전에 확정해야 함.
+    </div>
+  </div>
+
+  <!-- MES -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">MES</span>
+      <span class="tool-card-badge badge-intl">국제 표준</span>
+    </div>
+    <dl class="tool-card-grid">
+      <dt>정식 명칭</dt>
+      <dd>Multidimensional Ethics Scale</dd>
+      <dt>개발자</dt>
+      <dd>Reidenbach &amp; Robin (1990)</dd>
+      <dt>핵심 차원</dt>
+      <dd><strong>Moral Equity</strong> (정의/공정) &middot; <strong>Relativism</strong> (문화적 수용) &middot; <strong>Contractualism</strong> (계약 위반)</dd>
+      <dt>문항 구조</dt>
+      <dd>시나리오당 <strong>8개 의미분별(semantic differential)</strong><br>예: Just/Unjust, Fair/Unfair, Morally Right/Not Right</dd>
+      <dt>신뢰도</dt>
+      <dd>&alpha;=0.92 (McMahon, 2002)</dd>
+      <dt>한국어판</dt>
+      <dd>세무전문가/세무대리인 집단에서 활용 사례</dd>
+      <dt>접근성</dt>
+      <dd>문항 학술문헌에 널리 인용, 재배포 시 출처 표기/저작권 확인 필요</dd>
+    </dl>
+    <div class="tool-card-summary">
+      <strong>핵심:</strong> 공공기관 부패/이해충돌/특혜 시나리오를 설계하면 다차원 윤리 판단의 근거를 분해 가능. 요인구조 재현성 비판이 존재하므로 CFA/측정불변성 재검증 권고.
+    </div>
+  </div>
+
+  <!-- EDM-CS -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">EDM-CS</span>
+      <span class="tool-card-badge badge-new">2025 신규</span>
+    </div>
+    <dl class="tool-card-grid">
+      <dt>정식 명칭</dt>
+      <dd>Ethical Decision-Making Competence Scale</dd>
+      <dt>개발자</dt>
+      <dd>2025년 간호교육 맥락 개발</dd>
+      <dt>핵심 차원</dt>
+      <dd>4요인: <strong>민감성</strong> &middot; <strong>판단</strong> &middot; <strong>동기</strong> &middot; <strong>실행</strong> (Rest 4요소)</dd>
+      <dt>문항 구조</dt>
+      <dd><strong>25문항</strong> (4요인) / 2차 요인모형 18문항</dd>
+      <dt>신뢰도</dt>
+      <dd>전체 &alpha;=0.90, 하위요인 &alpha;=0.73~0.80</dd>
+      <dt>한국어판</dt>
+      <dd>미확인 (터키어 버전 타당화만 보고)</dd>
+      <dt>접근성</dt>
+      <dd>학술지 저작권 범위, <strong style="color:var(--orange);">공공기관 표본 재타당화 필수</strong></dd>
+    </dl>
+    <div class="tool-card-summary">
+      <strong>핵심:</strong> 윤리적 의사결정을 구성요소(민감성-판단-동기-실행) 단위로 분해. 교육/개입 프로그램과 연결 용이. 현재 간호대학생 표본이므로 공공기관 이식 시 재타당화 필요.
+    </div>
+  </div>
+</section>
+
+<!-- Korean Tools -->
+<section id="kr">
+  <h2><span class="num">3.</span> 한국 공공부문 맥락 도구</h2>
+
+  <!-- 동기론적 공직윤리 -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">동기론적 공직윤리 척도</span>
+      <span class="tool-card-badge badge-kr">한국 개발</span>
+    </div>
+    <dl class="tool-card-grid">
+      <dt>개발자</dt>
+      <dd>김상우 (2023, 상명대 박사학위논문)</dd>
+      <dt>측정 대상</dt>
+      <dd>중앙행정기관 소속 공무원 (본조사 N=128)</dd>
+      <dt>핵심 차원</dt>
+      <dd>4요인: <strong>소극적 성실</strong> &middot; <strong>적극적 성실</strong> &middot; <strong>책임</strong> &middot; <strong>청렴</strong></dd>
+      <dt>문항 구조</dt>
+      <dd>예비 44문항 &rarr; 내용타당도 후 35문항 (EFA&rarr;CFA&rarr;고차CFA)</dd>
+      <dt>신뢰도</dt>
+      <dd>초록 수준에서 &alpha;/CR/AVE 수치 미제시 (원문 확인 필요)</dd>
+      <dt>접근성</dt>
+      <dd>RISS 저작권 보호 명시, 사용 허가/재검증 이슈</dd>
+    </dl>
+    <div class="tool-card-summary">
+      <strong>핵심:</strong> 부패 방지를 넘어 '성실/책임/청렴의 윤리적 동기 내면화'를 다차원 측정. 공기업/준정부 일반화에는 재타당화 필요.
+    </div>
+  </div>
+
+  <!-- 공직가치 모형 -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">공직가치 모형 기반 측정</span>
+      <span class="tool-card-badge badge-kr">한국 개발</span>
+    </div>
+    <dl class="tool-card-grid">
+      <dt>개발자</dt>
+      <dd>김상묵 (2017)</dd>
+      <dt>측정 대상</dt>
+      <dd>국가공무원 648명 설문조사</dd>
+      <dt>핵심 차원</dt>
+      <dd>5유형: <strong>윤리적</strong> &middot; <strong>민주적</strong> &middot; <strong>혁신적</strong> &middot; <strong>전문직업적</strong> &middot; <strong>전통적</strong></dd>
+      <dt>문항/신뢰도</dt>
+      <dd>초록 수준에서 문항수/&alpha; 미제시 (원문 확인 필요)</dd>
+      <dt>접근성</dt>
+      <dd>학술지 접근 정책에 따름</dd>
+    </dl>
+    <div class="tool-card-summary">
+      <strong>핵심:</strong> 청렴을 넘어 공직 가치 전체(윤리/민주/혁신/전문/전통)를 인사관리 프레임으로 확장. 행동지표(부패 딜레마/신고의도)와는 별도 연결 설계 필요.
+    </div>
+  </div>
+
+  <!-- KIPF 실험설문 -->
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">KIPF 실험설문 도구</span>
+      <span class="tool-card-badge badge-kr">한국 개발</span>
+    </div>
+    <dl class="tool-card-grid">
+      <dt>출처</dt>
+      <dd>한국조세재정연구원 정책연구 보고서 21-18 (2021)</dd>
+      <dt>저자</dt>
+      <dd>하세정 &middot; 박한준 &middot; 조윤직</dd>
+      <dt>측정 대상</dt>
+      <dd>공공기관 직원의 윤리의식/윤리적 의사결정 행태</dd>
+      <dt>핵심 변수</dt>
+      <dd>윤리의식, 부패행위 선택/내부고발, 공공봉사동기, 조직정치, 부패방지교육, 처벌 적정성, 감사 빈도, 처리과정 신뢰성</dd>
+      <dt>주요 결과</dt>
+      <dd>"민간기업 대비 공공기관이 전반적으로 더 윤리적인 의사결정"</dd>
+      <dt>접근성</dt>
+      <dd><strong>공공누리 4유형</strong> (출처표시+상업적 이용 금지+변경금지)</dd>
+    </dl>
+    <div class="tool-card-summary">
+      <strong>핵심:</strong> 공공기관 핵심 관심(부패 참여/신고)을 직접 측정. 정책변수와 직접 연결 가능. '표준화 척도'인지 '보고서 한정 실험설문'인지 확인 후 재사용 절차 결정 필요.
+    </div>
+  </div>
+</section>
+
+<!-- 비교 분석 -->
+<section id="compare">
+  <h2><span class="num">4.</span> 비교 분석 및 선택 가이드</h2>
+
+  <h3>도구별 핵심 비교표</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>도구</th>
+          <th>측정 대상</th>
+          <th>대표 차원</th>
+          <th>문항</th>
+          <th>&alpha; 예시</th>
+          <th>한국어판</th>
+          <th>접근성</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>MJT/MCT</strong></td>
+          <td>도덕 판단 역량</td>
+          <td>C-index, 단계 선호</td>
+          <td>26항목</td>
+          <td>0.669</td>
+          <td>표준화 존재</td>
+          <td>무료, 선발 제한</td>
+        </tr>
+        <tr>
+          <td><strong>DIT-2</strong></td>
+          <td>도덕 판단 발달(스키마)</td>
+          <td>개인이익/규범/후기관습</td>
+          <td>5딜레마</td>
+          <td>0.81</td>
+          <td>KDIT 존재</td>
+          <td>센터 채점 종속</td>
+        </tr>
+        <tr>
+          <td><strong>MES</strong></td>
+          <td>시나리오 윤리 판단</td>
+          <td>공정/상대주의/계약</td>
+          <td>8항목</td>
+          <td>0.92</td>
+          <td>분야별 활용</td>
+          <td>저작권 확인</td>
+        </tr>
+        <tr>
+          <td><strong>EDM-CS</strong></td>
+          <td>의사결정 역량 구성요소</td>
+          <td>민감성/판단/동기/실행</td>
+          <td>25문항</td>
+          <td>0.90</td>
+          <td>미확인</td>
+          <td>재타당화 필요</td>
+        </tr>
+        <tr>
+          <td><strong>동기론적 공직윤리</strong></td>
+          <td>공직 성실/책임/청렴 동기</td>
+          <td>소극적/적극적 성실, 책임, 청렴</td>
+          <td>35문항</td>
+          <td>(미제시)</td>
+          <td>원언어</td>
+          <td>학위논문 저작권</td>
+        </tr>
+        <tr>
+          <td><strong>공직가치 모형</strong></td>
+          <td>공직 가치지향</td>
+          <td>윤리/민주/혁신/전문/전통</td>
+          <td>(미제시)</td>
+          <td>(미제시)</td>
+          <td>원언어</td>
+          <td>학술지 정책</td>
+        </tr>
+        <tr>
+          <td><strong>KIPF 실험설문</strong></td>
+          <td>윤리의식/부패 선택/신고</td>
+          <td>윤리의식, 제도요인</td>
+          <td>(미공개)</td>
+          <td>(미제시)</td>
+          <td>원언어</td>
+          <td>공공누리 4유형</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>도구 계보 타임라인</h3>
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">1950s</div>
+      <div class="timeline-text">Kohlberg 단계 이론 &amp; Moral Judgment Interview 전통</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1970s</div>
+      <div class="timeline-text">MJT/MCT &mdash; 딜레마 논증 평가를 통한 도덕 판단 역량 측정</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1970s</div>
+      <div class="timeline-text">DIT &mdash; 스키마 활성화 기반 도덕 판단 검사</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1990</div>
+      <div class="timeline-text">MES &mdash; 시나리오 평가용 다차원 윤리 척도 제안</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">1999</div>
+      <div class="timeline-text">DIT-2 출판 (개정 딜레마, 새 지표, 신뢰도 재검증)</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2000s</div>
+      <div class="timeline-text">MES 요인구조 논쟁 &amp; 개정 제안</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2014</div>
+      <div class="timeline-text">한국어 MJT 표준화 연구 발표</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2017</div>
+      <div class="timeline-text">한국 공직가치 모형 실증 분류 (김상묵)</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2023</div>
+      <div class="timeline-text">동기론적 공직윤리 척도 개발 (김상우, 박사논문)</div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2025</div>
+      <div class="timeline-text">EDM-CS &mdash; 4요인 윤리적 의사결정 역량 척도 제안</div>
+    </div>
+  </div>
+
+  <h3>공공기관 설문 설계 선택 가이드</h3>
+
+  <div class="guide-item">
+    <div class="guide-item-q">"윤리교육의 전후 변화를 엄밀히 보고 싶다"</div>
+    <div class="guide-item-a">&rarr; <strong>MJT/MCT</strong> &mdash; 프로그램 평가에 민감. 단, 선발/진단 목적 제한.</div>
+  </div>
+  <div class="guide-item">
+    <div class="guide-item-q">"국제 비교 &middot; 발달 수준 비교가 필요하다"</div>
+    <div class="guide-item-a">&rarr; <strong>DIT-2</strong> &mdash; 검증 축적이 강점. 단, 센터 채점 서비스 종속이 운영 리스크.</div>
+  </div>
+  <div class="guide-item">
+    <div class="guide-item-q">"공공부문 부패 &middot; 공정 딜레마에서의 판단과 행동의도를 직접 보고 싶다"</div>
+    <div class="guide-item-a">&rarr; <strong>MES</strong> (공공부문 시나리오 구성) 또는 <strong>KIPF 방식 실험설문</strong>. 요인구조 재검증 병행.</div>
+  </div>
+  <div class="guide-item">
+    <div class="guide-item-q">"청렴 &middot; 책임 &middot; 성실의 동기/가치 지향을 인사관리와 연결하고 싶다"</div>
+    <div class="guide-item-a">&rarr; <strong>동기론적 공직윤리 척도</strong> 또는 <strong>공직가치 모형</strong>. 문항 재사용/저작권 &middot; 기관 유형별 재검증 필수.</div>
+  </div>
+
+  <div class="callout--teal callout">
+    <strong>설계 원칙:</strong> (i) 도덕 판단의 발달/역량, (ii) 업무 맥락의 딜레마 판단, (iii) 청렴/성실/책임의 내면화(가치/동기)를 구분하여 설계하면 결과 해석이 안정적이다.
+  </div>
+</section>
+
+<!-- References -->
+<section id="refs">
+  <h2><span class="num">&bull;</span> 참고문헌</h2>
+  <details class="ref-accordion">
+    <summary class="ref-toggle">전체 참고문헌 보기</summary>
+    <ul class="ref-list">
+      <li>Lind, G. (2006). MJT 논점 정리 &mdash; Psychological Reports</li>
+      <li>Lind, G. &mdash; MJT dual-aspect model 기반 구조/문항 형식 기술</li>
+      <li>박건영 (2014). 한국어판 MJT 표준화 &middot; 타당화</li>
+      <li>Rest, J. R., Narvaez, D., Thoma, S. J., &amp; Bebeau, M. J. (1999). DIT2: Devising and testing a revised instrument of moral judgment</li>
+      <li>University of Alabama Center for the Study of Ethical Development &mdash; DIT-2 FAQ &amp; 채점 서비스</li>
+      <li>DIT-2 내부구조 타당도 검증 &mdash; PLOS ONE (2020)</li>
+      <li>Reidenbach, R. E. &amp; Robin, D. P. (1990). MES 원전 &mdash; Journal of Business Ethics</li>
+      <li>Hyman, M. R. (1996). MES 비판 &amp; 개정 제안</li>
+      <li>McMahon, J. M. (2002). MES 8-item 신뢰도 &middot; 요인구조 검토 (학위논문)</li>
+      <li>EDM-CS 개발 &middot; 검증 (2025, PubMed)</li>
+      <li>EDM-CS 터키어 버전 타당화 &mdash; BMC Nursing (2025)</li>
+      <li>김상우 (2023). 동기론적 공직윤리 척도 개발 &mdash; 상명대 박사학위논문 (RISS)</li>
+      <li>동기론적 공직윤리 척도 개발 절차 &middot; 요인명 &mdash; DBpia</li>
+      <li>김상묵 (2017). 공직가치 모형의 실증분류와 인사관리 함의 &mdash; KCI</li>
+      <li>하세정 &middot; 박한준 &middot; 조윤직 (2021). 공공기관 종사자의 윤리의식 &middot; 윤리적 의사결정 &mdash; KIPF 정책연구 보고서 21-18 (NKIS)</li>
+    </ul>
+  </details>
+</section>
+
+<a class="back-top" href="#top">&uarr; 맨 위로</a>
+
+<button class="theme-toggle" id="themeToggle" title="라이트/다크 모드 전환">&#9788;</button>
+<script>
+(function(){
+  const btn = document.getElementById('themeToggle');
+  const html = document.documentElement;
+  const saved = localStorage.getItem('research-theme');
+  if (saved) { html.setAttribute('data-theme', saved); }
+  function update() {
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    btn.textContent = isDark ? '\u2600' : '\u263E';
+    btn.title = isDark ? '라이트 모드로 전환' : '다크 모드로 전환';
+  }
+  update();
+  btn.addEventListener('click', function(){
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('research-theme', next);
+    update();
+  });
+})();
+</script>
+
+</body>
+</html>

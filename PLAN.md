@@ -7,7 +7,7 @@
 - **목적**: 부담 없이 자신의 청렴 성향을 발견하고, AI 맞춤 조언 제공
 - **톤**: 시험/평가가 아닌 "일상 시나리오 기반 자기발견"
 - **소요 시간**: 3~5분 (15문항)
-- **배포**: Vercel 독립 배포
+- **배포**: Cloudflare Workers (OpenNext SSR)
 
 ---
 
@@ -30,37 +30,63 @@
 ### 1.2 각 축의 학술적 근거
 
 #### 축 1: 원칙(Rule-based) ↔ 유연(Situational) — 의사결정 기준
-- **근거 강도**: ★★★ 강함
-- **앵커 이론**: Victor & Cullen(1988)의 "Ethical Criteria" 차원 + 의무론(Deontology) vs 결과론(Consequentialism)
-- **설명**: 윤리풍토 이론에서 "Rules" 기준(조직 규칙 준수)과 "Principle" 기준(상황적 판단)을 명시적으로 구분. Kohlberg 도덕 발달 이론에서도 규칙 준수(4단계)와 상위 원칙 적용(5~6단계)의 구분이 핵심.
+- **근거 강도**: ★★★ 강함 (다수의 독립적 이론 전통에서 수렴적으로 확인)
+- **앵커 이론**: HEXACO(C: Prudence/Diligence vs A: Flexibility), Schwartz 가치이론(Conservation ↔ Openness to Change), Forsyth EPQ(이상주의 × 상대주의), Victor & Cullen(1988) ECQ, Kohlberg 도덕 발달, Gawronski CNI 모형(N 규범민감성 vs C 결과민감성)
+- **설명**: Schwartz 원형 가치 모형에서 보존(동조+전통+안전) ↔ 변화개방(자기결정+자극)이 양극 차원으로 명시적 모형화됨(PVQ-RR, 49개 문화 검증). HEXACO에서 C와 A가 직교 요인이며 Zettler et al.(2020) 메타분석에서 별도 결과 영역(Duty vs Obstruction)에 매핑됨. Forsyth EPQ의 상대주의 차원이 규칙 유연성을 직접 측정.
+- **상세 근거**: `research/axis2_principle_flexibility.md` 참조
 
 #### 축 2: 투명(Transparent) ↔ 신중(Cautious) — 정보 처리/공유 방식
-- **근거 강도**: ★★☆ 중간 (복수 이론이 부분 지지)
-- **앵커 이론**: Miceli & Near(1992) 내부고발 연구 + ACRC 업무투명성 지표
-- **설명**: 단일 이론에서 나온 축은 아니나, 조직 투명성(organizational transparency)은 청렴 연구에서 독립 변수로 널리 사용됨. 내부고발 연구에서 "공개 vs 내부 해결" 연속선이 실증적으로 검증됨.
+- **근거 강도**: ★★★ 강함 (다수의 독립적 이론 전통에서 수렴적으로 확인)
+- **앵커 이론**: VIA 강점 분류(정직 vs 신중성), HEXACO(H vs C), 진정성 리더십 ALQ(관계적 투명성 vs 균형잡힌 정보처리), DCA-투명성 척도(시의성 vs 정확성), Miceli & Near(1992) 내부고발 연구
+- **설명**: VIA에서 정직(용기 미덕)과 신중성(절제 미덕)은 독립 차원으로 측정되며, HEXACO에서도 H와 C가 직교 요인으로 확인됨. 진정성 리더십 이론에서 관계적 투명성은 균형잡힌 정보 처리(신중성)와 결합될 때에만 긍정적으로 기능함. 고도 규제 산업(FDA, ICH GCP)에서 "즉시 경보 + 사후 검증 보고"의 이중 계층 시스템으로 딜레마가 구조적으로 해소됨.
 - **비고**: "투명 vs 신중"은 양쪽 모두 긍정적 뉘앙스를 유지하여 테스트 참여자가 부담을 느끼지 않도록 설계.
+- **상세 근거**: `research/rese.md` 참조 (76개 참고문헌, 다학제적 심층 분석)
 
 #### 축 3: 독립(Independent) ↔ 협력(Cooperative) — 행동 패턴
-- **근거 강도**: ★★★ 강함
-- **앵커 이론**: Victor & Cullen(1988)의 "Locus of Analysis" 차원 + Trevino(1986) 개인-상황 모델
-- **설명**: 윤리풍토 이론의 핵심 2축 중 하나가 "Individual - Local - Cosmopolitan"(분석의 초점). 독립적 판단 vs 집단/조직 차원의 협력적 판단과 직접 대응. Rotter(1966)의 통제 소재(Locus of Control) 개념도 이 축을 지지.
+- **근거 강도**: ★★★ 강함 (다수의 독립적 이론 전통에서 수렴적으로 확인)
+- **앵커 이론**: 대인관계 원형모델(Agency ↔ Communion, 수학적 직교), Markus & Kitayama(1991) 자기해석 이론(독립적 vs 상호의존적), Singelis & Triandis(1995) HI/VI/HC/VC 4요인, GLOBE 연구(제도적/내집단 집단주의 분리), Victor & Cullen(1988), Trevino(1986)
+- **설명**: 대인관계 원형모델(Leary, 1957; Wiggins, 1979)에서 주도성(Agency)과 친화성(Communion)이 수학적 직교 축으로 확인됨. GLOBE 연구에서 Hofstede의 단일 개인주의-집단주의를 두 별도 차원으로 분리. 한국 공직 맥락에서 Park et al.(2005)의 공무원 343명 연구가 수평적 집단주의는 내부고발을 촉진, 수직적 집단주의는 무관함을 실증. 적극행정 면책제도(2017)에서 자율성이 핵심 예측 변인(Lee et al., 2025).
+- **상세 근거**: `research/axis3_independence_cooperation.md` 참조
 
-### 1.3 8유형 분류의 타당성
+### 1.3 3축 간 독립성(직교성) 근거
+
+3축이 서로 중복되지 않는 독립적 차원임을 뒷받침하는 핵심 근거:
+
+- **HEXACO 통합 직교 구조**: 투명성(H) vs 원칙(C) vs 협력(A)이 직교 회전으로 추출되며, Zettler et al.(2020) 메타분석에서 각각 Exploitation, Duty, Obstruction이라는 별도 결과 영역에 매핑
+- **Schwartz 가치이론**: 보존↔변화개방(원칙-유연)과 자기향상↔자기초월(독립-협력 동기 기반)이 원형 모형 내에서 직교 배치, 49개 문화에서 구조 동치성 확인
+- **대인관계 원형모델**: Agency↔Communion이 수학적 직교 구조로 도덕 추론(원칙)이나 정보 공유(투명성)와는 질적으로 다른 대인행동 차원
+- **상세 근거**: `research/scientific_validity_overview.md` 3절 참조
+
+### 1.4 8유형 분류의 타당성
 
 - **구조적 타당성**: 3개 이진 축 = 2³ = 8유형은 심리 테스트에서 검증된 방식 (MBTI 4축 16유형, DISC 2축 4유형)
 - **한국 공직 맥락 적합성**: ACRC 청렴도 조사가 "규정 준수", "투명성", "조직문화"를 별도 영역으로 평가하고 있어 얼굴 타당도(face validity) 높음
-- **한계**: 축 간 상관(multicollinearity) 가능성 존재 — "원칙적인 사람"이 "투명"하고 "독립적"일 확률이 높을 수 있음. 단, 재미 기반 자기발견 테스트에서는 이 수준이 적절
+- **알려진 한계**: 원칙-독립 공동출현(9/15 문항) → 축 간 부분 상관 존재. 자기발견 도구 목적에서는 허용 범위이며, Q16-Q18 추가 시 해소 예정
 
-### 1.4 참고 문헌
+### 1.5 참고 문헌
 
+**기본 이론:**
 - Kohlberg, L. (1969). *Stages in the Development of Moral Thought and Action*
 - Rest, J. R. (1986). *Moral Development: Advances in Research and Theory*
 - Trevino, L. K. (1986). "Ethical Decision Making in Organizations." *Academy of Management Review*, 11(3)
 - Victor, B. & Cullen, J. B. (1988). "The Organizational Bases of Ethical Work Climates." *Administrative Science Quarterly*, 33(1)
 - Jones, T. M. (1991). "Ethical Decision Making by Individuals in Organizations." *Academy of Management Review*, 16(2)
 - Miceli, M. P. & Near, J. P. (1992). *Blowing the Whistle*
-- Rotter, J. B. (1966). "Generalized Expectancies for Internal Versus External Control of Reinforcement."
 - 국민권익위원회(ACRC). 공공기관 청렴도 측정 모델
+
+**3축 독립성 근거 (추가 핵심 문헌):**
+- Ashton, M. C. & Lee, K. (2007). HEXACO model. *PSPR*, 11(2)
+- Zettler, I. et al. (2020). Nomological net of HEXACO. *Perspectives on Psychological Science*, 15(3)
+- Schwartz, S. H. & Cieciuch, J. (2022). PVQ-RR 49개 문화 검증. *Assessment*, 29(5)
+- Forsyth, D. R. & O'Boyle, E. H. (2021). EPQ-5. *PLOS ONE*
+- Leary, T. (1957). *Interpersonal Diagnosis of Personality* (대인관계 원형모델)
+- Wiggins, J. S. (1979). Agency-Communion 직교 구조. *JPSP*, 37(3)
+- Markus, H. R. & Kitayama, S. (1991). Culture and the self. *Psychological Review*, 98(2)
+- Park, H. et al. (2005). Confucian ethics and whistleblowing in Korea. *JBE*, 58(4)
+- Bernstein, E. S. (2017). 투명성 역설. *Academy of Management Annals*
+- Walumbwa, F. O. et al. (2008). Authentic Leadership. *Journal of Management*, 34(1)
+
+**상세 문헌 목록:** `research/` 폴더 내 각 문서의 참고 자료 섹션 참조
 
 ---
 
@@ -151,9 +177,7 @@
 JSON 파싱 실패 시 마크다운 텍스트 그대로 표시.
 
 ### AI 프로바이더
-- **OpenRouter** (1순위) — 하나의 키로 Claude, GPT 등 사용
-- **Anthropic** (폴백)
-- **OpenAI** (폴백)
+- **OpenRouter** — Grok 4.1-fast (분석 + Q&A 스트리밍)
 
 → `src/lib/ai.ts` + `src/app/api/analyze/route.ts` 참조
 
@@ -163,38 +187,50 @@ JSON 파싱 실패 시 마크다운 텍스트 그대로 표시.
 
 ### 폴더 구조
 ```
-integrity-test/
-├── PLAN.md              ← 이 문서
-├── README.md            ← 프로젝트 설명 + Kemi 점검 제외 안내
+Clean_style/
+├── PLAN.md                  ← 이 문서
+├── README.md
+├── test-design-guide.md     ← 테스트 설계 노트 (점수 균형, 알려진 한계)
 ├── package.json
 ├── next.config.ts
-├── tsconfig.json
-├── postcss.config.mjs
-├── .env.local.example   ← OPENROUTER_API_KEY
+├── wrangler.toml            ← Cloudflare Workers 배포 설정
+├── open-next.config.ts      ← OpenNext SSR 설정
+├── .env.local.example       ← OPENROUTER_API_KEY
+├── research/                ← 학술적 근거 조사 문서
+│   ├── scientific_validity_overview.md  ← 3축 과학적 타당성 종합
+│   ├── rese.md                         ← 축2 투명↔신중 심층 조사
+│   ├── axis2_principle_flexibility.md  ← 축1 원칙↔유연 심층 조사
+│   ├── axis3_independence_cooperation.md ← 축3 독립↔협력 심층 조사
+│   └── 공공기관_청렴_의사결정 및 설문도구 정리.md ← 기존 설문도구 서베이
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx
 │   │   ├── page.tsx           ← 랜딩 (시작 버튼)
 │   │   ├── test/page.tsx      ← 테스트 진행
-│   │   ├── result/page.tsx    ← AI 분석 결과
+│   │   ├── result/page.tsx    ← AI 분석 결과 + Q&A 채팅
 │   │   └── api/
-│   │       └── analyze/route.ts  ← AI 분석 API
+│   │       └── analyze/route.ts  ← AI 분석 API (3모드: 분석/Q&A/요약)
 │   ├── lib/
-│   │   └── ai.ts              ← 멀티 프로바이더 AI 호출
+│   │   ├── ai.ts              ← OpenRouter API 래퍼
+│   │   ├── history.ts         ← IndexedDB 히스토리 관리
+│   │   └── constants.ts       ← 대화 제한 상수
 │   ├── data/
 │   │   └── questions.ts       ← 15문항 + 8유형 + 점수 계산
 │   ├── components/
 │   │   ├── ProgressBar.tsx
-│   │   └── QuestionCard.tsx
-│   └── styles/
-│       └── globals.css
-└── vercel.json
+│   │   ├── QuestionCard.tsx
+│   │   └── StyleRadarChart.tsx ← 6축 레이더 차트
+│   └── types/
+│       └── analysis.ts        ← AnalysisResult 타입 + 검증
+└── docs/
+    └── index.html
 ```
 
 ### 기술 스택
 - Next.js 15 (App Router) + TypeScript + Tailwind CSS v4
-- OpenRouter API (멀티 모델 지원) — 결과 분석
-- Vercel 배포
+- OpenRouter API (Grok 4.1-fast) — AI 분석 + Q&A 스트리밍
+- Recharts + shadcn/ui — 6축 레이더 차트
+- Cloudflare Workers 배포 (OpenNext SSR)
 
 ### 점수 계산 로직
 ```
@@ -223,10 +259,16 @@ integrity-test/
 
 - [x] 기획 문서 작성
 - [x] 학술적 근거 조사 및 반영
+- [x] 3축 심층 학술 조사 (research/ 폴더: 축별 심층 문서 + 종합 타당성 보고서)
 - [x] 프로젝트 초기화 (Next.js, Tailwind, TypeScript)
 - [x] 문항 데이터 작성 (15문항, questions.ts)
 - [x] 테스트 UI (랜딩 → 문항 → 결과)
-- [x] AI 분석 API (System/User 분리, JSON 구조화, 멀티 프로바이더)
+- [x] AI 분석 API (분석/Q&A 스트리밍/롤링 요약 3모드)
+- [x] 6축 레이더 차트 (Recharts + shadcn/ui)
+- [x] 히스토리 관리 (IndexedDB)
+- [x] 결과 공유 (URL 인코딩 + 이미지 내보내기)
+- [x] Cloudflare Workers 배포 (OpenNext SSR)
 - [ ] 디자인 다듬기
 - [ ] 상황 이미지 + 이미지 생성 프롬프트
-- [ ] Vercel 배포
+- [ ] 파일럿 테스트 (n=50-100) 및 요인 구조 검증
+- [ ] Q16-Q18 추가 (투명/신중 완전 균형 + 원칙/독립 분리)

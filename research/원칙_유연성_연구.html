@@ -1,0 +1,1527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - Principle &amp; Flexibility Research</title>
+<style>
+  :root, [data-theme="light"] {
+    --bg: #f8f9fb;
+    --surface: #ffffff;
+    --surface2: #f1f3f5;
+    --border: #e2e5ec;
+    --text: #1a1d27;
+    --text-dim: #6b7280;
+    --accent: #4263eb;
+    --accent-soft: rgba(66,99,235,0.08);
+    --green: #16a34a;
+    --green-soft: rgba(22,163,74,0.08);
+    --orange: #ea580c;
+    --orange-soft: rgba(234,88,12,0.08);
+    --red: #dc2626;
+    --red-soft: rgba(220,38,38,0.08);
+    --purple: #7c3aed;
+    --purple-soft: rgba(124,58,237,0.08);
+    --yellow: #ca8a04;
+    --yellow-soft: rgba(202,138,4,0.08);
+    --teal: #0d9488;
+    --teal-soft: rgba(13,148,136,0.08);
+  }
+  [data-theme="dark"] {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e1e4ed;
+    --text-dim: #8b90a0;
+    --accent: #6c8aff;
+    --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80;
+    --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c;
+    --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171;
+    --red-soft: rgba(248,113,113,0.12);
+    --purple: #a78bfa;
+    --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #facc15;
+    --yellow-soft: rgba(250,204,21,0.12);
+    --teal: #2dd4bf;
+    --teal-soft: rgba(45,212,191,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .doc-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.25rem; line-height: 1.4; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+  .tag {
+    font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.6rem;
+    border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tag--blue { background: var(--accent-soft); color: var(--accent); }
+  .tag--purple { background: var(--purple-soft); color: var(--purple); }
+  .tag--teal { background: var(--teal-soft); color: var(--teal); }
+  .tag--orange { background: var(--orange-soft); color: var(--orange); }
+  .tag--green { background: var(--green-soft); color: var(--green); }
+  .tag--yellow { background: var(--yellow-soft); color: var(--yellow); }
+  .tag--red { background: var(--red-soft); color: var(--red); }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .toc-title {
+    font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 0.75rem;
+  }
+  .toc ol { padding-left: 1.25rem; }
+  .toc li { margin-bottom: 0.3rem; }
+  .toc a {
+    color: var(--accent); text-decoration: none; font-size: 0.88rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { color: #94adff; text-decoration: underline; }
+  .toc ol ol { margin-top: 0.3rem; padding-left: 1rem; }
+  .toc ol ol li { font-size: 0.84rem; }
+
+  /* Sections */
+  h2 {
+    font-size: 1.2rem; font-weight: 700; margin: 3rem 0 1rem;
+    padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  h2 .num { color: var(--accent); margin-right: 0.4rem; }
+  h3 {
+    font-size: 1rem; font-weight: 600; margin: 2rem 0 0.75rem;
+    color: var(--purple);
+  }
+  h4 {
+    font-size: 0.92rem; font-weight: 600; margin: 1.5rem 0 0.5rem;
+    color: var(--teal);
+  }
+
+  p { margin-bottom: 1rem; font-size: 0.92rem; color: var(--text); }
+
+  /* Cards */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
+  }
+  .card-title {
+    font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .card-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem; margin: 1rem 0;
+  }
+
+  /* Key insight callout */
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    font-size: 0.88rem;
+  }
+  .callout--orange {
+    background: var(--orange-soft);
+    border-left-color: var(--orange);
+  }
+  .callout--green {
+    background: var(--green-soft);
+    border-left-color: var(--green);
+  }
+  .callout--purple {
+    background: var(--purple-soft);
+    border-left-color: var(--purple);
+  }
+  .callout--teal {
+    background: var(--teal-soft);
+    border-left-color: var(--teal);
+  }
+  .callout--red {
+    background: var(--red-soft);
+    border-left-color: var(--red);
+  }
+  .callout--yellow {
+    background: var(--yellow-soft);
+    border-left-color: var(--yellow);
+  }
+  .callout strong { color: var(--accent); }
+  .callout--orange strong { color: var(--orange); }
+  .callout--green strong { color: var(--green); }
+  .callout--purple strong { color: var(--purple); }
+  .callout--teal strong { color: var(--teal); }
+  .callout--red strong { color: var(--red); }
+  .callout--yellow strong { color: var(--yellow); }
+  .callout-title {
+    font-weight: 700; font-size: 0.85rem; margin-bottom: 0.4rem;
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto; margin: 1.5rem 0;
+    border: 1px solid var(--border); border-radius: 12px;
+  }
+  table {
+    width: 100%; border-collapse: collapse; font-size: 0.82rem;
+  }
+  thead { background: var(--surface2); }
+  th {
+    padding: 0.75rem 1rem; text-align: left; font-weight: 700;
+    color: var(--accent); border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
+    vertical-align: top; line-height: 1.6;
+  }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(108,138,255,0.04); }
+  .cell-label {
+    font-weight: 600; color: var(--accent); display: block; margin-bottom: 0.15rem;
+  }
+
+  /* Sup references */
+  sup {
+    color: var(--accent); font-size: 0.7rem; font-weight: 700;
+    cursor: default;
+  }
+
+  /* Diagram */
+  .diagram {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0;
+    text-align: center;
+  }
+  .diagram-title {
+    font-size: 0.82rem; font-weight: 700; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 1rem;
+  }
+  .diagram-row {
+    display: flex; justify-content: center; align-items: center;
+    gap: 1rem; flex-wrap: wrap; margin: 0.75rem 0;
+  }
+  .diagram-col {
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  }
+  .diagram-box {
+    padding: 0.6rem 1rem; border-radius: 8px;
+    font-size: 0.8rem; font-weight: 600;
+  }
+  .diagram-box--blue { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); }
+  .diagram-box--purple { background: var(--purple-soft); color: var(--purple); border: 1px solid var(--border); }
+  .diagram-box--orange { background: var(--orange-soft); color: var(--orange); border: 1px solid var(--border); }
+  .diagram-box--green { background: var(--green-soft); color: var(--green); border: 1px solid var(--border); }
+  .diagram-box--teal { background: var(--teal-soft); color: var(--teal); border: 1px solid var(--border); }
+  .diagram-box--red { background: var(--red-soft); color: var(--red); border: 1px solid var(--border); }
+  .diagram-box--yellow { background: var(--yellow-soft); color: var(--yellow); border: 1px solid var(--border); }
+  .diagram-box--large {
+    padding: 0.8rem 1.5rem; font-size: 0.9rem; font-weight: 700;
+  }
+  .diagram-arrow { color: var(--text-dim); font-size: 1.2rem; }
+  .diagram-arrow-down { color: var(--text-dim); font-size: 1rem; }
+  .diagram-label { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem; }
+  .diagram-divider {
+    width: 2px; height: 40px; background: var(--border); margin: 0 0.5rem;
+  }
+  .diagram-group {
+    display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
+    padding: 0.75rem; border: 1px dashed var(--border); border-radius: 10px;
+  }
+  .diagram-group-label {
+    font-size: 0.7rem; font-weight: 600; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+
+  /* Pill list */
+  .pill-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0 1rem; }
+  .pill {
+    font-size: 0.78rem; padding: 0.35rem 0.75rem;
+    border-radius: 8px; font-weight: 500;
+    background: var(--surface); border: 1px solid var(--border);
+  }
+
+  /* Numbered and bullet list */
+  .num-list { padding-left: 1.25rem; margin: 0.5rem 0 1rem; }
+  .num-list li { margin-bottom: 0.4rem; font-size: 0.88rem; }
+  .bullet-list { padding-left: 1.25rem; margin: 0.5rem 0 1rem; list-style: disc; }
+  .bullet-list li { margin-bottom: 0.4rem; font-size: 0.88rem; }
+
+  /* Blockquote */
+  blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 0.5rem 1rem;
+    margin: 1rem 0;
+    background: var(--accent-soft);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.88rem;
+    font-style: italic;
+  }
+
+  /* Accordion for references */
+  .ref-accordion {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .ref-toggle {
+    padding: 1rem 1.25rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.15s;
+  }
+  .ref-toggle:hover { background: var(--accent-soft); }
+  .ref-toggle::before { content: '\25B6'; font-size: 0.65rem; transition: transform 0.2s; }
+  .ref-accordion[open] .ref-toggle::before { transform: rotate(90deg); }
+  .ref-accordion[open] .ref-toggle { border-bottom: 1px solid var(--border); }
+  .ref-accordion .ref-list { padding: 0.5rem 1.25rem; }
+
+  /* Reference list */
+  .ref-list { list-style: none; padding: 0; }
+  .ref-list li {
+    font-size: 0.78rem; color: var(--text-dim); padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 0.5rem;
+  }
+  .ref-list li:last-child { border-bottom: none; }
+  .ref-num {
+    color: var(--accent); font-weight: 700; min-width: 1.5rem;
+    flex-shrink: 0;
+  }
+  .ref-list a {
+    color: var(--text-dim); text-decoration: none;
+    word-break: break-all;
+  }
+  .ref-list a:hover { color: var(--accent); }
+
+  /* Theme toggle */
+  .theme-toggle {
+    position: fixed; top: 1rem; right: 1rem; z-index: 100;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .theme-toggle:hover { border-color: var(--accent); transform: scale(1.05); }
+
+  /* Back to top */
+  .back-top {
+    display: inline-block; margin-top: 2rem;
+    color: var(--accent); font-size: 0.82rem;
+    text-decoration: none; transition: opacity 0.15s;
+  }
+  .back-top:hover { opacity: 0.7; }
+
+  /* Profile badge */
+  .profile-badge {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.3rem 0.7rem; border-radius: 8px;
+    font-size: 0.78rem; font-weight: 600;
+  }
+  .profile-badge--blue { background: var(--accent-soft); color: var(--accent); }
+  .profile-badge--purple { background: var(--purple-soft); color: var(--purple); }
+  .profile-badge--orange { background: var(--orange-soft); color: var(--orange); }
+  .profile-badge--green { background: var(--green-soft); color: var(--green); }
+  .profile-badge--teal { background: var(--teal-soft); color: var(--teal); }
+  .profile-badge--red { background: var(--red-soft); color: var(--red); }
+
+  /* Formula box */
+  .formula-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.88rem;
+    text-align: center;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    body { padding: 1rem; }
+    h1 { font-size: 1.3rem; }
+    .diagram-row { flex-direction: column; gap: 0.5rem; }
+    .card-grid { grid-template-columns: 1fr; }
+    .diagram-divider { width: 40px; height: 2px; margin: 0.25rem 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme"></button>
+
+<!-- Header -->
+<header class="doc-header" id="top">
+  <h1><span>Principle &amp; Flexibility</span> as an Independent Psychometric Dimension</h1>
+  <p class="subtitle">원칙 준수 vs 상황적 유연성 &mdash; 독립적 심리-윤리 차원으로서의 학술적 근거</p>
+  <div class="tags">
+    <span class="tag tag--blue">성격심리학</span>
+    <span class="tag tag--purple">도덕심리학</span>
+    <span class="tag tag--teal">공공행정학</span>
+    <span class="tag tag--orange">조직윤리</span>
+    <span class="tag tag--green">심리측정</span>
+    <span class="tag tag--yellow">도덕발달론</span>
+  </div>
+</header>
+
+<!-- TOC -->
+<nav class="toc">
+  <div class="toc-title">Table of Contents</div>
+  <ol>
+    <li><a href="#sec1">서론</a></li>
+    <li><a href="#sec2">성격심리학 측정 모형에서의 원칙-유연성 차원</a>
+      <ol>
+        <li><a href="#sec2-1">Big Five / NEO-PI-R</a></li>
+        <li><a href="#sec2-2">HEXACO 모형</a></li>
+        <li><a href="#sec2-3">Schwartz 가치 이론</a></li>
+        <li><a href="#sec2-4">Forsyth의 윤리적 입장 이론 (EPT)</a></li>
+        <li><a href="#sec2-5">도덕 기반 이론 (MFT)</a></li>
+        <li><a href="#sec2-6">인지적 폐쇄 욕구 (NFC)</a></li>
+      </ol>
+    </li>
+    <li><a href="#sec3">조직윤리 / 윤리풍토 이론</a>
+      <ol>
+        <li><a href="#sec3-1">Victor &amp; Cullen의 윤리풍토 이론</a></li>
+        <li><a href="#sec3-2">Trevino의 인간-상황 상호작용 모형</a></li>
+        <li><a href="#sec3-3">준수 기반 vs 가치 기반 윤리 프로그램</a></li>
+      </ol>
+    </li>
+    <li><a href="#sec4">도덕 발달 이론에서의 규칙-원칙 축</a>
+      <ol>
+        <li><a href="#sec4-1">Kohlberg의 도덕 발달 단계</a></li>
+        <li><a href="#sec4-2">Rest의 4구성요소 모형</a></li>
+        <li><a href="#sec4-3">Gawronski의 CNI 모형</a></li>
+        <li><a href="#sec4-4">Forsyth EPQ에서의 독립성 (재강조)</a></li>
+      </ol>
+    </li>
+    <li><a href="#sec5">공공행정 맥락에서의 원칙-유연성</a>
+      <ol>
+        <li><a href="#sec5-1">Weber의 관료제 vs Lipsky의 일선관료 재량</a></li>
+        <li><a href="#sec5-2">한국 공공부문의 원칙-유연성 긴장</a></li>
+      </ol>
+    </li>
+    <li><a href="#sec6">투명성-신중성 축과의 심리측정적 독립성</a></li>
+    <li><a href="#sec7">검증된 측정도구 목록</a></li>
+    <li><a href="#sec8">종합 및 시사점</a></li>
+    <li><a href="#refs">참고 자료</a></li>
+  </ol>
+</nav>
+
+
+<!-- ============================================================ -->
+<!-- Section 1: 서론 -->
+<!-- ============================================================ -->
+<h2 id="sec1"><span class="num">1.</span> 서론</h2>
+
+<p>공공부문의 청렴성(Integrity) 측정에서 흔히 간과되는 차원 중 하나는 <strong>규칙 및 기준에 기반한 의사결정(Rule/Standard-based Decision-making)</strong>과 <strong>상황적 맥락을 고려한 판단(Situational/Context-aware Judgment)</strong> 사이의 긴장 관계이다. 이 축은 단순히 "규칙을 지키느냐 어기느냐"의 이분법적 문제가 아니라, 보편적 원칙의 엄격한 적용과 구체적 상황의 특수성에 대한 반응성이라는 두 가지 정당한 도덕적 지향 사이의 체계적 변이(Systematic Variation)를 포착한다.</p>
+
+<div class="callout callout--teal">
+  <div class="callout-title"><strong>원칙-유연성 축의 핵심 개념</strong></div>
+  <p style="margin-bottom:0">이 축은 윤리적 위계가 아닌 <strong>차원적 변이</strong>를 포착한다. 원칙 준수와 상황적 유연성은 모두 공익 실현에 기여할 수 있는 정당한 도덕적 지향이다.</p>
+</div>
+
+<p>공직 윤리의 맥락에서 이 차원의 중요성은 다층적이다.</p>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--blue">1</span> 법치주의의 근간</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">공공부문은 법치주의(Rule of Law)와 절차적 정당성(Procedural Legitimacy)을 근간으로 하므로 원칙 준수는 조직의 존재 이유 자체와 결부된다. 법규에 기반한 예측 가능한 행정은 시민의 법적 안정성(Legal Certainty)을 보장하고, 공권력의 자의적 행사를 방지하는 민주적 통제의 핵심 장치이다.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--purple">2</span> 형평성의 딜레마</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">일선 관료(Street-level Bureaucrat)가 시민과 대면하는 현장에서는 획일적 규칙의 기계적 적용이 오히려 형평성(Equity)을 훼손하거나 공익을 저해하는 상황이 빈번하게 발생한다. 복지 급여 수급 판정, 건축 허가, 환경 규제 집행 등에서 규칙의 문언과 시민의 구체적 현실 사이의 괴리는 불가피하다.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--orange">3</span> 재량의 수축</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">한국 공공부문에서는 감사 부담(Audit Burden)의 증가와 함께 재량의 수축(Discretion Contraction) 현상이 심화되어, 과잉 준수(Over-compliance)가 과소 준수(Under-compliance)만큼이나 심각한 조직적 병리로 대두되고 있다.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--green">4</span> 위기 대응력</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">COVID-19 팬데믹과 같은 대규모 위기 상황은 기존 규칙이 예상하지 못한 상황에서의 신속한 적응적 판단을 요구하며, 유연성 극이 공공부문의 회복탄력성(Resilience)에 필수적임을 극명하게 보여주었다.</p>
+  </div>
+</div>
+
+<p>본 보고서는 이 "원칙 준수-상황적 유연성(Principle-Flexibility)" 축이 기존의 "투명성-신중성(Transparency-Prudence)" 축과는 독립된 심리측정적 차원임을 다수의 학술적 전통에 걸쳐 논증한다. 성격심리학의 주요 측정 모형(Big Five, HEXACO, Schwartz 가치 이론), 도덕심리학의 윤리적 입장 이론(Ethics Position Theory) 및 도덕 기반 이론(Moral Foundations Theory), 인지적 폐쇄 욕구(Need for Cognitive Closure), 조직윤리 및 윤리풍토 이론, 도덕 발달 이론, 그리고 공공행정학의 관료제 재량 연구를 종합적으로 검토함으로써, 이 축의 이론적 정당성과 측정 가능성을 확립하고자 한다.</p>
+
+<div class="diagram">
+  <div class="diagram-title">본 보고서의 구조</div>
+  <div class="diagram-row">
+    <div class="diagram-box diagram-box--blue">2장. 성격심리학</div>
+    <span class="diagram-arrow">&rarr;</span>
+    <div class="diagram-box diagram-box--orange">3장. 조직윤리</div>
+    <span class="diagram-arrow">&rarr;</span>
+    <div class="diagram-box diagram-box--purple">4장. 도덕발달론</div>
+    <span class="diagram-arrow">&rarr;</span>
+    <div class="diagram-box diagram-box--teal">5장. 공공행정</div>
+  </div>
+  <div class="diagram-row" style="margin-top: 1rem;">
+    <div class="diagram-box diagram-box--green">6장. 독립성 논증</div>
+    <span class="diagram-arrow">&rarr;</span>
+    <div class="diagram-box diagram-box--yellow">7장. 측정도구</div>
+    <span class="diagram-arrow">&rarr;</span>
+    <div class="diagram-box diagram-box--red">8장. 종합 시사점</div>
+  </div>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- Section 2: 성격심리학 -->
+<!-- ============================================================ -->
+<h2 id="sec2"><span class="num">2.</span> 성격심리학 측정 모형에서의 원칙-유연성 차원</h2>
+
+<!-- 2.1 Big Five -->
+<h3 id="sec2-1">2.1 Big Five / NEO-PI-R</h3>
+
+<p>코스타와 맥크레이(Costa &amp; McCrae, 1992)가 정립한 5요인 모형(Five-Factor Model)과 그 대표적 측정 도구인 NEO-PI-R(Revised NEO Personality Inventory)에서 원칙-유연성 축은 단일한 요인이 아니라 <strong>성실성(Conscientiousness, C)</strong>과 <strong>경험에 대한 개방성(Openness to Experience, O)</strong>에 걸친 프로파일 패턴(Profile Pattern)으로 포착된다.</p>
+
+<div class="diagram">
+  <div class="diagram-title">NEO-PI-R에서의 원칙-유연성 매핑</div>
+  <div class="diagram-row">
+    <div class="diagram-group">
+      <div class="diagram-group-label">원칙 준수 극</div>
+      <div class="diagram-box diagram-box--blue">성실성(C)</div>
+      <div class="diagram-label">의무감, 질서, 신중성</div>
+    </div>
+    <span class="diagram-arrow" style="font-size:2rem;">&harr;</span>
+    <div class="diagram-group">
+      <div class="diagram-group-label">유연성 극</div>
+      <div class="diagram-box diagram-box--purple">개방성(O)</div>
+      <div class="diagram-label">가치 개방성, 감정 개방성</div>
+    </div>
+  </div>
+  <div class="diagram-label" style="margin-top:1rem;">두 파셋은 서로 다른 상위 요인에 속하며 <strong>요인분석적으로 독립적(Factorially Independent)</strong></div>
+</div>
+
+<p>성실성의 하위 파셋(Facet) 중 <strong>의무감(Dutifulness)</strong>은 윤리적 의무와 도덕적 원칙에 대한 강한 내적 헌신을 측정하며, 이는 원칙 준수(Principle Adherence) 극에 직접적으로 대응한다. 의무감이 높은 개인은 사회적 규범과 약속을 엄격히 이행하려는 성향을 보이며, 규칙 위반에 대해 강한 심리적 불편감을 경험한다. 동시에 성실성의 또 다른 파셋인 <strong>질서(Order)</strong>와 <strong>신중성(Deliberation)</strong>은 체계적이고 계획적인 행동 양식을 반영하여, 규칙 기반 의사결정의 인지적 기반을 제공한다.</p>
+
+<p>반면, 경험에 대한 개방성의 하위 파셋 중 <strong>가치에 대한 개방성(Openness to Values)</strong>은 기존의 사회적 관습, 종교적 교리, 정치적 권위에 대한 비판적 재검토 의지를 측정한다. 가치에 대한 개방성이 높은 개인은 도덕적 규칙이 절대적이지 않으며 상황과 맥락에 따라 재해석될 수 있다고 인식하는 경향을 보인다. 이는 유연성(Flexibility) 극에 해당한다.</p>
+
+<div class="callout callout--green">
+  <div class="callout-title"><strong>핵심 발견</strong></div>
+  <p style="margin-bottom:0">한 개인이 높은 의무감과 높은 가치 개방성을 <strong>동시에</strong> 보유할 수 있으며, 이러한 프로파일은 "원칙적이되 교조적이지 않은(Principled but not Dogmatic)" 의사결정 양식을 예측한다. McCrae &amp; Costa(1997)의 후속 연구에서도 C와 O의 조합이 도덕적 추론의 복잡성을 설명하는 중요한 상호작용 효과를 갖는 것으로 보고되었다.</p>
+</div>
+
+<p>이 점은 공직자 성격 프로파일 연구에서도 확인된다.</p>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--red">C&#8593; O&#8595;</span> 관료적 경직성</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">절차적 정확성에 탁월하지만 전례 없는 상황에 대한 적응적 대응에서 취약한 <strong>Bureaucratic Rigidity</strong> 패턴</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--green">C&#8593; O&#8593;</span> 적응적 청렴성</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">규칙의 정신(Spirit of the Rule)을 파악하여 새로운 상황에 원칙을 창의적으로 적용하는 <strong>Adaptive Integrity</strong> 패턴</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--orange">C&#8595; O&#8593;</span> 편의주의적 유연성</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">상황적 판단은 풍부하지만 일관성 있는 원칙 적용에서 취약한 <strong>Expedient Flexibility</strong> 패턴</p>
+  </div>
+</div>
+
+<p>또한 NEO-PI-R의 성실성 하위 파셋 중 <strong>자기 훈련(Self-Discipline)</strong>과 <strong>성취 추구(Achievement Striving)</strong>는 규칙 준수의 내적 동기를 보강하는 역할을 하며, 개방성의 <strong>감정에 대한 개방성(Openness to Feelings)</strong>과 <strong>행동에 대한 개방성(Openness to Actions)</strong> 파셋은 상황적 공감과 대안적 행동 방식의 탐색을 촉진한다. 이러한 다파셋 프로파일 분석은 원칙-유연성이 단일 차원의 양극이 아니라, 최소 두 개의 독립적 성격 요인의 교차 영역에서 발현되는 복합적 성향임을 시사한다.</p>
+
+
+<!-- 2.2 HEXACO -->
+<h3 id="sec2-2">2.2 HEXACO 모형</h3>
+
+<p>애쉬튼과 리(Ashton &amp; Lee, 2007)가 제안한 6요인 성격 구조 모형인 HEXACO는 전통적 Big Five에 <strong>정직-겸손성(Honesty-Humility, H)</strong> 차원을 추가함으로써, 도덕적 행동의 개인차를 보다 정밀하게 포착한다. 원칙-유연성 축과 관련하여 HEXACO 모형은 세 가지 핵심 차원의 독립적 기여를 보여준다.</p>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--blue">H</span> 정직-겸손성</div>
+    <p style="font-size:0.85rem;margin-bottom:0.3rem"><strong>규칙 비위반의 동기적 기반 &mdash; "Why"</strong></p>
+    <p style="margin-bottom:0;font-size:0.85rem;">H가 높은 개인은 타인을 조종하거나 규칙을 왜곡하여 사적 이익을 추구하는 행위에 대해 강한 도덕적 거부감을 보인다. 공정성과 진정성에 대한 내적 헌신을 반영한다.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--purple">C</span> 성실성</div>
+    <p style="font-size:0.85rem;margin-bottom:0.3rem"><strong>규칙 준수의 절차적 이행 &mdash; "How"</strong></p>
+    <p style="margin-bottom:0;font-size:0.85rem;">하위 파셋인 <strong>신중성(Prudence)</strong>과 <strong>근면성(Diligence)</strong>은 체계적이고 꼼꼼한 절차적 이행을 측정한다. 신중성이 높은 개인은 충동적 행동을 억제하고 규정된 절차를 단계적으로 따르는 경향을 보인다.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--teal">A</span> 우호성의 유연성 파셋</div>
+    <p style="font-size:0.85rem;margin-bottom:0.3rem"><strong>상황적 수용성 &mdash; "유연성 극"</strong></p>
+    <p style="margin-bottom:0;font-size:0.85rem;">하위 파셋인 <strong>유연성(Flexibility)</strong>은 타인의 의견과 상황적 요구에 대한 수용성을 직접적으로 측정한다. 유연성이 높은 개인은 자신의 입장을 고수하기보다 타협과 조정을 선호한다.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <div class="callout-title"><strong>요인분석적 직교성(Orthogonality)</strong></div>
+  <p>이 세 차원은 요인분석적으로 직교(Orthogonal)한다. 제틀러 등(Zettler et al., 2020)의 대규모 메타분석은 H, C, A 각각이 서로 다른 행동 영역(Outcome Domain)을 예측함을 실증하였다:</p>
+  <ul class="bullet-list" style="margin-bottom:0">
+    <li><strong>H</strong> &rarr; 착취적 행동(Exploitation)의 억제</li>
+    <li><strong>C</strong> &rarr; 의무 이행(Duty Fulfillment)</li>
+    <li><strong>A</strong> &rarr; 방해/대립 행동(Obstruction)의 회피</li>
+  </ul>
+</div>
+
+<p>이 메타분석의 구체적 결과를 살펴보면, <strong>H와 C 사이의 평균 상관은 r = .18</strong>로 보고되어 두 차원이 약한 정적 관계에 있되 공유 변량(Shared Variance)은 약 3%에 불과함을 보여준다. H와 A의 상관 역시 r = .13 수준으로 미미하며, C와 A의 상관은 문화권에 따라 r = .05에서 r = .15 사이로 보고되어, 규칙 준수 성향과 유연성/수용성 성향이 사실상 독립적임을 확인시켜 준다. 틸만 등(Thielmann et al., 2022)의 후속 연구는 이러한 분리가 다양한 문화권에서 안정적으로 재현됨을 확인하였다.</p>
+
+<p>HEXACO 모형의 공공부문 적용 연구에서는 H와 C의 프로파일 조합이 공직자의 청렴성 관련 행동을 차별적으로 예측하는 것으로 나타났다.</p>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>프로파일</th><th>유형명</th><th>특징</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="profile-badge profile-badge--green">H&#8593; + C&#8593;</span></td>
+        <td>청렴한 규칙 준수자<br><em>Integrity-driven Rule Follower</em></td>
+        <td>규칙을 도덕적 신념에 기반하여 성실히 이행하는 유형</td>
+      </tr>
+      <tr>
+        <td><span class="profile-badge profile-badge--orange">H&#8595; + C&#8593;</span></td>
+        <td>전략적 준수자<br><em>Strategic Complier</em></td>
+        <td>규칙을 사적 이익의 보호 수단으로 활용하는 유형</td>
+      </tr>
+      <tr>
+        <td><span class="profile-badge profile-badge--purple">H&#8593; + C&#8595;</span></td>
+        <td>선의의 비규율자<br><em>Well-intentioned Non-conformist</em></td>
+        <td>도덕적 동기는 높지만 절차적 이행에 취약한 유형</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>따라서 HEXACO 모형은 원칙 준수(H + C의 높은 조합)와 상황적 유연성(A의 높은 수준)이 심리측정적으로 독립된 차원임을 가장 명확하게 보여주는 성격 모형이라 할 수 있다.</p>
+
+
+<!-- 2.3 Schwartz -->
+<h3 id="sec2-3">2.3 Schwartz 가치 이론</h3>
+
+<p>슈워츠(Schwartz, 1992)의 기본 인간 가치 이론(Theory of Basic Human Values)은 개인의 동기적 목표를 10개(후에 19개로 확장)의 가치 유형으로 분류하고, 이들이 2차원의 원형 구조(Circumplex Structure) 위에서 체계적인 호환-대립 관계를 형성함을 제시한다. 이 구조에서 원칙-유연성 축에 직접적으로 대응하는 것은 <strong>보존(Conservation) vs 변화에 대한 개방성(Openness to Change)</strong>이라는 양극 차원이다.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Schwartz 가치 원형 구조에서의 원칙-유연성 매핑</div>
+  <div class="diagram-row">
+    <div class="diagram-group">
+      <div class="diagram-group-label">보존(Conservation) = 원칙 준수 극</div>
+      <div class="diagram-box diagram-box--blue">동조(Conformity)</div>
+      <div class="diagram-box diagram-box--blue">전통(Tradition)</div>
+      <div class="diagram-box diagram-box--blue">안전(Security)</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <span class="diagram-arrow" style="font-size:2rem;">&harr;</span>
+      <div class="diagram-label">구조적 대립</div>
+    </div>
+    <div class="diagram-group">
+      <div class="diagram-group-label">변화 개방성 = 유연성 극</div>
+      <div class="diagram-box diagram-box--purple">자기결정(Self-Direction)</div>
+      <div class="diagram-box diagram-box--purple">자극(Stimulation)</div>
+    </div>
+  </div>
+</div>
+
+<p><strong>보존(Conservation)</strong> 극은 세 가지 가치 유형의 합산으로 구성된다: <strong>동조(Conformity)</strong> &mdash; 사회적 규범과 기대에 부합하는 행동을 통해 타인에게 해를 끼치지 않으려는 동기; <strong>전통(Tradition)</strong> &mdash; 문화적, 종교적 관습과 관념을 수용하고 존중하려는 동기; <strong>안전(Security)</strong> &mdash; 사회와 자기 자신의 안정성, 조화, 질서를 유지하려는 동기. 이 세 가치는 모두 기존 질서와 규칙의 유지를 지향하며, 원칙 준수 극의 동기적 기반을 형성한다.</p>
+
+<p>반대편의 <strong>변화에 대한 개방성(Openness to Change)</strong> 극은 <strong>자기결정(Self-Direction)</strong> &mdash; 독립적 사고와 행동, 탐색, 창조의 자유를 추구하는 동기 &mdash; 과 <strong>자극(Stimulation)</strong> &mdash; 삶의 참신함, 도전, 흥분을 추구하는 동기 &mdash; 으로 구성된다. 이 가치들은 개인의 자율성과 지적 독립을 중시하며, 기존 규칙에 대한 비판적 재검토와 상황적 판단을 선호하는 유연성 극에 대응한다.</p>
+
+<div class="callout callout--purple">
+  <div class="callout-title"><strong>교차 문화적 타당성</strong></div>
+  <p style="margin-bottom:0">슈워츠와 치에치우히(Schwartz &amp; Cieciuch, 2022)는 개정된 PVQ-RR을 통해 49개 문화 집단에 걸친 분석에서 보존-변화 개방성 차원의 내적 합치도 <strong>alpha = 0.76</strong>을 보고하였다. 이는 원칙 준수와 상황적 유연성 사이의 동기적 긴장이 인간 가치 체계의 <strong>보편적 구조적 특성</strong>임을 시사한다.</p>
+</div>
+
+<p>슈워츠의 정련 이론(Refined Theory)에서 19개로 세분화된 가치 유형 중 원칙-유연성 축과 특히 관련 깊은 것은 다음 구분들이다:</p>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>상위 범주</th><th>세분화 가치</th><th>측정 대상</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td rowspan="2">동조(Conformity)</td>
+        <td><strong>규칙에 대한 동조</strong><br>Conformity-Rules</td>
+        <td>비인격적 규범 체계에 대한 충실성 (규정, 법률, 형식적 의무에 대한 순응)</td>
+      </tr>
+      <tr>
+        <td><strong>대인적 동조</strong><br>Conformity-Interpersonal</td>
+        <td>구체적 타인에 대한 관계적 민감성 (타인에게 불쾌감을 주지 않으려는 배려)</td>
+      </tr>
+      <tr>
+        <td rowspan="2">자기결정(Self-Direction)</td>
+        <td><strong>자기결정-사고</strong><br>Self-Direction-Thought</td>
+        <td>유연성의 인지적 측면 (독자적 관념과 능력의 배양)</td>
+      </tr>
+      <tr>
+        <td><strong>자기결정-행동</strong><br>Self-Direction-Action</td>
+        <td>유연성의 행동적 측면 (자율적 활동과 목표 결정의 자유)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>이러한 세분화는 원칙-유연성 축의 측정에 있어서 단순한 양극 점수가 아닌 다면적 프로파일 분석의 필요성을 제기한다.</p>
+
+
+<!-- 2.4 Forsyth EPT -->
+<h3 id="sec2-4">2.4 Forsyth의 윤리적 입장 이론 (Ethics Position Theory)</h3>
+
+<p>포사이스(Forsyth, 1980)의 윤리적 입장 이론(Ethics Position Theory, EPT)은 개인의 도덕적 판단 양식을 <strong>이상주의(Idealism)</strong>와 <strong>상대주의(Relativism)</strong>라는 두 개의 독립된 차원으로 기술하며, 이 두 차원의 교차를 통해 네 가지 윤리적 입장 유형을 도출한다. 원칙-유연성 축과 직접적으로 대응하는 것은 <strong>상대주의(Relativism)</strong> 차원이다.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Forsyth EPT: 2차원 x 4유형 모형</div>
+  <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:0;margin:0 auto;max-width:600px;">
+    <div style="padding:0.5rem;"></div>
+    <div style="padding:0.5rem;text-align:center;font-weight:700;font-size:0.8rem;color:var(--accent);">낮은 상대주의<br><span style="font-size:0.7rem;color:var(--text-dim);">(원칙 준수 극)</span></div>
+    <div style="padding:0.5rem;text-align:center;font-weight:700;font-size:0.8rem;color:var(--purple);">높은 상대주의<br><span style="font-size:0.7rem;color:var(--text-dim);">(유연성 극)</span></div>
+
+    <div style="padding:0.5rem;writing-mode:vertical-rl;text-align:center;font-weight:700;font-size:0.8rem;color:var(--green);transform:rotate(180deg);">높은 이상주의</div>
+    <div class="card" style="margin:0.25rem;text-align:center;">
+      <div class="card-title" style="justify-content:center;"><span class="profile-badge profile-badge--blue">절대주의자</span></div>
+      <p style="margin:0;font-size:0.78rem;">보편적 도덕 규칙을 엄격히 따름으로써 최선의 결과 도출</p>
+    </div>
+    <div class="card" style="margin:0.25rem;text-align:center;">
+      <div class="card-title" style="justify-content:center;"><span class="profile-badge profile-badge--purple">상황주의자</span></div>
+      <p style="margin:0;font-size:0.78rem;">각 상황의 고유한 특수성에 따라 최대한의 긍정적 결과 추구</p>
+    </div>
+
+    <div style="padding:0.5rem;writing-mode:vertical-rl;text-align:center;font-weight:700;font-size:0.8rem;color:var(--orange);transform:rotate(180deg);">낮은 이상주의</div>
+    <div class="card" style="margin:0.25rem;text-align:center;">
+      <div class="card-title" style="justify-content:center;"><span class="profile-badge profile-badge--teal">예외주의자</span></div>
+      <p style="margin:0;font-size:0.78rem;">보편적 원칙을 인정하되 그 적용에서 실용적 예외를 허용</p>
+    </div>
+    <div class="card" style="margin:0.25rem;text-align:center;">
+      <div class="card-title" style="justify-content:center;"><span class="profile-badge profile-badge--red">주관주의자</span></div>
+      <p style="margin:0;font-size:0.78rem;">도덕적 판단이 근본적으로 개인적이며 보편적 기준 자체를 회의</p>
+    </div>
+  </div>
+</div>
+
+<p>공공부문에서 이 네 유형의 분포는 조직의 윤리적 의사결정 패턴을 예측하는 데 유용하다. 절대주의자 비율이 높은 조직은 규칙 준수에 강하지만 새로운 윤리적 도전에 대한 적응력이 낮을 수 있고, 상황주의자 비율이 높은 조직은 맥락 민감적 판단에 강하지만 일관성이 결여될 수 있다. 예외주의자가 주류인 조직은 실용적 유연성을 보유하지만 원칙의 희석 위험에 노출되며, 주관주의자가 다수인 조직은 도덕적 상대주의에 빠져 공유된 윤리적 기준 자체가 약화될 위험이 있다.</p>
+
+<div class="callout callout--orange">
+  <div class="callout-title"><strong>메타분석 결과 (Forsyth &amp; O'Boyle, 2021)</strong></div>
+  <p>비윤리적 의사결정과 가장 강한 부적 상관을 보이는 유형은 <strong>절대주의자</strong>(높은 이상주의 + 낮은 상대주의)이며, <strong>주관주의자</strong>(낮은 이상주의 + 높은 상대주의)가 가장 높은 비윤리적 의사결정 경향을 보인다. 이상주의(타인에 대한 해악 민감성)가 상대주의(규칙 유연성)의 부정적 효과를 억제하는 <strong>완충 역할(Buffering Role)</strong>을 함을 시사한다.</p>
+  <p style="margin-bottom:0">EPQ(20문항)와 간편형 EPQ-5(10문항)는 13,485명 이상의 표본에 대한 CFA에서 2요인 구조가 안정적으로 확인되었다.</p>
+</div>
+
+<p>EPT의 강점은 이상주의(타인에 대한 해악 민감성)와 상대주의(규칙의 보편적 적용 가능성에 대한 신념)가 개념적으로나 통계적으로 독립적이라는 점이다. 이는 원칙-유연성 축이 투명성-신중성 축(이상주의와 더 밀접한 관련)과는 별개의 차원임을 지지하는 중요한 근거가 된다.</p>
+
+
+<!-- 2.5 MFT -->
+<h3 id="sec2-5">2.5 도덕 기반 이론 (Moral Foundations Theory)</h3>
+
+<p>하이트(Haidt)와 그레이엄(Graham)이 발전시킨 도덕 기반 이론(Moral Foundations Theory, MFT)은 인간의 도덕적 직관이 진화적으로 형성된 복수의 독립적 기반(Foundation) 위에 구축된다고 제안한다. 초기 이론은 5개의 도덕 기반을 제시하였으며, 그 중 <strong>권위/전복(Authority/Subversion)</strong> 기반이 원칙-유연성 축과 가장 직접적으로 관련된다.</p>
+
+<p>권위/전복 기반은 사회적 위계, 전통, 정당한 권위에 대한 존중과 복종의 경향성을 포착한다. 이 기반에 대한 민감성이 높은 개인은 확립된 규칙, 제도적 권위, 전통적 질서를 유지하는 것을 도덕적 의무로 인식하며 원칙 준수 극의 직관적 기반을 형성한다. 반면, 이 기반에 대한 민감성이 낮은 개인은 권위와 규칙에 대한 비판적 도전을 도덕적으로 허용 가능한 행위로 간주하며 유연성 극에 대응한다.</p>
+
+<div class="diagram">
+  <div class="diagram-title">MFT 도덕 기반과 원칙-유연성 축의 매핑</div>
+  <div class="diagram-row">
+    <div class="diagram-group">
+      <div class="diagram-group-label">결속형 기반 (Binding)</div>
+      <div class="diagram-box diagram-box--blue">Authority (권위)</div>
+      <div class="diagram-box diagram-box--blue">Loyalty (충성)</div>
+      <div class="diagram-box diagram-box--blue">Purity (순결)</div>
+      <div class="diagram-label">원칙 준수 극으로 편향</div>
+    </div>
+    <div class="diagram-divider"></div>
+    <div class="diagram-group">
+      <div class="diagram-group-label">개인화형 기반 (Individualizing)</div>
+      <div class="diagram-box diagram-box--purple">Care (배려)</div>
+      <div class="diagram-box diagram-box--purple">Equality (평등)</div>
+      <div class="diagram-label">유연성 극으로 편향</div>
+    </div>
+  </div>
+</div>
+
+<p>아타리, 하이트와 그레이엄(Atari, Haidt &amp; Graham, 2023)은 개정된 MFQ-2를 통해 6개의 도덕 기반(Care, Equality, Proportionality, Loyalty, Authority, Purity)을 각각 독립적 하위 척도로 측정하며, 다집단 확인적 요인분석(Multi-group CFA)에서 기반 간 변별타당도(Discriminant Validity)가 향상된 것으로 보고되었다.</p>
+
+<p>하퍼(Harper, 2021)는 도덕 기반의 프로파일 분석을 통해 3개의 잠재 계층(Latent Class)을 식별하였으며, 그 중 하나를 <strong>"전통주의(Traditionalism)"</strong> 군집으로 명명하였다. 이 군집에 속하는 개인들은 Authority, Loyalty, Purity 기반에서 일관되게 높은 민감성을 보이며, 규칙과 전통적 질서의 유지를 도덕적 핵심으로 간주하는 경향을 나타냈다.</p>
+
+<div class="callout callout--teal">
+  <div class="callout-title"><strong>공공부문 함의</strong></div>
+  <p style="margin-bottom:0">공직 윤리 교육이 전통적으로 Care(배려)와 Equality(평등) 기반에 집중하는 반면, 조직 내부의 실질적 윤리적 의사결정에서는 Authority(권위)와 Loyalty(충성) 기반이 강력하게 작동한다. 이러한 기반 간의 비대칭은 공직자가 공식적 윤리 담론과 조직적 현실 사이에서 경험하는 <strong>인지적 부조화(Cognitive Dissonance)</strong>의 원천이 될 수 있다.</p>
+</div>
+
+
+<!-- 2.6 NFC -->
+<h3 id="sec2-6">2.6 인지적 폐쇄 욕구 (Need for Cognitive Closure)</h3>
+
+<p>웹스터와 크루글란스키(Webster &amp; Kruglanski, 1994)가 개발한 인지적 폐쇄 욕구(Need for Cognitive Closure, NFC) 척도는 모호성에 대한 불편감과 확정적 답변에 대한 선호를 측정하는 개인차 변수이다.</p>
+
+<div class="pill-list">
+  <span class="pill">질서에 대한 선호</span>
+  <span class="pill">예측 가능성에 대한 선호</span>
+  <span class="pill">결단성</span>
+  <span class="pill">모호성에 대한 불편감</span>
+  <span class="pill">폐쇄적 사고</span>
+</div>
+
+<p>NFC가 높은 개인은 명확하고 확정적인 규칙을 선호하며, 모호한 상황에서 빠르게 판단을 내리고 이를 수정하지 않으려는 경향을 보인다. 이러한 인지적 특성은 원칙 준수 극과 표면적으로 유사하다.</p>
+
+<div class="callout callout--red">
+  <div class="callout-title"><strong>NFC의 핵심적 한계</strong></div>
+  <p>NFC는 <strong>맹목적 규칙 추종(Blind Rule-following)</strong>과 <strong>원칙적 유연성(Principled Flexibility)</strong>을 구분하지 못한다. 코헬버그(Kohlberg)의 도덕 발달 이론에서 논의되듯이, 최고 수준의 도덕적 추론(Post-conventional Stage)은 보편적 원칙에 대한 헌신과 부당한 규칙에 대한 의식적 불복종을 동시에 포함한다.</p>
+  <p style="margin-bottom:0">NFC가 높은 개인의 규칙 선호는 <strong>인지적 편의(Cognitive Convenience)</strong>에 기반한 것일 수 있으며, 이는 도덕적 원칙에 대한 숙고된 헌신과는 질적으로 다른 동기이다.</p>
+</div>
+
+<p>NFC와 관련된 후속 연구에서 특히 주목할 발견은 NFC와 권위주의(Authoritarianism) 간의 관계이다. NFC가 높은 개인은 사회적 질서와 위계를 선호하며, 우익 권위주의(RWA)와 유의미한 정적 상관을 보인다. 그러나 RWA의 하위 차원 중 "관습주의(Conventionalism)"는 원칙 준수의 병리적 형태를 나타내는 반면, "권위적 복종(Authoritarian Submission)"은 건전한 원칙 준수의 요소를 포함할 수 있다.</p>
+
+<p>또한 최근의 동기적 인지(Motivated Cognition) 연구는 NFC가 상황적으로 유발될 수 있는 <strong>상태 변수(State Variable)</strong>이기도 함을 보여준다. 시간 압력(Time Pressure), 인지적 피로(Cognitive Fatigue), 또는 불확실한 위협 상황(Ambiguous Threat)은 개인의 NFC를 일시적으로 상승시키며, 이는 규칙 의존적 판단의 증가로 이어진다. 공공부문에서 업무 과부하와 감사 스트레스가 만성적인 환경은 공직자의 상태적 NFC를 항상적으로 높이는 효과를 가질 수 있으며, 이는 재량 수축 현상의 인지적 기제를 설명하는 하나의 경로가 된다.</p>
+
+
+<!-- ============================================================ -->
+<!-- Section 3: 조직윤리 -->
+<!-- ============================================================ -->
+<h2 id="sec3"><span class="num">3.</span> 조직윤리 / 윤리풍토 이론</h2>
+
+<!-- 3.1 Victor & Cullen -->
+<h3 id="sec3-1">3.1 Victor &amp; Cullen의 윤리풍토 이론</h3>
+
+<p>빅터와 컬런(Victor &amp; Cullen, 1987, 1988)의 윤리풍토 이론(Ethical Climate Theory)은 조직의 윤리적 의사결정 환경을 체계적으로 분류하는 가장 영향력 있는 프레임워크 중 하나이다. 이 이론은 <strong>윤리적 기준(Ethical Criteria)</strong>과 <strong>분석 수준(Locus of Analysis)</strong>이라는 두 차원의 교차를 통해 조직의 윤리적 풍토를 유형화한다.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Victor &amp; Cullen: 윤리적 기준 x 분석 수준 (3x3 이론 구조)</div>
+  <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:2px;margin:0 auto;max-width:650px;font-size:0.78rem;">
+    <div style="padding:0.5rem;"></div>
+    <div style="padding:0.5rem;text-align:center;font-weight:700;color:var(--accent);background:var(--surface2);border-radius:6px 6px 0 0;">개인(Individual)</div>
+    <div style="padding:0.5rem;text-align:center;font-weight:700;color:var(--accent);background:var(--surface2);border-radius:6px 6px 0 0;">지역(Local)</div>
+    <div style="padding:0.5rem;text-align:center;font-weight:700;color:var(--accent);background:var(--surface2);border-radius:6px 6px 0 0;">보편(Cosmopolitan)</div>
+    <div style="padding:0.5rem;font-weight:700;color:var(--text-dim);background:var(--surface2);border-radius:6px 0 0 6px;">이기주의</div>
+    <div class="card" style="margin:2px;padding:0.5rem;text-align:center;">자기 이익</div>
+    <div class="card" style="margin:2px;padding:0.5rem;text-align:center;">조직 이익</div>
+    <div class="card" style="margin:2px;padding:0.5rem;text-align:center;">효율성</div>
+    <div style="padding:0.5rem;font-weight:700;color:var(--text-dim);background:var(--surface2);">자선</div>
+    <div class="card" style="margin:2px;padding:0.5rem;text-align:center;">우정</div>
+    <div class="card" style="margin:2px;padding:0.5rem;text-align:center;">팀 이익</div>
+    <div class="card" style="margin:2px;padding:0.5rem;text-align:center;">사회적 책임</div>
+    <div style="padding:0.5rem;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:0 0 0 6px;">원칙</div>
+    <div class="card" style="margin:2px;padding:0.5rem;text-align:center;border:1px solid var(--accent);"><strong>독립성</strong></div>
+    <div class="card" style="margin:2px;padding:0.5rem;text-align:center;border:1px solid var(--accent);"><strong>규칙</strong></div>
+    <div class="card" style="margin:2px;padding:0.5rem;text-align:center;border:1px solid var(--accent);"><strong>법규 &amp; 강령</strong></div>
+  </div>
+</div>
+
+<p>경험적 연구에서는 9개의 이론적 유형이 아닌 <strong>5개의 실증적 요인</strong>이 안정적으로 추출되었다. 원칙 축과 관련된 요인은 다음과 같다:</p>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--blue">규칙(Rules)</span></div>
+    <p style="margin-bottom:0;font-size:0.85rem;">조직 내부의 규정과 절차에 대한 엄격한 준수를 강조하는 풍토. 기계적 순응을 중시.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--purple">법규 및 강령(Law &amp; Code)</span></div>
+    <p style="margin-bottom:0;font-size:0.85rem;">외부의 법률, 전문직 윤리 강령, 산업 표준 등 보편적 규범에 대한 원칙적 충실성을 강조하는 풍토.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--teal">독립성(Independence)</span></div>
+    <p style="margin-bottom:0;font-size:0.85rem;">개인의 도덕적 신념과 양심에 따른 자율적 판단을 허용하는 풍토. <strong>유연성 극에 가장 가까운</strong> 조직적 환경.</p>
+  </div>
+</div>
+
+<p>최근 웨버와 오포쿠-다콰(Weber &amp; Opoku-Dakwa, 2022)가 제안한 <strong>ECW 2.0</strong>은 기존의 기술적(Descriptive) 접근에서 벗어나 <strong>규범적(Normative)</strong> 재개념화를 시도하였다. ECW 2.0은 조직 구성원이 윤리풍토를 "현재 어떻게 작동하는가"가 아니라 "어떻게 작동해야 하는가"의 관점에서 평가하도록 설계되었다.</p>
+
+<p>마에살크(Maesschalck, 2004)는 벨기에 공공조직 연구에서 공공조직이 민간조직에 비해 "규칙" 풍토와 "법규 및 강령" 풍토에서 유의미하게 높은 점수를 보이며, "독립성" 풍토는 상대적으로 낮은 경향을 보임을 밝혔다. 이는 공공부문의 구조적 특성이 원칙 준수 극으로의 체계적 편향을 초래할 수 있음을 시사한다.</p>
+
+
+<!-- 3.2 Trevino -->
+<h3 id="sec3-2">3.2 Trevino의 인간-상황 상호작용 모형</h3>
+
+<p>트레비노(Trevino, 1986)의 인간-상황 상호작용 모형(Person-Situation Interactionist Model)은 윤리적 의사결정이 개인의 도덕적 인지(Moral Cognition)와 상황적 맥락(Situational Context)의 상호작용을 통해 발현됨을 체계적으로 기술한다.</p>
+
+<div class="formula-box">
+  윤리적 행동 = f(도덕 인지 수준, 개인 조절 변수, 상황적 맥락)
+</div>
+
+<p>이 모형의 핵심적 시사점은 <strong>동일한 도덕 발달 단계에 있는 개인이라도 상황적 맥락에 따라 극히 상이한 행동을 산출할 수 있다</strong>는 것이다. 예컨대, 코헬버그의 4단계(법과 질서 지향)에 있는 공직자라 할지라도, 조직 문화가 유연한 재량을 허용하는 환경에서는 상황적 조정을 선택할 수 있으며, 반대로 엄격한 감시와 처벌 체계가 지배하는 환경에서는 과잉 준수(Over-compliance)로 경직될 수 있다.</p>
+
+<div class="callout callout--purple">
+  <div class="callout-title"><strong>주목할 상황 변수들</strong></div>
+  <ul class="bullet-list" style="margin-bottom:0">
+    <li><strong>책임의 분산(Diffusion of Responsibility)</strong> &mdash; 높은 환경에서 개인은 규칙의 기계적 이행에 안주하기 쉬움</li>
+    <li><strong>복종에 대한 압력(Obedience Pressure)</strong> &mdash; 조직적 압력이 재량적 판단을 억제</li>
+    <li><strong>윤리적 역할 모델(Ethical Role Model)</strong> &mdash; 존재 시 원칙적 유연성 발현 가능성 증가</li>
+    <li><strong>통제 위치(Locus of Control)</strong> &mdash; 내재적 개인은 유연성 극으로 편향</li>
+    <li><strong>자아 강도(Ego Strength)</strong> &mdash; 높을수록 조직적 압력에 굴하지 않고 자신의 판단을 관철</li>
+  </ul>
+</div>
+
+
+<!-- 3.3 Compliance vs Values -->
+<h3 id="sec3-3">3.3 준수 기반 vs 가치 기반 윤리 프로그램</h3>
+
+<p>조직윤리 프로그램의 설계에서 <strong>준수 기반 접근(Compliance-based Approach)</strong>과 <strong>가치/청렴 기반 접근(Values/Integrity-based Approach)</strong>의 구분은 원칙-유연성 축의 조직적 제도화를 직접적으로 반영한다.</p>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>비교 기준</th><th>준수 기반 접근</th><th>가치/청렴 기반 접근</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>핵심 메커니즘</strong></td>
+        <td>법규, 규정, 행동 강령의 수립 및 이행; 위반 탐지와 제재</td>
+        <td>핵심 가치와 윤리적 원칙의 내재화; 자율적 판단 역량 배양</td>
+      </tr>
+      <tr>
+        <td><strong>원칙-유연성 대응</strong></td>
+        <td>원칙 준수 극의 제도적 구현</td>
+        <td>유연성 극의 제도적 구현</td>
+      </tr>
+      <tr>
+        <td><strong>초점</strong></td>
+        <td>행동을 외부적 규범에 합치시키는 것</td>
+        <td>회색 지대(Grey Area)에서의 판단력 강조</td>
+      </tr>
+      <tr>
+        <td><strong>관계</strong></td>
+        <td colspan="2" style="text-align:center;">Perlman 등(2023)의 CFA 결과: <strong>"분리되고 구별되지만 높은 상관을 보이는"</strong> 두 개의 독립적 구성 개념</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="callout callout--green">
+  <div class="callout-title"><strong>OECD 공공청렴 프레임워크 (2017)</strong></div>
+  <p>OECD는 공공부문의 청렴성을 규칙 준수만으로 달성할 수 없으며, 가치 내재화와 상황적 판단 역량이 병행되어야 한다고 권고한다. 세 가지 기둥:</p>
+  <ol class="num-list" style="margin-bottom:0">
+    <li><strong>체계(System)</strong> &mdash; 규칙, 절차, 제도적 장치 (준수 기반)</li>
+    <li><strong>문화(Culture)</strong> &mdash; 조직의 가치, 규범, 리더십 (가치 기반)</li>
+    <li><strong>책무(Accountability)</strong> &mdash; 감독, 집행, 제재 메커니즘</li>
+  </ol>
+</div>
+
+<p>"위험 기반 접근(Risk-based Approach)"을 강조하는데, 이는 부패 위험이 높은 영역에는 강한 준수 메커니즘을, 위험이 낮은 영역에는 자율적 판단의 여지를 넓히는 차별적 접근을 의미한다.</p>
+
+<p>미국 연방 공직 윤리법(Ethics in Government Act)이 이해충돌 방지와 재산 공개 등 준수 기반 메커니즘에 강한 비중을 두는 반면, 영국의 시민 서비스 강령(Civil Service Code)은 "청렴성(Integrity)", "정직성(Honesty)", "객관성(Objectivity)", "공정성(Impartiality)"이라는 네 가지 핵심 가치의 내재화를 통해 가치 기반 접근에 더 큰 비중을 둔다. 이러한 국가 간 차이는 원칙-유연성 축의 제도적 구현이 법적 전통과 행정 문화에 의해 상이하게 형태화됨을 보여준다.</p>
+
+
+<!-- ============================================================ -->
+<!-- Section 4: 도덕 발달 이론 -->
+<!-- ============================================================ -->
+<h2 id="sec4"><span class="num">4.</span> 도덕 발달 이론에서의 규칙-원칙 축</h2>
+
+<!-- 4.1 Kohlberg -->
+<h3 id="sec4-1">4.1 Kohlberg의 도덕 발달 단계</h3>
+
+<p>코헬버그(Kohlberg, 1969, 1984)의 도덕 발달 이론은 도덕적 추론의 질적 변화를 3수준 6단계로 기술하며, 규칙과 원칙의 관계에 대한 인식이 발달 단계에 따라 근본적으로 변화함을 보여준다.</p>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>단계</th><th>명칭</th><th>규칙에 대한 인식</th><th>원칙-유연성 위치</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="profile-badge profile-badge--blue">4단계</span></td>
+        <td>법과 질서 지향<br><em>Law &amp; Order</em></td>
+        <td>사회적 질서와 법적 규칙의 유지를 도덕적 의무로 인식. 규칙의 경직성 &mdash; 법이 부당하더라도 법이므로 따라야 한다.</td>
+        <td><strong>원칙 준수 극</strong>의 가장 전형적인 형태</td>
+      </tr>
+      <tr>
+        <td><span class="profile-badge profile-badge--purple">5단계</span></td>
+        <td>사회 계약 지향<br><em>Social Contract</em></td>
+        <td>법은 사회 구성원 간의 합리적 합의의 산물. <strong>유연한 사회적 도구</strong>이며 수정, 재해석, 폐기 가능.</td>
+        <td>원칙과 유연성의 <strong>통합 시작</strong></td>
+      </tr>
+      <tr>
+        <td><span class="profile-badge profile-badge--teal">6단계</span></td>
+        <td>보편적 윤리 원칙<br><em>Universal Ethical Principles</em></td>
+        <td>정의, 평등, 인간 존엄성과 같은 추상적 보편적 원칙에 근거. <strong>부당한 법에 대한 불복종의 의무</strong>를 포함.</td>
+        <td>원칙적 유연성의 <strong>완전한 발현</strong></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="callout callout--teal">
+  <div class="callout-title"><strong>발달적 시사점</strong></div>
+  <ol class="num-list" style="margin-bottom:0">
+    <li>규칙 준수와 상황적 유연성은 단순한 대립이 아니라 <strong>발달적 통합의 대상</strong>이다.</li>
+    <li>원칙-유연성 축은 정적인 성향 차원이 아니라 도덕적 성숙도(Moral Maturity)와 상호작용하는 <strong>동적 변수</strong>로 이해될 필요가 있다.</li>
+    <li>건전한 균형은 최소한 <strong>탈관습적(Post-conventional)</strong> 도덕 추론 수준을 전제로 한다.</li>
+  </ol>
+</div>
+
+<p>레스트 등(Rest et al., 1999)의 대규모 종단 연구에 따르면 대다수의 성인이 관습적 수준(3-4단계)에 머무르며, 탈관습적 수준에 도달하는 비율은 <strong>전체 성인 인구의 10-15%</strong>에 불과하다. 대학원 수준의 교육을 받은 전문직 종사자들에서도 탈관습적 추론의 비율은 평균 40% 내외에 그친다.</p>
+
+<p>길리건(Gilligan, 1982)의 돌봄 윤리(Ethics of Care) 관점에서의 비판도 고려할 필요가 있다 &mdash; 코헬버그의 정의 중심 발달 모형은 관계적 맥락에서의 도덕적 판단, 즉 구체적 타자에 대한 책임과 배려에 기반한 유연한 판단을 발달적으로 하위에 배치하는 편향을 가질 수 있다는 지적이다.</p>
+
+
+<!-- 4.2 Rest 4-Component -->
+<h3 id="sec4-2">4.2 Rest의 4구성요소 모형</h3>
+
+<p>레스트(Rest, 1986)의 4구성요소 모형(Four-Component Model)은 도덕적 행동의 산출 과정을 네 가지 독립적 심리 과정으로 분해한다.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Rest의 4구성요소 모형: 원칙적 유연성의 발현 조건</div>
+  <div class="diagram-row" style="gap:0.5rem;">
+    <div class="diagram-col">
+      <div class="diagram-box diagram-box--blue diagram-box--large">1. 도덕적 민감성</div>
+      <div class="diagram-label">규칙 적용이 부당한 결과를<br>초래함을 <strong>감지</strong></div>
+    </div>
+    <span class="diagram-arrow">&rarr;</span>
+    <div class="diagram-col">
+      <div class="diagram-box diagram-box--purple diagram-box--large">2. 도덕적 판단</div>
+      <div class="diagram-label">대안적 행동 방침이<br>더 정당함을 <strong>추론</strong></div>
+    </div>
+    <span class="diagram-arrow">&rarr;</span>
+    <div class="diagram-col">
+      <div class="diagram-box diagram-box--orange diagram-box--large">3. 도덕적 동기</div>
+      <div class="diagram-label">개인적 위험을 감수하고<br>원칙적 판단을 <strong>우선시</strong></div>
+    </div>
+    <span class="diagram-arrow">&rarr;</span>
+    <div class="diagram-col">
+      <div class="diagram-box diagram-box--green diagram-box--large">4. 도덕적 품성</div>
+      <div class="diagram-label">조직적 압력에도 불구하고<br>판단을 <strong>실행</strong></div>
+    </div>
+  </div>
+</div>
+
+<p>원칙적 유연성(Principled Flexibility)은 이 네 구성요소 <strong>모두의 높은 수준</strong>을 요구한다. 어느 하나라도 결핍될 경우 원칙적 유연성이 무원칙적 편의주의로 전락하거나 규칙의 맹목적 추종으로 경직될 수 있다.</p>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>구성요소 결핍</th><th>결과 유형</th><th>설명</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="profile-badge profile-badge--blue">민감성 결핍</span></td>
+        <td>맹목적 규칙 추종</td>
+        <td>규칙의 기계적 적용이 시민에게 부당한 결과를 초래하는 상황을 인식하지 못함</td>
+      </tr>
+      <tr>
+        <td><span class="profile-badge profile-badge--purple">판단 결핍</span></td>
+        <td>무력한 관료</td>
+        <td>상황의 특수성을 인식하더라도 적절한 대안을 추론하지 못함</td>
+      </tr>
+      <tr>
+        <td><span class="profile-badge profile-badge--orange">동기 결핍</span></td>
+        <td>방관적 순응</td>
+        <td>올바른 판단을 내리고도 개인적 위험을 회피하기 위해 규칙에 안주</td>
+      </tr>
+      <tr>
+        <td><span class="profile-badge profile-badge--red">품성 결핍</span></td>
+        <td>좌절된 양심</td>
+        <td>원칙적 판단을 내리고도 조직적 압력에 굴복</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- 4.3 CNI Model -->
+<h3 id="sec4-3">4.3 Gawronski의 CNI 모형</h3>
+
+<p>가브론스키(Gawronski) 등이 개발한 CNI 모형(Consequences, Norms, Inaction Model)은 도덕적 딜레마에 대한 판단을 세 가지 <strong>독립적 매개변수</strong>로 분해한다.</p>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--green">C</span> Consequences</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">결과의 극대화를 지향하는 공리주의적 경향. 높은 C는 상황적 결과를 고려하여 규범을 유연하게 적용하는 결과주의적 판단을 선호 &rarr; <strong>유연성 극</strong></p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--blue">N</span> Norms</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">도덕적 규범에 대한 민감성 및 준수 경향. 높은 N은 의무론적 판단을 내리는 경향 &rarr; <strong>원칙 준수 극</strong></p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--orange">I</span> Inaction</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">행동하지 않는 것(현 상태 유지)을 선호하는 경향. 책임 회피를 위한 Status Quo Bias &rarr; <strong>재량 회피</strong></p>
+  </div>
+</div>
+
+<div class="callout">
+  <div class="callout-title"><strong>핵심 기여: 세 매개변수의 수학적 독립성</strong></div>
+  <p>기존의 "트롤리 문제" 패러다임에서는 공리주의적 판단과 의무론적 판단이 단일 연속선의 양극으로 취급되었으나, CNI 모형은 한 개인이 높은 규범 민감성(N)과 높은 결과 민감성(C)을 <strong>동시에</strong> 보유할 수 있음을 보여준다.</p>
+  <p style="margin-bottom:0">특히 <strong>I(무행동 선호)</strong> 매개변수는 원칙-유연성 축에서 "원칙 준수"로 분류되는 행동의 이면에 <strong>도덕적 원칙이 아니라 책임 회피의 동기</strong>가 작용할 수 있음을 드러내는 중요한 진단적 도구가 된다.</p>
+</div>
+
+<p>성격 변수와의 관계에서, HEXACO의 성실성(C)은 N(규범 민감성)과 정적 상관을 보이며, 정직-겸손성(H)은 의무론적 선호(Deontological Preference)와 정적 상관을 보이는 것으로 보고되었다.</p>
+
+
+<!-- 4.4 Forsyth EPQ 재강조 -->
+<h3 id="sec4-4">4.4 Forsyth의 EPQ에서의 독립성 (재강조)</h3>
+
+<p>포사이스의 <strong>상대주의(Relativism)</strong> 차원은 "보편적 도덕 규칙이 모든 상황에 동일하게 적용될 수 있는가?"에 대한 메타윤리적(Meta-ethical) 신념을 직접적으로 측정한다.</p>
+
+<div class="callout callout--yellow">
+  <div class="callout-title"><strong>Kohlberg 발달 이론과의 교차점</strong></div>
+  <p>4단계(법과 질서)에서의 규칙 충실성과 6단계(보편적 원칙)에서의 원칙적 유연성은 모두 "낮은 상대주의"로 측정될 수 있지만, 질적 의미는 근본적으로 다르다:</p>
+  <ul class="bullet-list" style="margin-bottom:0">
+    <li>4단계: 구체적 규칙의 <strong>무비판적 수용</strong></li>
+    <li>6단계: 추상적 원칙의 <strong>숙고된 적용</strong></li>
+  </ul>
+  <p style="margin-bottom:0;margin-top:0.5rem;">이 한계를 극복하기 위해 EPQ와 DIT-2의 병용이 권장된다. "낮은 상대주의 + 높은 P-점수" 프로파일(원칙적 헌신)과 "낮은 상대주의 + 낮은 P-점수" 프로파일(관습적 순응)을 변별할 수 있다.</p>
+</div>
+
+<p>문화 간 비교 연구에서, 포사이스, 오보일과 맥대니얼(2008)의 메타분석에 따르면 동아시아 문화권의 응답자들은 서구 문화권에 비해 상대주의 점수가 유의미하게 높은 경향을 보인다. 이는 유교적 전통에서 맥락 민감적 도덕 판단이 문화적으로 강조되는 현상과 일치한다. 그러나 이러한 문화적 상대주의가 공직 윤리의 맥락에서 항상 긍정적으로 작용하는 것은 아니며, 규칙의 선택적 적용(Selective Application)이나 인맥 기반의 차별적 재량(Guanxi-based Discretion) 등의 부정적 발현 가능성도 고려해야 한다.</p>
+
+
+<!-- ============================================================ -->
+<!-- Section 5: 공공행정 -->
+<!-- ============================================================ -->
+<h2 id="sec5"><span class="num">5.</span> 공공행정 맥락에서의 원칙-유연성</h2>
+
+<!-- 5.1 Weber vs Lipsky -->
+<h3 id="sec5-1">5.1 Weber의 관료제 vs Lipsky의 일선관료 재량</h3>
+
+<p>원칙-유연성 축이 가장 첨예하게 발현되는 현장은 공공행정이다. 이 긴장의 양극단을 대표하는 이론적 전통은 막스 베버(Max Weber)의 관료제론과 마이클 립스키(Michael Lipsky)의 일선관료론이다.</p>
+
+<div class="diagram">
+  <div class="diagram-title">Weber vs Lipsky: 원칙-유연성의 행정학적 양극</div>
+  <div class="diagram-row">
+    <div class="diagram-group" style="flex:1;max-width:45%;">
+      <div class="diagram-group-label">Weber 관료제론 &mdash; 원칙 준수 극</div>
+      <div class="diagram-box diagram-box--blue diagram-box--large">규칙 기반 비인격적 통제</div>
+      <div class="diagram-label">자의적 권력 행사 방지<br>예측 가능한 행정 보장</div>
+      <div style="margin-top:0.5rem;font-size:0.78rem;color:var(--red);">극단 &rarr; "철의 우리(Iron Cage)"<br>규칙의 자기 목적화</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <span class="diagram-arrow" style="font-size:2.5rem;">&harr;</span>
+      <div class="diagram-label">긴장</div>
+    </div>
+    <div class="diagram-group" style="flex:1;max-width:45%;">
+      <div class="diagram-group-label">Lipsky 일선관료론 &mdash; 유연성 극</div>
+      <div class="diagram-box diagram-box--purple diagram-box--large">불가피한 구조적 재량</div>
+      <div class="diagram-label">시민의 개별적 필요에 대한 반응성<br>실질적 정의(Substantive Justice)</div>
+      <div style="margin-top:0.5rem;font-size:0.78rem;color:var(--text-dim);">재량은 관료제의 "결함"이 아닌<br>"불가피한 구조적 특성"</div>
+    </div>
+  </div>
+</div>
+
+<p>베버(Weber, 1922/1978)에 의하면, 합리적-법적 관료제의 핵심은 규칙에 기반한 비인격적 통제이다. 관료는 명문화된 규정과 절차에 따라 의사결정을 수행해야 하며, 이러한 비인격성(Impersonality)이 자의적 권력 행사를 방지한다. 베버 자신은 이러한 합리화의 극단을 <strong>"철의 우리(Iron Cage)"</strong>로 묘사하며, 규칙의 자기 목적화가 인간적 자유를 억압할 수 있음을 경고하였다.</p>
+
+<p>립스키(Lipsky, 1980/2010)에 의하면, 교사, 경찰관, 사회복지사 등 일선관료는 불가피하게 상당한 수준의 재량을 행사한다. 그 이유는:</p>
+
+<ol class="num-list">
+  <li>일선관료가 직면하는 상황은 지나치게 복잡하여 규칙으로 완전히 사전 규정할 수 없다.</li>
+  <li>자원의 제약으로 인해 모든 규칙을 동시에 완전히 이행하는 것이 물리적으로 불가능하다.</li>
+  <li>시민의 개별적 필요에 대한 반응성(Responsiveness)이 공공서비스의 본질적 요소이다.</li>
+</ol>
+
+<p>창과 브루어(Chang &amp; Brewer, 2022)의 체계적 문헌 검토에 따르면, 재량 연구는 크게 세 가지 접근으로 분류된다:</p>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--blue">하향식 접근</span></div>
+    <p style="margin-bottom:0;font-size:0.85rem;">재량을 통제의 대상으로 봄 &mdash; 베버적 전통</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--purple">상향식 접근</span></div>
+    <p style="margin-bottom:0;font-size:0.85rem;">재량을 불가피한 현실로 수용하고 그 패턴을 기술 &mdash; 립스키적 전통</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--teal">상호작용적 접근</span></div>
+    <p style="margin-bottom:0;font-size:0.85rem;">재량의 행사 조건과 결과를 맥락적으로 분석</p>
+  </div>
+</div>
+
+<p>주목할 개념적 구분은 <strong>프로그램된 재량(Programmed Discretion)</strong> &mdash; 법규가 명시적으로 허용하는 범위 내에서의 선택권 &mdash; 과 <strong>비프로그램된 재량(Non-programmed Discretion)</strong> &mdash; 법규가 예상하지 못한 상황에서 공직자가 행사하는 판단 &mdash; 의 차이이다. 공공부문에서 재량의 수축은 주로 비프로그램된 재량의 영역에서 발생하며, 이는 전례 없는 상황에 대한 대응 역량을 약화시킨다.</p>
+
+<p>하만(Hupe, 2013)은 재량을 <strong>"책무적 재량(Accountable Discretion)"</strong>이라는 개념으로 재정립하여, 재량과 책무성이 대립적이 아니라 보완적 관계에 있음을 주장하였다. 건전한 재량 행사는 그 과정과 근거가 사후적으로 설명되고 정당화될 수 있을 때(Accountable) 비로소 정당성을 확보한다.</p>
+
+
+<!-- 5.2 한국 -->
+<h3 id="sec5-2">5.2 한국 공공부문의 원칙-유연성 긴장</h3>
+
+<p>한국 공공부문에서 원칙-유연성 축의 긴장은 특히 <strong>재량의 수축(Discretion Contraction)</strong> 현상을 통해 첨예하게 드러난다. 감사원을 비롯한 다층적 감사 체계의 강화와 함께, 일선 공무원이 재량을 행사하는 것 자체를 위험(Risk)으로 인식하고 규정의 문언에만 기계적으로 의존하는 방어적 행태가 확산되고 있다.</p>
+
+<div class="callout callout--red">
+  <div class="callout-title"><strong>비대칭적 인센티브 구조(Asymmetric Incentive Structure)</strong></div>
+  <p>한국의 감사 체계는 <strong>합법성 감사(Legality Audit)</strong>에 강한 비중을 두며, <strong>성과 감사(Performance Audit)</strong>의 비중은 상대적으로 낮다. 그 결과:</p>
+  <ul class="bullet-list" style="margin-bottom:0.5rem;">
+    <li>"좋은 결과를 위해 재량을 행사했더라도 절차적 하자가 있으면 처벌받을 수 있다"는 비대칭적 위험 인식</li>
+    <li>재량적 판단은 제도적으로 <strong>보상받지 못하는 위험(Unrewarded Risk)</strong></li>
+    <li>과잉 준수는 <strong>안전한 기본값(Safe Default)</strong></li>
+  </ul>
+  <p style="margin-bottom:0"><strong>과잉 준수(Over-compliance)는 과소 준수(Under-compliance)만큼이나 심각한 청렴성의 위협</strong>이다 &mdash; 전자는 형평성과 반응성의 실패를, 후자는 공정성과 법치의 실패를 초래한다.</p>
+</div>
+
+<p>김상묵(2017)은 한국 공무원의 공직가치(Public Service Values)를 5개 유형으로 분류하였다:</p>
+
+<div class="pill-list">
+  <span class="pill" style="background:var(--accent-soft);color:var(--accent);border-color:var(--accent);">윤리적 가치</span>
+  <span class="pill" style="background:var(--purple-soft);color:var(--purple);border-color:var(--purple);">민주적 가치</span>
+  <span class="pill" style="background:var(--teal-soft);color:var(--teal);border-color:var(--teal);">전문직업적 가치</span>
+  <span class="pill" style="background:var(--green-soft);color:var(--green);border-color:var(--green);">혁신적 가치</span>
+  <span class="pill" style="background:var(--orange-soft);color:var(--orange);border-color:var(--orange);">전통적 관료적 가치</span>
+</div>
+
+<p>"전통적 관료적 가치"(규칙 준수, 위계적 복종, 절차적 정확성)는 원칙 준수 극에 직접 대응하고, "혁신적 가치"와 "전문직업적 가치"(전문성, 자율성, 중립성, 창의성, 변화 수용)는 유연성 극에 대응한다. 이 다섯 가지 가치가 동일 개인 내에서 공존하며 상황에 따라 활성화된다는 점은 원칙-유연성이 이분법적 유형이 아니라 연속적 차원임을 지지한다.</p>
+
+<p>최근 한국 정부는 <strong>"적극행정(Proactive Administration)"</strong>을 제도적으로 장려하고 있다. 적극행정 면책 제도는 공무원이 공익을 위해 적극적으로 업무를 수행한 결과 부분적인 절차적 하자가 발생하더라도 제재를 면제하는 장치이다. 그러나 이 제도의 실효성은 여전히 제한적인데, "적극행정"과 "규정 위반"의 경계가 사후적으로(Ex post) 판단되며 기준의 모호성이 불확실성을 완전히 해소하지 못하기 때문이다.</p>
+
+<div class="callout callout--green">
+  <div class="callout-title"><strong>한국 공공부문의 구조적 전환 과제</strong></div>
+  <ul class="bullet-list" style="margin-bottom:0">
+    <li><strong>감사 체계의 재설계</strong>: 합법성 감사 중심에서 합법성-합목적성-합리성의 통합적 감사로의 전환</li>
+    <li><strong>인사 체계의 보완</strong>: 재량 행사의 질(Quality of Discretion)을 인사 평가의 한 차원으로 포함</li>
+    <li><strong>교육 체계의 고도화</strong>: 사례 기반의 도덕적 추론 훈련을 공직자 역량 교육의 핵심 요소로 편성</li>
+    <li><strong>조직 문화의 전환</strong>: "규칙 준수 = 안전"에서 "원칙적 유연성 = 전문성"이라는 규범으로의 이행</li>
+  </ul>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- Section 6: 독립성 논증 -->
+<!-- ============================================================ -->
+<h2 id="sec6"><span class="num">6.</span> 투명성-신중성 축과의 심리측정적 독립성</h2>
+
+<p>원칙-유연성 축이 독립적 측정 차원으로 정당화되기 위해서는 기존에 논의된 투명성-신중성(Transparency-Prudence) 축과 경험적으로 분리 가능함이 입증되어야 한다. 다수의 이론적, 실증적 근거가 이 분리를 지지한다.</p>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--blue">1</span> HEXACO 요인 직교성</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">투명성-신중성의 핵심 차원인 정직-겸손성(H)과 원칙-유연성의 핵심 차원인 성실성(C) 및 우호성(A)은 HEXACO 모형 내에서 요인분석적으로 직교한다. 투명성 성향과 규칙 준수 성향이 독립적으로 변이함을 의미.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--purple">2</span> 결과 영역 분리</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">Zettler 등(2020) 메타분석: H는 착취적 행동을, C는 의무 이행을, A는 방해 행동을 예측. 투명성 관련 행동과 규칙 준수 관련 행동이 서로 다른 행동 영역에 매핑.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--teal">3</span> 청렴성 위반 유형론</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">Huberts &amp; Lasthuizen(2011): <strong>정직성 위반</strong>(부패, 사기, 정보 은폐)과 <strong>규칙 위반</strong>(절차적 일탈, 규정 불이행, 재량 남용)을 별개 범주로 구분.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--orange">4</span> EPQ 차원 독립성</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">상대주의(원칙-유연성)와 이상주의(투명성-신중성과 관련)는 통계적으로 독립적. 두 축이 서로 다른 메타윤리적 신념을 반영.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--green">5</span> 행동적 결과 구별</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">투명성-신중성의 병리: "무분별한 폭로" / "불투명한 은폐". 원칙-유연성의 병리: "관료적 경직성" / "무원칙적 편의주의". 현상학적으로 명확히 구별.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--red">6</span> 신경과학적 기반 구별</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">규범 준수 판단은 DLPFC/ACC(인지적 통제), 정보 공유 결정은 MPFC/TPJ(마음이론). 서로 다른 신경 회로에 의해 매개될 가능성.</p>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title"><span class="profile-badge profile-badge--yellow">7</span> 조직적 선행 요인의 차이</div>
+  <p style="margin-bottom:0;font-size:0.85rem;">투명성-신중성 축은 <strong>정보 거버넌스 구조</strong>(정보 공개 정책, 내부 고발 보호 제도, 보안 등급 체계)에 의해 조절되는 반면, 원칙-유연성 축은 <strong>재량 거버넌스 구조</strong>(감사 체계, 재량 허용 범위, 적극행정 면책 제도)에 의해 조절된다.</p>
+</div>
+
+<div class="callout">
+  <div class="callout-title"><strong>핵심 요약</strong></div>
+  <p style="margin-bottom:0">투명성-신중성 축이 <strong>"정보를 어떻게 다룰 것인가(How to Handle Information)"</strong>에 관한 것이라면, 원칙-유연성 축은 <strong>"규칙을 어떻게 적용할 것인가(How to Apply Rules)"</strong>에 관한 것이다. 이 두 질문은 관련되어 있지만 환원 불가능하다.</p>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>비교 기준</th><th>투명성-신중성 축</th><th>원칙-유연성 축</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>핵심 질문</strong></td>
+        <td>정보를 공개할 것인가, 보호할 것인가?</td>
+        <td>규칙을 엄격히 적용할 것인가, 상황에 맞게 조정할 것인가?</td>
+      </tr>
+      <tr>
+        <td><strong>HEXACO 대응 차원</strong></td>
+        <td>H (정직-겸손성)</td>
+        <td>C (성실성) + A (우호성)</td>
+      </tr>
+      <tr>
+        <td><strong>Forsyth EPQ 대응</strong></td>
+        <td>이상주의 (Idealism)</td>
+        <td>상대주의 (Relativism)</td>
+      </tr>
+      <tr>
+        <td><strong>예측하는 행동 영역</strong></td>
+        <td>착취, 기만, 정보 왜곡</td>
+        <td>의무 이행, 재량 행사, 규칙 일탈</td>
+      </tr>
+      <tr>
+        <td><strong>병리적 극단</strong></td>
+        <td>무분별한 폭로 / 불투명한 은폐</td>
+        <td>관료적 경직 / 무원칙적 편의</td>
+      </tr>
+      <tr>
+        <td><strong>청렴성 위반 유형</strong></td>
+        <td>정직성 위반 (부패, 사기)</td>
+        <td>규칙 위반 / 과잉 준수</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- Section 7: 측정도구 -->
+<!-- ============================================================ -->
+<h2 id="sec7"><span class="num">7.</span> 검증된 측정도구 목록</h2>
+
+<p>아래 표는 원칙-유연성 축의 측정에 활용 가능한 주요 심리측정 도구를 체계적으로 정리한 것이다. 각 도구는 상이한 측면(인지적, 동기적, 성격적, 조직적)을 포착하며, 포괄적 측정을 위해서는 다방법 접근(Multi-method Approach)이 권장된다.</p>
+
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>측정 도구</th><th>개발자</th><th>문항 수</th><th>측정 차원</th><th>타당화 근거</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>EPQ</strong><br><em>Ethics Position Questionnaire</em></td>
+        <td>Forsyth (1980)</td>
+        <td>20문항<br>(이상주의 10 + 상대주의 10)</td>
+        <td>이상주의, 상대주의</td>
+        <td>수백 편의 후속 연구에서 2요인 구조 반복 확인; 다문화 표본에서 재현</td>
+      </tr>
+      <tr>
+        <td><strong>EPQ-5</strong></td>
+        <td>Forsyth &amp; O'Boyle (2021)</td>
+        <td>10문항<br>(각 5)</td>
+        <td>이상주의, 상대주의</td>
+        <td>CFA 확인, n=13,485+; 원형 EPQ와의 수렴타당도 확보</td>
+      </tr>
+      <tr>
+        <td><strong>PVQ-RR</strong><br><em>Portrait Values Questionnaire-Revised</em></td>
+        <td>Schwartz &amp; Cieciuch (2022)</td>
+        <td>57문항</td>
+        <td>19개 가치 유형<br>(보존 vs 변화 개방성 포함)</td>
+        <td>49개 문화 집단에서 alpha=0.76; MDS 및 CFA 교차 문화 타당화</td>
+      </tr>
+      <tr>
+        <td><strong>DIT-2</strong><br><em>Defining Issues Test-2</em></td>
+        <td>Rest et al. (1999)</td>
+        <td>5개 딜레마, 각 12문항</td>
+        <td>도덕 판단 발달 수준<br>(P-score, N2 index)</td>
+        <td>수천 건의 연구에서 발달적 변화, 교육 효과, 전문직 의사결정 예측 확인</td>
+      </tr>
+      <tr>
+        <td><strong>ECQ</strong><br><em>Ethical Climate Questionnaire</em></td>
+        <td>Victor &amp; Cullen (1988)</td>
+        <td>26문항<br>(다양한 버전)</td>
+        <td>5개 윤리풍토 유형<br>(Rules, Law &amp; Code, Independence 등)</td>
+        <td>다수의 산업/문화권에서 요인 구조 확인; 조직 행동 결과 예측 타당도 확보</td>
+      </tr>
+      <tr>
+        <td><strong>HEXACO-PI-R</strong></td>
+        <td>Ashton &amp; Lee (2009)</td>
+        <td>100/200문항</td>
+        <td>6개 차원 (H, E, X, A, C, O)<br>각 4개 파셋</td>
+        <td>다국어 번역 및 교차 문화 타당화; 메타분석에서 요인 직교성 확인</td>
+      </tr>
+      <tr>
+        <td><strong>NFC Scale</strong><br><em>Need for Cognitive Closure</em></td>
+        <td>Webster &amp; Kruglanski (1994)</td>
+        <td>42문항<br>(간편형 15)</td>
+        <td>5개 하위 차원</td>
+        <td>다수의 문화권에서 요인 구조 재현; 의사결정 양식, 편견과의 예측타당도 확보</td>
+      </tr>
+      <tr>
+        <td><strong>MCT</strong><br><em>Moral Competence Test</em></td>
+        <td>Lind (2008)</td>
+        <td>24문항, 2개 딜레마</td>
+        <td>도덕적 역량 (C-index)</td>
+        <td>Kohlberg 이론 기반; 교육 개입 효과 측정에 활용; 다국어 타당화</td>
+      </tr>
+      <tr>
+        <td><strong>MFQ-2</strong><br><em>Moral Foundations Questionnaire-2</em></td>
+        <td>Atari, Haidt &amp; Graham (2023)</td>
+        <td>36문항</td>
+        <td>6개 도덕 기반<br>(Care, Equality, Proportionality, Loyalty, Authority, Purity)</td>
+        <td>대규모 표본에서 CFA 확인; MFQ-1 대비 향상된 변별타당도; 다문화 재현</td>
+      </tr>
+      <tr>
+        <td><strong>CNI 모형 측정 도구</strong></td>
+        <td>Gawronski et al. (2017)</td>
+        <td>24개 도덕 딜레마 시나리오</td>
+        <td>C (결과 민감성)<br>N (규범 민감성)<br>I (무행동 선호)</td>
+        <td>실험적 타당화; 성격 변수, 도덕 판단과의 수렴/변별타당도 확보</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="callout callout--teal">
+  <div class="callout-title"><strong>도구 선택 가이드</strong></div>
+  <ul class="bullet-list" style="margin-bottom:0">
+    <li><strong>직접적 측정</strong> &rarr; EPQ/EPQ-5 (상대주의 하위 척도) + PVQ-RR (보존-변화 개방성 점수)</li>
+    <li><strong>간접적 측정</strong> &rarr; HEXACO-PI-R의 C(성실성) 파셋 프로파일 + A(우호성)의 유연성 파셋</li>
+    <li><strong>도덕 추론 수준 통제</strong> &rarr; DIT-2 또는 MCT 병용</li>
+    <li><strong>조직 맥락 포착</strong> &rarr; ECQ 보완적 활용</li>
+    <li><strong>과정 수준 분석</strong> &rarr; CNI 모형 도구 (규범 민감성 N과 무행동 선호 I를 분리 측정)</li>
+  </ul>
+</div>
+
+
+<!-- ============================================================ -->
+<!-- Section 8: 종합 및 시사점 -->
+<!-- ============================================================ -->
+<h2 id="sec8"><span class="num">8.</span> 종합 및 시사점</h2>
+
+<p>본 보고서에서 검토한 다수의 독립적 학술 전통은 원칙 준수-상황적 유연성 축이 심리측정적으로 식별 가능하고 이론적으로 정당화되는 독립적 차원임을 <strong>수렴적으로(Convergently)</strong> 지지한다.</p>
+
+<div class="diagram">
+  <div class="diagram-title">다학문적 수렴 증거: 원칙-유연성 축의 이론적 기반</div>
+  <div class="diagram-row" style="gap:0.5rem;">
+    <div class="diagram-box diagram-box--blue">성격심리학<br><span style="font-size:0.7rem;">Big Five C-O, HEXACO H-C-A</span></div>
+    <div class="diagram-box diagram-box--purple">가치심리학<br><span style="font-size:0.7rem;">Schwartz 보존-변화</span></div>
+    <div class="diagram-box diagram-box--orange">윤리심리학<br><span style="font-size:0.7rem;">Forsyth 상대주의, MFT Authority</span></div>
+  </div>
+  <div class="diagram-row" style="margin-top:0.5rem;">
+    <span class="diagram-arrow-down">&darr;</span>
+    <span class="diagram-arrow-down">&darr;</span>
+    <span class="diagram-arrow-down">&darr;</span>
+  </div>
+  <div class="diagram-row" style="margin-top:0.5rem;">
+    <div class="diagram-box diagram-box--green diagram-box--large" style="font-size:0.95rem;">원칙-유연성 축 = 독립적 심리-윤리 차원</div>
+  </div>
+  <div class="diagram-row" style="margin-top:0.5rem;">
+    <span class="diagram-arrow-down">&uarr;</span>
+    <span class="diagram-arrow-down">&uarr;</span>
+    <span class="diagram-arrow-down">&uarr;</span>
+  </div>
+  <div class="diagram-row" style="margin-top:0.5rem;gap:0.5rem;">
+    <div class="diagram-box diagram-box--teal">도덕발달론<br><span style="font-size:0.7rem;">Kohlberg 4-5-6, Rest 4구성요소</span></div>
+    <div class="diagram-box diagram-box--yellow">도덕판단론<br><span style="font-size:0.7rem;">CNI 모형 N 매개변수</span></div>
+    <div class="diagram-box diagram-box--red">조직윤리 / 공공행정<br><span style="font-size:0.7rem;">Victor&amp;Cullen, Weber-Lipsky</span></div>
+  </div>
+</div>
+
+<p>이 축을 가장 직접적으로 측정하는 도구로는 다음 두 가지가 권장된다. 첫째, <strong>Forsyth의 EPQ/EPQ-5</strong>에서 상대주의(Relativism) 차원은 도덕 규칙의 보편적 적용 가능성에 대한 개인의 메타윤리적 신념을 가장 간결하고 직접적으로 포착한다. 둘째, <strong>Schwartz의 PVQ-RR</strong>에서 보존(Conservation)-변화 개방성(Openness to Change) 차원은 규칙 준수와 자율적 판단에 대한 동기적 기반을 가치 수준에서 측정한다.</p>
+
+<p>원칙-유연성 축의 투명성-신중성 축으로부터의 <strong>경험적 분리 가능성(Empirical Separability)</strong>은 HEXACO 요인 구조의 직교성, Zettler 등(2020)의 결과 영역 분리, Huberts &amp; Lasthuizen(2011)의 청렴성 위반 유형론, 그리고 Forsyth EPQ의 차원 독립성을 통해 충분히 뒷받침된다.</p>
+
+<h4>방법론적 쟁점</h4>
+
+<ol class="num-list">
+  <li><strong>사회적 바람직성 편향(Social Desirability Bias)</strong>: 원칙 준수가 사회적으로 바람직한 응답으로 인식되어 체계적 편향 가능. 상황적 판단 검사(SJT) 형식 또는 암묵적 태도 측정 기법 병용 필요.</li>
+  <li><strong>문화적 맥락 민감성</strong>: 유교적 전통이 강한 한국 사회에서 규칙과 권위에 대한 존중은 서구와 상이한 문화적 의미를 가짐. 한국 특화 도구의 개발 또는 문화적 적응(Cultural Adaptation) 필요.</li>
+  <li><strong>도덕 발달 수준과의 교호작용 통제</strong>: 동일한 "원칙 준수" 응답이 관습적 수준의 규칙 충실성과 탈관습적 수준의 원칙적 헌신이라는 질적으로 상이한 동기를 반영할 수 있으므로, DIT-2 등을 통한 동시 평가가 권장됨.</li>
+</ol>
+
+<h4>정책적 시사점</h4>
+
+<p><strong>한국 공공부문의 맥락</strong>에서 이 축의 정책적 시사점은 특히 중요하다. 현행 청렴성 프레임워크가 규칙 준수에 과도하게 편향되어 있는 상황에서, 건전한 공직 윤리는 <strong>원칙적 유연성(Principled Flexibility)</strong>을 지향해야 한다.</p>
+
+<div class="card-grid">
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--blue">1</span> 측정 차원의 확장</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">과잉 준수와 과소 준수를 양방향에서 포착할 수 있는 양극형(Bipolar) 문항 설계. "규칙의 기계적 적용이 시민의 권리를 훼손한 적이 있는가", "상황적 특수성을 고려한 재량적 판단을 내린 경험이 있는가" 등의 양방향 문항 추가.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--purple">2</span> 조직 문화의 재설계</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">재량적 판단의 과정과 근거를 문서화하는 체계(Discretion Documentation System)의 도입, 동료 검토(Peer Review)를 통한 재량 품질 관리, "건전한 재량"의 우수 사례 공유 및 표창 문화 조성.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--teal">3</span> 교육 프로그램의 고도화</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">실제 행정 현장의 딜레마를 활용한 사례 기반 학습(Case-based Learning), 구조화된 토론(Structured Deliberation), 원칙적 유연성의 역할 모델에 대한 노출을 포함하는 체험적 교육 설계.</p>
+  </div>
+  <div class="card">
+    <div class="card-title"><span class="profile-badge profile-badge--orange">4</span> 감사 패러다임의 전환</div>
+    <p style="margin-bottom:0;font-size:0.85rem;">"규칙 위반의 탐지"에서 "재량 행사의 합리성 평가"로 확장. 합법성 감사와 성과 감사의 균형, 사전적 컨설팅 감사의 확대, 감사 결과의 피드백을 통한 조직 학습 촉진.</p>
+  </div>
+</div>
+
+<p>궁극적으로, 원칙 준수-상황적 유연성 축의 학술적 규명과 측정은 공공부문의 청렴성을 <strong>"부패의 부재"라는 소극적 정의</strong>에서 <strong>"공익을 위한 건전한 판단 역량"이라는 적극적 정의</strong>로 확장하는 데 기여할 수 있다.</p>
+
+<h4>한계와 향후 연구 방향</h4>
+
+<ol class="num-list">
+  <li><strong>문화적 타당화의 한계</strong>: 본 보고서는 주로 서구 학술 전통에서 발전된 이론과 도구를 검토하였으며, 한국을 비롯한 동아시아 문화권에서의 경험적 타당화 연구는 아직 제한적이다. 유교적 전통에서의 "예(禮)"와 "의(義)"의 긴장이 원칙-유연성 축과 어떻게 교차하는지에 대한 비교 문화적 연구가 필요하다.</li>
+  <li><strong>측정 방법론의 다양화</strong>: 대부분 자기보고식(Self-report)이며 사회적 바람직성 편향에 취약하다. 행동 관찰(Behavioral Observation), 시나리오 기반 평가(Scenario-based Assessment), 암묵적 연합 검사(IAT) 등의 대안적 측정 방법론의 개발과 타당화가 요구된다.</li>
+  <li><strong>동적 특성 포착</strong>: 동일 개인이 상황, 시간, 조직적 맥락에 따라 이 축 위에서 이동할 수 있다는 점을 포착하기 위한 종단적(Longitudinal) 및 경험 표집(Experience Sampling) 연구 설계가 중요한 방향이 될 것이다.</li>
+</ol>
+
+
+<!-- ============================================================ -->
+<!-- References -->
+<!-- ============================================================ -->
+<h2 id="refs"><span class="num"></span> 참고 자료</h2>
+
+<details class="ref-accordion">
+  <summary class="ref-toggle">참고문헌 목록 (34건)</summary>
+  <ol class="ref-list">
+    <li><span class="ref-num">1</span> Ashton, M. C., &amp; Lee, K. (2007). Empirical, theoretical, and practical advantages of the HEXACO model of personality structure. <em>Personality and Social Psychology Review, 11</em>(2), 150-166. <a href="https://doi.org/10.1177/1088868306294907">doi:10.1177/1088868306294907</a></li>
+    <li><span class="ref-num">2</span> Ashton, M. C., &amp; Lee, K. (2009). The HEXACO-60: A short measure of the major dimensions of personality. <em>Journal of Personality Assessment, 91</em>(4), 340-345. <a href="https://doi.org/10.1080/00223890902935878">doi:10.1080/00223890902935878</a></li>
+    <li><span class="ref-num">3</span> Atari, M., Haidt, J., &amp; Graham, J. (2023). Moral Foundations Questionnaire 2.0 (MFQ-2). <em>Psychological Assessment, 35</em>(5), 397-410. <a href="https://doi.org/10.1037/pas0001170">doi:10.1037/pas0001170</a></li>
+    <li><span class="ref-num">4</span> Chang, K., &amp; Brewer, G. A. (2022). Street-level bureaucrats' discretion: A systematic literature review. <em>Public Administration Review, 82</em>(4), 742-758.</li>
+    <li><span class="ref-num">5</span> Costa, P. T., Jr., &amp; McCrae, R. R. (1992). <em>Revised NEO Personality Inventory (NEO-PI-R) and NEO Five-Factor Inventory (NEO-FFI) professional manual.</em> Odessa, FL: Psychological Assessment Resources.</li>
+    <li><span class="ref-num">6</span> Forsyth, D. R. (1980). A taxonomy of ethical ideologies. <em>Journal of Personality and Social Psychology, 39</em>(1), 175-184. <a href="https://doi.org/10.1037/0022-3514.39.1.175">doi:10.1037/0022-3514.39.1.175</a></li>
+    <li><span class="ref-num">7</span> Forsyth, D. R., &amp; O'Boyle, E. H. (2021). Ethics position theory and unethical work behavior: A meta-analysis and review. <em>Applied Psychology: An International Review, 70</em>(3), 1201-1228. <a href="https://doi.org/10.1111/apps.12283">doi:10.1111/apps.12283</a></li>
+    <li><span class="ref-num">8</span> Gawronski, B., Armstrong, J., Conway, P., Friesdorf, R., &amp; Hutter, M. (2017). Consequences, norms, and generalized inaction in moral dilemmas: The CNI model of moral decision-making. <em>Journal of Personality and Social Psychology, 113</em>(3), 343-376. <a href="https://doi.org/10.1037/pspa0000086">doi:10.1037/pspa0000086</a></li>
+    <li><span class="ref-num">9</span> Harper, C. A. (2021). Exploring moral foundations in the context of distinct psychological clusters. <em>Personality and Individual Differences, 172</em>, 110596. <a href="https://doi.org/10.1016/j.paid.2020.110596">doi:10.1016/j.paid.2020.110596</a></li>
+    <li><span class="ref-num">10</span> Huberts, L. W. J. C., &amp; Lasthuizen, K. (2011). The integrity of governance: What it is, what we know, what is done, and where to go. In J. Beckmann (Ed.), <em>Ethics and Integrity in Public Administration</em>. Edward Elgar.</li>
+    <li><span class="ref-num">11</span> Kim, S. M. (김상묵) (2017). 한국 공무원의 공직가치에 관한 탐색적 연구. <em>한국행정학보, 51</em>(2), 1-29.</li>
+    <li><span class="ref-num">12</span> Kohlberg, L. (1984). <em>The psychology of moral development: The nature and validity of moral stages.</em> San Francisco: Harper &amp; Row.</li>
+    <li><span class="ref-num">13</span> Lind, G. (2008). The meaning and measurement of moral judgment competence revisited: A dual-aspect model. In D. Fasko &amp; W. Willis (Eds.), <em>Contemporary Philosophical and Psychological Perspectives on Moral Development and Education</em> (pp. 185-220). Hampton Press.</li>
+    <li><span class="ref-num">14</span> Lipsky, M. (2010). <em>Street-level bureaucracy: Dilemmas of the individual in public services</em> (30th anniversary expanded edition). New York: Russell Sage Foundation. (원저 1980년 출판)</li>
+    <li><span class="ref-num">15</span> Maesschalck, J. (2004). The impact of new public management reforms on public servants' ethics: Towards a theory. <em>Public Administration, 82</em>(2), 465-489. <a href="https://doi.org/10.1111/j.0033-3298.2004.00403.x">doi:10.1111/j.0033-3298.2004.00403.x</a></li>
+    <li><span class="ref-num">16</span> McCrae, R. R., &amp; Costa, P. T., Jr. (1997). Conceptions and correlates of openness to experience. In R. Hogan, J. A. Johnson, &amp; S. R. Briggs (Eds.), <em>Handbook of Personality Psychology</em> (pp. 825-847). Academic Press.</li>
+    <li><span class="ref-num">17</span> OECD (2017). <em>OECD Recommendation of the Council on Public Integrity</em>. <a href="https://www.oecd.org/gov/ethics/recommendation-public-integrity/">oecd.org</a></li>
+    <li><span class="ref-num">18</span> Perlman, B. J., Reddick, C. G., &amp; Demir, T. (2023). Ethics management approaches in U.S. city governments: A compliance-integrity distinction. <em>Public Integrity, 25</em>(4), 338-353. <a href="https://doi.org/10.1080/10999922.2022.2083607">doi:10.1080/10999922.2022.2083607</a></li>
+    <li><span class="ref-num">19</span> Rest, J. R. (1986). <em>Moral development: Advances in research and theory.</em> New York: Praeger.</li>
+    <li><span class="ref-num">20</span> Rest, J. R., Narvaez, D., Bebeau, M. J., &amp; Thoma, S. J. (1999). <em>Postconventional moral thinking: A neo-Kohlbergian approach.</em> Mahwah, NJ: Lawrence Erlbaum.</li>
+    <li><span class="ref-num">21</span> Schwartz, S. H. (1992). Universals in the content and structure of values. In M. P. Zanna (Ed.), <em>Advances in Experimental Social Psychology</em> (Vol. 25, pp. 1-65). Academic Press.</li>
+    <li><span class="ref-num">22</span> Schwartz, S. H., &amp; Cieciuch, J. (2022). Measuring the refined theory of individual values in 49 cultural groups. <em>Assessment, 29</em>(5), 1005-1019. <a href="https://doi.org/10.1177/1073191121998760">doi:10.1177/1073191121998760</a></li>
+    <li><span class="ref-num">23</span> Thielmann, I., Spadaro, G., &amp; Balliet, D. (2022). Personality and prosocial behavior: A theoretical framework and meta-analysis. <em>Psychological Bulletin, 148</em>(1-2), 30-90. <a href="https://doi.org/10.1037/bul0000339">doi:10.1037/bul0000339</a></li>
+    <li><span class="ref-num">24</span> Trevino, L. K. (1986). Ethical decision making in organizations: A person-situation interactionist model. <em>Academy of Management Review, 11</em>(3), 601-617. <a href="https://doi.org/10.5465/amr.1986.4306235">doi:10.5465/amr.1986.4306235</a></li>
+    <li><span class="ref-num">25</span> Victor, B., &amp; Cullen, J. B. (1988). The organizational bases of ethical work climates. <em>Administrative Science Quarterly, 33</em>(1), 101-125. <a href="https://doi.org/10.2307/2392857">doi:10.2307/2392857</a></li>
+    <li><span class="ref-num">26</span> Weber, J., &amp; Opoku-Dakwa, A. (2022). Reconceptualizing ethical climates to ethical climate at work (ECW). <em>Journal of Business Ethics, 179</em>, 129-149. <a href="https://doi.org/10.1007/s10551-021-04875-4">doi:10.1007/s10551-021-04875-4</a></li>
+    <li><span class="ref-num">27</span> Weber, M. (1978). <em>Economy and society: An outline of interpretive sociology.</em> Berkeley: University of California Press. (원저 1922년 출판)</li>
+    <li><span class="ref-num">28</span> Webster, D. M., &amp; Kruglanski, A. W. (1994). Individual differences in need for cognitive closure. <em>Journal of Personality and Social Psychology, 67</em>(6), 1049-1062. <a href="https://doi.org/10.1037/0022-3514.67.6.1049">doi:10.1037/0022-3514.67.6.1049</a></li>
+    <li><span class="ref-num">29</span> Zettler, I., Thielmann, I., Hilbig, B. E., &amp; Moshagen, M. (2020). The nomological net of the HEXACO model of personality: A large-scale meta-analytic investigation. <em>Perspectives on Psychological Science, 15</em>(3), 723-760. <a href="https://doi.org/10.1177/1745691619895036">doi:10.1177/1745691619895036</a></li>
+    <li><span class="ref-num">30</span> Gilligan, C. (1982). <em>In a different voice: Psychological theory and women's development.</em> Cambridge, MA: Harvard University Press.</li>
+    <li><span class="ref-num">31</span> Forsyth, D. R., O'Boyle, E. H., &amp; McDaniel, M. A. (2008). East meets West: A meta-analytic investigation of cultural variations in idealism and relativism. <em>Journal of Business Ethics, 83</em>(4), 813-833. <a href="https://doi.org/10.1007/s10551-008-9667-6">doi:10.1007/s10551-008-9667-6</a></li>
+    <li><span class="ref-num">32</span> Hupe, P. (2013). Dimensions of discretion: Specifying the object of street-level bureaucracy research. <em>DMS - Der Moderne Staat, 6</em>(2), 425-440. <a href="https://doi.org/10.3224/dms.v6i2.10">doi:10.3224/dms.v6i2.10</a></li>
+    <li><span class="ref-num">33</span> Kruglanski, A. W. (2004). <em>The psychology of closed mindedness.</em> New York: Psychology Press.</li>
+    <li><span class="ref-num">34</span> Altemeyer, B. (1996). <em>The authoritarian specter.</em> Cambridge, MA: Harvard University Press.</li>
+  </ol>
+</details>
+
+
+<!-- Back to top -->
+<a href="#top" class="back-top">&uarr; 맨 위로</a>
+
+
+<script>
+  // Theme toggle with localStorage
+  const toggle = document.getElementById('themeToggle');
+  const KEY = 'research-theme';
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    toggle.textContent = theme === 'dark' ? '\u2600' : '\u263E';
+    localStorage.setItem(KEY, theme);
+  }
+
+  // Initialize from localStorage or default to light
+  const saved = localStorage.getItem(KEY);
+  applyTheme(saved || 'light');
+
+  toggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+  });
+</script>
+
+</body>
+</html>

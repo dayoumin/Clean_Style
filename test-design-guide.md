@@ -1,6 +1,6 @@
 # Clean_style 테스트 설계 노트
 
-> 범용 설계 원칙은 [playbook/quality/test-design-guide.md](../playbook/quality/test-design-guide.md) 참조
+> 학술적 근거 상세: `research/` 폴더 참조 (축별 심층 조사 + 종합 타당성 보고서)
 
 ---
 
@@ -58,17 +58,29 @@
 MAX=8이면 25~50%로 허전. 동적 스케일은 응답자 간 비교 불가.
 문항 24개 이상으로 늘리면 MAX 상향 가능.
 
+### 정규화 방식
+
+점수는 축별 이론상 최대로 나눠 0~DISPLAY_MAX(5) 범위로 정규화:
+
+```
+normalized = round((raw / axisMax) * DISPLAY_MAX)
+```
+
+- `axisMax`는 `AXIS_MAXIMUMS`로 문항 구조에서 자동 계산 (축당 12~15)
+- 정규화된 값이 차트 영역, 라벨, 툴팁 모두에 동일하게 사용됨
+- 5점 = 해당 축에서 선택 가능한 모든 문항을 해당 방향으로 고른 경우
+
 ---
 
 ## 3축 설계의 이론적 근거와 한계
 
 ### 참고한 개념
 
-| 축 | 참고 이론/개념 | 출처 |
-|---|---|---|
-| 원칙↔유연 | 도덕 판단의 의무론(deontology) vs 결과론(consequentialism) | Kohlberg 도덕 발달 이론, Rest의 DIT |
-| 투명↔신중 | 내부고발(whistleblowing) 의사결정의 "즉시 보고 vs 관망" 패턴 | Miceli & Near (1992), 조직 침묵 연구 |
-| 독립↔협력 | 조직 행동론의 개인주의-집단주의 차원 | Hofstede 문화 차원 이론, Triandis (1995) |
+| 축 | 참고 이론/개념 | 출처 | 심층 근거 |
+|---|---|---|---|
+| 원칙↔유연 | 의무론 vs 결과론, 윤리풍토 Rules/Independence | Kohlberg, Forsyth EPQ, Schwartz, HEXACO C/A | `research/axis2_principle_flexibility.md` |
+| 투명↔신중 | 정직 vs 신중성 독립 차원, 투명성 역설 | VIA, HEXACO H/C, ALQ, DCA 척도 | `research/rese.md` |
+| 독립↔협력 | Agency ↔ Communion 직교 구조 | 대인관계 원형모델, 자기해석 이론, GLOBE | `research/axis3_independence_cooperation.md` |
 
 ### 설계 방식
 

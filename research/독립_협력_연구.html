@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - Independence & Cooperation Research</title>
+<style>
+  :root, [data-theme="light"] {
+    --bg: #f8f9fb;
+    --surface: #ffffff;
+    --surface2: #f1f3f5;
+    --border: #e2e5ec;
+    --text: #1a1d27;
+    --text-dim: #6b7280;
+    --accent: #4263eb;
+    --accent-soft: rgba(66,99,235,0.08);
+    --green: #16a34a;
+    --green-soft: rgba(22,163,74,0.08);
+    --orange: #ea580c;
+    --orange-soft: rgba(234,88,12,0.08);
+    --red: #dc2626;
+    --red-soft: rgba(220,38,38,0.08);
+    --purple: #7c3aed;
+    --purple-soft: rgba(124,58,237,0.08);
+    --yellow: #ca8a04;
+    --yellow-soft: rgba(202,138,4,0.08);
+    --teal: #0d9488;
+    --teal-soft: rgba(13,148,136,0.08);
+  }
+  [data-theme="dark"] {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e1e4ed;
+    --text-dim: #8b90a0;
+    --accent: #6c8aff;
+    --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80;
+    --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c;
+    --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171;
+    --red-soft: rgba(248,113,113,0.12);
+    --purple: #a78bfa;
+    --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #facc15;
+    --yellow-soft: rgba(250,204,21,0.12);
+    --teal: #2dd4bf;
+    --teal-soft: rgba(45,212,191,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .doc-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h1 { font-size: 1.6rem; font-weight: 800; margin-bottom: 0.25rem; line-height: 1.4; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+  .tag {
+    font-size: 0.7rem; font-weight: 600; padding: 0.2rem 0.6rem;
+    border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .tag--blue { background: var(--accent-soft); color: var(--accent); }
+  .tag--purple { background: var(--purple-soft); color: var(--purple); }
+  .tag--teal { background: var(--teal-soft); color: var(--teal); }
+  .tag--orange { background: var(--orange-soft); color: var(--orange); }
+  .tag--green { background: var(--green-soft); color: var(--green); }
+  .tag--yellow { background: var(--yellow-soft); color: var(--yellow); }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .toc-title {
+    font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 0.75rem;
+  }
+  .toc ol { padding-left: 1.25rem; }
+  .toc li { margin-bottom: 0.3rem; }
+  .toc a {
+    color: var(--accent); text-decoration: none; font-size: 0.88rem;
+    transition: color 0.15s;
+  }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Sections */
+  h2 {
+    font-size: 1.2rem; font-weight: 700; margin: 3rem 0 1rem;
+    padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  h2 .num { color: var(--accent); margin-right: 0.4rem; }
+  h3 {
+    font-size: 1rem; font-weight: 600; margin: 2rem 0 0.75rem;
+    color: var(--purple);
+  }
+
+  p { margin-bottom: 1rem; font-size: 0.92rem; color: var(--text); }
+
+  /* Cards */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
+  }
+  .card-title {
+    font-size: 0.85rem; font-weight: 700; margin-bottom: 0.5rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  /* Key insight callout */
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1.5rem 0;
+    font-size: 0.88rem;
+  }
+  .callout--orange {
+    background: var(--orange-soft);
+    border-left-color: var(--orange);
+  }
+  .callout--green {
+    background: var(--green-soft);
+    border-left-color: var(--green);
+  }
+  .callout--purple {
+    background: var(--purple-soft);
+    border-left-color: var(--purple);
+  }
+  .callout--teal {
+    background: var(--teal-soft);
+    border-left-color: var(--teal);
+  }
+  .callout--red {
+    background: var(--red-soft);
+    border-left-color: var(--red);
+  }
+  .callout--yellow {
+    background: var(--yellow-soft);
+    border-left-color: var(--yellow);
+  }
+  .callout strong { color: var(--accent); }
+  .callout--orange strong { color: var(--orange); }
+  .callout--green strong { color: var(--green); }
+  .callout--purple strong { color: var(--purple); }
+  .callout--teal strong { color: var(--teal); }
+  .callout--red strong { color: var(--red); }
+  .callout--yellow strong { color: var(--yellow); }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto; margin: 1.5rem 0;
+    border: 1px solid var(--border); border-radius: 12px;
+  }
+  table {
+    width: 100%; border-collapse: collapse; font-size: 0.82rem;
+  }
+  thead { background: var(--surface2); }
+  th {
+    padding: 0.75rem 1rem; text-align: left; font-weight: 700;
+    color: var(--accent); border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  td {
+    padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
+    vertical-align: top; line-height: 1.6;
+  }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(108,138,255,0.04); }
+  .cell-label {
+    font-weight: 600; color: var(--accent); display: block; margin-bottom: 0.15rem;
+  }
+
+  /* Sup references */
+  sup {
+    color: var(--accent); font-size: 0.7rem; font-weight: 700;
+    cursor: default;
+  }
+
+  /* Reference list */
+  .ref-list { list-style: none; padding: 0; }
+  .ref-list li {
+    font-size: 0.78rem; color: var(--text-dim); padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 0.5rem;
+  }
+  .ref-list li:last-child { border-bottom: none; }
+  .ref-num {
+    color: var(--accent); font-weight: 700; min-width: 1.5rem;
+    flex-shrink: 0;
+  }
+  .ref-list a {
+    color: var(--text-dim); text-decoration: none;
+    word-break: break-all;
+  }
+  .ref-list a:hover { color: var(--accent); }
+
+  /* Diagram */
+  .diagram {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0;
+    text-align: center;
+  }
+  .diagram-title {
+    font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 1rem;
+  }
+  .diagram-row {
+    display: flex; justify-content: center; align-items: center;
+    gap: 1rem; flex-wrap: wrap; margin: 0.75rem 0;
+  }
+  .diagram-box {
+    padding: 0.6rem 1rem; border-radius: 8px;
+    font-size: 0.8rem; font-weight: 600;
+  }
+  .diagram-box--blue { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--border); }
+  .diagram-box--purple { background: var(--purple-soft); color: var(--purple); border: 1px solid var(--border); }
+  .diagram-box--orange { background: var(--orange-soft); color: var(--orange); border: 1px solid var(--border); }
+  .diagram-box--green { background: var(--green-soft); color: var(--green); border: 1px solid var(--border); }
+  .diagram-box--teal { background: var(--teal-soft); color: var(--teal); border: 1px solid var(--border); }
+  .diagram-box--red { background: var(--red-soft); color: var(--red); border: 1px solid var(--border); }
+  .diagram-box--yellow { background: var(--yellow-soft); color: var(--yellow); border: 1px solid var(--border); }
+  .diagram-arrow { color: var(--text-dim); font-size: 1.2rem; }
+  .diagram-label { font-size: 0.72rem; color: var(--text-dim); margin-top: 0.25rem; }
+
+  /* Circumplex diagram */
+  .circumplex {
+    position: relative;
+    width: 320px; height: 320px;
+    margin: 1rem auto;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    background: var(--surface);
+  }
+  .circumplex-axis {
+    position: absolute;
+    background: var(--border);
+  }
+  .circumplex-axis--v {
+    width: 1px; height: 100%;
+    left: 50%; top: 0;
+  }
+  .circumplex-axis--h {
+    height: 1px; width: 100%;
+    top: 50%; left: 0;
+  }
+  .circumplex-label {
+    position: absolute; font-size: 0.7rem; font-weight: 700;
+    white-space: nowrap;
+  }
+  .circumplex-label--top { top: 6px; left: 50%; transform: translateX(-50%); color: var(--accent); }
+  .circumplex-label--bottom { bottom: 6px; left: 50%; transform: translateX(-50%); color: var(--text-dim); }
+  .circumplex-label--left { left: 6px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+  .circumplex-label--right { right: 6px; top: 50%; transform: translateY(-50%); color: var(--green); }
+  .circumplex-quadrant {
+    position: absolute; font-size: 0.65rem; font-weight: 500;
+    color: var(--text-dim); text-align: center; line-height: 1.3;
+  }
+  .circumplex-quadrant--tl { top: 22%; left: 12%; }
+  .circumplex-quadrant--tr { top: 22%; right: 12%; }
+  .circumplex-quadrant--bl { bottom: 22%; left: 12%; }
+  .circumplex-quadrant--br { bottom: 22%; right: 12%; }
+
+  /* Four-quadrant grid */
+  .quad-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0.75rem; margin: 1rem 0;
+  }
+  .quad-cell {
+    padding: 1rem; border-radius: 10px; font-size: 0.82rem;
+    border: 1px solid var(--border);
+  }
+  .quad-cell-title {
+    font-weight: 700; font-size: 0.85rem; margin-bottom: 0.35rem;
+  }
+
+  /* Pill list */
+  .pill-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0 1rem; }
+  .pill {
+    font-size: 0.78rem; padding: 0.35rem 0.75rem;
+    border-radius: 8px; font-weight: 500;
+    background: var(--surface); border: 1px solid var(--border);
+  }
+
+  /* Numbered list in callout */
+  .num-list { padding-left: 1.25rem; margin: 0.5rem 0; }
+  .num-list li { margin-bottom: 0.4rem; font-size: 0.88rem; }
+
+  /* Bullet list */
+  .bullet-list { padding-left: 1.25rem; margin: 0.5rem 0 1rem; }
+  .bullet-list li { margin-bottom: 0.4rem; font-size: 0.88rem; }
+
+  /* Accordion for references */
+  .ref-accordion {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .ref-toggle {
+    padding: 1rem 1.25rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.15s;
+  }
+  .ref-toggle:hover { background: var(--accent-soft); }
+  .ref-toggle::before { content: '\25B6'; font-size: 0.65rem; transition: transform 0.2s; }
+  .ref-accordion[open] .ref-toggle::before { transform: rotate(90deg); }
+  .ref-accordion[open] .ref-toggle { border-bottom: 1px solid var(--border); }
+  .ref-accordion .ref-list { padding: 0.5rem 1.25rem; }
+
+  /* Stages / Timeline */
+  .stage-flow {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0.4rem; flex-wrap: wrap; margin: 1rem 0;
+  }
+  .stage-item {
+    padding: 0.5rem 0.9rem; border-radius: 8px;
+    font-size: 0.78rem; font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  .stage-arrow { color: var(--text-dim); font-size: 1rem; }
+
+  /* Theme toggle */
+  .theme-toggle {
+    position: fixed; top: 1rem; right: 1rem; z-index: 100;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--surface); border: 1px solid var(--border);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .theme-toggle:hover { border-color: var(--accent); transform: scale(1.05); }
+
+  /* Back to top */
+  .back-top {
+    display: inline-block; margin-top: 2rem;
+    color: var(--accent); font-size: 0.82rem;
+    text-decoration: none; transition: opacity 0.15s;
+  }
+  .back-top:hover { opacity: 0.7; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    body { padding: 1rem; }
+    h1 { font-size: 1.3rem; }
+    .diagram-row { flex-direction: column; gap: 0.5rem; }
+    .quad-grid { grid-template-columns: 1fr; }
+    .circumplex { width: 260px; height: 260px; }
+    .stage-flow { flex-direction: column; gap: 0.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Theme toggle -->
+<button class="theme-toggle" id="themeBtn" aria-label="Toggle theme"></button>
+
+<!-- Header -->
+<header class="doc-header" id="top">
+  <h1><span>Independence & Cooperation</span> as a Psychological-Ethical Dimension</h1>
+  <p class="subtitle">독립적 판단 vs 협력적 행동 &mdash; 독립적 심리-윤리 차원으로서의 학술적 근거에 대한 다학제적 문헌 검토</p>
+  <div class="tags">
+    <span class="tag tag--blue">성격심리학</span>
+    <span class="tag tag--purple">대인관계 심리학</span>
+    <span class="tag tag--teal">문화심리학</span>
+    <span class="tag tag--orange">조직행동론</span>
+    <span class="tag tag--green">공공행정</span>
+    <span class="tag tag--yellow">공직 윤리</span>
+  </div>
+</header>
+
+<!-- TOC -->
+<nav class="toc">
+  <div class="toc-title">목차</div>
+  <ol>
+    <li><a href="#sec1">서론</a></li>
+    <li><a href="#sec2">성격심리학 측정 모형에서의 독립-협력 차원</a>
+      <ol style="margin-top:0.3rem">
+        <li><a href="#sec2-1">Big Five 성격 모형과 독립성 관련 측면</a></li>
+        <li><a href="#sec2-2">HEXACO 모형</a></li>
+        <li><a href="#sec2-3">대인관계 원형모델 (IPC)</a></li>
+        <li><a href="#sec2-4">개인주의-집단주의의 개인 수준 측정</a></li>
+        <li><a href="#sec2-5">독립적 자기해석 vs 상호의존적 자기해석</a></li>
+      </ol>
+    </li>
+    <li><a href="#sec3">조직행동론에서의 독립-협력 차원</a>
+      <ol style="margin-top:0.3rem">
+        <li><a href="#sec3-1">개인 vs 집단 의사결정</a></li>
+        <li><a href="#sec3-2">자기결정이론과 자기리더십</a></li>
+        <li><a href="#sec3-3">내부고발 연구 (Whistleblowing)</a></li>
+        <li><a href="#sec3-4">집단사고 (Groupthink)</a></li>
+      </ol>
+    </li>
+    <li><a href="#sec4">문화심리학에서의 위치</a>
+      <ol style="margin-top:0.3rem">
+        <li><a href="#sec4-1">Hofstede의 개인주의-집단주의 차원</a></li>
+        <li><a href="#sec4-2">GLOBE 연구</a></li>
+        <li><a href="#sec4-3">한국 문화적 맥락: 유교적 집단주의</a></li>
+        <li><a href="#sec4-4">Schwartz 가치 이론과의 관계</a></li>
+      </ol>
+    </li>
+    <li><a href="#sec5">공공행정 / 공직윤리 맥락</a>
+      <ol style="margin-top:0.3rem">
+        <li><a href="#sec5-1">개인 도덕적 주체성 vs 조직적 순응</a></li>
+        <li><a href="#sec5-2">한국: 적극행정 vs 소극행정</a></li>
+        <li><a href="#sec5-3">Kohlberg의 도덕 발달 단계와 독립적 판단</a></li>
+      </ol>
+    </li>
+    <li><a href="#sec6">다른 두 축과의 심리측정적 독립성</a>
+      <ol style="margin-top:0.3rem">
+        <li><a href="#sec6-1">투명성-신중성 축으로부터의 독립</a></li>
+        <li><a href="#sec6-2">원칙-유연성 축으로부터의 독립</a></li>
+      </ol>
+    </li>
+    <li><a href="#sec7">검증된 측정도구 목록</a></li>
+    <li><a href="#sec8">종합 및 시사점</a></li>
+    <li><a href="#refs">참고 자료</a></li>
+  </ol>
+</nav>
+
+<!-- ============================================================ -->
+<!-- Section 1: 서론 -->
+<!-- ============================================================ -->
+<section id="sec1">
+  <h2><span class="num">1.</span> 서론</h2>
+
+  <p>현대 조직행동론(Organizational Behavior)과 공직 윤리(Public Ethics)의 규범 체계에서, 개인이 <strong>독립적 판단(Independent Judgment)</strong>에 기초하여 단독으로 행동할 것인지 아니면 <strong>집단의 합의(Group Consensus)</strong>와 협력적 행동(Cooperative Action)에 자신을 맞출 것인지의 문제는 조직 효과성과 윤리적 건전성을 좌우하는 핵심적 딜레마로 자리매김하고 있다. 이 축은 단순히 개인주의(Individualism)와 집단주의(Collectivism)의 문화적 이분법으로 환원될 수 없는, 보다 근본적인 심리적·윤리적 차원을 포착한다. 개인이 자신의 분석과 도덕적 확신에 따라 독자적으로 의사결정을 내리고 실행하는 성향과, 팀의 합의를 존중하고 집단적 행동을 통해 목표를 달성하려는 성향은 서로 다른 인지적·동기적 기제에 의해 구동되며, 다양한 심리측정 모형에서 독립적인 차원으로 확인되어 왔다.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">독립-협력 축의 양극 구조</div>
+    <div class="diagram-row">
+      <div class="diagram-box diagram-box--blue">독립적 판단<br><span style="font-size:0.7rem;font-weight:400">개인 분석 / 독자 실행 / 도덕적 확신</span></div>
+      <div class="diagram-arrow">&harr;</div>
+      <div class="diagram-box diagram-box--green">협력적 행동<br><span style="font-size:0.7rem;font-weight:400">팀 합의 / 집단적 행동 / 조화 지향</span></div>
+    </div>
+    <div class="diagram-label">* 양극 모두 과도하면 부작용 &mdash; 독선(Obstinacy) vs 순응주의(Conformism)</div>
+  </div>
+
+  <div class="callout callout--orange">
+    <strong>핵심 질문:</strong> 어느 극이 바람직한가가 아니라, 특정 상황에서 두 극의 어떤 조합이 최적인가, 그리고 개인이 상황에 따라 두 극 사이를 얼마나 유연하게 이동할 수 있는가이다.
+  </div>
+
+  <p>공공부문의 청렴성(Public Sector Integrity) 맥락에서 이 차원의 중요성은 특히 두드러진다. <strong>내부고발(Whistleblowing)</strong>은 조직의 부정에 대해 개인이 독립적 도덕적 판단에 따라 행동하는 전형적인 사례이며, <strong>집단사고(Groupthink)</strong>는 협력과 합의에 대한 과도한 지향이 윤리적 의사결정을 왜곡하는 병리적 현상이다. 한국의 공공행정에서 최근 강조되는 <strong>적극행정(Proactive Administration)</strong> 역시 공무원 개인의 자율적·독립적 판단 능력과 조직 내 협력적 의사결정 구조 사이의 균형을 요구한다. 따라서 이 축은 공직자의 청렴 역량을 다차원적으로 측정하고 개발하기 위한 실증적 기반을 제공한다.</p>
+
+  <div class="callout">
+    <strong>보고서 구조:</strong> 본 보고서는 성격심리학, 대인관계 심리학, 문화심리학, 조직행동론, 공공행정학의 문헌을 종합적으로 검토하여, 독립-협력 차원이 기존의 다른 심리·윤리 축들(투명성-신중성, 원칙-유연성)로부터 통계적으로 독립된 고유한 차원임을 입증하는 수렴적 증거(Convergent Evidence)를 제시한다.
+  </div>
+
+  <div class="pill-list">
+    <span class="pill">Big Five</span>
+    <span class="pill">HEXACO</span>
+    <span class="pill">IPC 원형모델</span>
+    <span class="pill">개인주의-집단주의</span>
+    <span class="pill">자기해석 이론</span>
+    <span class="pill">집단사고</span>
+    <span class="pill">내부고발</span>
+    <span class="pill">적극행정</span>
+    <span class="pill">Kohlberg 도덕 발달</span>
+    <span class="pill">Schwartz 가치 이론</span>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Section 2: 성격심리학 측정 모형 -->
+<!-- ============================================================ -->
+<section id="sec2">
+  <h2><span class="num">2.</span> 성격심리학 측정 모형에서의 독립-협력 차원</h2>
+
+  <p>독립-협력 축이 심리학적으로 타당한 독자적 차원인지를 검증하기 위해서는, 성격심리학의 주요 측정 모형들에서 이 차원이 어떻게 다루어지고 있는지를 체계적으로 검토할 필요가 있다. 이 절에서는 다섯 가지 주요 모형을 순차적으로 분석하며, 각 모형이 독립-협력 차원을 포착하는 방식과 한계를 비교한다.</p>
+
+  <!-- 2.1 Big Five -->
+  <h3 id="sec2-1">2.1 Big Five 성격 모형과 독립성 관련 측면</h3>
+
+  <p>5요인 성격 모형(Big Five / Five Factor Model)은 성격의 기본 구조를 외향성(Extraversion), 우호성(Agreeableness), 성실성(Conscientiousness), 신경증(Neuroticism), 그리고 경험에 대한 개방성(Openness to Experience)의 다섯 가지 광역 차원으로 기술한다. 독립-협력 축은 이 모형 내에서 단일한 요인에 국한되지 않고 복수의 요인에 걸쳐 분산되어 나타나며, 이는 이 축이 Big Five의 어느 하나의 요인과 동치(Equivalent)가 아닌 독자적 구성개념(Construct)임을 시사한다.</p>
+
+  <p>드영, 퀼티, 피터슨(DeYoung, Quilty &amp; Peterson, 2007)은 Big Five의 각 요인이 두 개의 하위 측면(Aspect)으로 분화된다는 것을 확인적 요인분석(CFA)을 통해 입증하였으며, 총 10개의 하위 측면을 식별하였다. 이 체계에서 독립성과 가장 직접적으로 관련되는 것은 외향성의 하위 측면인 <strong>주장성(Assertiveness)</strong>이다. 주장성은 사회적 주도권(Social Dominance), 자기 확신(Self-assurance), 그리고 리더십 지향성을 포착하는 차원으로, 대인관계 심리학에서 말하는 주체성(Agency) 개념과 높은 수렴 타당도(Convergent Validity)를 보인다.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">Big Five에서 독립-협력 축의 교차 요인적 구조</div>
+    <div class="diagram-row">
+      <div class="diagram-box diagram-box--blue">
+        외향성<br>
+        <span style="font-size:0.7rem;font-weight:400">주장성(Assertiveness) &uarr;</span><br>
+        <span style="font-size:0.65rem;color:var(--text-dim)">= 독립적 성향</span>
+      </div>
+      <div class="diagram-arrow">+</div>
+      <div class="diagram-box diagram-box--green">
+        우호성<br>
+        <span style="font-size:0.7rem;font-weight:400">예의(Politeness) &uarr;</span><br>
+        <span style="font-size:0.65rem;color:var(--text-dim)">= 협력적 성향</span>
+      </div>
+      <div class="diagram-arrow">=</div>
+      <div class="diagram-box diagram-box--purple">
+        교차 요인적<br>구성개념<br>
+        <span style="font-size:0.65rem;color:var(--text-dim)">잔여 구성개념</span>
+      </div>
+    </div>
+  </div>
+
+  <p>우호성(Agreeableness)의 <strong>예의(Politeness)</strong> 측면은 타인의 요구에 대한 순응(Compliance), 사회적 조화 유지, 그리고 대인 갈등의 회피를 반영하며, 이는 협력적 행동 성향의 핵심적 심리적 기반을 구성한다. 우호성이 높은 개인은 집단의 합의를 존중하고 타인의 관점을 수용하는 경향이 강한 반면, 우호성이 낮은 개인은 자신의 판단을 고수하고 필요시 갈등을 감수하는 독립적 성향을 보인다.</p>
+
+  <div class="callout callout--purple">
+    <strong>교차 요인적 특성:</strong> 외향성의 주장성 측면과 우호성의 예의 측면을 조합한 복합 점수(Composite Score)는 각 요인 단독의 점수보다 독립-협력 관련 행동(예: 집단 내 갈등 상황에서의 대응 방식)을 더 잘 예측하는 것으로 보고되어 있다. 그러나 이 복합 점수조차도 문화심리학적 개인주의-집단주의 척도나 대인관계 원형모델의 주체성 축에 비해 설명력이 제한적이며, Big Five 모형이 이 차원을 부분적으로만 포착함을 의미한다.
+  </div>
+
+  <p>역사적으로 캐텔(Raymond Cattell)의 16성격요인 모델(16PF)은 이러한 교차 요인적 속성을 보다 직접적으로 반영하였다. 16PF의 전역 요인(Global Factor) 중 하나인 <strong>'독립성(Independence)'</strong>은 지배성(Dominance), 사회적 대담성(Social Boldness), 경계심(Vigilance), 개방성(Openness to Change), 그리고 자기 의존성(Self-reliance)의 1차 요인들이 결합되어 형성되는 고차 요인(Higher-order Factor)이다. 이는 독립성이 성격심리학 초기부터 측정 가능한 독자적 차원으로 인식되어 왔음을 보여주며, Big Five 모형이 이를 여러 요인에 분산시킨 것은 요인 추출 방법론의 차이에 기인한 것이지 독립성이라는 구성개념 자체가 소멸한 것이 아님을 시사한다.</p>
+
+  <!-- 2.2 HEXACO -->
+  <h3 id="sec2-2">2.2 HEXACO 모형</h3>
+
+  <p>HEXACO 성격 모형은 전통적인 Big Five에 정직-겸손성(Honesty-Humility) 차원을 추가한 6요인 구조로, 애쉬튼과 리(Ashton &amp; Lee, 2007)가 다양한 언어권의 어휘 연구(Lexical Study)를 종합하여 정립하였다. 이 모형에서 독립-협력 축과 가장 직접적으로 관련되는 차원은 <strong>우호성(Agreeableness)</strong>이다. 그러나 HEXACO의 우호성은 Big Five의 우호성과 동일하지 않으며, 그 내용이 재구성되어 있다는 점에 주의가 필요하다.</p>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--teal)">HEXACO 우호성의 4개 하위 파셋</div>
+    <div class="quad-grid">
+      <div class="quad-cell" style="background:var(--teal-soft)">
+        <div class="quad-cell-title" style="color:var(--teal)">인내 (Patience)</div>
+        분노를 유발하는 상황에서 감정적 반응을 억제하는 능력
+      </div>
+      <div class="quad-cell" style="background:var(--accent-soft)">
+        <div class="quad-cell-title" style="color:var(--accent)">유연성 (Flexibility)</div>
+        타인의 의견이나 요구에 자신을 맞추려는 의향
+      </div>
+      <div class="quad-cell" style="background:var(--green-soft)">
+        <div class="quad-cell-title" style="color:var(--green)">온화함 (Gentleness)</div>
+        타인에 대한 관대한 평가 경향
+      </div>
+      <div class="quad-cell" style="background:var(--purple-soft)">
+        <div class="quad-cell-title" style="color:var(--purple)">관용 (Forgiveness)</div>
+        대인관계 갈등 이후 화해하려는 성향
+      </div>
+    </div>
+  </div>
+
+  <p>이 네 파셋은 모두 대인관계에서의 양보와 조화를 지향하는 협력적 성향의 핵심 요소들로, 우호성 점수가 높은 개인은 집단의 결속과 합의를 중시하는 반면 낮은 개인은 자신의 입장을 고수하고 대립을 불사하는 독립적 성향을 보인다.</p>
+
+  <div class="callout callout--teal">
+    <strong>HEXACO의 핵심 기여:</strong> HEXACO 모형에서 우호성(A)이 정직-겸손성(H)이나 성실성(C)과는 명확히 구분되는 독립적 차원이라는 것이다. 정직-겸손성은 착취와 기만을 회피하는 윤리적 성향을, 성실성은 과업의 체계적 수행과 자기통제를 각각 반영하므로, 대인관계에서의 독립-협력 역학과는 질적으로 다른 심리적 영역을 포착한다. 협력적 성향(높은 A)과 윤리적 투명성(높은 H)은 별개의 차원이며, 한 개인이 매우 협력적이면서도 윤리적으로 불투명할 수 있고, 그 역도 가능하다.
+  </div>
+
+  <p>HEXACO 모형의 개발 과정에서 한국어 어휘 연구가 포함되었다는 점도 의미가 깊다. 한국어를 포함한 비서구권 언어의 성격 관련 형용사 분석에서도 대인관계적 양보-대립 차원이 독립적인 요인으로 추출되었으며, 이는 독립-협력 축의 문화 보편성(Cross-cultural Universality)을 뒷받침하는 근거가 된다. 특히 한국어 어휘 분석에서 '순한', '참을성 있는', '유순한' 등의 형용사와 '고집스러운', '까다로운', '거친' 등의 형용사가 하나의 양극 요인을 형성하였으며, 이는 영어권 어휘 연구의 우호성 요인과 높은 구조적 유사성을 보였다.</p>
+
+  <p>진화심리학적 관점에서 애쉬튼과 리(2007)는 HEXACO의 각 요인이 적응적 문제(Adaptive Problem)의 해결과 관련된다고 제안하였는데, 우호성은 호혜적 이타주의(Reciprocal Altruism) 상황에서의 적응적 전략 선택과 관련된다. 높은 우호성은 장기적 협력 관계를 유지하는 데 유리한 반면, 낮은 우호성은 착취적 상대방에 대한 방어와 자기 이익의 보호에 유리하다. 이 진화적 절충(Evolutionary Trade-off)이 우호성의 개인차를 유지시키는 기제로 작용하며, 이는 독립-협력 축의 변이가 인간 종에게 보편적으로 존재하는 이유를 설명한다.</p>
+
+  <p>HEXACO-PI-R(HEXACO Personality Inventory-Revised)의 우호성 척도는 총 16개 문항으로 구성되어 있으며, 자기보고(Self-report)와 관찰자 보고(Observer-report) 형식이 모두 개발되어 있다. 200개 문항의 완전판과 60개 문항의 간편판이 제공되어, 연구 목적과 시간적 제약에 따라 적절한 버전을 선택할 수 있다.</p>
+
+  <!-- 2.3 IPC -->
+  <h3 id="sec2-3">2.3 대인관계 원형모델 (Interpersonal Circumplex)</h3>
+
+  <p>독립-협력 축이 심리측정학적으로 독립된 차원임을 보여주는 <strong>가장 강력한 증거</strong>는 대인관계 원형모델(Interpersonal Circumplex, IPC)에서 제공된다. 리어리(Leary, 1957)가 초기 틀을 제시하고 위긴스(Wiggins, 1979)가 정교화한 이 모형은 대인관계 행동을 두 개의 <strong>수학적으로 직교(Mathematically Orthogonal)</strong>하는 축으로 기술한다: <strong>주체성(Agency, 지배성)</strong>과 <strong>교감(Communion, 친화)</strong>이다.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">대인관계 원형모델 (IPC) 구조</div>
+    <div class="circumplex">
+      <div class="circumplex-axis circumplex-axis--v"></div>
+      <div class="circumplex-axis circumplex-axis--h"></div>
+      <div class="circumplex-label circumplex-label--top">주체성 (Agency)<br>지배 Dominance</div>
+      <div class="circumplex-label circumplex-label--bottom">복종 Submission</div>
+      <div class="circumplex-label circumplex-label--right">교감<br>(Communion)</div>
+      <div class="circumplex-label circumplex-label--left">차가움<br>(Cold)</div>
+      <div class="circumplex-quadrant circumplex-quadrant--tl">확신적-지배적<br>Assured-Dominant</div>
+      <div class="circumplex-quadrant circumplex-quadrant--tr">사교적-외향적<br>Gregarious-Extraverted</div>
+      <div class="circumplex-quadrant circumplex-quadrant--bl">차가운-싸움<br>Cold-Quarrelsome</div>
+      <div class="circumplex-quadrant circumplex-quadrant--br">따뜻한-우호적<br>Warm-Agreeable</div>
+    </div>
+    <div class="diagram-label">두 축은 원형 구조 내에서 정확히 90도 &mdash; 상관계수 &approx; 0</div>
+  </div>
+
+  <p>주체성 축은 지배(Dominance)에서 복종(Submission)까지의 연속선상에 위치하며, 자기주장, 독립적 행동, 개인적 통제력, 그리고 사회적 영향력 행사를 반영한다. 교감 축은 따뜻함(Warmth)에서 차가움(Coldness)까지의 연속선상에 위치하며, 타인과의 연결, 돌봄, 협력, 그리고 집단에 대한 소속감을 반영한다. 이 두 축은 원형(Circumplex) 구조 내에서 정확히 90도의 각도를 이루며, 이는 통계적으로 두 차원 간의 상관계수가 0에 수렴함을 의미한다.</p>
+
+  <p>위긴스 등(Wiggins, Trapnell &amp; Phillips, 1988)이 개발한 <strong>대인관계 형용사 척도 개정판(IAS-R)</strong>은 64개 문항으로 구성되며, 원형 구조 내의 8개 팔분면(Octant)을 측정한다. IPC의 원형 구조가 가지는 이론적 강점은 단순한 요인분석 결과를 넘어선다. 원형 모형은 두 축 사이의 모든 중간적 조합을 연속적으로 표현할 수 있으며, 이는 인간의 대인관계적 행동이 몇 가지 이산적(Discrete) 유형이 아닌 연속적 스펙트럼 위에 분포함을 의미한다.</p>
+
+  <div class="callout callout--green">
+    <strong>핵심 발견:</strong> 독립적 판단과 자율적 행동은 주체성 축의 상위 극에, 협력적 행동과 집단 합의 지향은 교감 축의 상위 극에 해당한다. 이 두 차원이 수학적으로 직교한다는 사실은 <em>한 개인이 높은 독립성(높은 주체성)과 높은 협력성(높은 교감)을 동시에 보유할 수 있음</em>을 의미한다. 이는 "독립적이면 비협력적이고 협력적이면 비독립적"이라는 일상적 직관이 심리측정학적으로 부정됨을 입증하는 강력한 증거이다.
+  </div>
+
+  <!-- 2.4 개인주의-집단주의 -->
+  <h3 id="sec2-4">2.4 개인주의-집단주의의 개인 수준 측정</h3>
+
+  <p>문화적 차원으로서의 개인주의-집단주의(Individualism-Collectivism)를 개인 수준의 심리적 성향으로 환원하여 측정하려는 시도는 트리안디스(Triandis, 1995)의 선구적 연구에서 체계화되었다. 트리안디스는 <strong>자기중심주의(Idiocentrism)</strong>와 <strong>타자중심주의(Allocentrism)</strong>라는 개인 수준의 성향 변수를 제안하였다.</p>
+
+  <p>싱겔리스와 트리안디스(Singelis &amp; Triandis, 1995)는 이 이분법을 수평적(Horizontal)과 수직적(Vertical) 차원으로 교차시켜 <strong>4요인 구조</strong>를 제안하였다.</p>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--accent)">수평-수직 x 개인주의-집단주의 4요인 구조</div>
+    <div class="quad-grid">
+      <div class="quad-cell" style="background:var(--accent-soft)">
+        <div class="quad-cell-title" style="color:var(--accent)">수평적 개인주의 (HI)</div>
+        평등한 관계 속에서의 자율성. 다른 사람의 자율성을 존중하면서 자신의 판단을 독립적으로 유지
+      </div>
+      <div class="quad-cell" style="background:var(--orange-soft)">
+        <div class="quad-cell-title" style="color:var(--orange)">수직적 개인주의 (VI)</div>
+        경쟁과 지위 추구를 통한 차별화. 경쟁적 우위를 점하기 위한 전략적 독립성
+      </div>
+      <div class="quad-cell" style="background:var(--green-soft)">
+        <div class="quad-cell-title" style="color:var(--green)">수평적 집단주의 (HC)</div>
+        평등한 관계 속에서의 상호의존성과 사회성. 동료와의 협의를 통해 공동의 판단 형성
+      </div>
+      <div class="quad-cell" style="background:var(--red-soft)">
+        <div class="quad-cell-title" style="color:var(--red)">수직적 집단주의 (VC)</div>
+        위계적 관계 속에서의 복종과 내집단 충성. 상급자의 지시에 무비판적으로 따르는 경향
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout--orange">
+    <strong>공직 윤리 함의:</strong> 수평적 집단주의가 높은 공무원은 동료와의 협의를 통해 공동의 판단을 형성하되 그 판단의 내용에 대해서는 독립적으로 기여할 수 있다. 수직적 집단주의가 높은 공무원은 상급자의 지시에 무비판적으로 따르는 경향이 있다. 이러한 세분화는 독립-협력 축이 단순한 이분법이 아닌 다면적 구성개념임을 보여준다.
+  </div>
+
+  <p>INDCOL 척도(16문항)와 오클랜드 개인주의-집단주의 척도(AICS, 26문항)는 이 구성개념을 측정하기 위해 개발된 대표적 도구이다. AICS는 12개 이상의 언어로 번역되어 교차 문화적 타당성이 검증되었으며, 개인주의와 집단주의가 하나의 양극 차원이 아닌 <strong>두 개의 독립적 차원</strong>으로 작용함을 확인적 요인분석을 통해 반복적으로 입증하였다.</p>
+
+  <!-- 2.5 자기해석 -->
+  <h3 id="sec2-5">2.5 독립적 자기해석 vs 상호의존적 자기해석</h3>
+
+  <p>마쿠스와 기타야마(Markus &amp; Kitayama, 1991)는 자기(Self)의 구성 방식이 문화에 따라 근본적으로 다르다는 이론을 정립하여, 이후 문화심리학과 사회심리학 연구의 패러다임을 전환시켰다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>차원</th>
+          <th>독립적 자기해석 (Independent)</th>
+          <th>상호의존적 자기해석 (Interdependent)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-label">자기 정의</span></td>
+          <td>타인과 분리된 고유한 실체</td>
+          <td>관계적 맥락 속에서 정의</td>
+        </tr>
+        <tr>
+          <td><span class="cell-label">핵심 가치</span></td>
+          <td>독특성, 내적 속성, 자기주장, 개인적 목표</td>
+          <td>소속감, 조화, 적응, 사회적 역할 수행</td>
+        </tr>
+        <tr>
+          <td><span class="cell-label">인지적 특성</span></td>
+          <td>탈맥락적(Context-free) 정보 처리</td>
+          <td>맥락 의존적(Context-dependent) 정보 처리</td>
+        </tr>
+        <tr>
+          <td><span class="cell-label">관련 정서</span></td>
+          <td>자긍심(Pride), 분노(Anger) &mdash; 자기 초점적</td>
+          <td>수치심(Shame), 감사(Gratitude) &mdash; 타자 초점적</td>
+        </tr>
+        <tr>
+          <td><span class="cell-label">동기</span></td>
+          <td>개인적 성취 동기</td>
+          <td>관계적 조화 동기</td>
+        </tr>
+        <tr>
+          <td><span class="cell-label">갈등 시 우선순위</span></td>
+          <td>자신의 판단 우선</td>
+          <td>관계 유지와 집단 조화 우선</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>싱겔리스(Singelis, 1994)가 개발한 <strong>자기해석 척도(SCS, 24문항)</strong>는 확인적 요인분석을 통해 독립적 자기해석과 상호의존적 자기해석이 별개의 두 차원으로 확인되었다. 이 두 차원 간의 상관은 낮거나 무시할 수 있는 수준으로 보고되어, 한 개인이 두 유형의 자기해석을 동시에 높은 수준으로 보유할 수 있음이 확인되었다.</p>
+
+  <div class="callout callout--purple">
+    <strong>신경과학적 지지:</strong> 기능적 자기공명영상(fMRI) 연구에서 독립적 자기해석이 높은 개인과 상호의존적 자기해석이 높은 개인이 자기 참조적 정보를 처리할 때 서로 다른 뇌 영역의 활성화 패턴을 보인다는 발견은, 자기해석의 차이가 단순한 설문 응답의 차이를 넘어 신경생물학적 기반을 가짐을 시사한다.
+  </div>
+
+  <p>다만 마츠모토(Matsumoto, 1999)는 SCS의 타당성에 대해 비판적 평가를 제기하였다. 그는 SCS의 문항들이 자기해석의 이론적 정의를 충분히 포착하지 못하며, 문화 간 비교 연구에서 예측된 차이를 일관되게 보여주지 못한다고 지적하였다. 이러한 비판은 구성개념 자체의 타당성보다는 측정 도구의 정밀도에 대한 것으로, 독립적 자기해석과 상호의존적 자기해석이 구분 가능한 심리적 구성개념이라는 이론적 틀 자체는 이후의 신경과학 및 행동 연구를 통해 지속적으로 지지되고 있다.</p>
+
+  <p>보다 최근에는 관계적 이동성(Relational Mobility) 이론이 자기해석 연구의 새로운 방향을 제시하고 있다. 관계적 이동성이 높은 사회에서는 독립적 자기해석이 적응적이며, 낮은 사회에서는 상호의존적 자기해석이 적응적이다. 한국 사회는 전통적으로 관계적 이동성이 낮은 사회로 분류되어 왔으나, 도시화, 직업 이동성의 증가, 그리고 디지털 네트워크의 확산으로 관계적 이동성이 점진적으로 증가하고 있으며, 이는 한국인의 자기해석이 점차 독립적 방향으로 이동할 가능성을 시사한다.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- Section 3: 조직행동론 -->
+<!-- ============================================================ -->
+<section id="sec3">
+  <h2><span class="num">3.</span> 조직행동론에서의 독립-협력 차원</h2>
+
+  <p>성격심리학이 독립-협력 축의 개인 내적 구조를 규명한다면, 조직행동론은 이 축이 조직의 현실적 맥락에서 어떻게 발현되고, 어떤 결과를 초래하는지를 실증적으로 보여준다.</p>
+
+  <!-- 3.1 개인 vs 집단 의사결정 -->
+  <h3 id="sec3-1">3.1 개인 vs 집단 의사결정</h3>
+
+  <p>와그너(Wagner, 1995)는 개인주의-집단주의 성향이 집단 내 협력 행동의 독립적 예측변인(Independent Predictor)이자 조절변인(Moderator)으로 기능함을 메타분석적 접근을 통해 입증하였다. 개인주의 성향이 강한 구성원은 집단의 이익보다 개인의 이익을 우선시하여 무임승차(Free-riding) 경향을 보이는 반면, 집단주의 성향이 강한 구성원은 집단의 목표 달성을 위해 개인적 희생을 감수하는 경향을 보인다.</p>
+
+  <p>얼리(Earley, 1993)의 실험 연구는 미국(개인주의 문화), 중국(집단주의 문화), 이스라엘(중간적 문화)의 관리자들을 대상으로 사회적 태만(Social Loafing) 현상을 비교하였다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>문화권</th>
+          <th>집단 작업 조건</th>
+          <th>내집단 vs 외집단</th>
+          <th>사회적 태만</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-label">미국 (개인주의)</span></td>
+          <td>개인 작업보다 낮은 수행</td>
+          <td>구분 없음</td>
+          <td style="color:var(--red);font-weight:600">전형적 패턴 발생</td>
+        </tr>
+        <tr>
+          <td><span class="cell-label">중국 (집단주의)</span></td>
+          <td>내집단과 작업 시 수행 향상</td>
+          <td>외집단과 작업 시 태만</td>
+          <td style="color:var(--green);font-weight:600">내집단에서 역방향</td>
+        </tr>
+        <tr>
+          <td><span class="cell-label">이스라엘 (중간)</span></td>
+          <td>중간적 패턴</td>
+          <td>내/외 구분 존재</td>
+          <td style="color:var(--yellow);font-weight:600">혼재</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout--orange">
+    <strong>한국 공공조직 시사점:</strong> 개인 성과 평가에 과도하게 의존하는 관리 체계가 한국 공무원들의 집단적 협력 동기를 약화시킬 수 있으며, 동시에 집단 평가에만 의존하는 체계는 독립적 판단의 가치를 충분히 인정하지 못할 수 있다. 따라서 독립적 판단과 집단적 협력을 동시에 장려하는 균형적 보상 체계의 설계가 중요하다.
+  </div>
+
+  <!-- 3.2 SDT & 자기리더십 -->
+  <h3 id="sec3-2">3.2 자기결정이론과 자기리더십</h3>
+
+  <p>데시, 올라프센, 라이언(Deci, Olafsen &amp; Ryan, 2017)의 <strong>자기결정이론(SDT)</strong>은 인간의 동기를 자율적 동기(Autonomous Motivation)와 통제된 동기(Controlled Motivation)의 연속선상에서 구분하며, 자율적 동기가 높을수록 과업 수행의 질, 창의성, 그리고 심리적 안녕감이 향상됨을 입증하였다.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">SDT: 자율성과 관계성의 상호 강화</div>
+    <div class="diagram-row">
+      <div class="diagram-box diagram-box--blue">자율성 (Autonomy)<br><span style="font-size:0.7rem;font-weight:400">내적 가치 / 흥미 기반 행동</span></div>
+      <div class="diagram-arrow">+</div>
+      <div class="diagram-box diagram-box--green">관계성 (Relatedness)<br><span style="font-size:0.7rem;font-weight:400">타인과의 연결감 / 소속감</span></div>
+      <div class="diagram-arrow">+</div>
+      <div class="diagram-box diagram-box--purple">유능감 (Competence)<br><span style="font-size:0.7rem;font-weight:400">효과적 행동 역량</span></div>
+    </div>
+    <div class="diagram-label">세 가지 기본 심리 욕구 &mdash; 자율성과 관계성은 상호 배타적이지 않다</div>
+  </div>
+
+  <div class="callout callout--green">
+    <strong>핵심 통찰:</strong> SDT는 자율성이 관계성(Relatedness)과 대립하는 것이 아님을 명시적으로 주장한다. 가장 바람직한 동기 상태는 자율적이면서 동시에 관계적으로 충족된 상태이며, 이는 독립적 판단과 협력적 행동이 상호 배타적이지 않다는 본 보고서의 핵심 논지와 정확히 일치한다. 자율성 지지적(Autonomy-supportive) 조직 환경은 구성원의 내재적 동기, 조직 몰입, 그리고 친사회적 행동을 동시에 촉진한다.
+  </div>
+
+  <p>허튼과 넥(Houghton &amp; Neck, 2002)의 <strong>자기리더십(Self-Leadership)</strong> 이론은 자율적 동기의 행동적 표현을 체계화한 것이다. 자기리더십을 실천하지 않는 개인은 외부의 지시, 감독, 그리고 보상 체계에 의존하게 되며, 이는 독립적 판단 능력의 위축과 조직적 순응의 강화로 이어진다. 이 이론은 독립적 판단이 단순한 성향적 특성이 아니라 학습 가능한 인지적·행동적 역량임을 시사한다.</p>
+
+  <!-- 3.3 내부고발 -->
+  <h3 id="sec3-3">3.3 내부고발 연구 (Whistleblowing)</h3>
+
+  <p>내부고발은 독립적 판단과 조직적 순응 사이의 긴장이 가장 극적으로 표출되는 조직 현상이다. 미셀리와 니어(Miceli &amp; Near, 1992)는 내부고발을 "조직의 구성원이 사용자의 통제하에 있는 불법적이거나 비도덕적이거나 정당하지 않은 관행을 보고하는 행위"로 정의하였다.</p>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--accent)">내부고발의 과정 모형 (Miceli, Near &amp; Dworkin, 2008)</div>
+    <div class="stage-flow">
+      <div class="stage-item" style="background:var(--accent-soft);color:var(--accent)">(1) 관찰</div>
+      <div class="stage-arrow">&rarr;</div>
+      <div class="stage-item" style="background:var(--purple-soft);color:var(--purple)">(2) 평가<br><span style="font-size:0.65rem">독립적 판단</span></div>
+      <div class="stage-arrow">&rarr;</div>
+      <div class="stage-item" style="background:var(--orange-soft);color:var(--orange)">(3) 의사결정<br><span style="font-size:0.65rem">이익/비용 형량</span></div>
+      <div class="stage-arrow">&rarr;</div>
+      <div class="stage-item" style="background:var(--green-soft);color:var(--green)">(4) 행동<br><span style="font-size:0.65rem">심리적 자원 동원</span></div>
+    </div>
+  </div>
+
+  <p>니어와 미셀리(Near &amp; Miceli, 1985)의 연구는 <strong>내부 통제 소재(Internal Locus of Control)</strong>가 내부고발 행동의 유의미한 예측변인임을 확인하였다. 내부 통제 소재가 높은 개인은 사건의 결과가 자신의 행동에 의해 결정된다고 믿는 경향이 강하며, 따라서 조직의 부정을 목격했을 때 "내가 행동해야 한다"는 도덕적 책임감을 느낄 가능성이 높다.</p>
+
+  <div class="callout callout--teal">
+    <strong>통념 반박:</strong> 거의 모든 외부 고발자가 외부 기관에 보고하기 전에 먼저 조직 내부 채널을 통해 문제를 제기했다는 실증적 발견은 중요하다. 내부고발자가 반조직적 성향을 가진 비협력적 개인이라는 통념은 사실이 아니다. 대부분의 고발자는 조직에 대한 충성심과 소속감을 유지한 채로 먼저 <em>협력적 자정</em>을 시도하고, 내부 채널이 실패했을 때 비로소 독립적 행동으로 전환한다.
+  </div>
+
+  <p>빅터와 컬런(Victor &amp; Cullen, 1988)의 윤리적 분위기 유형론에 따르면, 원칙 지향적(Principled) 분위기에서는 개인의 독립적 도덕 판단이 장려되고 보호되는 반면, 관료적(Bureaucratic) 분위기나 이기적(Egoistic) 분위기에서는 독립적 판단이 억제되고 순응이 강화된다. 이는 독립-협력 축의 발현이 개인 성향과 조직 환경의 상호작용 함수(Interaction Function)임을 보여주는 추가적 증거이다.</p>
+
+  <!-- 3.4 집단사고 -->
+  <h3 id="sec3-4">3.4 집단사고 (Groupthink)</h3>
+
+  <p>재니스(Janis, 1972, 1982)가 정립한 <strong>집단사고(Groupthink)</strong> 이론은 협력과 합의에 대한 과도한 지향이 의사결정의 질을 심각하게 훼손하는 병리적 과정을 기술한다. 재니스는 피그만 침공, 진주만 공격에 대한 미대응, 베트남 전쟁 확전 결정 등의 역사적 사례를 분석하여 집단사고의 <strong>8가지 증상</strong>을 식별하였다.</p>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--red)">집단사고의 8가지 증상 (Janis, 1982)</div>
+    <div class="quad-grid">
+      <div class="quad-cell" style="background:var(--red-soft)">
+        <div class="quad-cell-title" style="color:var(--red)">1. 불멸의 환상</div>
+        Illusion of Invulnerability
+      </div>
+      <div class="quad-cell" style="background:var(--red-soft)">
+        <div class="quad-cell-title" style="color:var(--red)">2. 집단 합리화</div>
+        Collective Rationalization
+      </div>
+      <div class="quad-cell" style="background:var(--orange-soft)">
+        <div class="quad-cell-title" style="color:var(--orange)">3. 고유한 도덕성에 대한 믿음</div>
+        Belief in Inherent Morality
+      </div>
+      <div class="quad-cell" style="background:var(--orange-soft)">
+        <div class="quad-cell-title" style="color:var(--orange)">4. 외집단 고정관념</div>
+        Stereotyping Outgroups
+      </div>
+      <div class="quad-cell" style="background:var(--yellow-soft)">
+        <div class="quad-cell-title" style="color:var(--yellow)">5. 이의 제기자에 대한 압력</div>
+        Pressure on Dissenters
+      </div>
+      <div class="quad-cell" style="background:var(--yellow-soft)">
+        <div class="quad-cell-title" style="color:var(--yellow)">6. 자기 검열</div>
+        Self-censorship
+      </div>
+      <div class="quad-cell" style="background:var(--purple-soft)">
+        <div class="quad-cell-title" style="color:var(--purple)">7. 만장일치의 환상</div>
+        Illusion of Unanimity
+      </div>
+      <div class="quad-cell" style="background:var(--purple-soft)">
+        <div class="quad-cell-title" style="color:var(--purple)">8. 자임한 마음의 경비원</div>
+        Self-appointed Mindguards
+      </div>
+    </div>
+  </div>
+
+  <p>이 증상들의 공통된 기제는 집단의 응집력과 합의를 유지하려는 협력적 동기가 개인의 독립적 비판적 판단을 억압하는 것이다. 특히 <strong>자기 검열</strong>은 구성원 개인이 집단의 합의에 반하는 자신의 의견이나 우려를 의식적으로 억제하는 현상으로, 독립적 판단의 자발적 포기를 나타낸다.</p>
+
+  <p>재니스는 집단사고의 예방책으로 '비판적 평가자(Critical Evaluator)' 역할의 공식적 지정, 리더의 초기 의견 표명 자제, 외부 전문가의 참여, 그리고 '악마의 대변인(Devil's Advocate)' 절차의 도입 등을 제안하였다.</p>
+
+  <div class="callout callout--green">
+    <strong>역설적 발견:</strong> 효과적인 집단 의사결정(협력)이 독립적 판단의 <em>억압</em>이 아닌 <em>장려</em>를 통해 달성된다. 구조화된 논쟁(Structured Debate), 변증법적 탐구(Dialectical Inquiry), 익명 투표(Anonymous Voting) 등의 현대적 의사결정 기법은 모두 집단 내에서 독립적 판단의 표출을 제도적으로 보장하는 것을 목적으로 한다.
+  </div>
+
+  <p>애쉬(Asch, 1956)의 고전적 동조 실험에서 참가자의 약 <strong>75%</strong>가 적어도 한 번은 집단의 명백히 잘못된 판단에 동조하였다는 발견은 독립적 판단의 취약성을 극적으로 보여주었으며, 밀그램(Milgram, 1963)의 복종 실험은 권위에 대한 순응이 극단적 결과를 초래할 수 있음을 입증하였다. 이 연구들은 독립적 판단의 유지가 인지적 노력과 심리적 비용을 수반하는 능동적 과정임을 보여준다.</p>
+
+  <div class="callout callout--orange">
+    <strong>한국 공공조직 맥락:</strong> 유교적 위계 문화에서 하급자가 상급자의 의견에 공개적으로 이의를 제기하는 것은 사회적으로 큰 비용을 수반하며, 이는 집단사고의 핵심 선행조건인 '이의 제기에 대한 압력'과 '자기 검열'을 구조적으로 강화한다. 대안적 메커니즘으로는 회의 전 서면 의견 제출, 익명 건의 제도, 소규모 분과 토론 후 전체 회의 보고 등이 있다.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Section 4: 문화심리학 -->
+<!-- ============================================================ -->
+<section id="sec4">
+  <h2><span class="num">4.</span> 문화심리학에서의 위치</h2>
+
+  <p>개인 수준의 성격 차원과 조직 수준의 행동 패턴을 넘어, 독립-협력 축은 사회 수준의 문화적 가치 체계와도 깊이 연결되어 있다. 문화심리학은 독립성과 협력성에 대한 가치 부여가 사회마다 체계적으로 다르며, 이러한 차이가 개인의 심리적 성향과 조직적 행동에 구조적 영향을 미침을 보여준다.</p>
+
+  <!-- 4.1 Hofstede -->
+  <h3 id="sec4-1">4.1 Hofstede의 개인주의-집단주의 차원</h3>
+
+  <p>홉스테드(Geert Hofstede)의 문화 차원 이론은 50개국 이상 117,000명의 IBM 직원을 대상으로 한 대규모 설문조사에 기초하여 국가 수준의 문화적 가치를 차원화한 것이다. 개인주의-집단주의(IDV)는 그 핵심 차원 중 하나이다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>국가</th>
+          <th>IDV 점수</th>
+          <th>문화 유형</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>미국</td>
+          <td style="font-weight:700;color:var(--accent)">91</td>
+          <td>개인주의적</td>
+        </tr>
+        <tr>
+          <td>호주</td>
+          <td style="font-weight:700;color:var(--accent)">90</td>
+          <td>개인주의적</td>
+        </tr>
+        <tr>
+          <td>영국</td>
+          <td style="font-weight:700;color:var(--accent)">89</td>
+          <td>개인주의적</td>
+        </tr>
+        <tr>
+          <td>한국</td>
+          <td style="font-weight:700;color:var(--orange)">18</td>
+          <td>집단주의적</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>그러나 이 수치는 1970년대 데이터에 기반한 것으로, 이후 40년 이상의 경제 발전, 민주화, 도시화, 세계화를 경험한 현대 한국 사회의 가치관 변동을 반영하지 못한다는 비판이 지속적으로 제기되어 왔다.</p>
+
+  <div class="callout callout--orange">
+    <strong>Hofstede 모형의 한계:</strong>
+    <ol class="num-list">
+      <li><strong>데이터 노후화:</strong> 원래 설문은 1967-1973년에 수집되었으며, 급변하는 문화적 가치를 적시에 반영하기 어려움</li>
+      <li><strong>생태학적 오류:</strong> 국가 수준의 차원을 개인 수준의 성향으로 직접 전환하는 것의 위험</li>
+      <li><strong>심리측정학적 비판:</strong> VSM 2013의 내적 일관성이 낮음</li>
+      <li><strong>표집 편향:</strong> 단일 기업(IBM) 직원만을 대상으로 한 표집</li>
+    </ol>
+  </div>
+
+  <p>이러한 한계에도 불구하고, 홉스테드의 연구는 국가 수준에서의 개인주의-집단주의 변량이 1인당 국민소득(GDP per capita)과 강한 정적 상관(.82)을 보인다는 발견을 제시하였으며, 한국의 급속한 경제 성장이 IDV 점수의 상승으로 이어졌을 가능성이 높다.</p>
+
+  <!-- 4.2 GLOBE -->
+  <h3 id="sec4-2">4.2 GLOBE 연구</h3>
+
+  <p>GLOBE 연구는 62개 사회의 17,000명 이상의 중간 관리자를 대상으로 문화적 가치와 리더십의 관계를 조사하였다. GLOBE의 가장 중요한 이론적 기여 중 하나는 홉스테드의 단일한 개인주의-집단주의 차원을 <strong>두 개의 독립적 차원</strong>으로 분리한 것이다.</p>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--accent)">GLOBE의 두 가지 집단주의 차원</div>
+    <div class="quad-grid">
+      <div class="quad-cell" style="background:var(--accent-soft)">
+        <div class="quad-cell-title" style="color:var(--accent)">제도적 집단주의 (Institutional Collectivism)</div>
+        조직적·사회적 제도가 자원의 집단적 분배와 집단적 행동을 장려하고 보상하는 정도. 조직의 관행과 사회적 제도의 수준에서 작동.
+      </div>
+      <div class="quad-cell" style="background:var(--green-soft)">
+        <div class="quad-cell-title" style="color:var(--green)">내집단 집단주의 (In-Group Collectivism)</div>
+        개인이 자신의 가족, 조직, 또는 기타 내집단에 대해 충성심, 자부심, 응집력을 표현하는 정도. 개인의 심리적 태도와 감정 수준에서 작동.
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>관행 vs 가치:</strong> GLOBE 연구는 문화적 관행(Practices, "as is")과 문화적 가치(Values, "should be")를 구분하여 측정하였다. 한 사회의 제도적 집단주의 관행이 높다 하더라도 그 구성원들이 더 많은 개인적 자율성을 가치로서 지향할 수 있다. 한국의 경우, 높은 내집단 집단주의 관행과 동시에 제도적 개인주의에 대한 증가하는 가치 지향이 공존할 가능성이 있다.
+  </div>
+
+  <!-- 4.3 한국 유교적 맥락 -->
+  <h3 id="sec4-3">4.3 한국 문화적 맥락: 유교적 집단주의</h3>
+
+  <p>한국 사회의 독립-협력 역학을 이해하기 위해서는 유교(Confucianism)적 가치 체계에 대한 분석이 필수적이다. 유교의 핵심 윤리 구조인 <strong>오륜(五倫)</strong> &mdash; 군신유의, 부자유친, 부부유별, 장유유서, 붕우유신 &mdash; 에서 다섯 가지 기본 관계 중 네 가지(군신, 부자, 부부, 장유)는 수직적·위계적 성격을 띤다.</p>
+
+  <div class="callout callout--purple">
+    <strong>유교적 복종의 재해석:</strong> 유교적 복종이 무조건적이라는 해석은 유교 전통에 대한 불충분한 이해에 기반한 것이다. <strong>맹자(孟子)</strong>는 군주가 도(道)를 이탈할 때 신하가 간언(諫言)할 의무가 있음을 명시적으로 주장하였다. 유교적 충성은 무비판적 순종이 아닌 <em>원칙에 기반한 복종(Principled Obedience)</em>이며, 원칙에 반하는 명령에 대한 불복종은 오히려 진정한 충성의 표현으로 간주될 수 있다.
+  </div>
+
+  <p>박, 레그, 리(Park, Rehg &amp; Lee, 2005)는 한국 공공부문 종사자 343명을 대상으로 수평적 집단주의와 수직적 집단주의가 내부고발 의도에 미치는 차별적 효과를 실증적으로 분석하였다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>집단주의 유형</th>
+          <th>내부고발 의도에 대한 효과</th>
+          <th>해석</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="cell-label">수평적 집단주의 (HC)</span></td>
+          <td style="color:var(--green);font-weight:600">유의미하게 촉진</td>
+          <td>집단의 복리를 위한 문제 제기를 정당한 협력적 행위로 인식</td>
+        </tr>
+        <tr>
+          <td><span class="cell-label">수직적 집단주의 (VC)</span></td>
+          <td style="color:var(--text-dim);font-weight:600">유의미한 효과 없음</td>
+          <td>위계적 충성심 자체는 고발을 억제하지도, 촉진하지도 않는 중립적 변수</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout--green">
+    <strong>핵심 발견:</strong> 이 결과는 집단주의가 자동적으로 독립적 판단을 억압한다는 단순화된 가정을 경험적으로 반박한다. 수평적 집단주의가 높은 공무원은 '우리 조직'과 '우리 사회'의 복리를 자신의 정체성의 핵심으로 경험하며, 조직 내 부정이 이 집단적 복리를 해친다고 인식할 때 문제 제기를 집단에 대한 배신이 아닌 <em>집단을 위한 헌신</em>으로 프레이밍한다. 협력적 동기가 독립적 행동의 원동력이 되는 독특한 심리적 경로이다.
+  </div>
+
+  <!-- 4.4 Schwartz -->
+  <h3 id="sec4-4">4.4 Schwartz 가치 이론과의 관계</h3>
+
+  <p>슈워츠(Schwartz, 1992, 2012)의 보편적 가치 이론은 10개(후에 19개로 세분화)의 기본 가치를 준원형(Quasi-circumplex) 구조로 배치하며, 이 구조 내에서 두 개의 상위 차원이 직교한다.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">Schwartz 가치 이론의 두 상위 차원</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;margin:1rem 0">
+      <div class="diagram-row">
+        <div class="diagram-box diagram-box--blue">변화에 대한 개방성<br><span style="font-size:0.7rem;font-weight:400">자기방향성, 자극</span></div>
+        <div class="diagram-arrow">&harr;</div>
+        <div class="diagram-box diagram-box--orange">보존<br><span style="font-size:0.7rem;font-weight:400">동조, 전통, 안전</span></div>
+      </div>
+      <div style="font-size:0.75rem;color:var(--text-dim);font-weight:600">직교</div>
+      <div class="diagram-row">
+        <div class="diagram-box diagram-box--red">자기고양<br><span style="font-size:0.7rem;font-weight:400">권력, 성취</span></div>
+        <div class="diagram-arrow">&harr;</div>
+        <div class="diagram-box diagram-box--green">자기초월<br><span style="font-size:0.7rem;font-weight:400">보편주의, 박애</span></div>
+      </div>
+    </div>
+    <div class="diagram-label">독립-협력 축은 첫 번째 차원(개방성 vs 보존)과 정렬되며, 두 번째 차원(자기고양 vs 자기초월)과 직교</div>
+  </div>
+
+  <p>독립-협력 축은 슈워츠 모형의 첫 번째 차원과 이론적으로 정렬된다. <strong>자기방향성(Self-Direction)</strong> 가치는 독립적 사고와 행동을 강조하며 독립적 판단의 가치적 기반에 해당한다. <strong>동조(Conformity)</strong> 가치는 사회적 기대와 규범에 대한 순응을 강조하며 협력적 행동의 가치적 기반에 해당한다.</p>
+
+  <div class="callout callout--teal">
+    <strong>핵심 구분:</strong> 독립적 판단을 중시하는 것이 반드시 이기적 동기(자기고양)에 기반하는 것이 아니며, 협력적 행동을 중시하는 것이 반드시 이타적 동기(자기초월)에 기반하는 것이 아니다. 개인은 자기초월적 동기에 기반하여 독립적 판단을 실행할 수 있으며(예: 내부고발), 자기고양적 동기에 기반하여 협력적 행동을 수행할 수도 있다(예: 전략적 동맹).
+  </div>
+
+  <p>슈워츠의 정교화된 19가치 모형에서는 자기방향성이 <strong>사고의 자기방향성</strong>(독립적으로 사고하는 것)과 <strong>행동의 자기방향성</strong>(독립적으로 행동하는 것)으로 세분화되며, 동조도 <strong>규칙 동조</strong>(규칙을 따르는 것)와 <strong>대인 동조</strong>(타인의 기대를 충족시키는 것)로 세분화된다. 공직 윤리 맥락에서, 한 공무원이 독립적으로 사고하면서도 행동적으로는 조직의 협력적 의사결정 절차를 따를 수 있으며, 이는 가장 바람직한 공직자의 프로파일일 수 있다.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- Section 5: 공공행정 / 공직윤리 -->
+<!-- ============================================================ -->
+<section id="sec5">
+  <h2><span class="num">5.</span> 공공행정 / 공직윤리 맥락</h2>
+
+  <p>독립-협력 축이 공공행정과 공직 윤리의 맥락에서 갖는 실천적 의의는 다른 어떤 영역보다 직접적이다. 공무원은 조직의 위계적 명령 체계 내에서 업무를 수행하면서도, 동시에 공공의 이익에 대한 독립적 판단을 행사해야 하는 이중적 요구에 직면한다.</p>
+
+  <!-- 5.1 도덕적 주체성 vs 조직적 순응 -->
+  <h3 id="sec5-1">5.1 개인 도덕적 주체성 vs 조직적 순응</h3>
+
+  <p>오켈리와 더브닉(O'Kelly &amp; Dubnick, 2006)은 공직자가 직면하는 '고난의 선택(Tough Choices)'을 분석하면서, 조직의 공식적 규칙이나 상급자의 지시가 명백히 윤리적으로 문제가 있을 때 개인의 도덕적 주체성만이 유일한 지침이 되는 상황이 존재함을 지적하였다.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">관계의 두께(Thickness) 모형</div>
+    <div class="diagram-row">
+      <div class="diagram-box diagram-box--orange" style="min-width:180px">
+        <strong>두꺼운 관계</strong><br>
+        <span style="font-size:0.7rem;font-weight:400">구체적 역할 기대, 조직적 규범,<br>특수한 의무 &rarr; 조직 지시 우선</span>
+      </div>
+      <div class="diagram-arrow" style="font-size:1.5rem">&harr;</div>
+      <div class="diagram-box diagram-box--blue" style="min-width:180px">
+        <strong>얇은 관계</strong><br>
+        <span style="font-size:0.7rem;font-weight:400">보편적 도덕 원칙(인권, 정의)<br>&rarr; 독립적 도덕 판단 필요</span>
+      </div>
+    </div>
+    <div class="diagram-label">조직 지시가 보편적 도덕 원칙에 위배될 때 독립적 판단이 불가피</div>
+  </div>
+
+  <p>베르텔리와 팔레티(Bertelli &amp; Falletti, 2025)의 <strong>구조적 통합성(Structural Integrity)</strong> 개념은 공무원의 도덕적 주체성이 조직의 구조적 제약 내에서 작동하는 '제한된 규범적 주체성(Bounded Normative Agency)'으로, 완전한 자율적 판단도 아니고 완전한 조직적 순응도 아닌 중간 지대를 의미한다.</p>
+
+  <div class="callout callout--red">
+    <strong>행정적 악 (Administrative Evil):</strong> 아담스와 베이레푸르드(Adams &amp; Balfour, 2015)는 관료적 순응이 도덕적으로 파괴적인 정책의 실행을 가능하게 했던 역사적 사례(나치 독일의 관료제, 미국의 인종 격리 정책 등)를 분석하면서, 기술적 합리성에 매몰된 관료가 자신의 행동의 도덕적 의미를 인식하지 못하는 '도덕적 전도(Moral Inversion)' 현상을 기술하였다. 이는 독립적 도덕 판단의 부재가 초래할 수 있는 극단적 결과를 경고한다.
+  </div>
+
+  <!-- 5.2 적극행정 -->
+  <h3 id="sec5-2">5.2 한국: 적극행정 vs 소극행정</h3>
+
+  <p><strong>소극행정</strong>은 공무원이 법적·절차적 위험을 회피하기 위해 재량권의 행사를 기피하고, 상급자의 명시적 지시가 없는 한 최소한의 업무만을 수행하는 관료적 관성을 지칭한다. 이는 독립적 판단의 포기와 조직적 순응의 극단적 형태에 해당한다.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">적극행정 면책제도의 구조</div>
+    <div class="diagram-row">
+      <div class="diagram-box diagram-box--red">
+        소극행정<br>
+        <span style="font-size:0.7rem;font-weight:400">재량 기피 / 최소 업무 / 위험 회피</span>
+      </div>
+      <div class="diagram-arrow" style="font-size:1.5rem">&rarr;</div>
+      <div class="diagram-box diagram-box--teal">
+        면책제도 (2017~)<br>
+        <span style="font-size:0.7rem;font-weight:400">공익 위한 과실 면책 / 심리적 안전망</span>
+      </div>
+      <div class="diagram-arrow" style="font-size:1.5rem">&rarr;</div>
+      <div class="diagram-box diagram-box--green">
+        적극행정<br>
+        <span style="font-size:0.7rem;font-weight:400">자율적 판단 / 공익 추구 / 재량권 행사</span>
+      </div>
+    </div>
+  </div>
+
+  <p>이 등(Lee et al., 2025)의 실증 연구는 <strong>자율성(Autonomy)</strong>이 적극행정의 핵심 예측변인임을 확인하였다. 업무 수행에 있어 자율적 판단의 여지가 클수록, 그리고 개인이 자율성에 대한 심리적 욕구가 충족되었다고 인식할수록, 적극행정 행동이 증가하는 것으로 나타났다. 이 효과는 상위 직급의 공무원에서 더 강하게 나타났다.</p>
+
+  <div class="callout callout--teal">
+    <strong>적극행정의 통합적 성격:</strong> 적극행정은 개인의 독단적 행동이 아니라 공공의 이익이라는 집단적 목표를 위한 자율적 판단이다. 이 과정에서 관련 부서와의 협의, 이해관계자와의 소통, 상급 기관과의 조율은 필수적인 협력적 요소이다. 따라서 적극행정은 독립적 판단과 협력적 행동이 상호 배타적이지 않으며, 효과적인 공공행정은 두 성향의 최적 조합을 요구함을 제도적으로 구현한 사례이다.
+  </div>
+
+  <!-- 5.3 Kohlberg -->
+  <h3 id="sec5-3">5.3 Kohlberg의 도덕 발달 단계와 독립적 판단</h3>
+
+  <p>콜버그(Kohlberg, 1981, 1984)의 도덕 발달 이론은 독립적 도덕 판단의 발달적 기반을 제공한다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>수준</th>
+          <th>단계</th>
+          <th>도덕적 판단의 기준</th>
+          <th>독립성 수준</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="2"><span class="cell-label">인습 수준<br>(Conventional)</span></td>
+          <td>3단계: 대인관계 조화</td>
+          <td>주위 사람들의 기대에 부응, '착한 사람' 인정</td>
+          <td style="color:var(--orange)">외부 준거 의존<br>(타인의 기대)</td>
+        </tr>
+        <tr>
+          <td>4단계: 사회 체계 유지</td>
+          <td>사회 질서 유지, 법 준수, 제도적 의무 이행</td>
+          <td style="color:var(--orange)">외부 준거 의존<br>(사회적 규칙)</td>
+        </tr>
+        <tr>
+          <td rowspan="2"><span class="cell-label">인습 이후 수준<br>(Post-conventional)</span></td>
+          <td>5단계: 사회 계약</td>
+          <td>법은 사회적 합의의 산물, 더 근본적 가치와 충돌 시 변경 가능</td>
+          <td style="color:var(--green)">내부 준거 기반<br>(합의된 원칙)</td>
+        </tr>
+        <tr>
+          <td>6단계: 보편적 윤리 원칙</td>
+          <td>자율적으로 선택한 원칙(정의, 인간 존엄성, 평등)에 따라 판단</td>
+          <td style="color:var(--accent);font-weight:700">내부 준거 기반<br>(자율적 원칙)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout--orange">
+    <strong>발달적 분포:</strong> 종단 연구들에 따르면, 성인 인구의 약 <strong>10-15%</strong>만이 인습 이후 수준의 도덕적 추론에 도달한다. 대다수의 성인은 인습 수준에 머무르며, 이는 내부고발이 드문 현상인 이유와 집단사고가 빈번하게 발생하는 이유를 부분적으로 설명한다. 조직이 구성원의 독립적 도덕 판단 능력을 체계적으로 개발해야 할 필요성을 제기한다.
+  </div>
+
+  <p>레스트(Rest, 1986)의 <strong>4구성요소 모형</strong>은 도덕적 행동이 도덕적 감수성, 도덕적 판단, 도덕적 동기, 그리고 도덕적 실행의 네 가지 심리적 과정을 순차적으로 요구한다고 제안한다. 독립-협력 축은 네 번째 구성요소(도덕적 실행)와 특히 관련이 깊다. 인습 이후 수준의 도덕적 판단 능력을 보유하더라도, 그 판단을 집단의 압력에 맞서 실행에 옮기는 데에는 별도의 심리적 역량 &mdash; 자아 강도(Ego Strength), 내부 통제 소재, 위험 감수 성향 &mdash; 이 필요하다. 이는 도덕적 추론 수준과 행동적 독립성이 분리 가능한 구성개념임을 보여주며, 독립-협력 축이 원칙-유연성 축과 구별되는 추가적 근거를 제공한다.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- Section 6: 변별 타당도 -->
+<!-- ============================================================ -->
+<section id="sec6">
+  <h2><span class="num">6.</span> 다른 두 축과의 심리측정적 독립성 (Discriminant Validity)</h2>
+
+  <p>독립-협력 축이 의미 있는 독자적 차원으로 기능하기 위해서는, 기존에 식별된 다른 심리-윤리 축들 &mdash; 투명성-신중성 축과 원칙-유연성 축 &mdash; 로부터 통계적으로 독립적이어야 한다.</p>
+
+  <!-- 6.1 투명성-신중성 -->
+  <h3 id="sec6-1">6.1 투명성-신중성 축으로부터의 독립</h3>
+
+  <p>투명성-신중성 축은 정보의 공개와 보호, 행동의 즉시성과 숙고성 사이의 긴장을 포착하며, HEXACO 모형에서 주로 정직-겸손성(H)과 성실성(C) 차원에 의해 측정된다. 독립-협력 축은 HEXACO 모형에서 주로 우호성(A) 차원과 외향성(X)의 사회적 대담성 파셋에 의해 측정된다.</p>
+
+  <div class="diagram">
+    <div class="diagram-title">HEXACO 요인과 세 축의 대응 관계</div>
+    <div class="diagram-row" style="gap:0.6rem">
+      <div class="diagram-box diagram-box--orange" style="min-width:170px">
+        <strong>투명성-신중성</strong><br>
+        <span style="font-size:0.7rem;font-weight:400">H (정직-겸손성) + C (성실성)</span>
+      </div>
+      <div class="diagram-box diagram-box--purple" style="min-width:170px">
+        <strong>원칙-유연성</strong><br>
+        <span style="font-size:0.7rem;font-weight:400">C (성실성) + O (개방성)</span>
+      </div>
+      <div class="diagram-box diagram-box--blue" style="min-width:170px">
+        <strong>독립-협력</strong><br>
+        <span style="font-size:0.7rem;font-weight:400">A (우호성) + X (외향성)</span>
+      </div>
+    </div>
+    <div class="diagram-label">HEXACO의 6요인은 직교(Orthogonal) 요인 &mdash; A와 H, A와 C 상관: .10-.20 범위</div>
+  </div>
+
+  <p>슈워츠 가치 이론에서도 이 독립성이 확인된다. 변화에 대한 개방성 대 보존 차원(독립-협력 축과 정렬)은 자기고양 대 자기초월 차원과 직교하는 것으로 이론화된다.</p>
+
+  <p>40개국의 다수준 연구에서 개인주의-집단주의 차원이 Big Five 성격 요인들과 통계적으로 독립적임이 확인되었다는 실증적 발견도 주목할 만하다. Big Five의 우호성이 독립-협력 축의 일부 변량을 포착하지만, 개인주의-집단주의라는 더 넓은 구성개념은 Big Five 요인들의 선형 조합으로 설명되지 않는 <strong>고유 변량(Unique Variance)</strong>을 보유하고 있다.</p>
+
+  <div class="callout">
+    <strong>개념적 중첩에 대한 반론:</strong> 내부고발자는 독립적으로 판단하면서 동시에 정보를 투명하게 공개한다. 그러나 이는 두 차원이 동일하다는 것이 아니라, 특정 상황에서 두 차원이 동시에 높은 수준으로 요구될 수 있다는 것이다. 독립적 판단 없이 투명한 공개가 이루어지는 경우(정기 보고), 투명한 공개 없이 독립적 판단이 이루어지는 경우(묵시적 비협조)가 모두 존재하며, 두 차원은 논리적으로 분리 가능하다.
+  </div>
+
+  <!-- 6.2 원칙-유연성 -->
+  <h3 id="sec6-2">6.2 원칙-유연성 축으로부터의 독립</h3>
+
+  <p>원칙-유연성 축은 보편적 규칙의 엄격한 적용과 상황에 따른 탄력적 판단 사이의 긴장을 포착한다. 한정 이슈 검사(DIT)의 P-점수는 인습 이후 수준의 도덕적 추론 <em>능력</em>을 측정하지, 개인이 실제로 독립적으로 <em>행동</em>하는지를 측정하지 않는다.</p>
+
+  <p>커리 등(Curry, Chesters &amp; Van Lissa, 2019)의 <strong>MAC-Q</strong>에서 '권위에 대한 존중', '용기', '집단 돕기'가 각각 별도의 도덕 영역으로 측정되며 요인분석에서 분리된다는 사실은, 독립성, 협력성, 순응성이 도덕적 인지 구조 내에서도 별개의 차원을 형성함을 보여준다.</p>
+
+  <div class="callout callout--purple">
+    <strong>세 축의 고유 영역:</strong>
+    <ul class="bullet-list">
+      <li><strong style="color:var(--orange)">투명성-신중성:</strong> 정보 공개 대 숙고의 긴장 = 정보 관리의 차원</li>
+      <li><strong style="color:var(--purple)">원칙-유연성:</strong> 도덕적 추론의 엄격성 대 맥락 민감성 = 도덕적 추론의 차원</li>
+      <li><strong style="color:var(--accent)">독립-협력:</strong> 대인관계적 자율성 대 조화 = 행동적 주체성의 차원</li>
+    </ul>
+    세 축은 각각 고유한 심리적 영역을 담당하면서 상호 교차하여 복합적인 윤리적 프로파일을 형성한다.
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- Section 7: 측정도구 -->
+<!-- ============================================================ -->
+<section id="sec7">
+  <h2><span class="num">7.</span> 검증된 측정도구 목록</h2>
+
+  <p>독립-협력 차원을 직접적 또는 간접적으로 측정하는 주요 심리측정 도구들을 아래 표에 정리하였다. 도구의 선택은 연구 목적, 대상 집단의 문화적 배경, 그리고 측정하고자 하는 독립-협력 축의 구체적 측면에 따라 결정되어야 한다.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>도구명</th>
+          <th>약어</th>
+          <th>문항 수</th>
+          <th>측정 차원</th>
+          <th>주요 저자</th>
+          <th>비고</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>자기해석 척도</td>
+          <td>SCS</td>
+          <td>24</td>
+          <td>독립적 자기해석, 상호의존적 자기해석</td>
+          <td>Singelis (1994)</td>
+          <td>CFA로 2차원 구조 확인; Matsumoto (1999)의 타당성 비판 존재</td>
+        </tr>
+        <tr>
+          <td>개인주의-집단주의 척도</td>
+          <td>INDCOL</td>
+          <td>16</td>
+          <td>수평적/수직적 x 개인주의/집단주의 4요인</td>
+          <td>Singelis, Triandis, Bhawuk &amp; Gelfand (1995)</td>
+          <td>4요인 구조로 단순 양극 모형 초월</td>
+        </tr>
+        <tr>
+          <td>오클랜드 개인주의-집단주의 척도</td>
+          <td>AICS</td>
+          <td>26</td>
+          <td>개인주의, 집단주의 (독립적 2차원)</td>
+          <td>Shulruf, Hicks &amp; Tumen (2007)</td>
+          <td>12개 이상 언어로 번역·타당화</td>
+        </tr>
+        <tr>
+          <td>HEXACO 성격 목록 개정판 &mdash; 우호성 척도</td>
+          <td>HEXACO-PI-R (A)</td>
+          <td>16 (A 척도)</td>
+          <td>인내, 유연성, 온화함, 관용</td>
+          <td>Ashton &amp; Lee (2007)</td>
+          <td>한국어 어휘 연구 포함; H, C와 직교</td>
+        </tr>
+        <tr>
+          <td>대인관계 형용사 척도 개정판</td>
+          <td>IAS-R</td>
+          <td>64</td>
+          <td>주체성(Agency), 교감(Communion), 8 팔분면</td>
+          <td>Wiggins, Trapnell &amp; Phillips (1988)</td>
+          <td>수학적 직교성이 가장 엄밀하게 입증된 도구</td>
+        </tr>
+        <tr>
+          <td>자기리더십 설문지</td>
+          <td>SLQ</td>
+          <td>35</td>
+          <td>행동 중심 전략, 자연적 보상 전략, 건설적 사고 전략</td>
+          <td>Houghton &amp; Neck (2002)</td>
+          <td>자율적 과업 수행 역량 측정; 조직행동론 맥락</td>
+        </tr>
+        <tr>
+          <td>한정 이슈 검사 제2판</td>
+          <td>DIT-2</td>
+          <td>5 시나리오</td>
+          <td>인습 이후 도덕 추론 수준 (P-점수)</td>
+          <td>Rest, Narvaez, Thoma &amp; Bebeau (1999)</td>
+          <td>도덕 추론 수준 측정; 행동적 독립성과는 간접적 관계</td>
+        </tr>
+        <tr>
+          <td>도덕적 추론 설문지</td>
+          <td>MAC-Q</td>
+          <td>30</td>
+          <td>7개 도덕 영역 (권위 존중, 용기, 집단 돕기 등)</td>
+          <td>Curry, Chesters &amp; Van Lissa (2019)</td>
+          <td>독립성, 협력성, 순응성을 별도 영역으로 측정</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout--green">
+    <strong>공통적 패턴:</strong>
+    <ol class="num-list">
+      <li>모든 도구에서 독립 지향적 성향과 협력 지향적 성향은 단일 양극 차원이 아닌 <strong>분리 가능한 구성요소</strong>로 취급된다.</li>
+      <li>이 도구들의 하위 척도 간 상관 패턴은 독립-협력 축이 다른 성격·가치 차원들과 낮은 상관을 보이는 <strong>독자적 영역</strong>임을 일관되게 지지한다.</li>
+      <li>대부분의 도구가 다양한 문화권에서 교차 타당화되어 있어, 독립-협력 축의 <strong>문화 보편성</strong>을 뒷받침한다.</li>
+    </ol>
+  </div>
+
+  <p>실제 연구 설계에서는 목적에 따라 도구를 조합하여 사용하는 것이 권장된다. 한국 공직자의 독립-협력 성향을 포괄적으로 측정하기 위해서는 성격적 기반(HEXACO-PI-R A 척도), 가치적 기반(AICS 또는 INDCOL), 대인관계적 행동 패턴(IAS-R), 그리고 도덕적 실행 역량(MAC-Q)을 다층적으로 측정하는 접근이 이상적이다.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- Section 8: 종합 및 시사점 -->
+<!-- ============================================================ -->
+<section id="sec8">
+  <h2><span class="num">8.</span> 종합 및 시사점</h2>
+
+  <p>이상의 다학제적 문헌 검토를 통해, 독립적 판단 대 협력적 행동이라는 차원이 독자적인 심리-윤리 차원으로서 충분한 학술적 근거를 보유함이 확인되었다.</p>
+
+  <div class="card">
+    <div class="card-title" style="color:var(--accent)">핵심 발견 종합</div>
+
+    <div class="callout" style="margin-top:0.75rem">
+      <strong>1. 성격심리학의 수렴적 증거:</strong> Big Five의 주장성(외향성)과 예의(우호성), HEXACO의 우호성, 개인주의-집단주의의 개인 수준 측정 도구들이 모두 독립-협력 축의 서로 다른 측면을 포착하면서도, 다른 차원들과 통계적으로 구분된다.
+    </div>
+
+    <div class="callout callout--green" style="margin-top:0.75rem">
+      <strong>2. IPC의 수학적 직교성 (가장 강력한 증거):</strong> 주체성과 교감이라는 두 축의 수학적 직교성은 독립적 행동 성향과 협력적 행동 성향이 완전히 별개의 차원이며, 한 개인이 두 성향을 동시에 높은 수준으로 보유할 수 있음을 엄밀하게 입증한다.
+    </div>
+
+    <div class="callout callout--purple" style="margin-top:0.75rem">
+      <strong>3. 세 축의 변별 타당도:</strong> HEXACO 요인 구조의 직교성, 슈워츠 가치 이론의 준원형 구조, DIT P-점수와 대인관계적 위치의 독립성, MAC-Q의 도덕 영역 분리는 모두 세 축이 각각 고유한 심리적 영역을 포착하는 독자적 차원임을 수렴적으로 입증한다.
+    </div>
+
+    <div class="callout callout--teal" style="margin-top:0.75rem">
+      <strong>4. 한국 맥락의 특수성:</strong> 수평적 집단주의가 내부고발 의도를 촉진한다는 Park, Rehg &amp; Lee (2005)의 발견은 집단주의(협력 지향)가 독립적 윤리적 행동을 억압하기보다 오히려 촉진할 수 있음을 보여주며, 유교적 가치 체계 내에서도 독립적 도덕 판단이 가능하고 정당화될 수 있음을 시사한다.
+    </div>
+
+    <div class="callout callout--orange" style="margin-top:0.75rem">
+      <strong>5. 상호 강화적 관계:</strong> 자기결정이론과 자기리더십 연구는 독립적 판단과 협력적 행동의 관계가 제로섬이 아닌 상호 강화적일 수 있음을 보여준다. 자율성 지지적 조직 환경은 독립적 판단과 효과적인 협력을 동시에 촉진한다.
+    </div>
+  </div>
+
+  <div class="callout callout--green" style="margin-top:1.5rem">
+    <strong>적극행정의 실증적 기여:</strong> 이 등(Lee et al., 2025)의 연구에서 자율성이 적극행정의 핵심 예측변인으로 확인된 것은, 독립적 판단 역량의 강화가 공직자의 적극행정 실천에 실질적으로 기여할 수 있음을 실증적으로 입증한다. 적극행정 면책제도는 독립적 판단과 협력적 행동의 최적 조합을 제도적으로 지원하려는 시도이다.
+  </div>
+
+  <div class="callout callout--orange" style="margin-top:1rem">
+    <strong>도덕 발달의 시사점:</strong> 인습 이후 수준의 도덕적 추론에 도달하는 성인이 10-15%에 불과하다는 사실은, 대부분의 조직 구성원이 독립적 도덕 판단보다 조직적 순응에 의존할 가능성이 높음을 시사한다. 독립적 판단 역량의 체계적 개발이 공직 윤리 교육의 핵심 과제가 되어야 한다.
+  </div>
+
+  <div class="callout callout--purple" style="margin-top:1rem">
+    <strong>상황 의존적 최적화:</strong> 독립-협력 축의 최적 조합은 고정된 것이 아니라 상황 의존적이다. 위기 상황이나 윤리적 위반이 발생한 상황에서는 독립적 판단과 행동이 더 중요해지며, 일상적 업무나 전략 실행 상황에서는 협력적 행동이 더 중요해진다. 공직자의 청렴 역량 개발은 상황에 따른 두 성향의 <strong>탄력적 조절 능력(Adaptive Regulation)</strong>을 목표로 해야 한다.
+  </div>
+
+  <div class="diagram" style="margin-top:1.5rem">
+    <div class="diagram-title">공직자 청렴 역량의 삼차원적 모형</div>
+    <div class="diagram-row">
+      <div class="diagram-box diagram-box--orange" style="min-width:150px">
+        <strong>축 1</strong><br>투명성-신중성<br>
+        <span style="font-size:0.65rem;font-weight:400">정보 관리의 차원</span>
+      </div>
+      <div class="diagram-box diagram-box--purple" style="min-width:150px">
+        <strong>축 2</strong><br>원칙-유연성<br>
+        <span style="font-size:0.65rem;font-weight:400">도덕적 추론의 차원</span>
+      </div>
+      <div class="diagram-box diagram-box--blue" style="min-width:150px">
+        <strong>축 3</strong><br>독립-협력<br>
+        <span style="font-size:0.65rem;font-weight:400">행동적 주체성의 차원</span>
+      </div>
+    </div>
+    <div class="diagram-label">삼차원적 공간 내에서의 개인의 위치가 다양한 공직 윤리 상황에서의 행동 패턴을 예측</div>
+  </div>
+
+  <p>향후 연구에서는 이 세 축을 통합한 다차원적 청렴 역량 모형의 개발, 한국 공직자를 대상으로 한 실증적 타당화, 그리고 청렴 역량의 상황 의존적 발현 메커니즘에 대한 종단적 연구가 필요하다. 특히, 한국의 공공부문이 경험하고 있는 <strong>세대 간 가치관 차이</strong> &mdash; 유교적 집단주의에 익숙한 기성 세대와 개인의 자율성과 자기표현을 중시하는 신세대 &mdash; 가 독립-협력 축 위에서 어떻게 배치되며, 이 차이가 조직 내 갈등과 협력의 역학에 어떤 영향을 미치는지를 탐구하는 연구도 의미 있을 것이다.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- References -->
+<!-- ============================================================ -->
+<section id="refs">
+  <h2><span class="num">Ref.</span> 참고 자료</h2>
+
+  <details class="ref-accordion">
+    <summary class="ref-toggle">참고문헌 전체 보기 (30건)</summary>
+    <ul class="ref-list">
+      <li><span class="ref-num">1</span><span>Ashton, M. C., &amp; Lee, K. (2007). Empirical, theoretical, and practical advantages of the HEXACO model of personality structure. <em>Personality and Social Psychology Review</em>, 11(2), 150-166. <a href="https://doi.org/10.1177/1088868306294907">doi:10.1177/1088868306294907</a></span></li>
+      <li><span class="ref-num">2</span><span>Ashton, M. C., Lee, K., &amp; de Vries, R. E. (2014). The HEXACO Honesty-Humility, Agreeableness, and Emotionality factors: A review of research and theory. <em>Personality and Social Psychology Review</em>, 18(2), 139-152. <a href="https://doi.org/10.1177/1088868314523838">doi:10.1177/1088868314523838</a></span></li>
+      <li><span class="ref-num">3</span><span>Bertelli, A. M., &amp; Falletti, T. G. (2025). Structural integrity and bounded normative agency in public administration. <em>Journal of Public Administration Research and Theory</em>. <a href="https://doi.org/10.1093/jopart/muae001">doi:10.1093/jopart/muae001</a></span></li>
+      <li><span class="ref-num">4</span><span>Adams, G. B., &amp; Balfour, D. L. (2015). <em>Unmasking administrative evil</em> (4th ed.). Routledge. <a href="https://doi.org/10.4324/9781315702926">doi:10.4324/9781315702926</a></span></li>
+      <li><span class="ref-num">5</span><span>Asch, S. E. (1956). Studies of independence and conformity: I. A minority of one against a unanimous majority. <em>Psychological Monographs: General and Applied</em>, 70(9), 1-70. <a href="https://doi.org/10.1037/h0093718">doi:10.1037/h0093718</a></span></li>
+      <li><span class="ref-num">6</span><span>Cattell, R. B. (1957). <em>Personality and motivation structure and measurement</em>. World Book Company.</span></li>
+      <li><span class="ref-num">7</span><span>Curry, O. S., Chesters, M. J., &amp; Van Lissa, C. J. (2019). Mapping morality with a compass: Testing the theory of 'morality-as-cooperation' with a new questionnaire. <em>Journal of Research in Personality</em>, 78, 106-124. <a href="https://doi.org/10.1016/j.jrp.2018.10.008">doi:10.1016/j.jrp.2018.10.008</a></span></li>
+      <li><span class="ref-num">8</span><span>Deci, E. L., Olafsen, A. H., &amp; Ryan, R. M. (2017). Self-determination theory in work organizations: The state of a science. <em>Annual Review of Organizational Psychology and Organizational Behavior</em>, 4, 19-43. <a href="https://doi.org/10.1146/annurev-orgpsych-032516-113108">doi:10.1146/annurev-orgpsych-032516-113108</a></span></li>
+      <li><span class="ref-num">9</span><span>DeYoung, C. G., Quilty, L. C., &amp; Peterson, J. B. (2007). Between facets and domains: 10 aspects of the Big Five. <em>Journal of Personality and Social Psychology</em>, 93(5), 880-896. <a href="https://doi.org/10.1037/0022-3514.93.5.880">doi:10.1037/0022-3514.93.5.880</a></span></li>
+      <li><span class="ref-num">10</span><span>Earley, P. C. (1993). East meets West meets Mideast: Further explorations of collectivistic and individualistic work groups. <em>Academy of Management Journal</em>, 36(2), 319-348. <a href="https://doi.org/10.2307/256525">doi:10.2307/256525</a></span></li>
+      <li><span class="ref-num">11</span><span>Gagne, M., &amp; Deci, E. L. (2005). Self-determination theory and work motivation. <em>Journal of Organizational Behavior</em>, 26(4), 331-362. <a href="https://doi.org/10.1002/job.322">doi:10.1002/job.322</a></span></li>
+      <li><span class="ref-num">12</span><span>Hofstede, G. (2001). <em>Culture's consequences: Comparing values, behaviors, institutions and organizations across nations</em> (2nd ed.). Sage Publications.</span></li>
+      <li><span class="ref-num">13</span><span>Horowitz, L. M., Wilson, K. R., Turan, B., Zolotsev, P., Constantino, M. J., &amp; Henderson, L. (2006). How interpersonal motives clarify the meaning of interpersonal behavior: A revised circumplex model. <em>Personality and Social Psychology Review</em>, 10(1), 67-86. <a href="https://doi.org/10.1207/s15327957pspr1001_4">doi:10.1207/s15327957pspr1001_4</a></span></li>
+      <li><span class="ref-num">14</span><span>Houghton, J. D., &amp; Neck, C. P. (2002). The revised self-leadership questionnaire: Testing a hierarchical factor structure for self-leadership. <em>Journal of Managerial Psychology</em>, 17(8), 672-691. <a href="https://doi.org/10.1108/02683940210450484">doi:10.1108/02683940210450484</a></span></li>
+      <li><span class="ref-num">15</span><span>House, R. J., Hanges, P. J., Javidan, M., Dorfman, P. W., &amp; Gupta, V. (Eds.). (2004). <em>Culture, leadership, and organizations: The GLOBE study of 62 societies</em>. Sage Publications.</span></li>
+      <li><span class="ref-num">16</span><span>Janis, I. L. (1972). <em>Victims of groupthink: A psychological study of foreign-policy decisions and fiascoes</em>. Houghton Mifflin.</span></li>
+      <li><span class="ref-num">17</span><span>Janis, I. L. (1982). <em>Groupthink: Psychological studies of policy decisions and fiascoes</em> (2nd ed.). Houghton Mifflin.</span></li>
+      <li><span class="ref-num">18</span><span>Kohlberg, L. (1981). <em>Essays on moral development, Vol. 1: The philosophy of moral development</em>. Harper &amp; Row.</span></li>
+      <li><span class="ref-num">19</span><span>Kohlberg, L. (1984). <em>Essays on moral development, Vol. 2: The psychology of moral development</em>. Harper &amp; Row.</span></li>
+      <li><span class="ref-num">20</span><span>Leary, T. (1957). <em>Interpersonal diagnosis of personality: A functional theory and methodology for personality evaluation</em>. Ronald Press.</span></li>
+      <li><span class="ref-num">21</span><span>Lee, S. Y., et al. (2025). Autonomy and proactive administration in Korean public organizations: The moderating role of official rank. <em>Korean Journal of Public Administration</em>, 63(1), 1-28.</span></li>
+      <li><span class="ref-num">22</span><span>Markus, H. R., &amp; Kitayama, S. (1991). Culture and the self: Implications for cognition, emotion, and motivation. <em>Psychological Review</em>, 98(2), 224-253. <a href="https://doi.org/10.1037/0033-295X.98.2.224">doi:10.1037/0033-295X.98.2.224</a></span></li>
+      <li><span class="ref-num">23</span><span>Matsumoto, D. (1999). Culture and self: An empirical assessment of Markus and Kitayama's theory of independent and interdependent self-construals. <em>Asian Journal of Social Psychology</em>, 2(3), 289-310. <a href="https://doi.org/10.1111/1467-839X.00042">doi:10.1111/1467-839X.00042</a></span></li>
+      <li><span class="ref-num">24</span><span>Miceli, M. P., &amp; Near, J. P. (1992). <em>Blowing the whistle: The organizational and legal implications for companies and employees</em>. Lexington Books.</span></li>
+      <li><span class="ref-num">25</span><span>Milgram, S. (1963). Behavioral study of obedience. <em>Journal of Abnormal and Social Psychology</em>, 67(4), 371-378. <a href="https://doi.org/10.1037/h0040525">doi:10.1037/h0040525</a></span></li>
+      <li><span class="ref-num">26</span><span>Near, J. P., &amp; Miceli, M. P. (1985). Organizational dissidence: The case of whistle-blowing. <em>Journal of Business Ethics</em>, 4(1), 1-16. <a href="https://doi.org/10.1007/BF00382668">doi:10.1007/BF00382668</a></span></li>
+      <li><span class="ref-num">27</span><span>O'Kelly, C., &amp; Dubnick, M. J. (2006). Taking tough choices seriously: Public administration and individual moral agency. <em>Journal of Public Administration Research and Theory</em>, 16(3), 393-415. <a href="https://doi.org/10.1093/jopart/muj017">doi:10.1093/jopart/muj017</a></span></li>
+      <li><span class="ref-num">28</span><span>Park, H., Rehg, M. T., &amp; Lee, D. (2005). The influence of Confucian ethics and collectivism on whistleblowing intentions: A study of South Korean public employees. <em>Journal of Business Ethics</em>, 58(4), 387-403. <a href="https://doi.org/10.1007/s10551-004-5592-x">doi:10.1007/s10551-004-5592-x</a></span></li>
+      <li><span class="ref-num">29</span><span>Rest, J. R. (1986). <em>Moral development: Advances in research and theory</em>. Praeger.</span></li>
+      <li><span class="ref-num">30</span><span>Rest, J. R., Narvaez, D., Thoma, S. J., &amp; Bebeau, M. J. (1999). DIT2: Devising and testing a revised instrument of moral judgment. <em>Journal of Educational Psychology</em>, 91(4), 644-659. <a href="https://doi.org/10.1037/0022-0663.91.4.644">doi:10.1037/0022-0663.91.4.644</a></span></li>
+    </ul>
+  </details>
+
+  <details class="ref-accordion" style="margin-top:0.75rem">
+    <summary class="ref-toggle">추가 참고문헌 (10건)</summary>
+    <ul class="ref-list">
+      <li><span class="ref-num">31</span><span>Schwartz, S. H. (1992). Universals in the content and structure of values: Theoretical advances and empirical tests in 20 countries. <em>Advances in Experimental Social Psychology</em>, 25, 1-65. <a href="https://doi.org/10.1016/S0065-2601(08)60281-6">doi:10.1016/S0065-2601(08)60281-6</a></span></li>
+      <li><span class="ref-num">32</span><span>Schwartz, S. H. (2012). An overview of the Schwartz theory of basic values. <em>Online Readings in Psychology and Culture</em>, 2(1). <a href="https://doi.org/10.9707/2307-0919.1116">doi:10.9707/2307-0919.1116</a></span></li>
+      <li><span class="ref-num">33</span><span>Shulruf, B., Hicks, M., &amp; Tumen, S. (2007). Measuring collectivism and individualism in the third millennium. <em>Social Behavior and Personality</em>, 35(5), 599-616. <a href="https://doi.org/10.2224/sbp.2007.35.5.599">doi:10.2224/sbp.2007.35.5.599</a></span></li>
+      <li><span class="ref-num">34</span><span>Singelis, T. M. (1994). The measurement of independent and interdependent self-construals. <em>Personality and Social Psychology Bulletin</em>, 20(5), 580-591. <a href="https://doi.org/10.1177/0146167294205014">doi:10.1177/0146167294205014</a></span></li>
+      <li><span class="ref-num">35</span><span>Singelis, T. M., Triandis, H. C., Bhawuk, D. P. S., &amp; Gelfand, M. J. (1995). Horizontal and vertical dimensions of individualism and collectivism: A theoretical and measurement refinement. <em>Cross-Cultural Research</em>, 29(3), 240-275. <a href="https://doi.org/10.1177/106939719502900302">doi:10.1177/106939719502900302</a></span></li>
+      <li><span class="ref-num">36</span><span>Triandis, H. C. (1995). <em>Individualism and collectivism</em>. Westview Press.</span></li>
+      <li><span class="ref-num">37</span><span>Victor, B., &amp; Cullen, J. B. (1988). The organizational bases of ethical work climates. <em>Administrative Science Quarterly</em>, 33(1), 101-125. <a href="https://doi.org/10.2307/2392857">doi:10.2307/2392857</a></span></li>
+      <li><span class="ref-num">38</span><span>Turner, M. E., &amp; Pratkanis, A. R. (1998). Twenty-five years of groupthink theory and research. <em>Organizational Behavior and Human Decision Processes</em>, 73(2-3), 105-115. <a href="https://doi.org/10.1006/obhd.1998.2756">doi:10.1006/obhd.1998.2756</a></span></li>
+      <li><span class="ref-num">39</span><span>Wagner, J. A., III (1995). Studies of individualism-collectivism: Effects on cooperation in groups. <em>Academy of Management Journal</em>, 38(1), 152-172. <a href="https://doi.org/10.2307/256731">doi:10.2307/256731</a></span></li>
+      <li><span class="ref-num">40</span><span>Wiggins, J. S., Trapnell, P., &amp; Phillips, N. (1988). Psychometric and geometric characteristics of the Revised Interpersonal Adjective Scales (IAS-R). <em>Multivariate Behavioral Research</em>, 23(4), 517-530. <a href="https://doi.org/10.1207/s15327906mbr2304_8">doi:10.1207/s15327906mbr2304_8</a></span></li>
+    </ul>
+  </details>
+</section>
+
+<!-- Back to top -->
+<a href="#top" class="back-top">&uarr; 맨 위로</a>
+
+<script>
+  // Theme toggle
+  const btn = document.getElementById('themeBtn');
+  const KEY = 'research-theme';
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    btn.textContent = t === 'dark' ? '\u2600' : '\u263E';
+  }
+  const saved = localStorage.getItem(KEY) || 'light';
+  applyTheme(saved);
+  btn.addEventListener('click', () => {
+    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    localStorage.setItem(KEY, next);
+    applyTheme(next);
+  });
+</script>
+</body>
+</html>

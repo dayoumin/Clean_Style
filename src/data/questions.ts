@@ -306,6 +306,39 @@ export interface SixAxisScores {
   cooperative: number;  // 협력
 }
 
+// 축별 이론상 최대 점수 (문항 구조에서 자동 계산)
+// 각 문항에서 해당 방향에 +1을 줄 수 있는 선택지가 하나라도 있으면 1 기여
+function computeAxisMaximums(): SixAxisScores {
+  const max: SixAxisScores = {
+    principle: 0, flexible: 0,
+    transparent: 0, cautious: 0,
+    independent: 0, cooperative: 0,
+  };
+  for (const q of questions) {
+    let hasP = false, hasF = false, hasT = false, hasC = false, hasI = false, hasCo = false;
+    for (const c of q.choices) {
+      const p = c.scores.principle ?? 0;
+      const t = c.scores.transparency ?? 0;
+      const i = c.scores.independence ?? 0;
+      if (p > 0) hasP = true;
+      if (p < 0) hasF = true;
+      if (t > 0) hasT = true;
+      if (t < 0) hasC = true;
+      if (i > 0) hasI = true;
+      if (i < 0) hasCo = true;
+    }
+    if (hasP) max.principle++;
+    if (hasF) max.flexible++;
+    if (hasT) max.transparent++;
+    if (hasC) max.cautious++;
+    if (hasI) max.independent++;
+    if (hasCo) max.cooperative++;
+  }
+  return max;
+}
+
+export const AXIS_MAXIMUMS: SixAxisScores = computeAxisMaximums();
+
 export function computeSixAxisScores(answers: number[]): SixAxisScores {
   const result: SixAxisScores = {
     principle: 0, flexible: 0,

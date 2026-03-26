@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3축 모델의 이론적 근거 및 타당화 설계 보고서</title>
+<style>
+/* ===== CSS Variables: Light / Dark ===== */
+:root, [data-theme="light"] {
+    --bg: #f8f9fb; --surface: #ffffff; --surface2: #f1f3f5;
+    --border: #e2e5ec; --text: #1a1d27; --text-dim: #6b7280;
+    --accent: #4263eb; --accent-soft: rgba(66,99,235,0.08);
+    --green: #16a34a; --green-soft: rgba(22,163,74,0.08);
+    --orange: #ea580c; --orange-soft: rgba(234,88,12,0.08);
+    --red: #dc2626; --red-soft: rgba(220,38,38,0.08);
+    --purple: #7c3aed; --purple-soft: rgba(124,58,237,0.08);
+    --yellow: #ca8a04; --yellow-soft: rgba(202,138,4,0.08);
+    --teal: #0d9488; --teal-soft: rgba(13,148,136,0.08);
+}
+[data-theme="dark"] {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232733;
+    --border: #2e3345; --text: #e1e4ed; --text-dim: #8b90a0;
+    --accent: #6c8aff; --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c; --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+    --purple: #a78bfa; --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #facc15; --yellow-soft: rgba(250,204,21,0.12);
+    --teal: #2dd4bf; --teal-soft: rgba(45,212,191,0.12);
+}
+
+/* ===== Reset & Base ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    max-width: 1100px;
+    margin: 0 auto;
+    line-height: 1.8;
+    padding: 2rem;
+    transition: background 0.3s, color 0.3s;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ===== Theme Toggle ===== */
+.theme-toggle {
+    position: fixed; top: 1.2rem; right: 1.2rem;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    z-index: 1000;
+    transition: background 0.3s, border-color 0.3s;
+}
+.theme-toggle:hover { border-color: var(--accent); }
+
+/* ===== Header ===== */
+.page-header {
+    text-align: center;
+    padding: 3rem 0 2rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+}
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+}
+.page-header h1 .highlight {
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.page-header .subtitle {
+    color: var(--text-dim);
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+}
+.header-tags {
+    display: flex; flex-wrap: wrap; gap: 0.5rem;
+    justify-content: center;
+}
+.header-tags .tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.tag-accent  { background: var(--accent-soft); color: var(--accent); }
+.tag-purple  { background: var(--purple-soft); color: var(--purple); }
+.tag-green   { background: var(--green-soft);  color: var(--green); }
+.tag-orange  { background: var(--orange-soft); color: var(--orange); }
+.tag-teal    { background: var(--teal-soft);   color: var(--teal); }
+.tag-yellow  { background: var(--yellow-soft); color: var(--yellow); }
+
+/* ===== TOC ===== */
+.toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2.5rem;
+}
+.toc-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 0.75rem;
+}
+.toc ol {
+    list-style: none;
+    counter-reset: toc-counter;
+}
+.toc ol li {
+    counter-increment: toc-counter;
+    margin-bottom: 0.35rem;
+}
+.toc ol li::before {
+    content: counter(toc-counter) ".";
+    display: inline-block;
+    width: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+.toc ol li a {
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* ===== Sections ===== */
+h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+h2 .section-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2rem; height: 2rem;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--accent);
+}
+h4 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+p { margin-bottom: 0.75rem; }
+
+/* ===== Callout ===== */
+.callout {
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.25rem 0;
+    border-left: 4px solid;
+    font-size: 0.95rem;
+}
+.callout-accent  { background: var(--accent-soft);  border-color: var(--accent); }
+.callout-orange  { background: var(--orange-soft);  border-color: var(--orange); }
+.callout-green   { background: var(--green-soft);   border-color: var(--green); }
+.callout-purple  { background: var(--purple-soft);  border-color: var(--purple); }
+.callout-teal    { background: var(--teal-soft);    border-color: var(--teal); }
+.callout-yellow  { background: var(--yellow-soft);  border-color: var(--yellow); }
+.callout-red     { background: var(--red-soft);     border-color: var(--red); }
+.callout strong  { display: block; margin-bottom: 0.35rem; }
+.callout.callout-accent strong  { color: var(--accent); }
+.callout.callout-orange strong  { color: var(--orange); }
+.callout.callout-green strong   { color: var(--green); }
+.callout.callout-purple strong  { color: var(--purple); }
+.callout.callout-teal strong    { color: var(--teal); }
+.callout.callout-yellow strong  { color: var(--yellow); }
+.callout.callout-red strong     { color: var(--red); }
+
+/* ===== Card ===== */
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1.25rem 0;
+    transition: box-shadow 0.2s;
+}
+.card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+.card-title {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+.card p, .card li { font-size: 0.93rem; }
+.card ul { padding-left: 1.2rem; }
+.card ul li { margin-bottom: 0.3rem; }
+
+/* ===== Diagram ===== */
+.diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 1.5rem 0;
+    text-align: center;
+}
+.diagram-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 1.25rem;
+    color: var(--text);
+}
+.axis-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+.axis-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.axis-pole {
+    flex: 0 0 auto;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    min-width: 90px;
+    text-align: center;
+}
+.axis-bar {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    position: relative;
+}
+.axis-label {
+    position: absolute;
+    top: -1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    white-space: nowrap;
+}
+.axis-row.axis-1 .axis-pole { background: var(--accent-soft); color: var(--accent); }
+.axis-row.axis-1 .axis-bar  { background: linear-gradient(90deg, var(--accent), var(--purple)); opacity: 0.3; }
+.axis-row.axis-2 .axis-pole { background: var(--green-soft); color: var(--green); }
+.axis-row.axis-2 .axis-bar  { background: linear-gradient(90deg, var(--green), var(--teal)); opacity: 0.3; }
+.axis-row.axis-3 .axis-pole { background: var(--orange-soft); color: var(--orange); }
+.axis-row.axis-3 .axis-bar  { background: linear-gradient(90deg, var(--orange), var(--yellow)); opacity: 0.3; }
+
+/* 3D Cube Diagram */
+.cube-container {
+    display: flex;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+.cube-svg { max-width: 500px; width: 100%; }
+
+/* Orthogonality Diagram */
+.ortho-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 1rem 0;
+}
+.ortho-cell {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    font-size: 0.85rem;
+}
+.ortho-cell .ortho-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.35rem;
+}
+.ortho-cell .ortho-label {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+.ortho-cell .ortho-desc {
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+/* ===== Table ===== */
+.table-wrap {
+    overflow-x: auto;
+    margin: 1.25rem 0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+}
+.table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+.table-wrap th {
+    background: var(--surface2);
+    font-weight: 700;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+}
+.table-wrap td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+}
+.table-wrap tr:last-child td { border-bottom: none; }
+.table-wrap tr:hover td { background: var(--surface2); }
+
+/* ===== Pill List ===== */
+.pill-list {
+    display: flex; flex-wrap: wrap; gap: 0.4rem;
+    margin: 0.75rem 0;
+    list-style: none;
+}
+.pill-list li {
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+}
+
+/* ===== Accordion (References) ===== */
+details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+details summary {
+    padding: 1rem 1.25rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    user-select: none;
+    list-style: none;
+}
+details summary::-webkit-details-marker { display: none; }
+details summary::before {
+    content: "\25B6";
+    font-size: 0.7rem;
+    transition: transform 0.2s;
+    color: var(--accent);
+}
+details[open] summary::before { transform: rotate(90deg); }
+details .details-body {
+    padding: 0 1.25rem 1.25rem;
+    font-size: 0.88rem;
+    line-height: 1.9;
+}
+details .details-body p { margin-bottom: 0.2rem; }
+
+/* ===== Back to Top ===== */
+.back-to-top {
+    display: block;
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent);
+    border-top: 1px solid var(--border);
+}
+
+/* ===== Numbered Evidence Cards ===== */
+.evidence-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin: 0.75rem 0;
+}
+.evidence-card .ev-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.evidence-card .ev-num {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent);
+    width: 1.6rem; height: 1.6rem;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+.evidence-card .ev-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+.evidence-card .ev-ref {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+}
+.evidence-card ul {
+    padding-left: 1.2rem;
+    font-size: 0.9rem;
+}
+.evidence-card ul li {
+    margin-bottom: 0.3rem;
+}
+
+/* Green-tinted evidence cards for axis 2 */
+.evidence-card.ev-green .ev-num { background: var(--green); }
+/* Orange-tinted evidence cards for axis 3 */
+.evidence-card.ev-orange .ev-num { background: var(--orange); }
+/* Teal-tinted evidence cards for orthogonality */
+.evidence-card.ev-teal .ev-num { background: var(--teal); }
+/* Purple-tinted evidence cards */
+.evidence-card.ev-purple .ev-num { background: var(--purple); }
+
+/* ===== Phase Roadmap ===== */
+.roadmap {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin: 1.25rem 0;
+}
+.roadmap-phase {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+}
+.roadmap-phase::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+}
+.roadmap-phase.phase-1::before { background: var(--accent); }
+.roadmap-phase.phase-2::before { background: var(--green); }
+.roadmap-phase.phase-3::before { background: var(--orange); }
+.roadmap-phase.phase-4::before { background: var(--purple); }
+.roadmap-phase .phase-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.35rem;
+}
+.phase-1 .phase-label { color: var(--accent); }
+.phase-2 .phase-label { color: var(--green); }
+.phase-3 .phase-label { color: var(--orange); }
+.phase-4 .phase-label { color: var(--purple); }
+.roadmap-phase .phase-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+}
+.roadmap-phase ul {
+    font-size: 0.85rem;
+    padding-left: 1.1rem;
+    color: var(--text-dim);
+}
+.roadmap-phase ul li { margin-bottom: 0.2rem; }
+
+/* ===== Responsive ===== */
+@media (max-width: 640px) {
+    body { padding: 1rem; }
+    .page-header h1 { font-size: 1.4rem; }
+    h2 { font-size: 1.2rem; }
+    h3 { font-size: 1rem; }
+    .toc { padding: 1rem 1.25rem; }
+    .ortho-grid { grid-template-columns: 1fr; }
+    .roadmap { grid-template-columns: 1fr; }
+    .axis-row { flex-wrap: wrap; }
+    .axis-pole { min-width: 70px; font-size: 0.75rem; padding: 0.4rem 0.7rem; }
+    .table-wrap { font-size: 0.82rem; }
+    .theme-toggle { width: 38px; height: 38px; font-size: 1rem; top: 0.8rem; right: 0.8rem; }
+    .cube-svg { max-width: 320px; }
+}
+</style>
+</head>
+<body id="top">
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle light/dark mode">
+    <span id="themeIcon">&#9790;</span>
+</button>
+
+<!-- ===== HEADER ===== -->
+<header class="page-header">
+    <h1><span class="highlight">3축 모델의 이론적 근거</span> 및 타당화 설계 보고서</h1>
+    <p class="subtitle">「나의 청렴 스타일은?」 앱의 이론적 기반과 학술 근거</p>
+    <div class="header-tags">
+        <span class="tag tag-accent">HEXACO 성격 모형</span>
+        <span class="tag tag-purple">Schwartz 가치 이론</span>
+        <span class="tag tag-green">대인관계 원형모델</span>
+        <span class="tag tag-orange">공직윤리</span>
+        <span class="tag tag-teal">직교성 논증</span>
+        <span class="tag tag-yellow">한국 맥락</span>
+    </div>
+</header>
+
+<!-- ===== TOC ===== -->
+<nav class="toc">
+    <div class="toc-title">목차</div>
+    <ol>
+        <li><a href="#sec1">앱 개요: 무엇을 측정하는가</a></li>
+        <li><a href="#sec2">축별 학술 근거 요약</a></li>
+        <li><a href="#sec3">3축 간 직교성(독립성) 논증</a></li>
+        <li><a href="#sec4">기존 측정 도구와의 차별점</a></li>
+        <li><a href="#sec5">한국 공직 맥락에서의 적합성</a></li>
+        <li><a href="#sec6">제한점 및 향후 검증 계획</a></li>
+        <li><a href="#sec7">결론</a></li>
+        <li><a href="#sec-ref">참고 문헌</a></li>
+    </ol>
+</nav>
+
+
+<!-- ========================================== -->
+<!-- SECTION 1 -->
+<!-- ========================================== -->
+<section id="sec1">
+    <h2><span class="section-num">1</span> 앱 개요: 무엇을 측정하는가</h2>
+
+    <p>본 앱은 공공기관(연구기관) 종사자의 <strong>청렴 의사결정 성향</strong>을 15개 시나리오 기반 문항으로 측정하여, 3개의 독립적 축으로 구성된 8가지 청렴 스타일 유형을 도출한다.</p>
+
+    <h3>3축 모델</h3>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>축</th><th>양극</th><th>측정 대상</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>원칙 &#8596; 유연성</strong></td>
+                    <td>규칙/기준 기반 의사결정 vs 상황적&middot;맥락적 판단</td>
+                    <td>의사결정 기준</td>
+                </tr>
+                <tr>
+                    <td><strong>투명성 &#8596; 신중성</strong></td>
+                    <td>즉시 공유&middot;보고 vs 신중한 확인 후 판단</td>
+                    <td>정보 처리 방식</td>
+                </tr>
+                <tr>
+                    <td><strong>독립 &#8596; 협력</strong></td>
+                    <td>개인 판단&middot;독자 실행 vs 팀 합의&middot;집단적 행동</td>
+                    <td>행동 양식</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 3-Axis Visual Diagram -->
+    <div class="diagram">
+        <div class="diagram-title">3축 양극 구조 시각화</div>
+        <div class="axis-visual">
+            <div class="axis-row axis-1">
+                <span class="axis-pole">원칙</span>
+                <div class="axis-bar">
+                    <span class="axis-label">의사결정 기준</span>
+                </div>
+                <span class="axis-pole">유연성</span>
+            </div>
+            <div class="axis-row axis-2">
+                <span class="axis-pole">투명성</span>
+                <div class="axis-bar">
+                    <span class="axis-label">정보 처리 방식</span>
+                </div>
+                <span class="axis-pole">신중성</span>
+            </div>
+            <div class="axis-row axis-3">
+                <span class="axis-pole">독립</span>
+                <div class="axis-bar">
+                    <span class="axis-label">행동 양식</span>
+                </div>
+                <span class="axis-pole">협력</span>
+            </div>
+        </div>
+    </div>
+
+    <p>3축의 양극 조합(2<sup>3</sup>)으로 <strong>8가지 청렴 스타일 유형</strong>이 도출되며, 각 유형은 발견적 도구(Heuristic Tool)로서 개인의 성향적 경향을 가시화한다. 이 모델은 어느 극이 &ldquo;옳다&rdquo;거나 &ldquo;우월하다&rdquo;는 규범적 판단을 배제하며, 각 극이 고유한 강점과 주의점을 가진다는 전제 위에 설계되었다.</p>
+
+    <!-- 3D Cube Diagram: 8 types -->
+    <div class="diagram">
+        <div class="diagram-title">2&sup3; = 8가지 유형 조합 구조</div>
+        <div class="cube-container">
+            <svg class="cube-svg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+                <!-- Back face -->
+                <polygon points="200,50 400,50 430,110 230,110" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
+                <polygon points="200,50 230,110 230,270 200,210" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
+                <polygon points="230,110 430,110 430,270 230,270" fill="var(--accent-soft)" stroke="var(--border)" stroke-width="1.5" opacity="0.3"/>
+                <!-- Front face -->
+                <polygon points="70,110 270,110 270,270 70,270" fill="var(--surface2)" stroke="var(--border)" stroke-width="1.5"/>
+                <!-- Top face -->
+                <polygon points="70,110 200,50 400,50 270,110" fill="var(--green-soft)" stroke="var(--border)" stroke-width="1.5" opacity="0.5"/>
+                <!-- Right face -->
+                <polygon points="270,110 400,50 430,110 430,270 270,270" fill="var(--orange-soft)" stroke="var(--border)" stroke-width="1.5" opacity="0.4"/>
+                <!-- Edges -->
+                <line x1="70" y1="270" x2="200" y2="210" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
+                <line x1="200" y1="210" x2="400" y2="210" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
+                <line x1="430" y1="270" x2="400" y2="210" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
+                <!-- Vertex dots: front face -->
+                <circle cx="70" cy="110" r="5" fill="var(--accent)"/>
+                <circle cx="270" cy="110" r="5" fill="var(--accent)"/>
+                <circle cx="70" cy="270" r="5" fill="var(--accent)"/>
+                <circle cx="270" cy="270" r="5" fill="var(--accent)"/>
+                <!-- Vertex dots: back face -->
+                <circle cx="200" cy="50" r="5" fill="var(--purple)"/>
+                <circle cx="400" cy="50" r="5" fill="var(--purple)"/>
+                <circle cx="230" cy="270" r="4" fill="var(--purple)" opacity="0.5"/>
+                <circle cx="430" cy="270" r="4" fill="var(--purple)" opacity="0.5"/>
+                <!-- Axis labels -->
+                <text x="170" y="300" font-size="13" font-weight="700" fill="var(--accent)" text-anchor="middle">원칙 &#8592;&#8594; 유연성</text>
+                <text x="455" y="195" font-size="13" font-weight="700" fill="var(--orange)" text-anchor="start" transform="rotate(-90,455,195)">독립 &#8592;&#8594; 협력</text>
+                <text x="115" y="42" font-size="13" font-weight="700" fill="var(--green)" text-anchor="middle">투명성 &#8592;&#8594; 신중성</text>
+                <!-- 8 type labels -->
+                <text x="70" y="100" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형1</text>
+                <text x="270" y="100" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형2</text>
+                <text x="70" y="286" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형3</text>
+                <text x="270" y="286" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형4</text>
+                <text x="200" y="42" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형5</text>
+                <text x="400" y="42" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형6</text>
+                <text x="430" y="286" font-size="10" fill="var(--text-dim)" text-anchor="end">유형7</text>
+                <text x="230" y="286" font-size="10" fill="var(--text-dim)" text-anchor="start">유형8</text>
+            </svg>
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-dim); margin-top:0.5rem;">각 꼭짓점은 3축의 양극 조합으로 생성되는 하나의 청렴 스타일 유형을 나타낸다.</p>
+    </div>
+</section>
+
+
+<!-- ========================================== -->
+<!-- SECTION 2 -->
+<!-- ========================================== -->
+<section id="sec2">
+    <h2><span class="section-num">2</span> 축별 학술 근거 요약</h2>
+
+    <!-- ===== 2.1 원칙-유연성 ===== -->
+    <h3 id="sec2-1">2.1 원칙 &#8596; 유연성: 의사결정 기준의 차원</h3>
+
+    <p>이 축은 보편적 규칙의 엄격한 적용과 구체적 상황의 특수성에 대한 반응성 사이의 체계적 변이를 포착한다. 다수의 독립적 이론 전통에서 수렴적으로 식별되는 실재하는 심리-윤리 차원이다.</p>
+
+    <div class="callout callout-accent">
+        <strong>핵심 근거 요약</strong>
+        6개의 독립적 이론 전통(HEXACO, Schwartz 가치 이론, Forsyth EPQ, CNI 모형, Kohlberg 도덕 발달, Victor &amp; Cullen 윤리풍토)에서 수렴적으로 식별되는 차원이다.
+    </div>
+
+    <div class="evidence-card">
+        <div class="ev-header">
+            <span class="ev-num">1</span>
+            <span class="ev-title">HEXACO 성격 모형</span>
+        </div>
+        <div class="ev-ref">Ashton &amp; Lee, 2007; Zettler, Thielmann, Hilbig &amp; Moshagen, 2020</div>
+        <ul>
+            <li>규칙준수는 <strong>성실성(Conscientiousness)</strong> 차원의 하위 파셋(Prudence, Diligence)으로, 유연성은 <strong>우호성(Agreeableness)</strong> 차원의 하위 파셋(Flexibility)으로 각각 귀속된다.</li>
+            <li>Zettler et al.(2020)의 대규모 메타분석(426개 메타분석, 436개 표본, 3,893개 효과 크기)에서 C는 <strong>의무(Duty)</strong> 결과 영역에, A는 <strong>방해(Obstruction)</strong> 결과 영역에 매핑되어 <strong>경험적으로 분리 가능한 차원</strong>임이 확인되었다.</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card">
+        <div class="ev-header">
+            <span class="ev-num">2</span>
+            <span class="ev-title">Schwartz 가치 이론</span>
+        </div>
+        <div class="ev-ref">Schwartz, 1992; Schwartz &amp; Cieciuch, 2022</div>
+        <ul>
+            <li><strong>보존(Conservation)</strong>: 동조(Conformity) + 전통(Tradition) + 안전(Security) &rarr; 규칙 준수</li>
+            <li><strong>변화개방(Openness to Change)</strong>: 자기결정(Self-Direction) + 자극(Stimulation) &rarr; 상황적 유연성</li>
+            <li>원형 가치 모형 내에서 <strong>양극 차원으로 명시적 모형화</strong>되어 있으며, PVQ-RR(개정 초상화 가치 질문지)로 49개 문화 집단에서 형태 동치성 및 측정 동치성이 확인되었다(&alpha; = 0.76).</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card">
+        <div class="ev-header">
+            <span class="ev-num">3</span>
+            <span class="ev-title">Forsyth의 윤리적 입장 이론</span>
+        </div>
+        <div class="ev-ref">Forsyth, 1980; Forsyth &amp; O'Boyle, 2021</div>
+        <ul>
+            <li>EPQ(윤리적 입장 질문지)는 <strong>이상주의(Idealism)</strong> &times; <strong>상대주의(Relativism)</strong> 2차원으로 윤리적 이념을 측정한다.</li>
+            <li>상대주의 차원: &ldquo;윤리적인 것은 상황과 사회에 따라 다르다&rdquo; &rarr; 유연성 극</li>
+            <li>낮은 상대주의(절대주의): 보편적 윤리 규칙 존재 &rarr; 원칙 극</li>
+            <li>EPQ-5(10문항 축약판): CFA 확인(n = 2,778), 반복검증(n = 10,707), 성별 간 측정 동치성 확인</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card">
+        <div class="ev-header">
+            <span class="ev-num">4</span>
+            <span class="ev-title">CNI 모형</span>
+        </div>
+        <div class="ev-ref">Gawronski, Armstrong, Conway, Friesdorf &amp; Hutter, 2017</div>
+        <ul>
+            <li>도덕적 딜레마 판단에서 <strong>N(Norms, 규범 민감성)</strong> = 규칙 준수 경향, <strong>C(Consequences, 결과 민감성)</strong> = 결과 지향적 판단을 <strong>독립 모수로 분리 측정</strong>한다.</li>
+            <li>성실성은 N(규범 민감성)과, HEXACO의 정직-겸손(H)은 의무론적 판단 선호와 각각 관련된다.</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card">
+        <div class="ev-header">
+            <span class="ev-num">5</span>
+            <span class="ev-title">Kohlberg의 도덕 발달 이론</span>
+        </div>
+        <div class="ev-ref">Kohlberg, 1981, 1984</div>
+        <ul>
+            <li>Stage 4(법과 질서): 규칙의 엄격한 준수, 사회 질서 유지</li>
+            <li>Stage 5-6(사회계약/보편 원칙): 법을 &ldquo;유연한 사회적 도구&rdquo;로 봄, 정의에 기반하지 않는 법에 대한 불복종 의무</li>
+            <li>DIT-2(Rest et al., 1999)의 관습적 vs 탈관습적 도식 점수로 측정 가능</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card">
+        <div class="ev-header">
+            <span class="ev-num">6</span>
+            <span class="ev-title">Victor &amp; Cullen의 윤리풍토 이론</span>
+        </div>
+        <div class="ev-ref">Victor &amp; Cullen, 1988; Weber &amp; Opoku-Dakwa, 2022</div>
+        <ul>
+            <li>ECQ(윤리풍토 질문지)의 5개 경험적 요인 중 <strong>Rules, Law &amp; Code, Independence</strong>가 원칙-유연성 축을 조직 수준에서 반영한다.</li>
+            <li>공공부문 적용: Maesschalck(2004)이 벨기에 공공기관에 ECQ를 성공적으로 적용하였다.</li>
+        </ul>
+    </div>
+
+    <div class="callout callout-purple">
+        <strong>상세 근거</strong>
+        <a href="원칙_유연성_연구.html">원칙_유연성_연구</a> 참조
+    </div>
+
+    <!-- ===== 2.2 투명성-신중성 ===== -->
+    <h3 id="sec2-2">2.2 투명성 &#8596; 신중성: 정보 처리 방식의 차원</h3>
+
+    <p>이 축은 정보 공유의 속도&middot;개방성과 정보 확인의 정확성&middot;신중함 사이의 긴장 관계를 포착한다. 가장 먼저 심층 조사가 완료된 축으로, 가장 풍부한 학술 근거를 보유한다.</p>
+
+    <div class="callout callout-green">
+        <strong>핵심 근거 요약</strong>
+        VIA 강점 분류, HEXACO, 진정성 리더십, DCA-투명성 척도, 투명성 역설, 이중 계층 보고 시스템 등 6개 근거가 수렴한다.
+    </div>
+
+    <div class="evidence-card ev-green">
+        <div class="ev-header">
+            <span class="ev-num">1</span>
+            <span class="ev-title">VIA 강점 분류 체계</span>
+        </div>
+        <div class="ev-ref">Peterson &amp; Seligman, 2004</div>
+        <ul>
+            <li><strong>정직/진실성(Honesty)</strong>: 용기(Courage) 미덕 산하 &rarr; 투명성 극</li>
+            <li><strong>신중성(Prudence)</strong>: 절제(Temperance) 미덕 산하 &rarr; 신중성 극</li>
+            <li>두 강점은 <strong>완전히 별개의 미덕 하에 독립적으로 측정</strong>되며, 특정 딜레마에서 충돌하는 &lsquo;강점의 역설(Strengths Paradox)&rsquo;이 보고된다.</li>
+            <li>54개국 11만 명 대상 교차 문화 연구에서 정직과 신중성의 발현 빈도가 독립적으로 변동함이 확인되었다(Peterson &amp; Seligman, 2006).</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card ev-green">
+        <div class="ev-header">
+            <span class="ev-num">2</span>
+            <span class="ev-title">HEXACO 성격 모형</span>
+        </div>
+        <div class="ev-ref">Ashton &amp; Lee, 2007</div>
+        <ul>
+            <li>투명성은 <strong>정직-겸손(Honesty-Humility)</strong> 차원에, 신중성은 <strong>성실성(Conscientiousness)</strong> 차원의 Prudence 파셋에 귀속된다.</li>
+            <li>두 차원은 <strong>요인분석적으로 직교(Orthogonal)</strong>하며, Zettler et al.(2020)의 메타분석에서 H &rarr; Exploitation, C &rarr; Duty로 별도 결과 영역에 매핑됨이 확인되었다.</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card ev-green">
+        <div class="ev-header">
+            <span class="ev-num">3</span>
+            <span class="ev-title">진정성 리더십(Authentic Leadership) 이론</span>
+        </div>
+        <div class="ev-ref">Walumbwa, Avolio, Gardner et al., 2008</div>
+        <ul>
+            <li>ALQ의 4개 하위 차원 중 <strong>관계적 투명성(Relational Transparency)</strong>과 <strong>균형 잡힌 정보 처리(Balanced Processing)</strong>가 각각 투명성과 신중성에 직접 대응한다.</li>
+            <li>투명성 단독으로는 조직에 혼란을 초래할 수 있으며, 신중성(균형 잡힌 정보 처리)과 결합될 때에만 심리적 안전감과 신뢰를 고취한다.</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card ev-green">
+        <div class="ev-header">
+            <span class="ev-num">4</span>
+            <span class="ev-title">DCA-투명성 척도</span>
+        </div>
+        <div class="ev-ref">Hossiep et al., 2021</div>
+        <ul>
+            <li>조직 정보 공유의 품질을 5개 <strong>독립된 하위 차원</strong>으로 분해: 공개성, 명확성, <strong>정확성(Accuracy)</strong>, <strong>시의성(Timeliness)</strong>, 적절성</li>
+            <li>시의성(즉시 보고)과 정확성(확인 후 보고)이 동일한 거시적 목표 하에서 <strong>요인분석적으로 분리되는 하위 차원</strong>임을 확인하였으며, 실무적으로 이 두 차원이 긴장 관계에 놓일 수 있음을 시사한다.</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card ev-green">
+        <div class="ev-header">
+            <span class="ev-num">5</span>
+            <span class="ev-title">투명성 역설</span>
+        </div>
+        <div class="ev-ref">Bernstein, 2012, 2017</div>
+        <ul>
+            <li>과도한 조직 내 감시(투명성)가 구성원의 방어적 기제를 자극하여 혁신을 억누르는 역설적 현상을 실증적으로 입증하였다.</li>
+            <li>프라이버시(적절한 신중성)가 보장될 때 비로소 리스크 감수와 혁신적 행동이 촉진된다.</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card ev-green">
+        <div class="ev-header">
+            <span class="ev-num">6</span>
+            <span class="ev-title">이중 계층형 보고 시스템</span>
+        </div>
+        <div class="ev-ref">FDA/ICH GCP E6, CERT 등</div>
+        <ul>
+            <li>고도 규제 산업에서 &lsquo;즉시 경보(투명성)&rsquo;와 &lsquo;사후 검증 보고(신중성)&rsquo;를 <strong>시간차를 둔 별도의 법적 의무</strong>로 이원화하여 딜레마를 구조적으로 해소한다.</li>
+        </ul>
+    </div>
+
+    <div class="callout callout-purple">
+        <strong>상세 근거</strong>
+        <a href="투명성_신중성_연구.html">투명성_신중성_연구</a> 참조
+    </div>
+
+    <!-- ===== 2.3 독립-협력 ===== -->
+    <h3 id="sec2-3">2.3 독립 &#8596; 협력: 행동 양식의 차원</h3>
+
+    <p>이 축은 개인의 독자적 판단&middot;실행과 집단의 합의&middot;협력적 행동 사이의 성향적 차이를 포착한다. 대인관계 심리학, 문화심리학, 조직행동론에서 풍부한 수렴적 근거를 가진다.</p>
+
+    <div class="callout callout-orange">
+        <strong>핵심 근거 요약</strong>
+        대인관계 원형모델, 자기해석 이론, 개인주의-집단주의, GLOBE 연구, 내부고발 연구, 집단사고 연구 등 6개 근거가 수렴한다.
+    </div>
+
+    <div class="evidence-card ev-orange">
+        <div class="ev-header">
+            <span class="ev-num">1</span>
+            <span class="ev-title">대인관계 원형모델 (Interpersonal Circumplex)</span>
+        </div>
+        <div class="ev-ref">Leary, 1957; Wiggins, 1979</div>
+        <ul>
+            <li>대인 행동을 <strong>두 개의 수학적 직교 축</strong>으로 기술한다:
+                <ul>
+                    <li><strong>주도성(Agency/Dominance)</strong>: 지위, 권력, 주장성, 독립적 행동</li>
+                    <li><strong>친화성(Communion/Affiliation)</strong>: 우호성, 동정심, 연대, 협력적 행동</li>
+                </ul>
+            </li>
+            <li>IAS-R(개정 대인관계 형용사 척도, 64문항, 8개 팔분면)로 측정하며, 원형 구조의 직교성이 반복적으로 검증되었다.</li>
+            <li><strong>이 모델은 독립적 행동과 협력적 행동이 분리 가능한 심리 차원임을 지지한다.</strong> 다만, IPC에서 주도성과 친화성은 직교하는 2차원이므로, 이를 단일 양극축으로 환원할 경우 정보 손실이 불가피하다. 본 앱은 실용적 단순화를 위해 HEXACO 우호성(A)의 양보-주장 연속체를 기반으로 단일축을 구성하되, IPC의 2차원 구조를 완전히 반영하지는 못한다는 한계를 갖는다.</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card ev-orange">
+        <div class="ev-header">
+            <span class="ev-num">2</span>
+            <span class="ev-title">독립적 vs 상호의존적 자기해석</span>
+        </div>
+        <div class="ev-ref">Markus &amp; Kitayama, 1991; Singelis, 1994</div>
+        <ul>
+            <li><strong>독립적 자기해석(Independent Self-Construal)</strong>: 자기를 타인과 분리된 존재로 정의, 고유성&middot;자기주장&middot;개인 목표 추구</li>
+            <li><strong>상호의존적 자기해석(Interdependent Self-Construal)</strong>: 자기를 관계 속에서 정의, 소속감&middot;조화&middot;타인 목표 촉진</li>
+            <li>SCS(자기해석 척도, 24문항): CFA에서 2차원 분리 확인</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card ev-orange">
+        <div class="ev-header">
+            <span class="ev-num">3</span>
+            <span class="ev-title">수평&middot;수직 개인주의-집단주의</span>
+        </div>
+        <div class="ev-ref">Singelis, Triandis, Bhawuk &amp; Gelfand, 1995</div>
+        <ul>
+            <li>4요인 모형: 수평적 개인주의(HI), 수직적 개인주의(VI), 수평적 집단주의(HC), 수직적 집단주의(VC)</li>
+            <li>INDCOL 척도(16문항): CFA 4요인 구조 확인, 네 요인이 서로 다른 심리적 결과 변수와 차별적으로 관련됨</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card ev-orange">
+        <div class="ev-header">
+            <span class="ev-num">4</span>
+            <span class="ev-title">GLOBE 연구</span>
+        </div>
+        <div class="ev-ref">House, Hanges, Javidan, Dorfman &amp; Gupta, 2004</div>
+        <ul>
+            <li>Hofstede의 단일 개인주의-집단주의를 <strong>두 개의 별도 차원</strong>으로 분리:
+                <ul>
+                    <li>제도적 집단주의(Institutional Collectivism): 조직/사회 제도가 집단적 행동을 장려하는 정도</li>
+                    <li>내집단 집단주의(In-Group Collectivism): 가족/조직에 대한 충성&middot;응집</li>
+                </ul>
+            </li>
+            <li>이 분리는 독립-협력이 단일 연속체가 아닌 <strong>다차원적 구조</strong>임을 지지한다.</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card ev-orange">
+        <div class="ev-header">
+            <span class="ev-num">5</span>
+            <span class="ev-title">내부고발 연구</span>
+        </div>
+        <div class="ev-ref">Miceli &amp; Near, 1992; Near &amp; Miceli, 1985</div>
+        <ul>
+            <li>내적 통제위치(Internal Locus of Control)를 가진 개인이 내부고발 가능성이 높다.</li>
+            <li>개인적 요소(도덕적 기준, 통제 소재)와 조직적 요소가 모두 영향을 미친다.</li>
+            <li>거의 모든 외부 고발자는 내부 채널 시도가 실패한 후에야 외부 채널을 사용한다.</li>
+        </ul>
+    </div>
+
+    <div class="evidence-card ev-orange">
+        <div class="ev-header">
+            <span class="ev-num">6</span>
+            <span class="ev-title">집단사고 연구</span>
+        </div>
+        <div class="ev-ref">Janis, 1972, 1982; Turner &amp; Pratkanis, 1998</div>
+        <ul>
+            <li>합의에 대한 열망이 대안 평가를 압도할 때 발생하는 의사결정 병리 현상</li>
+            <li>방지책: 비판적 평가자 역할 부여, 독립적 사고 장려 &rarr; 독립적 판단의 윤리적 가치 입증</li>
+        </ul>
+    </div>
+
+    <div class="callout callout-purple">
+        <strong>상세 근거</strong>
+        <a href="독립_협력_연구.html">독립_협력_연구</a> 참조
+    </div>
+</section>
+
+
+<!-- ========================================== -->
+<!-- SECTION 3 -->
+<!-- ========================================== -->
+<section id="sec3">
+    <h2><span class="section-num">3</span> 3축 간 직교성(독립성) 논증</h2>
+
+    <p>3축이 서로 중복되지 않는 독립적 차원임을 뒷받침하는 핵심 근거는 다음과 같다.</p>
+
+    <!-- Orthogonality Visual -->
+    <div class="diagram">
+        <div class="diagram-title">3축의 독립적 차원 구조</div>
+        <div class="ortho-grid">
+            <div class="ortho-cell">
+                <div class="ortho-icon" style="color:var(--accent);">&#9670;</div>
+                <div class="ortho-label" style="color:var(--accent);">원칙 &#8596; 유연성</div>
+                <div class="ortho-desc">HEXACO C vs A<br/>Schwartz: 보존 &#8596; 변화개방</div>
+            </div>
+            <div class="ortho-cell">
+                <div class="ortho-icon" style="color:var(--green);">&#9670;</div>
+                <div class="ortho-label" style="color:var(--green);">투명성 &#8596; 신중성</div>
+                <div class="ortho-desc">HEXACO H vs C-Prudence<br/>VIA: 정직 vs 신중</div>
+            </div>
+            <div class="ortho-cell">
+                <div class="ortho-icon" style="color:var(--orange);">&#9670;</div>
+                <div class="ortho-label" style="color:var(--orange);">독립 &#8596; 협력</div>
+                <div class="ortho-desc">IPC: 주도성 vs 친화성<br/>Markus &amp; Kitayama: 자기해석</div>
+            </div>
+        </div>
+        <p style="font-size:0.85rem; color:var(--text-dim); margin-top:1rem;">각 축은 서로 다른 HEXACO 차원, 이론적 프레임워크, 결과 영역에 매핑되어 경험적으로 분리 가능하다.</p>
+    </div>
+
+    <h3>3.1 HEXACO 모형: 3축의 통합적 직교 구조</h3>
+
+    <p>HEXACO 성격 모형은 본 앱의 3축을 단일 프레임워크 내에서 가장 체계적으로 포괄한다.</p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>앱의 축</th><th>HEXACO 차원</th><th>결과 영역 (Zettler et al., 2020)</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>투명성 &#8596; 신중성</strong></td>
+                    <td><strong>H (정직-겸손)</strong> vs <strong>C (성실성)</strong> 하위 Prudence</td>
+                    <td>Exploitation vs Duty</td>
+                </tr>
+                <tr>
+                    <td><strong>원칙 &#8596; 유연성</strong></td>
+                    <td><strong>C (성실성)</strong> 하위 Diligence vs <strong>A (우호성)</strong> 하위 Flexibility</td>
+                    <td>Duty vs Obstruction</td>
+                </tr>
+                <tr>
+                    <td><strong>독립 &#8596; 협력</strong></td>
+                    <td><strong>X (외향성)</strong> 하위 Social Boldness vs <strong>A (우호성)</strong></td>
+                    <td>Dynamism vs Obstruction</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <p>HEXACO의 6요인은 <strong>직교 회전(Orthogonal Rotation)</strong>으로 추출되며, Thielmann et al.(2022)의 메타분석은 Big Five와 HEXACO 차원 간의 대응 관계, 범위, 그리고 직교성을 체계적으로 검증하였다. 각 차원이 고유한 노몰로지컬 네트워크(Nomological Network)를 가지며 별도의 결과 영역에 매핑된다는 사실은, 3축의 이론적 기반이 되는 성격 차원들이 경험적으로 분리 가능함을 시사한다. 다만, 본 앱의 각 축은 HEXACO의 단일 요인이 아닌 복수 요인의 조합으로 구성되므로, 앱 문항 수준에서의 직교성은 별도의 확인적 요인분석을 통해 검증되어야 한다.</p>
+
+    <h3>3.2 Schwartz 가치 이론: 양극 구조와의 부분적 대응</h3>
+
+    <p>Schwartz의 원형 가치 모형은 두 개의 상위 양극 차원을 포함한다:</p>
+    <ul style="margin-left:1.5rem; margin-bottom:1rem;">
+        <li><strong>보존(Conservation) &#8596; 변화개방(Openness to Change)</strong></li>
+        <li><strong>자기향상(Self-Enhancement) &#8596; 자기초월(Self-Transcendence)</strong></li>
+    </ul>
+    <p>원칙-유연성 축은 첫 번째 차원(보존 &#8596; 변화개방)에 대응한다. 독립-협력 축은 행동적 측면에서 자기방향성(Self-Direction, 변화개방)과 동조(Conformity, 보존)에 걸쳐 있어 첫 번째 차원과 부분적으로 중첩되나, 대인관계적 행동 양식이라는 질적으로 구별되는 영역을 포착한다. 투명성-신중성 축은 두 차원 어디에도 완전히 환원되지 않는 별도의 하위 구조를 형성한다.</p>
+    <p>따라서 Schwartz 가치 이론은 3축 전체의 직교성을 직접적으로 보장하지는 않으나, 각 축이 서로 다른 가치 영역에 뿌리를 두고 있음을 지지한다. 49개 문화 집단에서 구조적 동치성이 확인되었다(Schwartz &amp; Cieciuch, 2022).</p>
+
+    <h3>3.3 대인관계 원형모델 + 윤리 차원의 독립성</h3>
+
+    <p>대인관계 원형모델(IPC)은 대인 행동을 주도성(Agency)과 친화성(Communion)의 직교 2차원으로 기술한다. 본 앱의 독립-협력 축은 이 2차원을 단일 양극축으로 단순화한 것으로, IPC의 풍부한 구조를 완전히 반영하지는 못하지만, 대인관계 행동 양식이 투명성(정보 공유 행위)이나 원칙성(도덕적 추론 방식)과는 질적으로 다른 차원임을 보여준다. 도덕 추론 수준(DIT P-score)이나 정보 공유 성향과 독립적으로 변이한다는 점에서, 독립-협력 축이 다른 두 축과 변별되는 고유한 영역을 포착함을 지지한다.</p>
+
+    <h3>3.4 실증적 분리 증거</h3>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>비교 쌍</th><th>분리 근거</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>투명성-신중성 vs 원칙-유연성</strong></td>
+                    <td>HEXACO H와 C가 직교 요인; Huberts &amp; Lasthuizen(2011)의 청렴 위반 유형론에서 정직 위반과 규칙 위반이 별도 범주</td>
+                </tr>
+                <tr>
+                    <td><strong>투명성-신중성 vs 독립-협력</strong></td>
+                    <td>HEXACO H와 A가 별도 요인; 정보 공유 의향과 개인적 행동 양식은 별도의 심리적 기제에 의해 구동</td>
+                </tr>
+                <tr>
+                    <td><strong>원칙-유연성 vs 독립-협력</strong></td>
+                    <td>Forsyth EPQ의 상대주의(규칙 유연성)와 DIT P-score(원칙적 추론)는 독립적으로 판단하는지 vs 집단에 순응하는지와 별도 차원; MAC-Q(Curry et al., 2019)에서 &ldquo;권위 존중&rdquo;, &ldquo;용기&rdquo;, &ldquo;집단 돕기&rdquo;가 별도 도덕 영역</td>
+                </tr>
+                <tr>
+                    <td><strong>3축 동시 분리</strong></td>
+                    <td>40개국 다수준 연구(Stackhouse et al., 2024)에서 개인주의-집단주의가 Big Five 요인들의 선형 조합으로 완전히 설명되지 않는 고유 변량을 보유함이 확인</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+
+<!-- ========================================== -->
+<!-- SECTION 4 -->
+<!-- ========================================== -->
+<section id="sec4">
+    <h2><span class="section-num">4</span> 기존 측정 도구와의 차별점</h2>
+
+    <p>본 앱의 3축 모델은 기존의 윤리적 의사결정 측정 도구들이 채우지 못하는 독자적 틈새(Niche)를 점유한다.</p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>기존 도구</th><th>측정 대상</th><th>본 앱이 채우는 틈새</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>DIT-2</strong><br/><span style="font-size:0.82rem;color:var(--text-dim);">Rest et al., 1999</span></td>
+                    <td>도덕 추론 발달 수준 (관습적 vs 탈관습적)</td>
+                    <td>DIT-2는 &ldquo;어떤 수준의 추론을 하는가&rdquo;를 측정하지, &ldquo;어떤 성향으로 의사결정하는가&rdquo;를 다차원적으로 프로파일링하지 않음</td>
+                </tr>
+                <tr>
+                    <td><strong>MJT/MCT</strong><br/><span style="font-size:0.82rem;color:var(--text-dim);">Lind, 1978</span></td>
+                    <td>도덕 판단 역량 (C-index)</td>
+                    <td>교육 효과 평가에 특화; 개인 선발/진단 금지; 공직 맥락 시나리오 부재</td>
+                </tr>
+                <tr>
+                    <td><strong>MES</strong><br/><span style="font-size:0.82rem;color:var(--text-dim);">Reidenbach &amp; Robin, 1990</span></td>
+                    <td>시나리오별 윤리 판단 (정당성/수용성/계약위반)</td>
+                    <td>유사한 시나리오 기반이나, 요인구조 재현 실패 논란(Hyman, 1996); 성향 프로파일이 아닌 단건 판단 측정</td>
+                </tr>
+                <tr>
+                    <td><strong>EPQ</strong><br/><span style="font-size:0.82rem;color:var(--text-dim);">Forsyth, 1980</span></td>
+                    <td>이상주의 &times; 상대주의 2차원</td>
+                    <td>원칙-유연성 축만 포착; 투명성-신중성, 독립-협력 차원 부재</td>
+                </tr>
+                <tr>
+                    <td><strong>ECQ</strong><br/><span style="font-size:0.82rem;color:var(--text-dim);">Victor &amp; Cullen, 1988</span></td>
+                    <td>조직 윤리풍토 5유형</td>
+                    <td>조직 수준 측정; 개인 수준 성향 프로파일링이 아님</td>
+                </tr>
+                <tr>
+                    <td><strong>동기론적 공직윤리 척도</strong><br/><span style="font-size:0.82rem;color:var(--text-dim);">김상우, 2023</span></td>
+                    <td>성실/책임/청렴 동기</td>
+                    <td>공직 맥락이나, 의사결정 &ldquo;방식&rdquo;보다 동기적 &ldquo;태도&rdquo; 측정; 3축 프로파일 부재</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="callout callout-teal">
+        <strong>본 앱의 4가지 차별점</strong>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap:1rem; margin:0.75rem 0 1.5rem;">
+        <div class="card">
+            <div class="card-title" style="color:var(--accent);">1. 3축 동시 프로파일링</div>
+            <p>단일 점수가 아닌 3차원 공간에서의 개인 위치를 시각화</p>
+        </div>
+        <div class="card">
+            <div class="card-title" style="color:var(--green);">2. 공직 시나리오 기반</div>
+            <p>연구 데이터, 조달/계약, 대인관계의 3개 업무 영역에 특화된 15개 딜레마</p>
+        </div>
+        <div class="card">
+            <div class="card-title" style="color:var(--orange);">3. 발견적 도구</div>
+            <p>진단/선발이 아닌 자기인식 촉진 목적 &rarr; &ldquo;옳고 그름&rdquo; 판정 배제</p>
+        </div>
+        <div class="card">
+            <div class="card-title" style="color:var(--purple);">4. AI 개인화 해석</div>
+            <p>고정된 유형 설명이 아닌, 개인의 응답 패턴에 기반한 맞춤형 조언 제공</p>
+        </div>
+    </div>
+</section>
+
+
+<!-- ========================================== -->
+<!-- SECTION 5 -->
+<!-- ========================================== -->
+<section id="sec5">
+    <h2><span class="section-num">5</span> 한국 공직 맥락에서의 적합성</h2>
+
+    <h3>5.1 세 축이 한국 공직 현실에서 작동하는 양상</h3>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>축</th><th>한국 공직 맥락의 구체적 긴장</th><th>관련 연구</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>원칙 &#8596; 유연성</strong></td>
+                    <td>감사 부담 증가 &rarr; <strong>재량 수축 현상</strong>: 재량이 있어도 스스로 축소. 과잉 준수가 과소 준수만큼 문제</td>
+                    <td>일선관료 재량 연구(KCI); Lipsky(1980/2010)</td>
+                </tr>
+                <tr>
+                    <td><strong>투명성 &#8596; 신중성</strong></td>
+                    <td>국민신문고/PETI 등 디지털 시스템으로 투명성 강제 vs 징계 과정의 기밀 유지 필요성</td>
+                    <td>한국 전자정부 연구(UNDP, 2025); 경찰 징계 연구(KCI)</td>
+                </tr>
+                <tr>
+                    <td><strong>독립 &#8596; 협력</strong></td>
+                    <td><strong>적극행정 면책제도</strong>(2017): 소극행정 타파를 위해 개인 자율성 장려. 그러나 유교적 위계 문화와 충돌</td>
+                    <td>Lee et al.(2025); Park, Rehg &amp; Lee(2005)</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>5.2 한국 공직 문화의 특수성</h3>
+
+    <div class="card">
+        <div class="card-title" style="color:var(--accent);">(1) 유교적 집단주의의 다차원성</div>
+        <p>Park, Rehg &amp; Lee(2005)의 한국 공무원 343명 대상 연구에서, <strong>수평적 집단주의</strong>는 내부고발 의향을 <strong>촉진</strong>하는 반면, 수직적 집단주의는 유의한 효과가 없었다. 이는 &ldquo;집단주의 = 독립적 판단 억제&rdquo;라는 단순한 등식이 성립하지 않으며, 집단주의의 유형에 따라 효과가 분화됨을 보여준다.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-title" style="color:var(--green);">(2) 적극행정과 자율성의 관계</div>
+        <p>Lee et al.(2025)의 연구에서 직무 자율성(Autonomy)이 적극행정의 핵심 예측 변인이지만, 이 효과는 <strong>직급에 따라 조절</strong>된다. 이는 독립-협력 축이 개인 성향뿐 아니라 조직 내 위치에 의해서도 매개됨을 시사하며, 앱의 시나리오 설계에서 직급별 맥락을 반영할 필요성을 뒷받침한다.</p>
+    </div>
+
+    <div class="card">
+        <div class="card-title" style="color:var(--orange);">(3) 공직가치 모형과의 정합성</div>
+        <p>김상묵(2017)이 국가공무원 648명 대상으로 도출한 5가지 공직가치 유형(윤리적/민주적/혁신적/전문직업적/전통적)은 본 앱의 3축과 개념적으로 정합한다: 윤리적 가치 &#8596; 원칙 축, 민주적&middot;혁신적 가치 &#8596; 유연성+독립 축, 전통적 가치 &#8596; 협력+원칙 축.</p>
+    </div>
+</section>
+
+
+<!-- ========================================== -->
+<!-- SECTION 6 -->
+<!-- ========================================== -->
+<section id="sec6">
+    <h2><span class="section-num">6</span> 제한점 및 향후 검증 계획</h2>
+
+    <h3>6.1 현재 모델의 제한점</h3>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>제한 사항</th><th>내용</th><th>위험 수준</th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>경험적 요인 구조 미검증</strong></td>
+                    <td>3축이 이론적으로 독립적이나, 본 앱의 15개 문항에 대한 확인적 요인분석(CFA)은 미실시</td>
+                    <td><span style="color:var(--red); font-weight:700;">높음</span></td>
+                </tr>
+                <tr>
+                    <td><strong>문항-축 균형</strong></td>
+                    <td>투명성-신중성 축의 점수 기회가 17 vs 14로 약간 불균형(차이 3, 허용 범위 내)</td>
+                    <td><span style="color:var(--green); font-weight:700;">낮음</span></td>
+                </tr>
+                <tr>
+                    <td><strong>원칙-독립 공변</strong></td>
+                    <td>15개 문항 중 9개에서 원칙과 독립이 첫 번째 선택지에 동시 출현</td>
+                    <td><span style="color:var(--yellow); font-weight:700;">중간</span></td>
+                </tr>
+                <tr>
+                    <td><strong>표본 크기</strong></td>
+                    <td>파일럿 테스트 데이터 미확보</td>
+                    <td><span style="color:var(--red); font-weight:700;">높음</span></td>
+                </tr>
+                <tr>
+                    <td><strong>준거 타당도</strong></td>
+                    <td>외부 준거 변수(부패 경험, 신고 의향, 조직 청렴도 인식 등)와의 관련성 미검증</td>
+                    <td><span style="color:var(--red); font-weight:700;">높음</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>6.2 향후 검증 로드맵</h3>
+
+    <div class="roadmap">
+        <div class="roadmap-phase phase-1">
+            <div class="phase-label">Phase 1</div>
+            <div class="phase-title">파일럿 테스트 (n = 50-100)</div>
+            <ul>
+                <li>대상: 공공 연구기관 종사자 소규모 표본</li>
+                <li>분석: 탐색적 요인분석(EFA) &rarr; 3요인 구조 확인 여부</li>
+                <li>문항 수정: 축간 공변이 과도한 문항 재설계</li>
+            </ul>
+        </div>
+        <div class="roadmap-phase phase-2">
+            <div class="phase-label">Phase 2</div>
+            <div class="phase-title">본조사 및 CFA (n = 300+)</div>
+            <ul>
+                <li>확인적 요인분석으로 3요인 모형 적합도 검증</li>
+                <li>측정 동치성: 직급별, 기관 유형별</li>
+                <li>수렴&middot;변별 타당도: EPQ, SCS, ECQ와의 상관</li>
+            </ul>
+        </div>
+        <div class="roadmap-phase phase-3">
+            <div class="phase-label">Phase 3</div>
+            <div class="phase-title">준거 타당도 확보</div>
+            <ul>
+                <li>부패 행위 허용도, 내부고발 의향, 적극행정 의향</li>
+                <li>증분 타당도: DIT-2, MES 대비 추가 설명력 확인</li>
+            </ul>
+        </div>
+        <div class="roadmap-phase phase-4">
+            <div class="phase-label">Phase 4</div>
+            <div class="phase-title">규범 데이터 축적</div>
+            <ul>
+                <li>기관 유형별, 직급별 규범 점수 산출</li>
+                <li>종단 연구: 청렴 교육 전후 성향 변화 추적</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+
+<!-- ========================================== -->
+<!-- SECTION 7 -->
+<!-- ========================================== -->
+<section id="sec7">
+    <h2><span class="section-num">7</span> 결론</h2>
+
+    <p>본 앱의 3축 모델 &mdash; 원칙 &#8596; 유연성, 투명성 &#8596; 신중성, 독립 &#8596; 협력 &mdash; 은 성격심리학(HEXACO, Big Five, Schwartz 가치 이론), 도덕심리학(Kohlberg, Forsyth EPQ, CNI 모형), 대인관계 심리학(대인관계 원형모델), 조직행동론(윤리풍토 이론, 투명성 역설, 집단사고), 문화심리학(개인주의-집단주의, 자기해석 이론), 그리고 공공행정학(관료제 재량, 적극행정, 이중 계층 보고)에 이르는 <strong>다학제적 이론 전통에서 개념적 근거</strong>를 확보하고 있다.</p>
+
+    <div class="callout callout-accent">
+        <strong>핵심 이론적 기반: HEXACO 성격 모형</strong>
+        HEXACO 성격 모형은 3축의 이론적 기반을 단일 프레임워크 내에서 가장 체계적으로 포괄하며, Schwartz 가치 이론과 대인관계 원형모델은 각 축이 구별되는 심리 영역을 포착함을 부분적으로 지지한다. 다만, 본 앱의 각 축은 복수의 성격 요인에서 차용한 복합 구성체이므로, 이론적 직교성이 앱 문항 수준에서 그대로 재현되는지는 경험적 검증을 통해 확인해야 한다. 특히 독립-협력 축은 대인관계 원형모델(IPC)에서 직교하는 주도성과 친화성을 단일 양극축으로 단순화한 것이므로, 이 설계 결정의 타당성이 파일럿 데이터를 통해 평가되어야 한다.
+    </div>
+
+    <p>한국 공직 맥락에서 이 3축은 재량 수축(원칙-유연성), 디지털 투명성과 기밀 유지(투명성-신중성), 적극행정과 유교적 위계(독립-협력)라는 실제적 윤리 딜레마와 직접적으로 연결되며, 기존의 단일 차원적 측정 도구들이 포착하지 못하는 다차원적 청렴 성향 프로파일을 제공할 잠재력을 가진다.</p>
+
+    <div class="callout callout-yellow">
+        <strong>향후 과제</strong>
+        현재 단계에서 경험적 요인 구조 검증(CFA), 파일럿 테스트, 준거 타당도 확보가 가장 시급한 과제이며, 이를 통해 이론적 근거를 경험적 증거로 뒷받침하는 것이 향후 연구의 핵심 방향이다.
+    </div>
+
+    <!-- Keyword Pills -->
+    <ul class="pill-list">
+        <li>HEXACO</li>
+        <li>Schwartz 가치 이론</li>
+        <li>대인관계 원형모델</li>
+        <li>Forsyth EPQ</li>
+        <li>CNI 모형</li>
+        <li>Kohlberg</li>
+        <li>VIA 강점</li>
+        <li>진정성 리더십</li>
+        <li>투명성 역설</li>
+        <li>윤리풍토 이론</li>
+        <li>자기해석 이론</li>
+        <li>GLOBE</li>
+        <li>집단사고</li>
+        <li>적극행정</li>
+        <li>공직가치</li>
+        <li>CFA</li>
+        <li>직교성</li>
+        <li>다학제적 수렴</li>
+    </ul>
+</section>
+
+
+<!-- ========================================== -->
+<!-- REFERENCES -->
+<!-- ========================================== -->
+<section id="sec-ref">
+    <h2><span class="section-num">R</span> 참고 문헌</h2>
+
+    <details>
+        <summary>성격심리학 / 심리측정</summary>
+        <div class="details-body">
+            <p>Ashton, M. C., &amp; Lee, K. (2007). Empirical, theoretical, and practical advantages of the HEXACO model of personality structure. <em>Personality and Social Psychology Review</em>, 11(2), 150-166.</p>
+            <p>Costa, P. T., &amp; McCrae, R. R. (1992). <em>NEO-PI-R Professional Manual</em>. Odessa, FL: PAR.</p>
+            <p>DeYoung, C. G., Quilty, L. C., &amp; Peterson, J. B. (2007). Between facets and domains: 10 aspects of the Big Five. <em>Journal of Personality and Social Psychology</em>, 93(5), 880-896.</p>
+            <p>Leary, T. (1957). <em>Interpersonal Diagnosis of Personality</em>. New York: Ronald Press.</p>
+            <p>Schwartz, S. H. (1992). Universals in the content and structure of values. <em>Advances in Experimental Social Psychology</em>, 25, 1-65.</p>
+            <p>Schwartz, S. H., &amp; Cieciuch, J. (2022). Measuring the refined theory of individual values in 49 cultural groups. <em>Assessment</em>, 29(5).</p>
+            <p>Singelis, T. M. (1994). The measurement of independent and interdependent self-construals. <em>Personality and Social Psychology Bulletin</em>, 20(5), 580-591.</p>
+            <p>Thielmann, I., Moshagen, M., Hilbig, B. E., &amp; Zettler, I. (2022). On the comparability of basic personality models. <em>European Journal of Personality</em>, 36(6), 870-900.</p>
+            <p>Wiggins, J. S. (1979). A psychological taxonomy of trait-descriptive terms: The interpersonal domain. <em>Journal of Personality and Social Psychology</em>, 37(3), 395-412.</p>
+            <p>Zettler, I., Thielmann, I., Hilbig, B. E., &amp; Moshagen, M. (2020). The nomological net of the HEXACO model. <em>Perspectives on Psychological Science</em>, 15(3), 723-760.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>도덕심리학 / 윤리적 의사결정</summary>
+        <div class="details-body">
+            <p>Forsyth, D. R. (1980). A taxonomy of ethical ideologies. <em>Journal of Personality and Social Psychology</em>, 39, 175-184.</p>
+            <p>Forsyth, D. R., &amp; O'Boyle, E. H. (2021). Individual differences in ethics positions: The EPQ-5. <em>PLOS ONE</em>.</p>
+            <p>Gawronski, B., Armstrong, J., Conway, P., Friesdorf, R., &amp; Hutter, M. (2017). Consequences, norms, and generalized inaction in moral dilemmas: The CNI model. <em>Journal of Personality and Social Psychology</em>, 113, 343-376.</p>
+            <p>Kohlberg, L. (1981). <em>The Philosophy of Moral Development</em>. San Francisco: Harper &amp; Row.</p>
+            <p>Peterson, C., &amp; Seligman, M. E. P. (2004). <em>Character Strengths and Virtues</em>. New York: Oxford University Press.</p>
+            <p>Rest, J. R., Narvaez, D., Bebeau, M. J., &amp; Thoma, S. J. (1999). DIT2: Devising and testing a revised instrument of moral judgment. <em>Journal of Educational Psychology</em>.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>조직행동론 / 윤리풍토</summary>
+        <div class="details-body">
+            <p>Bernstein, E. S. (2017). Making transparency transparent: The evolution of observation in management theory. <em>Academy of Management Annals</em>.</p>
+            <p>Hossiep, R., et al. (2021). DCA-Transparency: Validation and extension of a German scale. <em>Zeitschrift f&uuml;r Arbeits- und Organisationspsychologie</em>.</p>
+            <p>Janis, I. L. (1982). <em>Groupthink: Psychological Studies of Policy Decisions and Fiascoes</em>. Boston: Houghton Mifflin.</p>
+            <p>Miceli, M. P., &amp; Near, J. P. (1992). <em>Blowing the Whistle</em>. New York: Lexington Books.</p>
+            <p>Victor, B., &amp; Cullen, J. B. (1988). The organizational bases of ethical work climates. <em>Administrative Science Quarterly</em>, 33(1), 101-125.</p>
+            <p>Walumbwa, F. O., Avolio, B. J., Gardner, W. L., Wernsing, T. S., &amp; Peterson, S. J. (2008). Authentic leadership. <em>Journal of Management</em>, 34(1), 89-126.</p>
+            <p>Weber, J., &amp; Opoku-Dakwa, A. (2022). Ethical work climate 2.0. <em>Journal of Business Ethics</em>, 178(3).</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>문화심리학</summary>
+        <div class="details-body">
+            <p>Hofstede, G. (2001). <em>Culture's Consequences</em> (2nd ed.). Thousand Oaks: Sage.</p>
+            <p>House, R. J., Hanges, P. J., Javidan, M., Dorfman, P. W., &amp; Gupta, V. (2004). <em>Culture, Leadership, and Organizations: The GLOBE Study</em>. Thousand Oaks: Sage.</p>
+            <p>Markus, H. R., &amp; Kitayama, S. (1991). Culture and the self. <em>Psychological Review</em>, 98(2), 224-253.</p>
+            <p>Singelis, T. M., Triandis, H. C., Bhawuk, D. P. S., &amp; Gelfand, M. J. (1995). Horizontal and vertical dimensions of individualism and collectivism. <em>Cross-Cultural Research</em>, 29(3), 240-275.</p>
+        </div>
+    </details>
+
+    <details>
+        <summary>공공행정 / 한국 공직윤리</summary>
+        <div class="details-body">
+            <p>김상묵 (2017). 공직가치 모형의 실증분류와 인사관리 함의. <em>한국행정연구</em>, 26(2), 1-42.</p>
+            <p>김상우 (2023). 동기론적 공직윤리 척도 개발. 상명대학교 박사학위논문.</p>
+            <p>Lee, S., et al. (2025). Job-related factors and proactive administration: The moderating role of public officials' rank in South Korea. <em>Public Organization Review</em>.</p>
+            <p>Lipsky, M. (1980/2010). <em>Street-Level Bureaucracy</em>. New York: Russell Sage Foundation.</p>
+            <p>Maesschalck, J. (2004). The use of the Ethical Climate Questionnaire in the public sector. KU Leuven.</p>
+            <p>Park, H., Rehg, M. T., &amp; Lee, D. (2005). The influence of Confucian ethics and collectivism on whistleblowing intentions. <em>Journal of Business Ethics</em>, 58(4), 387-403.</p>
+            <p>Perlman, B. J., Reddick, C. G., &amp; Demir, T. (2023). A compliance-integrity framework for ethics management. <em>Public Administration Review</em>, 83(4).</p>
+        </div>
+    </details>
+</section>
+
+
+<!-- Back to Top -->
+<a href="#top" class="back-to-top">&#8593; 맨 위로</a>
+
+
+<!-- ===== Theme Toggle Script ===== -->
+<script>
+(function() {
+    const KEY = 'research-theme';
+    const toggle = document.getElementById('themeToggle');
+    const icon = document.getElementById('themeIcon');
+    const html = document.documentElement;
+
+    function applyTheme(theme) {
+        html.setAttribute('data-theme', theme);
+        icon.innerHTML = theme === 'dark' ? '&#9728;' : '&#9790;';
+        localStorage.setItem(KEY, theme);
+    }
+
+    // Load saved preference
+    const saved = localStorage.getItem(KEY);
+    if (saved) {
+        applyTheme(saved);
+    }
+
+    toggle.addEventListener('click', function() {
+        const current = html.getAttribute('data-theme');
+        applyTheme(current === 'dark' ? 'light' : 'dark');
+    });
+})();
+</script>
+
+</body>
+</html>
