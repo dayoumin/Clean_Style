@@ -2,10 +2,6 @@
 
 공공 연구기관 종사자를 위한 청렴 스타일 자기발견 테스트.
 
-> **Kemi 프로젝트 AI 점검 제외 대상**
-> 이 폴더는 별도 프로젝트로 분리 예정입니다.
-> Kemi 프로젝트 작업 시 이 폴더는 점검/수정하지 마세요.
-
 ## 기능
 
 - 15문항 시나리오 기반 테스트 (3~5분)
@@ -27,12 +23,14 @@ pnpm dev
 
 http://localhost:3000 에서 확인
 
-## Vercel 배포
+## 배포
 
-1. GitHub에 이 폴더를 별도 저장소로 push
-2. Vercel에서 Import
-3. Environment Variables에 `OPENROUTER_API_KEY` 추가
-4. Deploy
+Cloudflare Workers (OpenNext SSR). `main` 브랜치에 push하면 GitHub Actions가 자동 배포.
+
+- **URL**: `https://clean-style.ecomarin.workers.dev`
+- **설정**: `wrangler.toml` + `open-next.config.ts`
+- **Secrets**: `CLOUDFLARE_API_TOKEN` (GitHub repo settings)
+- **상세**: `D:\Projects\html-docs\deployment-guide.html`
 
 ## 기술 스택
 
