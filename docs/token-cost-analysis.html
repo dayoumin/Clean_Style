@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - Token Cost Analysis</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232733;
+    --border: #2e3345; --text: #e1e4ed; --text-dim: #8b90a0;
+    --accent: #6c8aff; --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c; --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+    --purple: #a78bfa; --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #facc15; --yellow-soft: rgba(250,204,21,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  a.back { color: var(--accent); text-decoration: none; font-size: 0.82rem; display: inline-block; margin-bottom: 1.5rem; }
+  a.back:hover { text-decoration: underline; }
+  h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.25rem; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 2.5rem; }
+  h2 {
+    font-size: 1.15rem; font-weight: 700;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 0.95rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+
+  ul { margin: 0.5rem 0 0.5rem 1.2rem; font-size: 0.88rem; }
+  ul li { margin-bottom: 0.35rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.75rem 0; }
+  th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-dim); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td code { background: var(--surface2); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.8rem; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+
+  code {
+    background: var(--surface2);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  pre {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+    line-height: 1.6;
+  }
+
+  .tag {
+    display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.45rem;
+    border-radius: 4px; font-weight: 600; margin-right: 0.25rem;
+  }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+  .tag-orange { background: var(--orange-soft); color: var(--orange); }
+  .tag-purple { background: var(--purple-soft); color: var(--purple); }
+
+  .note {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    margin: 0.75rem 0;
+  }
+  .note.warn {
+    background: var(--orange-soft);
+    border-left-color: var(--orange);
+  }
+  .note.success {
+    background: var(--green-soft);
+    border-left-color: var(--green);
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .toc-title { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 0.5rem; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.85rem; display: block; padding: 0.2rem 0; }
+  .toc a:hover { text-decoration: underline; }
+
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .cols-2, .card-grid { grid-template-columns: 1fr; } }
+
+  .highlight-row { background: var(--accent-soft); }
+
+  .updated { color: var(--text-dim); font-size: 0.75rem; text-align: center; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Back to Docs</a>
+<h1><span>Clean Style</span> Token &amp; Cost Analysis</h1>
+<p class="subtitle">토큰 사용량 및 비용 분석</p>
+
+<div class="toc">
+  <div class="toc-title">목차</div>
+  <a href="#model">1. 모델 정보</a>
+  <a href="#constants">2. 코드 상 주요 상수</a>
+  <a href="#usage">3. 모드별 토큰 사용량</a>
+  <a href="#cost">4. 턴 수별 비용</a>
+  <a href="#strategy">5. 대화 축약 전략</a>
+  <a href="#fallback">6. Fallback (API 실패 시)</a>
+  <a href="#conclusion">7. 결론</a>
+</div>
+
+<!-- 1. 모델 정보 -->
+<h2 id="model">1. 모델 정보</h2>
+
+<div class="card">
+  <table>
+    <tr><th>항목</th><th>값</th></tr>
+    <tr><td>플랫폼</td><td>OpenRouter</td></tr>
+    <tr><td>모델 ID</td><td><code>x-ai/grok-4.1-fast</code></td></tr>
+    <tr><td>기본 Temperature</td><td>0.7</td></tr>
+    <tr><td>토큰 단가 (입력)</td><td>$0.20 / 1M tokens</td></tr>
+    <tr><td>토큰 단가 (출력)</td><td>$0.50 / 1M tokens</td></tr>
+  </table>
+</div>
+
+<!-- 2. 코드 상 주요 상수 -->
+<h2 id="constants">2. 코드 상 주요 상수</h2>
+
+<div class="card">
+  <table>
+    <tr><th>상수</th><th>값</th><th>위치</th><th>설명</th></tr>
+    <tr>
+      <td><code>maxTokens</code> (분석)</td>
+      <td>1500</td>
+      <td><code>api/analyze/route.ts</code></td>
+      <td>초기 분석 응답 최대 토큰</td>
+    </tr>
+    <tr>
+      <td><code>maxTokens</code> (Q&amp;A)</td>
+      <td>600</td>
+      <td><code>api/analyze/route.ts</code></td>
+      <td>이어서 질문 응답 최대 토큰</td>
+    </tr>
+    <tr>
+      <td><code>maxTokens</code> (요약)</td>
+      <td>200</td>
+      <td><code>api/analyze/route.ts</code></td>
+      <td>대화 요약 응답 최대 토큰</td>
+    </tr>
+    <tr>
+      <td><code>MAX_HISTORY_MESSAGES</code></td>
+      <td>16</td>
+      <td><code>lib/constants.ts</code></td>
+      <td>대화 히스토리 유지 수 (8턴 = user+assistant 16개)</td>
+    </tr>
+    <tr>
+      <td><code>SUMMARIZE_AT_MESSAGES</code></td>
+      <td>8</td>
+      <td><code>lib/constants.ts</code></td>
+      <td>요약 트리거 시점 (4턴 = user+assistant 8개)</td>
+    </tr>
+    <tr>
+      <td><code>MAX_CONTENT_LENGTH</code></td>
+      <td>2000자</td>
+      <td><code>api/analyze/route.ts</code></td>
+      <td>메시지당 본문 최대 길이 (sanitization)</td>
+    </tr>
+    <tr>
+      <td><code>userContext</code> 제한</td>
+      <td>500자</td>
+      <td><code>result/page.tsx</code></td>
+      <td>사용자 맥락 입력 최대 길이</td>
+    </tr>
+    <tr>
+      <td><code>AI_TIMEOUT_MS</code></td>
+      <td>10,000ms</td>
+      <td><code>lib/ai.ts</code></td>
+      <td>API 호출 타임아웃</td>
+    </tr>
+  </table>
+</div>
+
+<!-- 3. 모드별 토큰 사용량 -->
+<h2 id="usage">3. 모드별 토큰 사용량</h2>
+
+<div class="card-grid">
+  <div class="card">
+    <h3>분석 모드 (초기 결과)</h3>
+    <table>
+      <tr><th>항목</th><th>토큰</th></tr>
+      <tr><td>System 프롬프트 (~1,200자 한글)</td><td>~400&ndash;500</td></tr>
+      <tr><td>User 프롬프트 (15개 Q&amp;A 요약 + 점수 + 맥락)</td><td>~300&ndash;600</td></tr>
+      <tr><td><strong>합계 (입력)</strong></td><td><strong>800&ndash;1,100</strong></td></tr>
+      <tr><td><strong>출력 상한</strong></td><td><strong>1,500</strong> (maxTokens)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Q&amp;A 모드 (이어서 질문)</h3>
+    <table>
+      <tr><th>항목</th><th>토큰</th></tr>
+      <tr><td>System 프롬프트 (~400자)</td><td>~300</td></tr>
+      <tr><td>History (또는 요약본 + 최근 대화)</td><td>턴당 ~200 &times; 턴 수</td></tr>
+      <tr><td>사용자 질문</td><td>50&ndash;150</td></tr>
+      <tr><td><strong>합계 (입력)</strong></td><td><strong>500&ndash;1,500</strong></td></tr>
+      <tr><td><strong>출력 상한</strong></td><td><strong>600</strong> (maxTokens)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>요약 모드 (1회 호출)</h3>
+    <table>
+      <tr><th>항목</th><th>토큰</th></tr>
+      <tr><td>System 프롬프트</td><td>~80</td></tr>
+      <tr><td>대화 내용 (4턴 = 8메시지)</td><td>~800</td></tr>
+      <tr><td><strong>합계 (입력)</strong></td><td><strong>~880</strong></td></tr>
+      <tr><td><strong>출력 상한</strong></td><td><strong>200</strong> (maxTokens)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- 4. 턴 수별 비용 -->
+<h2 id="cost">4. 턴 수별 비용 (300명 &times; 2회 기준)</h2>
+
+<div class="card">
+  <table>
+    <tr><th>시나리오</th><th>턴</th><th>호출수</th><th>입력 토큰</th><th>출력 토큰</th><th>비용</th></tr>
+    <tr>
+      <td>4턴</td><td>4</td><td>2,400</td><td>~1.4M</td><td>~480K</td><td>~$0.50</td>
+    </tr>
+    <tr>
+      <td>6턴</td><td>6</td><td>3,600</td><td>~3.2M</td><td>~720K</td><td>~$0.90</td>
+    </tr>
+    <tr>
+      <td>8턴 (축약 없음)</td><td>8</td><td>4,800</td><td>~5.8M</td><td>~960K</td><td>~$1.45</td>
+    </tr>
+    <tr class="highlight-row">
+      <td><strong>8턴 (축약 적용)</strong></td><td><strong>8</strong></td><td><strong>5,400</strong></td><td><strong>~4.2M</strong></td><td><strong>~1.1M</strong></td><td><strong>~$0.80</strong></td>
+    </tr>
+  </table>
+</div>
+
+<!-- 5. 대화 축약 전략 -->
+<h2 id="strategy">5. 대화 축약 전략 (구현됨)</h2>
+
+<h3>전체 흐름</h3>
+<div class="card">
+<pre>턴 1~4: 원본 대화 그대로 API에 전송 (chatHistory 누적)
+턴 4 완료: 백그라운드로 요약 API 1회 호출 &rarr; React state에 저장
+턴 5~8: [요약본 + 최근 2턴 + 현재 질문] API에 전송</pre>
+</div>
+
+<h3>턴별 API 전송 구성</h3>
+<div class="card">
+  <table>
+    <tr><th>턴</th><th>전송 내용</th><th>입력 토큰 (추정)</th></tr>
+    <tr><td>1</td><td>System + 스타일정보 + 질문</td><td>~800</td></tr>
+    <tr><td>2</td><td>System + 턴1 히스토리 + 질문</td><td>~1,000</td></tr>
+    <tr><td>3</td><td>System + 턴1~2 히스토리 + 질문</td><td>~1,200</td></tr>
+    <tr><td>4</td><td>System + 턴1~3 히스토리 + 질문</td><td>~1,400</td></tr>
+    <tr class="highlight-row">
+      <td>&mdash;</td>
+      <td><strong>요약 호출</strong>: 턴1~4 대화 &rarr; 3문장 요약</td>
+      <td>~880 (입력)</td>
+    </tr>
+    <tr><td>5</td><td>System + <strong>요약</strong> + 질문</td><td>~500</td></tr>
+    <tr><td>6</td><td>System + <strong>요약</strong> + 턴5(2msg) + 질문</td><td>~700</td></tr>
+    <tr><td>7</td><td>System + <strong>요약</strong> + 턴5~6(4msg) + 질문</td><td>~900</td></tr>
+    <tr><td>8</td><td>System + <strong>요약</strong> + 턴6~7(4msg) + 질문</td><td>~900</td></tr>
+  </table>
+</div>
+
+<h3>잘라내기 vs 축약 비교</h3>
+<div class="cols-2">
+  <div class="card">
+    <h3>잘라내기 (slice)</h3>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>오래된 대화</td><td><span class="tag tag-red">소실</span></td></tr>
+      <tr><td>"아까 말한 그거"</td><td>AI가 모름</td></tr>
+      <tr><td>추가 API 호출</td><td>없음</td></tr>
+      <tr><td>턴 5~8 입력 토큰</td><td>계속 누적</td></tr>
+      <tr><td>구현 복잡도</td><td>낮음</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3>축약 (summarize)</h3>
+    <table>
+      <tr><th>항목</th><th>내용</th></tr>
+      <tr><td>오래된 대화</td><td><span class="tag tag-green">요약으로 맥락 유지</span></td></tr>
+      <tr><td>"아까 말한 그거"</td><td>AI가 파악 가능</td></tr>
+      <tr><td>추가 API 호출</td><td>요약 1회 (~$0.001)</td></tr>
+      <tr><td>턴 5~8 입력 토큰</td><td>일정하게 유지</td></tr>
+      <tr><td>구현 복잡도</td><td>중간</td></tr>
+    </table>
+  </div>
+</div>
+
+<h3>요약본 저장 위치</h3>
+<div class="card">
+  <ul>
+    <li><strong>React state</strong> (<code>chatSummary</code>) &mdash; 세션 중에만 유지</li>
+    <li>localStorage에 저장하지 않음</li>
+    <li>재방문 시 요약 없이 전체 히스토리로 동작 (MAX_HISTORY_MESSAGES 16개 cap)</li>
+  </ul>
+</div>
+
+<!-- 6. Fallback -->
+<h2 id="fallback">6. Fallback (API 실패 시)</h2>
+
+<div class="card">
+  <div class="note success">
+    API 호출 실패 시 <strong>로컬 fallback 응답</strong>이 반환됨 &rarr; 비용 $0.
+  </div>
+  <ul>
+    <li>8가지 스타일 유형별 사전 정의된 분석 결과 존재 (<code>api/analyze/route.ts</code>)</li>
+    <li>네트워크 오류, 타임아웃 등에서 자동 전환</li>
+    <li>요약 호출 실패 시 무시 &mdash; 전체 히스토리로 계속 진행</li>
+  </ul>
+</div>
+
+<!-- 7. 결론 -->
+<h2 id="conclusion">7. 결론</h2>
+
+<div class="card">
+  <div class="note success">
+    8턴 + 축약 적용 시 비용 약 <strong>$0.80</strong> (300명 &times; 2회 기준).
+  </div>
+  <p style="font-size:0.88rem; margin-top:0.75rem;">
+    축약의 주된 가치는 비용 절감보다 <strong>대화 품질 유지</strong> &mdash;
+    긴 컨텍스트에서 AI가 산만해지는 것을 방지.
+  </p>
+</div>
+
+<p class="updated">Token &amp; Cost Analysis &middot; Clean Style Docs</p>
+
+</body>
+</html>

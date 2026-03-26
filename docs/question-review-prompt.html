@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - Question Review Prompt</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232733;
+    --border: #2e3345; --text: #e1e4ed; --text-dim: #8b90a0;
+    --accent: #6c8aff; --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c; --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+    --purple: #a78bfa; --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #facc15; --yellow-soft: rgba(250,204,21,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  a.back { color: var(--accent); text-decoration: none; font-size: 0.82rem; display: inline-block; margin-bottom: 1.5rem; }
+  a.back:hover { text-decoration: underline; }
+  h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.25rem; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 2.5rem; }
+  h2 {
+    font-size: 1.15rem; font-weight: 700;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 0.95rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+  h4 { font-size: 0.88rem; font-weight: 600; margin: 1.2rem 0 0.4rem; color: var(--text); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  ul, ol { margin: 0.5rem 0 0.5rem 1.2rem; font-size: 0.88rem; }
+  ul li, ol li { margin-bottom: 0.35rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.75rem 0; }
+  th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-dim); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  code {
+    background: var(--surface2);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  pre {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.8rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .tag {
+    display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.45rem;
+    border-radius: 4px; font-weight: 600; margin-right: 0.25rem;
+  }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+  .tag-orange { background: var(--orange-soft); color: var(--orange); }
+  .tag-red { background: var(--red-soft); color: var(--red); }
+  .tag-purple { background: var(--purple-soft); color: var(--purple); }
+
+  .note {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    margin: 0.75rem 0;
+  }
+  .note.warn {
+    background: var(--orange-soft);
+    border-left-color: var(--orange);
+  }
+
+  .question-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .question-block .q-title {
+    font-weight: 700;
+    font-size: 0.88rem;
+    margin-bottom: 0.5rem;
+  }
+  .question-block .choice {
+    font-size: 0.82rem;
+    padding: 0.2rem 0;
+    color: var(--text-dim);
+  }
+  .question-block .choice .score {
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .toc-title { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 0.5rem; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.85rem; display: block; padding: 0.2rem 0; }
+  .toc a:hover { text-decoration: underline; }
+
+  .copy-hint {
+    background: var(--green-soft);
+    border: 1px solid rgba(74,222,128,0.25);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.82rem;
+    color: var(--green);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .updated { color: var(--text-dim); font-size: 0.75rem; text-align: center; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Back to Docs</a>
+<h1><span>Clean Style</span> Question Review Prompt</h1>
+<p class="subtitle">청렴 스타일 테스트 문항 &mdash; AI 리뷰 요청 프롬프트</p>
+
+<div class="copy-hint">아래 프롬프트를 ChatGPT, Claude, Gemini 등에 붙여넣어 리뷰를 받으세요.</div>
+
+<div class="toc">
+  <div class="toc-title">목차</div>
+  <a href="#review-items">1. 검토 요청 사항</a>
+  <a href="#questions-research">2. 문항 데이터 &mdash; 연구/데이터 영역</a>
+  <a href="#questions-admin">3. 문항 데이터 &mdash; 행정/계약 영역</a>
+  <a href="#questions-comm">4. 문항 데이터 &mdash; 관계/소통 영역</a>
+  <a href="#theory">5. 이론적 배경</a>
+  <a href="#full-prompt">6. 전체 프롬프트 (복사용)</a>
+</div>
+
+<!-- 1. 검토 요청 사항 -->
+<h2 id="review-items">1. 검토 요청 사항</h2>
+
+<div class="card">
+  <h3>3개 축 정의</h3>
+  <table>
+    <tr><th>축</th><th>(+1) 방향</th><th>(-1) 방향</th></tr>
+    <tr><td><strong>원칙 &harr; 유연</strong></td><td>규정/절차 우선</td><td>상황/맥락/효율 고려</td></tr>
+    <tr><td><strong>투명 &harr; 신중</strong></td><td>정보를 즉시 공유/보고/공개</td><td>먼저 확인/파악 후 판단</td></tr>
+    <tr><td><strong>독립 &harr; 협력</strong></td><td>혼자 판단하고 실행</td><td>타인과 함께 판단/행동</td></tr>
+  </table>
+</div>
+
+<div class="note warn">
+  <strong>알려진 문제 (이미 인지):</strong><br>
+  원칙+독립 동시부여가 10/15문항에서 발생 &rarr; Q16~Q18 추가로 해결 예정.<br>
+  투명/신중 기회: +17/-14 (차이3, 허용 범위). 완전 균형은 Q16~Q18에서 달성 예정.
+</div>
+
+<div class="card">
+  <h4>1. 축 정의의 적절성</h4>
+  <ul>
+    <li>"투명&harr;신중"이 독립된 측정 축으로 적절한가?</li>
+    <li>"투명"과 "신중"이 서로의 반대 개념이 맞는가? (진짜 반대는 "은폐"가 아닌지?)</li>
+    <li>"신중"이 "소극적/회피적"과 구분되는가?</li>
+    <li>3축이 서로 독립적으로 측정 가능한 차원인가?</li>
+  </ul>
+
+  <h4>2. 각 문항 매핑 검토</h4>
+  <ul>
+    <li>선택지의 점수 매핑이 직관적인가?</li>
+    <li>점수가 부여되지 않은 선택지에 부여해야 할 점수가 빠져 있지는 않은가?</li>
+    <li>하나의 선택지에 2개 축 점수가 동시에 부여된 경우, 정말 두 차원이 함께 나타나는 행위인가?</li>
+  </ul>
+
+  <h4>3. 사회적 바람직성</h4>
+  <ul>
+    <li>특정 선택지가 "정답"처럼 보이는 문항이 있는가?</li>
+    <li>4개 선택지의 바람직성이 대략 균형을 이루는가?</li>
+  </ul>
+
+  <h4>4. 신중 축의 긍정적 표현</h4>
+  <ul>
+    <li>"신중"의 긍정적 측면(꼼꼼한 확인, 근거 확보, 리스크 점검)을 잘 보여주는 선택지가 충분한가?</li>
+    <li>현재 신중 선택지가 "소극적/의존적"으로 읽히는 곳은 없는가?</li>
+  </ul>
+
+  <h4>5. 추가 문항 제안 (선택)</h4>
+  <ul>
+    <li>Q16~Q18 3문항을 추가한다면, 어떤 상황/선택지 구성이 좋을지 제안</li>
+    <li>조건: 원칙+협력, 유연+독립, 신중의 긍정 표현 각각 1문항씩</li>
+  </ul>
+</div>
+
+<!-- 2. 연구/데이터 영역 -->
+<h2 id="questions-research">2. 문항 데이터 &mdash; 연구/데이터 영역</h2>
+
+<div class="question-block">
+  <div class="q-title">Q1. 실험 데이터 정리 중 예상과 다른 결과가 나왔다. 마감도 얼마 안 남았는데...</div>
+  <div class="choice">A. 일단 전부 기록해두고 내일 다시 본다 <span class="score">{principle:+1, independence:+1}</span></div>
+  <div class="choice">B. 선임연구원에게 같이 봐달라고 한다 <span class="score">{transparency:+1, independence:-1}</span></div>
+  <div class="choice">C. 전체 흐름을 먼저 파악하고, 나중에 다시 살펴본다 <span class="score">{principle:-1, transparency:-1}</span></div>
+  <div class="choice">D. 이상한 부분만 메모해두고 팀 회의에서 꺼낸다 <span class="score">{transparency:+1, independence:-1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q2. 공동연구 보고서 작성 중인데, 동료가 "이 수치 좀 반올림해서 깔끔하게 하자"고 한다.</div>
+  <div class="choice">A. "원본 그대로 쓰는 게 맞지 않나" 하고 얘기한다 <span class="score">{principle:+1}</span></div>
+  <div class="choice">B. 의미 있는 차이인지 먼저 확인해본다 <span class="score">{transparency:-1, independence:+1}</span></div>
+  <div class="choice">C. 보고서 가독성도 중요하니 적절히 조정한다 <span class="score">{principle:-1}</span></div>
+  <div class="choice">D. 팀장한테 어디까지 정리해도 되는지 물어본다 <span class="score">{independence:-1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q3. 연구비 집행 마감이 다가오는데, 소액이 남았다. 올해 안에 써야 이월이 안 된다.</div>
+  <div class="choice">A. 쓸 곳이 없으면 반납이 맞다고 보고 정리한다 <span class="score">{principle:+1}</span></div>
+  <div class="choice">B. 다음 실험에 필요한 소모품을 미리 확보해둔다 <span class="score">{principle:-1, independence:+1}</span></div>
+  <div class="choice">C. 연구관리팀에 이월 가능 여부를 먼저 확인한다 <span class="score">{transparency:+1, independence:-1}</span></div>
+  <div class="choice">D. 팀원들에게 필요한 물품이 있는지 취합해본다 <span class="score">{independence:-1, transparency:-1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q4. 연구 중간보고 시점인데, 일부 실험이 예상대로 안 돼서 당초 계획보다 진도가 늦다.</div>
+  <div class="choice">A. 지연 상황과 원인을 솔직하게 보고한다 <span class="score">{transparency:+1}</span></div>
+  <div class="choice">B. 할 수 있는 데까지 해보고, 보고 시점에 정리해서 말한다 <span class="score">{principle:-1, transparency:-1}</span></div>
+  <div class="choice">C. 비슷한 경험이 있는 동료에게 먼저 조언을 구한다 <span class="score">{transparency:-1, independence:-1}</span></div>
+  <div class="choice">D. 방법을 바꿔서라도 일정 내 결과를 내본다 <span class="score">{independence:+1, principle:-1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q5. 논문 공동저자 순서를 정해야 하는데, 기여도 판단이 애매하다.</div>
+  <div class="choice">A. 기여도 기준표를 만들어 객관적으로 정한다 <span class="score">{principle:+1, independence:+1}</span></div>
+  <div class="choice">B. 관련된 사람들 모두 모여서 솔직하게 논의한다 <span class="score">{transparency:+1, independence:-1}</span></div>
+  <div class="choice">C. 그동안 관행을 참고해서 적절히 조율한다 <span class="score">{principle:-1, transparency:-1}</span></div>
+  <div class="choice">D. 팀장에게 최종 판단을 맡긴다 <span class="score">{independence:-1}</span></div>
+</div>
+
+<!-- 3. 행정/계약 영역 -->
+<h2 id="questions-admin">3. 문항 데이터 &mdash; 행정/계약 영역</h2>
+
+<div class="question-block">
+  <div class="q-title">Q6. 물품을 구매하려는데, 자주 거래하던 업체가 가격은 살짝 비싸지만 빠르고 편하다.</div>
+  <div class="choice">A. 비교견적 절차를 밟고 최저가로 진행한다 <span class="score">{principle:+1}</span></div>
+  <div class="choice">B. 금액 차이가 크지 않으면 기존 업체로 간다 <span class="score">{principle:-1, independence:+1}</span></div>
+  <div class="choice">C. 다른 업체도 알아보되, 담당자와 상의해서 결정한다 <span class="score">{independence:-1, transparency:-1}</span></div>
+  <div class="choice">D. 비교견적 과정과 선정 이유를 문서로 남긴다 <span class="score">{transparency:+1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q7. 용역 계약서에 해석이 달라질 수 있는 조항이 있다. 상대방은 "실무에서는 다 이렇게 한다"고 한다.</div>
+  <div class="choice">A. 해당 조항의 문구를 구체적으로 바꿔서 제안한다 <span class="score">{principle:+1, independence:+1}</span></div>
+  <div class="choice">B. 법무/계약 담당에게 의견을 구한다 <span class="score">{transparency:+1, independence:-1}</span></div>
+  <div class="choice">C. 실무 관행도 중요하니 전체 맥락을 보고 판단한다 <span class="score">{principle:-1, transparency:-1}</span></div>
+  <div class="choice">D. 비슷한 계약을 해본 동료에게 경험을 물어본다 <span class="score">{independence:-1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q8. 출장 중 저녁 식사를 했는데, 업무 논의도 했고 개인적 대화도 섞였다. 정산할 때 포함할지 고민된다.</div>
+  <div class="choice">A. 구분이 애매하면 청구하지 않는 쪽으로 정리한다 <span class="score">{principle:+1}</span></div>
+  <div class="choice">B. 업무 논의가 포함된 자리였으니 청구해도 된다고 본다 <span class="score">{principle:-1, independence:+1}</span></div>
+  <div class="choice">C. 함께한 동료와 얘기해서 업무 비중을 맞춰본다 <span class="score">{independence:-1, transparency:-1}</span></div>
+  <div class="choice">D. 행정팀에 기준을 물어보고 그대로 따른다 <span class="score">{transparency:+1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q9. 오래 거래한 업체 담당자가 퇴직 인사를 하며 커피 한 잔 하자고 한다. 앞으로 업무 관계는 없을 예정이다.</div>
+  <div class="choice">A. 고마웠지만 정중히 사양한다 <span class="score">{principle:+1, independence:+1}</span></div>
+  <div class="choice">B. 혹시 모르니 기관 규정을 확인해본다 <span class="score">{transparency:-1, principle:+1}</span></div>
+  <div class="choice">C. 앞으로 이해관계가 없으니 편하게 만난다 <span class="score">{principle:-1}</span></div>
+  <div class="choice">D. 팀장에게 알리고 판단을 구한다 <span class="score">{independence:-1, transparency:+1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q10. 연구 장비 유지보수 계약 갱신인데, 기존 업체 외에 선택지가 사실상 없다.</div>
+  <div class="choice">A. 그래도 공식 절차(수의계약 사유서 등)를 꼼꼼히 밟는다 <span class="score">{principle:+1}</span></div>
+  <div class="choice">B. 상황이 상황인 만큼 빠르게 갱신 처리한다 <span class="score">{principle:-1, independence:+1}</span></div>
+  <div class="choice">C. 혹시 다른 업체가 있는지 한 번은 알아본다 <span class="score">{transparency:-1, principle:+1}</span></div>
+  <div class="choice">D. 계약 담당과 상의해서 적절한 방법을 찾는다 <span class="score">{independence:-1}</span></div>
+</div>
+
+<!-- 4. 관계/소통 영역 -->
+<h2 id="questions-comm">4. 문항 데이터 &mdash; 관계/소통 영역</h2>
+
+<div class="question-block">
+  <div class="q-title">Q11. 외부 기관 담당자가 점심 미팅을 제안했다. 업무 관련 논의가 목적이라고 한다.</div>
+  <div class="choice">A. 기관 내 회의실에서 만나자고 제안한다 <span class="score">{principle:+1, independence:+1}</span></div>
+  <div class="choice">B. 각자 비용 부담으로 가볍게 만난다 <span class="score">{principle:-1, independence:+1}</span></div>
+  <div class="choice">C. 팀장에게 보고하고 동행할지 물어본다 <span class="score">{independence:-1, transparency:+1}</span></div>
+  <div class="choice">D. 미팅 내용을 기록으로 남기고 참석한다 <span class="score">{transparency:+1, principle:-1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q12. 동료가 절차를 좀 편하게 처리하는 걸 봤다. 명백한 위반은 아닌 것 같은데 찜찜하다.</div>
+  <div class="choice">A. 관련 규정을 확인해보고, 문제가 있으면 알려준다 <span class="score">{principle:+1, independence:+1}</span></div>
+  <div class="choice">B. 동료한테 직접 "이거 괜찮은 건지" 가볍게 물어본다 <span class="score">{transparency:+1, independence:-1}</span></div>
+  <div class="choice">C. 업무 스타일 차이일 수 있으니, 상황을 좀 더 파악해본다 <span class="score">{principle:-1, transparency:-1}</span></div>
+  <div class="choice">D. 기관 윤리담당에게 일반적 질문으로 확인해본다 <span class="score">{transparency:+1, principle:+1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q13. 상급자가 "이번 건은 빠르게 처리해"라며 일부 절차 생략을 암시했다.</div>
+  <div class="choice">A. 절차가 필요한 이유를 설명하고 정식으로 진행한다 <span class="score">{principle:+1, independence:+1}</span></div>
+  <div class="choice">B. 간소화 가능한 부분과 필수 절차를 구분해서 제안한다 <span class="score">{principle:-1}</span></div>
+  <div class="choice">C. 속도에 맞추되, 진행 과정을 기록으로 남겨둔다 <span class="score">{transparency:+1, principle:-1}</span></div>
+  <div class="choice">D. 다른 팀원과 함께 상급자에게 의견을 전달한다 <span class="score">{independence:-1, transparency:+1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q14. 민원성 데이터 분석 요청이 들어왔는데, 요청 의도가 특정 결론을 원하는 것 같다.</div>
+  <div class="choice">A. 데이터가 말하는 대로 객관적 결과만 제공한다 <span class="score">{principle:+1, independence:+1}</span></div>
+  <div class="choice">B. 요청 의도를 먼저 정확히 파악하고 범위를 조율한다 <span class="score">{transparency:-1, principle:-1}</span></div>
+  <div class="choice">C. 팀장에게 보고하고 대응 방향을 함께 정한다 <span class="score">{independence:-1, transparency:+1}</span></div>
+  <div class="choice">D. 결과와 함께 분석의 한계도 명확히 안내한다 <span class="score">{transparency:+1}</span></div>
+</div>
+
+<div class="question-block">
+  <div class="q-title">Q15. 퇴근 시간인데, 동료가 내일까지인 서류에 "대충 사인만 해달라"고 한다.</div>
+  <div class="choice">A. 시간이 걸려도 내용을 확인하고 사인한다 <span class="score">{principle:+1, independence:+1}</span></div>
+  <div class="choice">B. 핵심만 빠르게 확인하고 처리한다 <span class="score">{principle:-1, independence:+1}</span></div>
+  <div class="choice">C. 동료와 함께 빠르게 검토하고 사인한다 <span class="score">{independence:-1}</span></div>
+  <div class="choice">D. 내일 아침 일찍 와서 제대로 확인하겠다고 한다 <span class="score">{transparency:-1, principle:+1}</span></div>
+</div>
+
+<!-- 5. 이론적 배경 -->
+<h2 id="theory">5. 이론적 배경</h2>
+
+<div class="card">
+  <table>
+    <tr><th>축</th><th>참고 이론</th></tr>
+    <tr><td>원칙 &harr; 유연</td><td>Kohlberg 도덕 발달 이론의 의무론 vs 결과론</td></tr>
+    <tr><td>투명 &harr; 신중</td><td>Miceli &amp; Near (1992) 내부고발 의사결정의 즉시 보고 vs 관망</td></tr>
+    <tr><td>독립 &harr; 협력</td><td>Hofstede/Triandis 개인주의-집단주의 차원</td></tr>
+  </table>
+  <div class="note warn">
+    학술적으로 검증된 표준 척도가 아닌 자체 개발 프레임워크임.<br>
+    위 이론에서 개념만 차용하여 공공기관 맥락에 재구성함.
+  </div>
+</div>
+
+<!-- 6. 전체 프롬프트 -->
+<h2 id="full-prompt">6. 전체 프롬프트 (복사용)</h2>
+
+<div class="note">아래 코드 블록 전체를 ChatGPT, Claude, Gemini 등에 붙여넣어 사용하세요. 응답 형식: 문항별로 짧게 코멘트하되, 전체 요약을 마지막에 정리. 축 정의 적절성과 추가 문항 제안에 비중.</div>
+
+<pre>아래는 공공 연구기관 종사자를 위한 "청렴 스타일 테스트" 15문항이다.
+자기발견 도구(공식 평가 아님)로, 3개 축으로 성향을 측정한다.
+
+## 3개 축 정의
+- 원칙(+1) &harr; 유연(-1): 규정/절차 우선 vs 상황/맥락/효율 고려
+- 투명(+1) &harr; 신중(-1): 정보를 즉시 공유/보고/공개 vs 먼저 확인/파악 후 판단
+- 독립(+1) &harr; 협력(-1): 혼자 판단하고 실행 vs 타인과 함께 판단/행동
+
+## 측정 방식
+- 4지선다 강제선택, 각 선택지에 0~2개 축의 +1 또는 -1 점수 부여
+- 15문항 응답 후 3축 합산 &rarr; 양수/음수로 성향 방향 판정 &rarr; 8가지 유형 (2x2x2)
+
+## 알려진 문제 (이미 인지)
+- 원칙+독립 동시부여가 10/15문항에서 발생 &rarr; Q16~Q18 추가로 해결 예정
+- 투명/신중 기회: +17/-14 (차이3, 허용 범위). 완전 균형은 Q16~Q18에서 달성 예정
+- 최근 매핑 재조정 완료 &mdash; 단, 이 조정이 적절한지도 포함하여 검토 요청
+
+(... 전체 15문항 데이터는 위 섹션 참조 ...)
+
+## 응답 형식
+문항별로 짧게 코멘트하되, 전체 요약을 마지막에 정리해줘.
+특히 축 정의 적절성과 추가 문항 제안에 비중을 두고 검토해줘.</pre>
+
+<p class="updated">Question Review Prompt &middot; Clean Style Docs</p>
+
+</body>
+</html>

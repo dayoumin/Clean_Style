@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>문항 편집기 — Clean Style</title>
+<style>
+:root {
+  --bg: #0f1117; --surface: #1a1d27; --surface2: #232733;
+  --border: #2e3345; --text: #e1e4ed; --text-dim: #8b90a0;
+  --accent: #6c8aff; --accent-soft: rgba(108,138,255,0.12);
+  --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+  --orange: #fb923c; --orange-soft: rgba(251,146,60,0.12);
+  --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167,139,250,0.12);
+  --yellow: #facc15; --yellow-soft: rgba(250,204,21,0.12);
+  --teal: #2dd4bf; --teal-soft: rgba(45,212,191,0.12);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+  padding: 1.5rem; max-width: 1100px; margin: 0 auto;
+}
+
+/* Header */
+.header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.header h1 { font-size: 1.5rem; font-weight: 800; }
+.header h1 span { color: var(--accent); }
+.header-actions { display: flex; gap: 0.5rem; margin-left: auto; }
+
+/* Buttons */
+.btn {
+  padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); font-size: 0.8rem;
+  font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.btn:hover { border-color: var(--accent); background: var(--surface2); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { opacity: 0.85; }
+.btn-danger { color: var(--red); border-color: rgba(248,113,113,0.3); }
+.btn-danger:hover { background: var(--red-soft); }
+.btn-sm { padding: 0.3rem 0.6rem; font-size: 0.72rem; }
+
+/* Stats bar */
+.stats-bar {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;
+  font-size: 0.8rem;
+}
+.stat-item { display: flex; align-items: center; gap: 0.35rem; }
+.stat-label { color: var(--text-dim); }
+.stat-value { font-weight: 700; }
+.stat-good { color: var(--green); }
+.stat-warn { color: var(--yellow); }
+.stat-bad { color: var(--red); }
+
+/* Filter */
+.filter-bar {
+  display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;
+}
+.filter-btn {
+  padding: 0.35rem 0.75rem; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text-dim); font-size: 0.78rem;
+  font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--text); }
+.filter-btn.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+/* Question card */
+.q-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem;
+  transition: border-color 0.2s;
+}
+.q-card:hover { border-color: rgba(108,138,255,0.3); }
+.q-card.changed { border-color: var(--yellow); }
+
+.q-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+.q-num {
+  flex-shrink: 0; width: 32px; height: 32px; border-radius: 8px;
+  background: var(--accent-soft); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.85rem; font-weight: 800;
+}
+.q-category {
+  font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.45rem;
+  border-radius: 4px; text-transform: uppercase; letter-spacing: 0.06em;
+}
+.cat-research { background: var(--accent-soft); color: var(--accent); }
+.cat-admin { background: var(--teal-soft); color: var(--teal); }
+.cat-relation { background: var(--purple-soft); color: var(--purple); }
+
+.q-category-select {
+  font-size: 0.72rem; padding: 0.2rem 0.4rem; border-radius: 4px;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+}
+
+/* Situation textarea */
+.q-situation {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.6rem 0.75rem; color: var(--text);
+  font-size: 0.88rem; resize: vertical; min-height: 48px;
+  font-family: inherit; line-height: 1.5;
+}
+.q-situation:focus { outline: none; border-color: var(--accent); }
+
+/* Choices */
+.choices-grid { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.75rem; }
+
+.choice-row {
+  display: flex; gap: 0.5rem; align-items: center;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.5rem 0.75rem;
+}
+
+.choice-label {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem; font-weight: 700; color: var(--text-dim);
+}
+
+.choice-text {
+  flex: 1; background: transparent; border: none; color: var(--text);
+  font-size: 0.85rem; font-family: inherit; outline: none;
+  padding: 0.2rem 0;
+}
+.choice-text:focus { border-bottom: 1px solid var(--accent); }
+
+/* Score pills */
+.score-pills { display: flex; gap: 0.25rem; flex-shrink: 0; }
+
+.score-pill {
+  font-size: 0.62rem; font-weight: 700; padding: 0.15rem 0.35rem;
+  border-radius: 4px; cursor: pointer; user-select: none;
+  border: 1px solid transparent; transition: all 0.15s;
+  min-width: 28px; text-align: center;
+}
+
+.pill-principle-pos { background: var(--green-soft); color: var(--green); }
+.pill-principle-neg { background: var(--orange-soft); color: var(--orange); }
+.pill-transparency-pos { background: var(--accent-soft); color: var(--accent); }
+.pill-transparency-neg { background: var(--yellow-soft); color: var(--yellow); }
+.pill-independence-pos { background: var(--teal-soft); color: var(--teal); }
+.pill-independence-neg { background: var(--purple-soft); color: var(--purple); }
+.pill-empty { background: var(--surface); color: var(--text-dim); border: 1px dashed var(--border); opacity: 0.5; }
+.pill-empty:hover { opacity: 1; }
+
+.score-pill:hover { transform: scale(1.1); }
+
+/* Score editor popup */
+.score-editor {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.5rem; z-index: 1000;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5); min-width: 300px;
+}
+.score-editor h3 { font-size: 0.95rem; margin-bottom: 1rem; color: var(--accent); }
+
+.score-axis-row {
+  display: flex; align-items: center; gap: 0.75rem;
+  margin-bottom: 0.75rem; font-size: 0.85rem;
+}
+.score-axis-label { width: 60px; font-weight: 600; font-size: 0.8rem; }
+.score-axis-btns { display: flex; gap: 0.35rem; }
+.score-axis-btn {
+  width: 36px; height: 30px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text-dim); font-size: 0.8rem;
+  font-weight: 700; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.score-axis-btn:hover { border-color: var(--accent); }
+.score-axis-btn.selected-pos { background: var(--green-soft); color: var(--green); border-color: var(--green); }
+.score-axis-btn.selected-neg { background: var(--orange-soft); color: var(--orange); border-color: var(--orange); }
+.score-axis-btn.selected-zero { background: var(--surface2); color: var(--text-dim); border-color: var(--text-dim); }
+
+.overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); z-index: 999;
+}
+.hidden { display: none !important; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%);
+  background: var(--green); color: #000; padding: 0.6rem 1.25rem;
+  border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+  z-index: 2000; transition: opacity 0.3s;
+}
+.toast.error { background: var(--red); }
+
+/* Export modal */
+.export-modal {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.5rem; z-index: 1000;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5); width: 90%; max-width: 700px;
+  max-height: 80vh; display: flex; flex-direction: column;
+}
+.export-modal h3 { font-size: 1rem; margin-bottom: 0.75rem; color: var(--accent); }
+.export-modal textarea {
+  flex: 1; min-height: 300px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.75rem; color: var(--text);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.78rem;
+  resize: none; line-height: 1.5;
+}
+.export-modal .modal-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; justify-content: flex-end; }
+
+@media (max-width: 768px) {
+  .choice-row { flex-wrap: wrap; }
+  .score-pills { margin-top: 0.25rem; width: 100%; justify-content: flex-end; }
+  .header { flex-direction: column; align-items: flex-start; }
+  .header-actions { margin-left: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span>문항</span> 편집기</h1>
+  <div class="header-actions">
+    <button class="btn" onclick="resetAll()">초기화</button>
+    <button class="btn" onclick="showExport('json')">JSON 내보내기</button>
+    <button class="btn btn-primary" onclick="showExport('ts')">TypeScript 내보내기</button>
+  </div>
+</div>
+
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">전체 (15)</button>
+  <button class="filter-btn" data-filter="research" onclick="setFilter('research')">연구/데이터</button>
+  <button class="filter-btn" data-filter="admin" onclick="setFilter('admin')">행정/계약</button>
+  <button class="filter-btn" data-filter="relation" onclick="setFilter('relation')">관계/소통</button>
+</div>
+
+<div id="questionList"></div>
+
+<!-- Score editor popup -->
+<div class="overlay hidden" id="overlay" onclick="closeScoreEditor()"></div>
+<div class="score-editor hidden" id="scoreEditor">
+  <h3 id="scoreEditorTitle">점수 편집</h3>
+  <div class="score-axis-row">
+    <div class="score-axis-label">원칙</div>
+    <div class="score-axis-btns">
+      <button class="score-axis-btn" data-axis="principle" data-val="-1" onclick="setScore('principle',-1)">-1</button>
+      <button class="score-axis-btn" data-axis="principle" data-val="0" onclick="setScore('principle',0)">0</button>
+      <button class="score-axis-btn" data-axis="principle" data-val="1" onclick="setScore('principle',1)">+1</button>
+    </div>
+    <span style="font-size:0.72rem; color:var(--text-dim);">유연 &larr;&rarr; 원칙</span>
+  </div>
+  <div class="score-axis-row">
+    <div class="score-axis-label">투명</div>
+    <div class="score-axis-btns">
+      <button class="score-axis-btn" data-axis="transparency" data-val="-1" onclick="setScore('transparency',-1)">-1</button>
+      <button class="score-axis-btn" data-axis="transparency" data-val="0" onclick="setScore('transparency',0)">0</button>
+      <button class="score-axis-btn" data-axis="transparency" data-val="1" onclick="setScore('transparency',1)">+1</button>
+    </div>
+    <span style="font-size:0.72rem; color:var(--text-dim);">신중 &larr;&rarr; 투명</span>
+  </div>
+  <div class="score-axis-row">
+    <div class="score-axis-label">독립</div>
+    <div class="score-axis-btns">
+      <button class="score-axis-btn" data-axis="independence" data-val="-1" onclick="setScore('independence',-1)">-1</button>
+      <button class="score-axis-btn" data-axis="independence" data-val="0" onclick="setScore('independence',0)">0</button>
+      <button class="score-axis-btn" data-axis="independence" data-val="1" onclick="setScore('independence',1)">+1</button>
+    </div>
+    <span style="font-size:0.72rem; color:var(--text-dim);">협력 &larr;&rarr; 독립</span>
+  </div>
+  <div style="margin-top:1rem; display:flex; gap:0.5rem; justify-content:flex-end;">
+    <button class="btn btn-sm" onclick="closeScoreEditor()">닫기</button>
+  </div>
+</div>
+
+<!-- Export modal -->
+<div class="overlay hidden" id="exportOverlay" onclick="closeExport()"></div>
+<div class="export-modal hidden" id="exportModal">
+  <h3 id="exportTitle">내보내기</h3>
+  <textarea id="exportText" readonly></textarea>
+  <div class="modal-actions">
+    <button class="btn" onclick="closeExport()">닫기</button>
+    <button class="btn btn-primary" onclick="copyExport()">클립보드 복사</button>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script>
+// ===== Question Data (embedded from questions.ts) =====
+const INITIAL_DATA = [
+  {id:1,category:'research',situation:'실험 데이터 정리 중 예상과 다른 결과가 나왔다. 마감도 얼마 안 남았는데...',choices:[{text:'일단 전부 기록해두고 내일 다시 본다',scores:{principle:1,independence:1}},{text:'선임연구원에게 같이 봐달라고 한다',scores:{transparency:1,independence:-1}},{text:'전체 흐름을 먼저 파악하고, 나중에 다시 살펴본다',scores:{principle:-1,transparency:-1}},{text:'이상한 부분만 메모해두고 팀 회의에서 꺼낸다',scores:{transparency:1,independence:-1}}]},
+  {id:2,category:'research',situation:'공동연구 보고서 작성 중인데, 동료가 "이 수치 좀 반올림해서 깔끔하게 하자"고 한다.',choices:[{text:'"원본 그대로 쓰는 게 맞지 않나" 하고 얘기한다',scores:{principle:1}},{text:'의미 있는 차이인지 먼저 확인해본다',scores:{transparency:-1,independence:1}},{text:'보고서 가독성도 중요하니 적절히 조정한다',scores:{principle:-1}},{text:'팀장한테 어디까지 정리해도 되는지 물어본다',scores:{independence:-1}}]},
+  {id:3,category:'research',situation:'연구비 집행 마감이 다가오는데, 소액이 남았다. 올해 안에 써야 이월이 안 된다.',choices:[{text:'쓸 곳이 없으면 반납이 맞다고 보고 정리한다',scores:{principle:1}},{text:'다음 실험에 필요한 소모품을 미리 확보해둔다',scores:{principle:-1,independence:1}},{text:'연구관리팀에 이월 가능 여부를 먼저 확인한다',scores:{transparency:1,independence:-1}},{text:'팀원들에게 필요한 물품이 있는지 취합해본다',scores:{independence:-1,transparency:-1}}]},
+  {id:4,category:'research',situation:'연구 중간보고 시점인데, 일부 실험이 예상대로 안 돼서 당초 계획보다 진도가 늦다.',choices:[{text:'지연 상황과 원인을 솔직하게 보고한다',scores:{transparency:1}},{text:'할 수 있는 데까지 해보고, 보고 시점에 정리해서 말한다',scores:{principle:-1,transparency:-1}},{text:'비슷한 경험이 있는 동료에게 먼저 조언을 구한다',scores:{transparency:-1,independence:-1}},{text:'방법을 바꿔서라도 일정 내 결과를 내본다',scores:{independence:1,principle:-1}}]},
+  {id:5,category:'research',situation:'논문 공동저자 순서를 정해야 하는데, 기여도 판단이 애매하다.',choices:[{text:'기여도 기준표를 만들어 객관적으로 정한다',scores:{principle:1,independence:1}},{text:'관련된 사람들 모두 모여서 솔직하게 논의한다',scores:{transparency:1,independence:-1}},{text:'그동안 관행을 참고해서 적절히 조율한다',scores:{principle:-1,transparency:-1}},{text:'팀장에게 최종 판단을 맡긴다',scores:{independence:-1}}]},
+  {id:6,category:'admin',situation:'물품을 구매하려는데, 자주 거래하던 업체가 가격은 살짝 비싸지만 빠르고 편하다.',choices:[{text:'비교견적 절차를 밟고 최저가로 진행한다',scores:{principle:1}},{text:'금액 차이가 크지 않으면 기존 업체로 간다',scores:{principle:-1,independence:1}},{text:'다른 업체도 알아보되, 담당자와 상의해서 결정한다',scores:{independence:-1,transparency:-1}},{text:'비교견적 과정과 선정 이유를 문서로 남긴다',scores:{transparency:1}}]},
+  {id:7,category:'admin',situation:'용역 계약서에 해석이 달라질 수 있는 조항이 있다. 상대방은 "실무에서는 다 이렇게 한다"고 한다.',choices:[{text:'해당 조항의 문구를 구체적으로 바꿔서 제안한다',scores:{principle:1,independence:1}},{text:'법무/계약 담당에게 의견을 구한다',scores:{transparency:1,independence:-1}},{text:'실무 관행도 중요하니 전체 맥락을 보고 판단한다',scores:{principle:-1,transparency:-1}},{text:'비슷한 계약을 해본 동료에게 경험을 물어본다',scores:{independence:-1}}]},
+  {id:8,category:'admin',situation:'출장 중 저녁 식사를 했는데, 업무 논의도 했고 개인적 대화도 섞였다. 정산할 때 포함할지 고민된다.',choices:[{text:'구분이 애매하면 청구하지 않는 쪽으로 정리한다',scores:{principle:1}},{text:'업무 논의가 포함된 자리였으니 청구해도 된다고 본다',scores:{principle:-1,independence:1}},{text:'함께한 동료와 얘기해서 업무 비중을 맞춰본다',scores:{independence:-1,transparency:-1}},{text:'행정팀에 기준을 물어보고 그대로 따른다',scores:{transparency:1}}]},
+  {id:9,category:'admin',situation:'오래 거래한 업체 담당자가 퇴직 인사를 하며 커피 한 잔 하자고 한다. 앞으로 업무 관계는 없을 예정이다.',choices:[{text:'고마웠지만 정중히 사양한다',scores:{principle:1,independence:1}},{text:'혹시 모르니 기관 규정을 확인해본다',scores:{transparency:-1,principle:1}},{text:'앞으로 이해관계가 없으니 편하게 만난다',scores:{principle:-1}},{text:'팀장에게 알리고 판단을 구한다',scores:{independence:-1,transparency:1}}]},
+  {id:10,category:'admin',situation:'연구 장비 유지보수 계약 갱신인데, 기존 업체 외에 선택지가 사실상 없다.',choices:[{text:'그래도 공식 절차(수의계약 사유서 등)를 꼼꼼히 밟는다',scores:{principle:1}},{text:'상황이 상황인 만큼 빠르게 갱신 처리한다',scores:{principle:-1,independence:1}},{text:'혹시 다른 업체가 있는지 한 번은 알아본다',scores:{transparency:-1,principle:1}},{text:'계약 담당과 상의해서 적절한 방법을 찾는다',scores:{independence:-1}}]},
+  {id:11,category:'relation',situation:'외부 기관 담당자가 점심 미팅을 제안했다. 업무 관련 논의가 목적이라고 한다.',choices:[{text:'기관 내 회의실에서 만나자고 제안한다',scores:{principle:1,independence:1}},{text:'각자 비용 부담으로 가볍게 만난다',scores:{principle:-1,independence:1}},{text:'팀장에게 보고하고 동행할지 물어본다',scores:{independence:-1,transparency:1}},{text:'미팅 내용을 기록으로 남기고 참석한다',scores:{transparency:1,principle:-1}}]},
+  {id:12,category:'relation',situation:'동료가 절차를 좀 편하게 처리하는 걸 봤다. 명백한 위반은 아닌 것 같은데 찜찜하다.',choices:[{text:'관련 규정을 확인해보고, 문제가 있으면 알려준다',scores:{principle:1,independence:1}},{text:'동료한테 직접 "이거 괜찮은 건지" 가볍게 물어본다',scores:{transparency:1,independence:-1}},{text:'업무 스타일 차이일 수 있으니, 상황을 좀 더 파악해본다',scores:{principle:-1,transparency:-1}},{text:'기관 윤리담당에게 일반적 질문으로 확인해본다',scores:{transparency:1,principle:1}}]},
+  {id:13,category:'relation',situation:'상급자가 "이번 건은 빠르게 처리해"라며 일부 절차 생략을 암시했다.',choices:[{text:'절차가 필요한 이유를 설명하고 정식으로 진행한다',scores:{principle:1,independence:1}},{text:'간소화 가능한 부분과 필수 절차를 구분해서 제안한다',scores:{principle:-1}},{text:'속도에 맞추되, 진행 과정을 기록으로 남겨둔다',scores:{transparency:1,principle:-1}},{text:'다른 팀원과 함께 상급자에게 의견을 전달한다',scores:{independence:-1,transparency:1}}]},
+  {id:14,category:'relation',situation:'민원성 데이터 분석 요청이 들어왔는데, 요청 의도가 특정 결론을 원하는 것 같다.',choices:[{text:'데이터가 말하는 대로 객관적 결과만 제공한다',scores:{principle:1,independence:1}},{text:'요청 의도를 먼저 정확히 파악하고 범위를 조율한다',scores:{transparency:-1,principle:-1}},{text:'팀장에게 보고하고 대응 방향을 함께 정한다',scores:{independence:-1,transparency:1}},{text:'결과와 함께 분석의 한계도 명확히 안내한다',scores:{transparency:1}}]},
+  {id:15,category:'relation',situation:'퇴근 시간인데, 동료가 내일까지인 서류에 "대충 사인만 해달라"고 한다.',choices:[{text:'시간이 걸려도 내용을 확인하고 사인한다',scores:{principle:1,independence:1}},{text:'핵심만 빠르게 확인하고 처리한다',scores:{principle:-1,independence:1}},{text:'동료와 함께 빠르게 검토하고 사인한다',scores:{independence:-1}},{text:'내일 아침 일찍 와서 제대로 확인하겠다고 한다',scores:{transparency:-1,principle:1}}]},
+];
+
+let questions = JSON.parse(JSON.stringify(INITIAL_DATA));
+let currentFilter = 'all';
+let editingScore = null; // { qIdx, cIdx }
+
+const CATEGORY_LABELS = { research: '연구/데이터', admin: '행정/계약', relation: '관계/소통' };
+const CHOICE_LETTERS = ['A', 'B', 'C', 'D'];
+
+// ===== Render =====
+function render() {
+  renderStats();
+  renderQuestions();
+}
+
+function renderStats() {
+  let p_pos=0,p_neg=0,t_pos=0,t_neg=0,i_pos=0,i_neg=0;
+  for (const q of questions) {
+    for (const c of q.choices) {
+      const s = c.scores;
+      if ((s.principle??0) > 0) p_pos++;
+      if ((s.principle??0) < 0) p_neg++;
+      if ((s.transparency??0) > 0) t_pos++;
+      if ((s.transparency??0) < 0) t_neg++;
+      if ((s.independence??0) > 0) i_pos++;
+      if ((s.independence??0) < 0) i_neg++;
+    }
+  }
+  const diffP = Math.abs(p_pos - p_neg);
+  const diffT = Math.abs(t_pos - t_neg);
+  const diffI = Math.abs(i_pos - i_neg);
+
+  const cls = d => d <= 2 ? 'stat-good' : d <= 4 ? 'stat-warn' : 'stat-bad';
+
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat-item"><span class="stat-label">문항:</span> <span class="stat-value">${questions.length}</span></div>
+    <div class="stat-item"><span class="stat-label">원칙:</span> <span class="stat-value">+${p_pos}/-${p_neg}</span> <span class="stat-value ${cls(diffP)}">(차이 ${diffP})</span></div>
+    <div class="stat-item"><span class="stat-label">투명:</span> <span class="stat-value">+${t_pos}/-${t_neg}</span> <span class="stat-value ${cls(diffT)}">(차이 ${diffT})</span></div>
+    <div class="stat-item"><span class="stat-label">독립:</span> <span class="stat-value">+${i_pos}/-${i_neg}</span> <span class="stat-value ${cls(diffI)}">(차이 ${diffI})</span></div>
+  `;
+}
+
+function renderQuestions() {
+  const list = document.getElementById('questionList');
+  list.innerHTML = '';
+  questions.forEach((q, qi) => {
+    if (currentFilter !== 'all' && q.category !== currentFilter) return;
+
+    const changed = JSON.stringify(q) !== JSON.stringify(INITIAL_DATA[qi]);
+    const card = document.createElement('div');
+    card.className = `q-card${changed ? ' changed' : ''}`;
+    card.innerHTML = `
+      <div class="q-header">
+        <div class="q-num">${q.id}</div>
+        <select class="q-category-select" onchange="changeCategory(${qi}, this.value)">
+          <option value="research" ${q.category==='research'?'selected':''}>연구/데이터</option>
+          <option value="admin" ${q.category==='admin'?'selected':''}>행정/계약</option>
+          <option value="relation" ${q.category==='relation'?'selected':''}>관계/소통</option>
+        </select>
+        ${changed ? '<span style="font-size:0.65rem; color:var(--yellow); font-weight:600;">수정됨</span>' : ''}
+      </div>
+      <textarea class="q-situation" oninput="changeSituation(${qi}, this.value)">${q.situation}</textarea>
+      <div class="choices-grid">
+        ${q.choices.map((c, ci) => `
+          <div class="choice-row">
+            <div class="choice-label">${CHOICE_LETTERS[ci]}</div>
+            <input class="choice-text" value="${escapeHtml(c.text)}" oninput="changeChoiceText(${qi}, ${ci}, this.value)" />
+            <div class="score-pills" onclick="openScoreEditor(${qi}, ${ci})">
+              ${renderScorePills(c.scores)}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function renderScorePills(scores) {
+  const pills = [];
+  const p = scores.principle ?? 0;
+  const t = scores.transparency ?? 0;
+  const i = scores.independence ?? 0;
+
+  if (p > 0) pills.push('<span class="score-pill pill-principle-pos">원칙+1</span>');
+  if (p < 0) pills.push('<span class="score-pill pill-principle-neg">유연-1</span>');
+  if (t > 0) pills.push('<span class="score-pill pill-transparency-pos">투명+1</span>');
+  if (t < 0) pills.push('<span class="score-pill pill-transparency-neg">신중-1</span>');
+  if (i > 0) pills.push('<span class="score-pill pill-independence-pos">독립+1</span>');
+  if (i < 0) pills.push('<span class="score-pill pill-independence-neg">협력-1</span>');
+
+  if (pills.length === 0) pills.push('<span class="score-pill pill-empty">없음</span>');
+  return pills.join('');
+}
+
+// ===== Actions =====
+function changeSituation(qi, val) { questions[qi].situation = val; renderStats(); markChanged(qi); }
+function changeChoiceText(qi, ci, val) { questions[qi].choices[ci].text = val; markChanged(qi); }
+function changeCategory(qi, val) { questions[qi].category = val; render(); }
+
+function markChanged(qi) {
+  const cards = document.querySelectorAll('.q-card');
+  // find visible card index
+  let visibleIdx = 0;
+  for (let i = 0; i < questions.length; i++) {
+    if (currentFilter !== 'all' && questions[i].category !== currentFilter) continue;
+    if (i === qi) { break; }
+    visibleIdx++;
+  }
+  if (cards[visibleIdx]) {
+    const changed = JSON.stringify(questions[qi]) !== JSON.stringify(INITIAL_DATA[qi]);
+    cards[visibleIdx].className = `q-card${changed ? ' changed' : ''}`;
+  }
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+  renderQuestions();
+}
+
+// ===== Score Editor =====
+function openScoreEditor(qi, ci) {
+  editingScore = { qIdx: qi, cIdx: ci };
+  const choice = questions[qi].choices[ci];
+  document.getElementById('scoreEditorTitle').textContent = `Q${questions[qi].id} - ${CHOICE_LETTERS[ci]} 점수`;
+
+  // highlight current values
+  document.querySelectorAll('.score-axis-btn').forEach(btn => {
+    btn.classList.remove('selected-pos', 'selected-neg', 'selected-zero');
+    const axis = btn.dataset.axis;
+    const val = parseInt(btn.dataset.val);
+    const current = choice.scores[axis] ?? 0;
+    if (val === current) {
+      if (val > 0) btn.classList.add('selected-pos');
+      else if (val < 0) btn.classList.add('selected-neg');
+      else btn.classList.add('selected-zero');
+    }
+  });
+
+  document.getElementById('overlay').classList.remove('hidden');
+  document.getElementById('scoreEditor').classList.remove('hidden');
+}
+
+function setScore(axis, val) {
+  if (!editingScore) return;
+  const { qIdx, cIdx } = editingScore;
+  const scores = questions[qIdx].choices[cIdx].scores;
+  if (val === 0) { delete scores[axis]; }
+  else { scores[axis] = val; }
+
+  // re-highlight
+  document.querySelectorAll(`.score-axis-btn[data-axis="${axis}"]`).forEach(btn => {
+    btn.classList.remove('selected-pos', 'selected-neg', 'selected-zero');
+    const v = parseInt(btn.dataset.val);
+    const current = scores[axis] ?? 0;
+    if (v === current) {
+      if (v > 0) btn.classList.add('selected-pos');
+      else if (v < 0) btn.classList.add('selected-neg');
+      else btn.classList.add('selected-zero');
+    }
+  });
+
+  render();
+}
+
+function closeScoreEditor() {
+  editingScore = null;
+  document.getElementById('overlay').classList.add('hidden');
+  document.getElementById('scoreEditor').classList.add('hidden');
+}
+
+// ===== Export =====
+function showExport(format) {
+  let text;
+  if (format === 'json') {
+    document.getElementById('exportTitle').textContent = 'JSON 내보내기';
+    text = JSON.stringify(questions, null, 2);
+  } else {
+    document.getElementById('exportTitle').textContent = 'TypeScript 내보내기 (questions 배열)';
+    text = generateTS();
+  }
+  document.getElementById('exportText').value = text;
+  document.getElementById('exportOverlay').classList.remove('hidden');
+  document.getElementById('exportModal').classList.remove('hidden');
+}
+
+function closeExport() {
+  document.getElementById('exportOverlay').classList.add('hidden');
+  document.getElementById('exportModal').classList.add('hidden');
+}
+
+function copyExport() {
+  const ta = document.getElementById('exportText');
+  ta.select();
+  navigator.clipboard.writeText(ta.value).then(() => showToast('클립보드에 복사됨!'));
+}
+
+function generateTS() {
+  let out = 'export const questions: Question[] = [\n';
+  questions.forEach((q, i) => {
+    const catComment = i === 0 ? "  // ── 연구·데이터 영역 ──\n" :
+                       i === 5 ? "\n  // ── 행정·계약 영역 ──\n" :
+                       i === 10 ? "\n  // ── 관계·소통 영역 ──\n" : '';
+    out += catComment;
+    out += `  {\n    id: ${q.id},\n    category: '${q.category}',\n`;
+    out += `    situation: '${q.situation.replace(/'/g, "\\'")}',\n    choices: [\n`;
+    q.choices.forEach(c => {
+      const sParts = [];
+      if (c.scores.principle) sParts.push(`principle: ${c.scores.principle}`);
+      if (c.scores.transparency) sParts.push(`transparency: ${c.scores.transparency}`);
+      if (c.scores.independence) sParts.push(`independence: ${c.scores.independence}`);
+      out += `      { text: '${c.text.replace(/'/g, "\\'")}', scores: { ${sParts.join(', ')} } },\n`;
+    });
+    out += `    ],\n  },\n`;
+  });
+  out += '];\n';
+  return out;
+}
+
+// ===== Reset =====
+function resetAll() {
+  if (!confirm('모든 수정 사항을 초기화하시겠습니까?')) return;
+  questions = JSON.parse(JSON.stringify(INITIAL_DATA));
+  render();
+  showToast('초기화 완료');
+}
+
+// ===== Toast =====
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast${isError ? ' error' : ''}`;
+  setTimeout(() => t.classList.add('hidden'), 2000);
+}
+
+function escapeHtml(s) { return s.replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+// ===== Init =====
+render();
+</script>
+</body>
+</html>

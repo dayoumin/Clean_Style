@@ -282,13 +282,7 @@ p { margin-bottom: 0.75rem; }
 .axis-row.axis-3 .axis-pole { background: var(--orange-soft); color: var(--orange); }
 .axis-row.axis-3 .axis-bar  { background: linear-gradient(90deg, var(--orange), var(--yellow)); opacity: 0.3; }
 
-/* 3D Cube Diagram */
-.cube-container {
-    display: flex;
-    justify-content: center;
-    margin: 1.5rem 0;
-}
-.cube-svg { max-width: 500px; width: 100%; }
+/* Type Tree Diagram (replaced cube) */
 
 /* Orthogonality Diagram */
 .ortho-grid {
@@ -519,7 +513,7 @@ details .details-body p { margin-bottom: 0.2rem; }
     .axis-pole { min-width: 70px; font-size: 0.75rem; padding: 0.4rem 0.7rem; }
     .table-wrap { font-size: 0.82rem; }
     .theme-toggle { width: 38px; height: 38px; font-size: 1rem; top: 0.8rem; right: 0.8rem; }
-    .cube-svg { max-width: 320px; }
+    .diagram svg { max-width: 100%; overflow-x: auto; }
 }
 </style>
 </head>
@@ -625,51 +619,118 @@ details .details-body p { margin-bottom: 0.2rem; }
 
     <p>3축의 양극 조합(2<sup>3</sup>)으로 <strong>8가지 청렴 스타일 유형</strong>이 도출되며, 각 유형은 발견적 도구(Heuristic Tool)로서 개인의 성향적 경향을 가시화한다. 이 모델은 어느 극이 &ldquo;옳다&rdquo;거나 &ldquo;우월하다&rdquo;는 규범적 판단을 배제하며, 각 극이 고유한 강점과 주의점을 가진다는 전제 위에 설계되었다.</p>
 
-    <!-- 3D Cube Diagram: 8 types -->
+    <!-- Binary Tree + Card Grid: 8 types -->
     <div class="diagram">
         <div class="diagram-title">2&sup3; = 8가지 유형 조합 구조</div>
-        <div class="cube-container">
-            <svg class="cube-svg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
-                <!-- Back face -->
-                <polygon points="200,50 400,50 430,110 230,110" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
-                <polygon points="200,50 230,110 230,270 200,210" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
-                <polygon points="230,110 430,110 430,270 230,270" fill="var(--accent-soft)" stroke="var(--border)" stroke-width="1.5" opacity="0.3"/>
-                <!-- Front face -->
-                <polygon points="70,110 270,110 270,270 70,270" fill="var(--surface2)" stroke="var(--border)" stroke-width="1.5"/>
-                <!-- Top face -->
-                <polygon points="70,110 200,50 400,50 270,110" fill="var(--green-soft)" stroke="var(--border)" stroke-width="1.5" opacity="0.5"/>
-                <!-- Right face -->
-                <polygon points="270,110 400,50 430,110 430,270 270,270" fill="var(--orange-soft)" stroke="var(--border)" stroke-width="1.5" opacity="0.4"/>
-                <!-- Edges -->
-                <line x1="70" y1="270" x2="200" y2="210" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
-                <line x1="200" y1="210" x2="400" y2="210" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
-                <line x1="430" y1="270" x2="400" y2="210" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6,3"/>
-                <!-- Vertex dots: front face -->
-                <circle cx="70" cy="110" r="5" fill="var(--accent)"/>
-                <circle cx="270" cy="110" r="5" fill="var(--accent)"/>
-                <circle cx="70" cy="270" r="5" fill="var(--accent)"/>
-                <circle cx="270" cy="270" r="5" fill="var(--accent)"/>
-                <!-- Vertex dots: back face -->
-                <circle cx="200" cy="50" r="5" fill="var(--purple)"/>
-                <circle cx="400" cy="50" r="5" fill="var(--purple)"/>
-                <circle cx="230" cy="270" r="4" fill="var(--purple)" opacity="0.5"/>
-                <circle cx="430" cy="270" r="4" fill="var(--purple)" opacity="0.5"/>
-                <!-- Axis labels -->
-                <text x="170" y="300" font-size="13" font-weight="700" fill="var(--accent)" text-anchor="middle">원칙 &#8592;&#8594; 유연성</text>
-                <text x="455" y="195" font-size="13" font-weight="700" fill="var(--orange)" text-anchor="start" transform="rotate(-90,455,195)">독립 &#8592;&#8594; 협력</text>
-                <text x="115" y="42" font-size="13" font-weight="700" fill="var(--green)" text-anchor="middle">투명성 &#8592;&#8594; 신중성</text>
-                <!-- 8 type labels -->
-                <text x="70" y="100" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형1</text>
-                <text x="270" y="100" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형2</text>
-                <text x="70" y="286" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형3</text>
-                <text x="270" y="286" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형4</text>
-                <text x="200" y="42" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형5</text>
-                <text x="400" y="42" font-size="10" fill="var(--text-dim)" text-anchor="middle">유형6</text>
-                <text x="430" y="286" font-size="10" fill="var(--text-dim)" text-anchor="end">유형7</text>
-                <text x="230" y="286" font-size="10" fill="var(--text-dim)" text-anchor="start">유형8</text>
-            </svg>
-        </div>
-        <p style="font-size:0.85rem; color:var(--text-dim); margin-top:0.5rem;">각 꼭짓점은 3축의 양극 조합으로 생성되는 하나의 청렴 스타일 유형을 나타낸다.</p>
+
+        <!-- Binary branching tree -->
+        <svg viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg" style="width:100%; max-width:800px; margin:0 auto; display:block;">
+            <!-- Level 0: root -->
+            <text x="400" y="18" font-size="12" font-weight="700" fill="var(--text)" text-anchor="middle">전체</text>
+            <line x1="400" y1="24" x2="200" y2="60" stroke="var(--green)" stroke-width="2"/>
+            <line x1="400" y1="24" x2="600" y2="60" stroke="var(--orange)" stroke-width="2"/>
+
+            <!-- Level 1: 축 1 -->
+            <rect x="130" y="52" width="140" height="28" rx="6" fill="var(--green-soft)" stroke="var(--green)" stroke-width="1"/>
+            <text x="200" y="71" font-size="11" font-weight="700" fill="var(--green)" text-anchor="middle">원칙</text>
+            <rect x="530" y="52" width="140" height="28" rx="6" fill="var(--orange-soft)" stroke="var(--orange)" stroke-width="1"/>
+            <text x="600" y="71" font-size="11" font-weight="700" fill="var(--orange)" text-anchor="middle">유연</text>
+
+            <!-- Level 1 → 2 lines -->
+            <line x1="200" y1="80" x2="110" y2="116" stroke="var(--accent)" stroke-width="1.5"/>
+            <line x1="200" y1="80" x2="290" y2="116" stroke="var(--yellow)" stroke-width="1.5"/>
+            <line x1="600" y1="80" x2="510" y2="116" stroke="var(--accent)" stroke-width="1.5"/>
+            <line x1="600" y1="80" x2="690" y2="116" stroke="var(--yellow)" stroke-width="1.5"/>
+
+            <!-- Level 2: 축 2 -->
+            <rect x="50" y="108" width="120" height="26" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1"/>
+            <text x="110" y="126" font-size="10" font-weight="700" fill="var(--accent)" text-anchor="middle">투명</text>
+            <rect x="230" y="108" width="120" height="26" rx="6" fill="var(--yellow-soft)" stroke="var(--yellow)" stroke-width="1"/>
+            <text x="290" y="126" font-size="10" font-weight="700" fill="var(--yellow)" text-anchor="middle">신중</text>
+            <rect x="450" y="108" width="120" height="26" rx="6" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1"/>
+            <text x="510" y="126" font-size="10" font-weight="700" fill="var(--accent)" text-anchor="middle">투명</text>
+            <rect x="630" y="108" width="120" height="26" rx="6" fill="var(--yellow-soft)" stroke="var(--yellow)" stroke-width="1"/>
+            <text x="690" y="126" font-size="10" font-weight="700" fill="var(--yellow)" text-anchor="middle">신중</text>
+
+            <!-- Level 2 → 3 lines -->
+            <line x1="110" y1="134" x2="65" y2="168" stroke="var(--teal)" stroke-width="1.2"/>
+            <line x1="110" y1="134" x2="155" y2="168" stroke="var(--purple)" stroke-width="1.2"/>
+            <line x1="290" y1="134" x2="245" y2="168" stroke="var(--teal)" stroke-width="1.2"/>
+            <line x1="290" y1="134" x2="335" y2="168" stroke="var(--purple)" stroke-width="1.2"/>
+            <line x1="510" y1="134" x2="465" y2="168" stroke="var(--teal)" stroke-width="1.2"/>
+            <line x1="510" y1="134" x2="555" y2="168" stroke="var(--purple)" stroke-width="1.2"/>
+            <line x1="690" y1="134" x2="645" y2="168" stroke="var(--teal)" stroke-width="1.2"/>
+            <line x1="690" y1="134" x2="735" y2="168" stroke="var(--purple)" stroke-width="1.2"/>
+
+            <!-- Level 3: 축 3 → 8 types (leaf nodes) -->
+            <!-- 원칙+투명+독립 -->
+            <rect x="25" y="168" width="80" height="80" rx="10" fill="var(--surface2)" stroke="var(--border)" stroke-width="1"/>
+            <text x="65" y="190" font-size="18" text-anchor="middle">&#x1F6E1;&#xFE0F;</text>
+            <text x="65" y="206" font-size="8.5" font-weight="700" fill="var(--text)" text-anchor="middle">소신 수호자</text>
+            <text x="65" y="220" font-size="7" fill="var(--teal)" text-anchor="middle">독립</text>
+            <text x="65" y="240" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">19.2%</text>
+
+            <!-- 원칙+투명+협력 -->
+            <rect x="115" y="168" width="80" height="80" rx="10" fill="var(--surface2)" stroke="var(--border)" stroke-width="1"/>
+            <text x="155" y="190" font-size="18" text-anchor="middle">&#x2696;&#xFE0F;</text>
+            <text x="155" y="206" font-size="8.5" font-weight="700" fill="var(--text)" text-anchor="middle">정의의 조율자</text>
+            <text x="155" y="220" font-size="7" fill="var(--purple)" text-anchor="middle">협력</text>
+            <text x="155" y="240" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">21.6%</text>
+
+            <!-- 원칙+신중+독립 -->
+            <rect x="205" y="168" width="80" height="80" rx="10" fill="var(--surface2)" stroke="var(--border)" stroke-width="1"/>
+            <text x="245" y="190" font-size="18" text-anchor="middle">&#x1F3D4;&#xFE0F;</text>
+            <text x="245" y="206" font-size="8.5" font-weight="700" fill="var(--text)" text-anchor="middle">묵묵한 파수꾼</text>
+            <text x="245" y="220" font-size="7" fill="var(--teal)" text-anchor="middle">독립</text>
+            <text x="245" y="240" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">10.2%</text>
+
+            <!-- 원칙+신중+협력 -->
+            <rect x="295" y="168" width="80" height="80" rx="10" fill="var(--surface2)" stroke="var(--border)" stroke-width="1"/>
+            <text x="335" y="190" font-size="18" text-anchor="middle">&#x1F91D;</text>
+            <text x="335" y="206" font-size="8.5" font-weight="700" fill="var(--text)" text-anchor="middle">신중한 중재자</text>
+            <text x="335" y="220" font-size="7" fill="var(--purple)" text-anchor="middle">협력</text>
+            <text x="335" y="240" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">6.3%</text>
+
+            <!-- 유연+투명+독립 -->
+            <rect x="425" y="168" width="80" height="80" rx="10" fill="var(--surface2)" stroke="var(--border)" stroke-width="1"/>
+            <text x="465" y="190" font-size="18" text-anchor="middle">&#x1F680;</text>
+            <text x="465" y="206" font-size="8.5" font-weight="700" fill="var(--text)" text-anchor="middle">실용주의 개척자</text>
+            <text x="465" y="220" font-size="7" fill="var(--teal)" text-anchor="middle">독립</text>
+            <text x="465" y="240" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">12.2%</text>
+
+            <!-- 유연+투명+협력 -->
+            <rect x="515" y="168" width="80" height="80" rx="10" fill="var(--surface2)" stroke="var(--border)" stroke-width="1"/>
+            <text x="555" y="190" font-size="18" text-anchor="middle">&#x1F4AC;</text>
+            <text x="555" y="206" font-size="8.5" font-weight="700" fill="var(--text)" text-anchor="middle">열린 소통가</text>
+            <text x="555" y="220" font-size="7" fill="var(--purple)" text-anchor="middle">협력</text>
+            <text x="555" y="240" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">15.6%</text>
+
+            <!-- 유연+신중+독립 -->
+            <rect x="605" y="168" width="80" height="80" rx="10" fill="var(--surface2)" stroke="var(--border)" stroke-width="1"/>
+            <text x="645" y="190" font-size="18" text-anchor="middle">&#x1F3AF;</text>
+            <text x="645" y="206" font-size="8.5" font-weight="700" fill="var(--text)" text-anchor="middle">전략적 해결사</text>
+            <text x="645" y="220" font-size="7" fill="var(--teal)" text-anchor="middle">독립</text>
+            <text x="645" y="240" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">8.5%</text>
+
+            <!-- 유연+신중+협력 -->
+            <rect x="695" y="168" width="80" height="80" rx="10" fill="var(--surface2)" stroke="var(--border)" stroke-width="1"/>
+            <text x="735" y="190" font-size="18" text-anchor="middle">&#x1F54A;&#xFE0F;</text>
+            <text x="735" y="206" font-size="8.5" font-weight="700" fill="var(--text)" text-anchor="middle">온건한 조정자</text>
+            <text x="735" y="220" font-size="7" fill="var(--purple)" text-anchor="middle">협력</text>
+            <text x="735" y="240" font-size="7.5" fill="var(--text-dim)" text-anchor="middle">6.6%</text>
+
+            <!-- Axis level labels (left side) -->
+            <text x="12" y="71" font-size="9" font-weight="600" fill="var(--text-dim)" text-anchor="start">축1</text>
+            <text x="12" y="126" font-size="9" font-weight="600" fill="var(--text-dim)" text-anchor="start">축2</text>
+            <text x="12" y="210" font-size="9" font-weight="600" fill="var(--text-dim)" text-anchor="start">축3</text>
+        </svg>
+
+        <p style="font-size:0.85rem; color:var(--text-dim); margin-top:0.75rem; text-align:center;">
+            축1(<span style="color:var(--green)">원칙</span>/<span style="color:var(--orange)">유연</span>) &rarr;
+            축2(<span style="color:var(--accent)">투명</span>/<span style="color:var(--yellow)">신중</span>) &rarr;
+            축3(<span style="color:var(--teal)">독립</span>/<span style="color:var(--purple)">협력</span>)
+            순서로 분기하여 8가지 유형이 도출된다.
+        </p>
     </div>
 </section>
 

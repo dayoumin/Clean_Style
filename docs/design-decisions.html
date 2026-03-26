@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - Design Decisions</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232733;
+    --border: #2e3345; --text: #e1e4ed; --text-dim: #8b90a0;
+    --accent: #6c8aff; --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c; --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+    --purple: #a78bfa; --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #facc15; --yellow-soft: rgba(250,204,21,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  a.back { color: var(--accent); text-decoration: none; font-size: 0.82rem; display: inline-block; margin-bottom: 1.5rem; }
+  a.back:hover { text-decoration: underline; }
+  h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.25rem; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 2.5rem; }
+  h2 {
+    font-size: 1.15rem; font-weight: 700;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 0.95rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  ul { margin: 0.5rem 0 0.5rem 1.2rem; font-size: 0.88rem; }
+  ul li { margin-bottom: 0.35rem; }
+  ul li strong { font-weight: 600; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.75rem 0; }
+  th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-dim); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td code { background: var(--surface2); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.8rem; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+
+  code {
+    background: var(--surface2);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  .tag {
+    display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.45rem;
+    border-radius: 4px; font-weight: 600; margin-right: 0.25rem;
+  }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+  .tag-orange { background: var(--orange-soft); color: var(--orange); }
+  .tag-purple { background: var(--purple-soft); color: var(--purple); }
+
+  .note {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    margin: 0.75rem 0;
+  }
+  .note.warn {
+    background: var(--orange-soft);
+    border-left-color: var(--orange);
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .toc-title { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 0.5rem; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.85rem; display: block; padding: 0.2rem 0; }
+  .toc a:hover { text-decoration: underline; }
+
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .cols-2 { grid-template-columns: 1fr; } }
+
+  .updated { color: var(--text-dim); font-size: 0.75rem; text-align: center; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Back to Docs</a>
+<h1><span>Clean Style</span> Design Decisions</h1>
+<p class="subtitle">설계 결정 기록 &mdash; AI Q&amp;A 대화 히스토리 설계</p>
+
+<div class="toc">
+  <div class="toc-title">목차</div>
+  <a href="#decisions">1. 결정 사항</a>
+  <a href="#no-summarization">2. 대화 요약 미채택 이유</a>
+  <a href="#style-strategy">3. 스타일 반영 전략</a>
+  <a href="#prompt-structure">4. 프롬프트 구조</a>
+  <a href="#ui-structure">5. UI 구조</a>
+</div>
+
+<!-- 1. 결정 사항 -->
+<h2 id="decisions">1. 결정 사항</h2>
+
+<div class="card">
+  <ul>
+    <li><strong>최대 4턴</strong> (user+assistant 8메시지)까지 이어서 질문 가능 (첫 질문 포함 4번, 이어서 3번)</li>
+    <li>3턴째 답변 후: <span class="tag tag-orange">"이어서 질문은 1번 더 가능해요"</span> 안내</li>
+    <li>4턴째 답변 후: <span class="tag tag-orange">"이어서"</span> 버튼 비활성화 + "대화가 길어져서 새로 시작할게요" 안내</li>
+    <li>버튼 레이아웃은 항상 동일 (숨기지 않고 비활성화 &rarr; UI 흔들림 방지)</li>
+    <li>서버(<code>MAX_HISTORY_MESSAGES = 8</code>)와 클라이언트(<code>.slice(-8)</code>) 모두 동일하게 제한</li>
+  </ul>
+</div>
+
+<!-- 2. 대화 요약 미채택 이유 -->
+<h2 id="no-summarization">2. 대화 요약(Summarization) 미채택 이유</h2>
+
+<div class="card">
+  <table>
+    <tr><th>방식</th><th>문제점</th></tr>
+    <tr>
+      <td>매 턴 요약 (Rolling Summary)</td>
+      <td>AI 호출 2배 (요약용 + 답변용) &rarr; 토큰 비용/응답 지연 증가</td>
+    </tr>
+    <tr>
+      <td>청크 요약 (Chunk Summary)</td>
+      <td>역시 추가 AI 호출 필요</td>
+    </tr>
+    <tr>
+      <td>요약 품질</td>
+      <td>요약 품질에 따라 맥락 왜곡 우려</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    청렴 Q&amp;A 특성상 긴 대화보다 짧고 독립적인 질문이 대부분 &rarr; 5턴 제한으로 충분.<br>
+    ChatGPT, 16Personalities 등 주요 서비스도 컨텍스트 윈도우 기반 잘라내기 또는 턴 제한 사용.
+  </div>
+</div>
+
+<!-- 3. 스타일 반영 전략 -->
+<h2 id="style-strategy">3. 스타일 반영 전략</h2>
+
+<div class="cols-2">
+  <div class="card">
+    <h3>첫 질문</h3>
+    <ul>
+      <li>시스템 프롬프트(<code>QA_SYSTEM_PROMPT</code>)에서 "도입부에 스타일 한 번 언급" 지시</li>
+      <li>user 메시지에 스타일 정보 포함</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>이어서 질문</h3>
+    <ul>
+      <li>시스템 프롬프트(<code>QA_SYSTEM_PROMPT_CONTINUE</code>)에서 "스타일 반복 언급 금지" 지시</li>
+      <li>user 메시지에서 스타일 정보 제거</li>
+    </ul>
+  </div>
+</div>
+
+<div class="note">
+  16Personalities 등 유명 서비스도 유형을 명시적으로 언급하되 과도하지 않게 하는 방식 채택.
+</div>
+
+<!-- 4. 프롬프트 구조 -->
+<h2 id="prompt-structure">4. 프롬프트 구조</h2>
+
+<div class="card">
+  <table>
+    <tr><th>프롬프트</th><th>구성</th><th>용도</th></tr>
+    <tr>
+      <td><code>QA_BASE</code></td>
+      <td>공통 역할/응답 원칙</td>
+      <td>중복 방지</td>
+    </tr>
+    <tr>
+      <td><code>QA_SYSTEM_PROMPT</code></td>
+      <td><code>QA_BASE</code> + 첫 질문용 스타일 반영 원칙</td>
+      <td>첫 질문</td>
+    </tr>
+    <tr>
+      <td><code>QA_SYSTEM_PROMPT_CONTINUE</code></td>
+      <td><code>QA_BASE</code> + 이어서 질문용 스타일 반영 원칙</td>
+      <td>이어서 질문</td>
+    </tr>
+  </table>
+</div>
+
+<!-- 5. UI 구조 -->
+<h2 id="ui-structure">5. UI 구조</h2>
+
+<div class="card">
+  <ul>
+    <li>채팅 버블: 사용자(우측), AI(좌측) 배치</li>
+    <li><code>ChatBubbles</code> 공유 컴포넌트로 중복 제거</li>
+    <li>답변 화면 / 로딩 화면 / 입력 화면 모두 이전 대화 히스토리 표시</li>
+  </ul>
+
+  <h3>버튼 동작</h3>
+  <table>
+    <tr><th>버튼</th><th>동작</th></tr>
+    <tr>
+      <td><span class="tag tag-blue">새 질문</span></td>
+      <td>히스토리 리셋</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-green">이어서</span></td>
+      <td>히스토리 유지, 입력만 초기화</td>
+    </tr>
+  </table>
+</div>
+
+<p class="updated">Design Decisions &middot; Clean Style Docs</p>
+
+</body>
+</html>

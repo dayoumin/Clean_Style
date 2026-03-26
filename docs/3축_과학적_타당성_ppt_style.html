@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3축 모델의 과학적 타당성 — Clean Style</title>
+<style>
+/* ===== Variables ===== */
+:root {
+  --bg: #0b0d13;
+  --surface: #12151e;
+  --surface2: #1a1e2c;
+  --surface3: #222838;
+  --border: #2a3048;
+  --text: #e4e7f1;
+  --text-dim: #8891ab;
+  --accent: #6c8aff;
+  --accent2: #a78bfa;
+  --accent3: #38bdf8;
+  --green: #4ade80;
+  --orange: #fb923c;
+  --red: #f87171;
+  --yellow: #facc15;
+  --teal: #2dd4bf;
+  --pink: #f472b6;
+}
+
+/* ===== Reset ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* ===== Slide System ===== */
+.slide {
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.slide + .slide { border-top: 1px solid var(--border); }
+
+.slide-number {
+  position: absolute;
+  top: 2rem; right: 3rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+/* ===== Typography ===== */
+.slide-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 0.5rem;
+}
+
+.slide-title .highlight { color: var(--accent); }
+.slide-title .highlight2 { color: var(--accent2); }
+.slide-title .highlight3 { color: var(--accent3); }
+
+.slide-subtitle {
+  font-size: 1.15rem;
+  color: var(--text-dim);
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+}
+
+h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
+/* ===== Cards ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.5rem;
+}
+
+.card-grid { display: grid; gap: 1rem; }
+.card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+/* ===== Axis Cards (big) ===== */
+.axis-hero {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.axis-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  border-radius: 20px 20px 0 0;
+}
+
+.axis-hero.axis-1::before { background: linear-gradient(90deg, var(--green), var(--orange)); }
+.axis-hero.axis-2::before { background: linear-gradient(90deg, var(--accent), var(--yellow)); }
+.axis-hero.axis-3::before { background: linear-gradient(90deg, var(--accent3), var(--pink)); }
+
+.axis-hero .axis-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  margin-bottom: 0.5rem;
+}
+
+.axis-hero .axis-name {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.axis-hero .axis-desc {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+/* ===== Theory Cards ===== */
+.theory-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.theory-card .theory-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+
+.badge-personality { background: rgba(108,138,255,0.15); color: var(--accent); }
+.badge-moral { background: rgba(167,139,250,0.15); color: var(--accent2); }
+.badge-org { background: rgba(45,212,191,0.15); color: var(--teal); }
+.badge-culture { background: rgba(244,114,182,0.15); color: var(--pink); }
+.badge-public { background: rgba(250,204,21,0.15); color: var(--yellow); }
+
+.theory-card .theory-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.theory-card .theory-author {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 0.5rem;
+}
+
+.theory-card .theory-detail {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.65;
+}
+
+.theory-card .theory-detail strong { color: var(--text); }
+
+/* ===== Tags ===== */
+.tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+}
+
+.tag-green { background: rgba(74,222,128,0.12); color: var(--green); }
+.tag-orange { background: rgba(251,146,60,0.12); color: var(--orange); }
+.tag-blue { background: rgba(108,138,255,0.12); color: var(--accent); }
+.tag-purple { background: rgba(167,139,250,0.12); color: var(--accent2); }
+.tag-teal { background: rgba(45,212,191,0.12); color: var(--teal); }
+.tag-red { background: rgba(248,113,113,0.12); color: var(--red); }
+.tag-yellow { background: rgba(250,204,21,0.12); color: var(--yellow); }
+.tag-pink { background: rgba(244,114,182,0.12); color: var(--pink); }
+
+/* ===== Tables ===== */
+table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+th, td { padding: 0.6rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--text-dim); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ===== Comparison Bar ===== */
+.compare-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+  font-size: 0.82rem;
+}
+
+.compare-label {
+  width: 160px;
+  text-align: right;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  font-size: 0.8rem;
+}
+
+.compare-track {
+  flex: 1;
+  height: 24px;
+  background: var(--surface2);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.compare-fill {
+  height: 100%;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  transition: width 0.5s ease;
+}
+
+/* ===== Flow / Steps ===== */
+.step-list { display: flex; flex-direction: column; gap: 1rem; }
+
+.step-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.step-num {
+  flex-shrink: 0;
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: rgba(108,138,255,0.1);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.step-content { flex: 1; }
+.step-content .step-title { font-weight: 700; margin-bottom: 0.2rem; }
+.step-content .step-detail { font-size: 0.85rem; color: var(--text-dim); line-height: 1.6; }
+
+/* ===== Callout ===== */
+.callout {
+  background: var(--surface2);
+  border-left: 3px solid var(--accent);
+  padding: 1rem 1.25rem;
+  border-radius: 0 10px 10px 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 1.5rem;
+  line-height: 1.7;
+}
+
+.callout strong { color: var(--text); }
+.callout.warn { border-left-color: var(--orange); }
+.callout.success { border-left-color: var(--green); }
+.callout.info { border-left-color: var(--accent2); }
+
+/* ===== Big Number ===== */
+.big-num {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.big-label {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+/* ===== 8-Type Grid ===== */
+.type-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  text-align: center;
+}
+
+.type-card .emoji { font-size: 2rem; margin-bottom: 0.35rem; }
+.type-card .name { font-weight: 700; font-size: 1rem; margin-bottom: 0.2rem; }
+.type-card .sub { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.35rem; }
+.type-card .pct { font-size: 0.85rem; color: var(--accent); font-weight: 700; }
+
+/* ===== Orthogonal Diagram ===== */
+.ortho-table td {
+  vertical-align: top;
+  padding: 0.75rem;
+}
+
+.ortho-pair {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+
+.ortho-pair strong { color: var(--text); }
+
+/* ===== Validation Status ===== */
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.status-row:last-child { border-bottom: none; }
+
+.status-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-green { background: var(--green); }
+.dot-yellow { background: var(--yellow); }
+.dot-red { background: var(--red); }
+.dot-blue { background: var(--accent); }
+
+.status-label { flex: 1; font-size: 0.9rem; font-weight: 600; }
+.status-info { font-size: 0.8rem; color: var(--text-dim); max-width: 400px; }
+
+/* ===== Roadmap ===== */
+.roadmap-item {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.roadmap-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.roadmap-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.roadmap-connector {
+  width: 2px;
+  flex: 1;
+  min-height: 40px;
+  background: var(--border);
+}
+
+.roadmap-content { flex: 1; padding-bottom: 1rem; }
+.roadmap-content .rm-phase { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem; }
+.roadmap-content .rm-title { font-weight: 700; font-size: 1rem; margin-bottom: 0.25rem; }
+.roadmap-content .rm-detail { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; }
+
+/* ===== Ref list ===== */
+.ref-list { list-style: none; font-size: 0.78rem; color: var(--text-dim); line-height: 1.8; }
+.ref-list li { padding-left: 1rem; text-indent: -1rem; margin-bottom: 0.3rem; }
+.ref-list li::before { content: ''; }
+.ref-category { font-size: 0.7rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 1rem; margin-bottom: 0.25rem; }
+
+/* ===== Footer ===== */
+.footer {
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  border-top: 1px solid var(--border);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .slide { padding: 2.5rem 1.5rem; min-height: auto; }
+  .slide-title { font-size: 1.6rem; }
+  .card-grid-2, .card-grid-3 { grid-template-columns: 1fr; }
+  .compare-label { width: 100px; font-size: 0.72rem; }
+  .big-num { font-size: 2.5rem; }
+}
+
+@media (max-width: 480px) {
+  .slide { padding: 2rem 1rem; }
+  .slide-title { font-size: 1.35rem; }
+  .slide-number { top: 1rem; right: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!-- SLIDE 1: Title -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">01 / 12</div>
+  <div style="margin-bottom: 1.5rem;">
+    <span class="tag tag-blue">Clean Style Research Report</span>
+    <span class="tag tag-purple" style="margin-left:0.25rem;">2026-03</span>
+  </div>
+  <h1 class="slide-title">
+    <span class="highlight">3축 모델</span>의<br>과학적 타당성
+  </h1>
+  <p class="slide-subtitle">
+    원칙 &harr; 유연 &middot; 투명 &harr; 신중 &middot; 독립 &harr; 협력<br>
+    6개 이론 전통, 30+ 학술 문헌 기반의 다학제적 근거 보고서
+  </p>
+  <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+    <span class="tag tag-green">성격심리학</span>
+    <span class="tag tag-purple">도덕심리학</span>
+    <span class="tag tag-teal">조직행동론</span>
+    <span class="tag tag-pink">문화심리학</span>
+    <span class="tag tag-yellow">공공행정학</span>
+    <span class="tag tag-blue">대인관계심리학</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 2: Overview -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">02 / 12</div>
+  <h1 class="slide-title">테스트 <span class="highlight">개요</span></h1>
+  <p class="slide-subtitle">공공기관(연구기관) 종사자의 청렴 의사결정 성향을 3차원으로 프로파일링</p>
+
+  <div class="card-grid card-grid-3" style="margin-bottom: 2rem;">
+    <div class="card" style="text-align:center;">
+      <div class="big-num" style="color:var(--accent);">15</div>
+      <div class="big-label">시나리오 문항</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="big-num" style="color:var(--accent2);">3</div>
+      <div class="big-label">독립 측정 축</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div class="big-num" style="color:var(--accent3);">8</div>
+      <div class="big-label">청렴 스타일 유형</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table>
+      <tr><th style="width:140px">항목</th><th>내용</th></tr>
+      <tr><td>형식</td><td>4지선다, 강제선택 (오답 없음)</td></tr>
+      <tr><td>영역</td><td>연구/데이터 5문항 &middot; 행정/계약 5문항 &middot; 관계/소통 5문항</td></tr>
+      <tr><td>측정</td><td>축별 +1/-1 양극 합산 &rarr; 방향 판정 &rarr; 2&times;2&times;2 = 8유형</td></tr>
+      <tr><td>소요 시간</td><td>약 3분</td></tr>
+      <tr><td>포지셔닝</td><td>자기발견/교육 보조 도구 (공식 평가 아님)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 3: 3-Axis Definition -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">03 / 12</div>
+  <h1 class="slide-title"><span class="highlight">3축</span> 정의</h1>
+  <p class="slide-subtitle">각 축은 양극 연속체이며, 어느 쪽이 우월하지 않다</p>
+
+  <div class="card-grid" style="grid-template-columns: 1fr; gap: 1.25rem;">
+    <div class="axis-hero axis-1">
+      <div class="axis-label">축 1 &mdash; 의사결정 기준</div>
+      <div class="axis-name">
+        <span style="color:var(--green)">원칙</span>
+        <span style="color:var(--text-dim); font-weight:400; font-size:1.2rem;"> &harr; </span>
+        <span style="color:var(--orange)">유연</span>
+      </div>
+      <div class="axis-desc">
+        <strong style="color:var(--green)">원칙 (+1)</strong> &mdash; 규정/절차/기준을 우선하는 행위. "규칙대로 처리한다"<br>
+        <strong style="color:var(--orange)">유연 (-1)</strong> &mdash; 상황/맥락/효율을 고려하는 행위. "상황에 맞게 조정한다"
+      </div>
+    </div>
+
+    <div class="axis-hero axis-2">
+      <div class="axis-label">축 2 &mdash; 정보 처리 방식</div>
+      <div class="axis-name">
+        <span style="color:var(--accent)">투명</span>
+        <span style="color:var(--text-dim); font-weight:400; font-size:1.2rem;"> &harr; </span>
+        <span style="color:var(--yellow)">신중</span>
+      </div>
+      <div class="axis-desc">
+        <strong style="color:var(--accent)">투명 (+1)</strong> &mdash; 정보를 즉시 공유/보고/공개하는 행위. "바로 보고한다"<br>
+        <strong style="color:var(--yellow)">신중 (-1)</strong> &mdash; 먼저 확인/파악한 뒤 판단하는 행위. "먼저 파악해본다"
+      </div>
+    </div>
+
+    <div class="axis-hero axis-3">
+      <div class="axis-label">축 3 &mdash; 행동 양식</div>
+      <div class="axis-name">
+        <span style="color:var(--accent3)">독립</span>
+        <span style="color:var(--text-dim); font-weight:400; font-size:1.2rem;"> &harr; </span>
+        <span style="color:var(--pink)">협력</span>
+      </div>
+      <div class="axis-desc">
+        <strong style="color:var(--accent3)">독립 (+1)</strong> &mdash; 혼자 판단하고 실행하는 행위. "스스로 기준을 세운다"<br>
+        <strong style="color:var(--pink)">협력 (-1)</strong> &mdash; 타인과 함께 판단/행동하는 행위. "팀과 함께 정한다"
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 4: Axis 1 - Principle vs Flexibility -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">04 / 12</div>
+  <h1 class="slide-title">축 1: <span style="color:var(--green)">원칙</span> &harr; <span style="color:var(--orange)">유연</span></h1>
+  <p class="slide-subtitle">의무론 vs 결과론 &mdash; 6개 독립 이론에서 수렴적으로 식별되는 심리-윤리 차원</p>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 1.5rem;">
+    <div class="theory-card">
+      <span class="theory-badge badge-personality">성격심리학</span>
+      <div class="theory-name">HEXACO 성격 모형</div>
+      <div class="theory-author">Ashton & Lee, 2007; Zettler et al., 2020</div>
+      <div class="theory-detail">
+        규칙준수는 <strong>성실성(C)</strong>의 Prudence/Diligence 파셋,
+        유연성은 <strong>우호성(A)</strong>의 Flexibility 파셋으로 귀속.
+        426개 메타분석에서 C &rarr; Duty, A &rarr; Obstruction으로 <strong>경험적으로 분리 가능한 차원</strong> 확인.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-personality">가치심리학</span>
+      <div class="theory-name">Schwartz 가치 이론</div>
+      <div class="theory-author">Schwartz, 1992; Schwartz & Cieciuch, 2022</div>
+      <div class="theory-detail">
+        <strong>보존</strong>(동조+전통+안전) &harr; <strong>변화개방</strong>(자기결정+자극)으로 원형 모형 내에서 <strong>양극 차원으로 명시적 모형화</strong>.
+        PVQ-RR로 49개 문화 집단에서 형태/측정 동치성 확인 (&alpha;=0.76).
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-moral">도덕심리학</span>
+      <div class="theory-name">Forsyth 윤리적 입장 이론 (EPQ)</div>
+      <div class="theory-author">Forsyth, 1980; Forsyth & O'Boyle, 2021</div>
+      <div class="theory-detail">
+        <strong>이상주의 &times; 상대주의</strong> 2차원 측정. 상대주의 = 유연성 극, 낮은 상대주의(절대주의) = 원칙 극.
+        EPQ-5(10문항): CFA(n=2,778), 반복검증(n=10,707), 성별 간 측정 동치성 확인.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-moral">도덕심리학</span>
+      <div class="theory-name">CNI 모형</div>
+      <div class="theory-author">Gawronski et al., 2017</div>
+      <div class="theory-detail">
+        도덕적 딜레마에서 <strong>N(규범 민감성)</strong> = 규칙 준수, <strong>C(결과 민감성)</strong> = 결과 지향을
+        <strong>독립 모수로 분리 측정</strong>. 성실성은 N과, H(정직-겸손)은 의무론적 판단과 관련.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-moral">발달심리학</span>
+      <div class="theory-name">Kohlberg 도덕 발달 이론</div>
+      <div class="theory-author">Kohlberg, 1981; Rest et al., 1999 (DIT-2)</div>
+      <div class="theory-detail">
+        Stage 4(법과 질서) = 규칙 엄격 준수. Stage 5-6(사회계약/보편 원칙) = 법을 "유연한 사회적 도구"로 봄.
+        DIT-2의 관습적 vs 탈관습적 도식 점수로 측정 가능.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-org">조직행동론</span>
+      <div class="theory-name">Victor & Cullen 윤리풍토 이론</div>
+      <div class="theory-author">Victor & Cullen, 1988; Weber & Opoku-Dakwa, 2022</div>
+      <div class="theory-detail">
+        ECQ 5개 경험적 요인 중 <strong>Rules, Law & Code, Independence</strong>가 원칙-유연성을 조직 수준에서 반영.
+        Maesschalck(2004)이 벨기에 공공기관에 성공적 적용.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 5: Axis 2 - Transparency vs Prudence -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">05 / 12</div>
+  <h1 class="slide-title">축 2: <span style="color:var(--accent)">투명</span> &harr; <span style="color:var(--yellow)">신중</span></h1>
+  <p class="slide-subtitle">정보 공유의 속도/개방성 vs 확인의 정확성/신중함 &mdash; 가장 풍부한 학술 근거 보유</p>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 1.5rem;">
+    <div class="theory-card">
+      <span class="theory-badge badge-personality">긍정심리학</span>
+      <div class="theory-name">VIA 강점 분류 체계</div>
+      <div class="theory-author">Peterson & Seligman, 2004</div>
+      <div class="theory-detail">
+        <strong>정직(Honesty)</strong> = 용기(Courage) 미덕 &rarr; 투명성 극.
+        <strong>신중성(Prudence)</strong> = 절제(Temperance) 미덕 &rarr; 신중성 극.
+        <strong>완전히 별개의 미덕 하에 독립 측정</strong>.
+        54개국 11만명 대상 교차 문화 연구에서 독립적 변동 확인.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-personality">성격심리학</span>
+      <div class="theory-name">HEXACO H vs C</div>
+      <div class="theory-author">Ashton & Lee, 2007; Zettler et al., 2020</div>
+      <div class="theory-detail">
+        투명성 &rarr; <strong>정직-겸손(H)</strong>, 신중성 &rarr; <strong>성실성(C)</strong>의 Prudence 파셋.
+        두 차원은 <strong>요인분석적으로 직교(Orthogonal)</strong>.
+        메타분석에서 H &rarr; Exploitation, C &rarr; Duty로 별도 결과 영역 매핑.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-org">리더십</span>
+      <div class="theory-name">진정성 리더십 (ALQ)</div>
+      <div class="theory-author">Walumbwa et al., 2008</div>
+      <div class="theory-detail">
+        ALQ 4개 하위 차원 중 <strong>관계적 투명성(RT)</strong>과 <strong>균형 잡힌 정보 처리(BP)</strong>가
+        각각 투명성과 신중성에 직접 대응.
+        투명성 단독 &rarr; 혼란 가능. 신중성과 결합 시 심리적 안전감/신뢰 고취.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-org">조직행동론</span>
+      <div class="theory-name">DCA-투명성 척도</div>
+      <div class="theory-author">Hossiep et al., 2021</div>
+      <div class="theory-detail">
+        조직 정보 공유 품질을 5개 독립 하위 차원으로 분해.
+        <strong>시의성(즉시 보고)</strong>과 <strong>정확성(확인 후 보고)</strong>이
+        <strong>요인분석적으로 분리되는 하위 차원</strong>임을 확인.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-org">조직행동론</span>
+      <div class="theory-name">투명성 역설</div>
+      <div class="theory-author">Bernstein, 2012, 2017</div>
+      <div class="theory-detail">
+        과도한 조직 내 감시(투명성)가 방어적 기제를 자극해 <strong>혁신을 억누르는 역설적 현상</strong> 실증.
+        적절한 신중성(프라이버시)이 보장될 때 리스크 감수/혁신적 행동 촉진.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-public">규제산업</span>
+      <div class="theory-name">이중 계층형 보고 시스템</div>
+      <div class="theory-author">FDA/ICH GCP E6, CERT</div>
+      <div class="theory-detail">
+        고도 규제 산업에서 <strong>'즉시 경보(투명성)'</strong>와 <strong>'사후 검증 보고(신중성)'</strong>를
+        <strong>시간차를 둔 별도 법적 의무</strong>로 이원화하여 딜레마 구조적 해소.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 6: Axis 3 - Independence vs Cooperation -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">06 / 12</div>
+  <h1 class="slide-title">축 3: <span style="color:var(--accent3)">독립</span> &harr; <span style="color:var(--pink)">협력</span></h1>
+  <p class="slide-subtitle">개인 독자적 판단 vs 집단 합의 &mdash; 대인관계심리학, 문화심리학, 조직행동론에서 풍부한 수렴적 근거</p>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 1.5rem;">
+    <div class="theory-card">
+      <span class="theory-badge badge-personality">대인관계심리학</span>
+      <div class="theory-name">대인관계 원형모델 (IPC)</div>
+      <div class="theory-author">Leary, 1957; Wiggins, 1979</div>
+      <div class="theory-detail">
+        대인 행동을 <strong>주도성(Agency)</strong>과 <strong>친화성(Communion)</strong>의 수학적 직교 2축으로 기술.
+        IAS-R(64문항, 8개 팔분면)로 원형 구조의 직교성 반복 검증.
+        독립적 행동과 협력적 행동이 <strong>분리 가능한 심리 차원</strong>임을 지지.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-culture">문화심리학</span>
+      <div class="theory-name">독립적 vs 상호의존적 자기해석</div>
+      <div class="theory-author">Markus & Kitayama, 1991; Singelis, 1994</div>
+      <div class="theory-detail">
+        <strong>독립적 자기해석</strong>: 자기를 타인과 분리된 존재로 정의, 고유성/자기주장/개인 목표 추구.
+        <strong>상호의존적 자기해석</strong>: 자기를 관계 속에서 정의, 소속감/조화/타인 목표 촉진.
+        SCS(24문항) CFA에서 2차원 분리 확인.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-culture">문화심리학</span>
+      <div class="theory-name">수평/수직 개인주의-집단주의</div>
+      <div class="theory-author">Singelis, Triandis et al., 1995</div>
+      <div class="theory-detail">
+        4요인: 수평적 개인주의(HI), 수직적 개인주의(VI), 수평적 집단주의(HC), 수직적 집단주의(VC).
+        INDCOL 척도(16문항) CFA 4요인 구조 확인. 네 요인이 서로 다른 심리적 결과와 차별적 관련.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-culture">비교문화</span>
+      <div class="theory-name">GLOBE 연구</div>
+      <div class="theory-author">House et al., 2004</div>
+      <div class="theory-detail">
+        Hofstede의 단일 I-C를 <strong>제도적 집단주의</strong>와 <strong>내집단 집단주의</strong> 두 개로 분리.
+        독립-협력이 <strong>단일 연속체가 아닌 다차원적 구조</strong>임을 지지.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-org">조직행동론</span>
+      <div class="theory-name">내부고발 연구</div>
+      <div class="theory-author">Miceli & Near, 1992</div>
+      <div class="theory-detail">
+        <strong>내적 통제위치(Internal LoC)</strong>를 가진 개인이 내부고발 가능성 높음.
+        거의 모든 외부 고발자는 내부 채널 시도 실패 후에야 외부 채널 사용.
+        개인 요소(도덕적 기준, 통제 소재)와 조직적 요소 모두 영향.
+      </div>
+    </div>
+
+    <div class="theory-card">
+      <span class="theory-badge badge-org">조직행동론</span>
+      <div class="theory-name">집단사고 (Groupthink)</div>
+      <div class="theory-author">Janis, 1972, 1982</div>
+      <div class="theory-detail">
+        합의 열망이 대안 평가를 압도하는 의사결정 병리 현상.
+        방지: 비판적 평가자 역할 부여, <strong>독립적 사고 장려</strong> &rarr; 독립적 판단의 윤리적 가치 실증적 입증.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 7: Orthogonality -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">07 / 12</div>
+  <h1 class="slide-title">3축 간 <span class="highlight2">직교성</span> 논증</h1>
+  <p class="slide-subtitle">3축이 서로 중복되지 않는 독립적 차원임을 뒷받침하는 핵심 근거</p>
+
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <h3>HEXACO: 3축의 통합적 직교 구조</h3>
+    <table>
+      <tr><th>앱의 축</th><th>HEXACO 차원</th><th>결과 영역 (Zettler et al.)</th></tr>
+      <tr>
+        <td><strong>투명 &harr; 신중</strong></td>
+        <td>H (정직-겸손) vs C (성실성) Prudence</td>
+        <td><span class="tag tag-blue">Exploitation</span> vs <span class="tag tag-teal">Duty</span></td>
+      </tr>
+      <tr>
+        <td><strong>원칙 &harr; 유연</strong></td>
+        <td>C (성실성) Diligence vs A (우호성) Flexibility</td>
+        <td><span class="tag tag-teal">Duty</span> vs <span class="tag tag-orange">Obstruction</span></td>
+      </tr>
+      <tr>
+        <td><strong>독립 &harr; 협력</strong></td>
+        <td>X (외향성) Social Boldness vs A (우호성)</td>
+        <td><span class="tag tag-purple">Dynamism</span> vs <span class="tag tag-orange">Obstruction</span></td>
+      </tr>
+    </table>
+    <div class="callout" style="margin-top:1rem;">
+      HEXACO 6요인은 <strong>직교 회전(Orthogonal Rotation)</strong>으로 추출되며, 각 차원이 고유한
+      노몰로지컬 네트워크를 가지고 별도 결과 영역에 매핑됩니다.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>축 쌍별 분리 근거</h3>
+    <table>
+      <tr><th>비교 쌍</th><th>분리 근거</th></tr>
+      <tr>
+        <td>투명-신중 vs 원칙-유연</td>
+        <td>HEXACO H와 C 직교; Huberts & Lasthuizen(2011) 청렴 위반 유형론에서 정직 위반과 규칙 위반이 별도 범주</td>
+      </tr>
+      <tr>
+        <td>투명-신중 vs 독립-협력</td>
+        <td>HEXACO H와 A 별도 요인; 정보 공유 의향과 개인적 행동 양식은 별도 심리적 기제</td>
+      </tr>
+      <tr>
+        <td>원칙-유연 vs 독립-협력</td>
+        <td>Forsyth EPQ의 상대주의와 DIT P-score는 독립/집단 순응과 별도 차원; MAC-Q(Curry et al., 2019)에서 "권위 존중", "용기", "집단 돕기"가 별도 도덕 영역</td>
+      </tr>
+      <tr>
+        <td style="color:var(--accent);">3축 동시 분리</td>
+        <td>Stackhouse et al.(2024) 40개국 다수준 연구: 개인주의-집단주의가 Big Five의 선형 조합으로 완전히 설명되지 않는 고유 변량 보유</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 8: 8 Types -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">08 / 12</div>
+  <h1 class="slide-title"><span class="highlight3">8가지</span> 청렴 스타일</h1>
+  <p class="slide-subtitle">3축 양극 조합(2&sup3;)으로 도출 &middot; 100,000회 시뮬레이션 기준 출현 비율</p>
+
+  <div class="card-grid" style="grid-template-columns: repeat(4, 1fr); gap: 0.75rem;">
+    <div class="type-card">
+      <div class="emoji">&#x1F6E1;&#xFE0F;</div>
+      <div class="name">소신 수호자</div>
+      <div class="sub">원칙 &middot; 투명 &middot; 독립</div>
+      <div class="pct">~19.2%</div>
+    </div>
+    <div class="type-card">
+      <div class="emoji">&#x2696;&#xFE0F;</div>
+      <div class="name">정의의 조율자</div>
+      <div class="sub">원칙 &middot; 투명 &middot; 협력</div>
+      <div class="pct">~21.6%</div>
+    </div>
+    <div class="type-card">
+      <div class="emoji">&#x1F3D4;&#xFE0F;</div>
+      <div class="name">묵묵한 파수꾼</div>
+      <div class="sub">원칙 &middot; 신중 &middot; 독립</div>
+      <div class="pct">~10.2%</div>
+    </div>
+    <div class="type-card">
+      <div class="emoji">&#x1F91D;</div>
+      <div class="name">신중한 중재자</div>
+      <div class="sub">원칙 &middot; 신중 &middot; 협력</div>
+      <div class="pct">~6.3%</div>
+    </div>
+    <div class="type-card">
+      <div class="emoji">&#x1F680;</div>
+      <div class="name">실용주의 개척자</div>
+      <div class="sub">유연 &middot; 투명 &middot; 독립</div>
+      <div class="pct">~12.2%</div>
+    </div>
+    <div class="type-card">
+      <div class="emoji">&#x1F4AC;</div>
+      <div class="name">열린 소통가</div>
+      <div class="sub">유연 &middot; 투명 &middot; 협력</div>
+      <div class="pct">~15.6%</div>
+    </div>
+    <div class="type-card">
+      <div class="emoji">&#x1F3AF;</div>
+      <div class="name">전략적 해결사</div>
+      <div class="sub">유연 &middot; 신중 &middot; 독립</div>
+      <div class="pct">~8.5%</div>
+    </div>
+    <div class="type-card">
+      <div class="emoji">&#x1F54A;&#xFE0F;</div>
+      <div class="name">온건한 조정자</div>
+      <div class="sub">유연 &middot; 신중 &middot; 협력</div>
+      <div class="pct">~6.6%</div>
+    </div>
+  </div>
+
+  <div class="callout success" style="margin-top:1.25rem;">
+    <strong>모든 유형 6% 이상 출현</strong> &mdash; 도달 불가능한 유형 없음.
+    가장 빈도 높은 유형(정의의 조율자, 21.6%)과 가장 낮은 유형(신중한 중재자, 6.3%)의 비율 차이는 합리적 범위.
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 9: Score Distribution -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">09 / 12</div>
+  <h1 class="slide-title">축별 <span class="highlight">점수 기회 분포</span></h1>
+  <p class="slide-subtitle">60개 선택지(15&times;4) 중 각 축에 배정된 횟수 (2026-03-25 기준)</p>
+
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <h3 style="margin-bottom:1rem;">축 1: 원칙 &harr; 유연</h3>
+    <div class="compare-row">
+      <div class="compare-label">원칙 +1</div>
+      <div class="compare-track"><div class="compare-fill" style="width:60%; background:rgba(74,222,128,0.2); color:var(--green);">18</div></div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-label">유연 -1</div>
+      <div class="compare-track"><div class="compare-fill" style="width:60%; background:rgba(251,146,60,0.2); color:var(--orange);">18</div></div>
+    </div>
+    <div style="text-align:right; font-size:0.75rem; color:var(--green); margin-top:0.25rem;">차이: 0 (완전 균형)</div>
+  </div>
+
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <h3 style="margin-bottom:1rem;">축 2: 투명 &harr; 신중</h3>
+    <div class="compare-row">
+      <div class="compare-label">투명 +1</div>
+      <div class="compare-track"><div class="compare-fill" style="width:56.7%; background:rgba(108,138,255,0.2); color:var(--accent);">17</div></div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-label">신중 -1</div>
+      <div class="compare-track"><div class="compare-fill" style="width:46.7%; background:rgba(250,204,21,0.2); color:var(--yellow);">14</div></div>
+    </div>
+    <div style="text-align:right; font-size:0.75rem; color:var(--yellow); margin-top:0.25rem;">차이: 3 (허용 범위, Q16~18 추가 시 완전 균형 예정)</div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:1rem;">축 3: 독립 &harr; 협력</h3>
+    <div class="compare-row">
+      <div class="compare-label">독립 +1</div>
+      <div class="compare-track"><div class="compare-fill" style="width:56.7%; background:rgba(56,189,248,0.2); color:var(--accent3);">17</div></div>
+    </div>
+    <div class="compare-row">
+      <div class="compare-label">협력 -1</div>
+      <div class="compare-track"><div class="compare-fill" style="width:63.3%; background:rgba(244,114,182,0.2); color:var(--pink);">19</div></div>
+    </div>
+    <div style="text-align:right; font-size:0.75rem; color:var(--accent3); margin-top:0.25rem;">차이: 2 (허용 범위)</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 10: Differentiation from existing tools -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">10 / 12</div>
+  <h1 class="slide-title">기존 도구와의 <span class="highlight2">차별점</span></h1>
+  <p class="slide-subtitle">기존 측정 도구들이 채우지 못하는 독자적 틈새를 점유</p>
+
+  <div class="card" style="margin-bottom: 1.5rem;">
+    <table>
+      <tr><th>기존 도구</th><th>측정 대상</th><th>본 앱이 채우는 틈새</th></tr>
+      <tr>
+        <td><strong>DIT-2</strong><br><span style="font-size:0.7rem;color:var(--text-dim)">Rest et al., 1999</span></td>
+        <td>도덕 추론 발달 수준</td>
+        <td>"어떤 수준의 추론을 하는가"만 측정. 다차원 성향 프로파일링 없음</td>
+      </tr>
+      <tr>
+        <td><strong>MJT/MCT</strong><br><span style="font-size:0.7rem;color:var(--text-dim)">Lind, 1978</span></td>
+        <td>도덕 판단 역량 (C-index)</td>
+        <td>교육 효과 평가 특화. 개인 진단 금지. 공직 시나리오 부재</td>
+      </tr>
+      <tr>
+        <td><strong>MES</strong><br><span style="font-size:0.7rem;color:var(--text-dim)">Reidenbach & Robin, 1990</span></td>
+        <td>시나리오별 윤리 판단</td>
+        <td>요인구조 재현 실패 논란. 성향 프로파일이 아닌 단건 판단</td>
+      </tr>
+      <tr>
+        <td><strong>EPQ</strong><br><span style="font-size:0.7rem;color:var(--text-dim)">Forsyth, 1980</span></td>
+        <td>이상주의 &times; 상대주의</td>
+        <td>원칙-유연 축만 포착. 투명-신중, 독립-협력 차원 부재</td>
+      </tr>
+      <tr>
+        <td><strong>ECQ</strong><br><span style="font-size:0.7rem;color:var(--text-dim)">Victor & Cullen, 1988</span></td>
+        <td>조직 윤리풍토</td>
+        <td>조직 수준 측정. 개인 수준 성향 프로파일링 아님</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card" style="border-left: 3px solid var(--accent);">
+      <h3 style="color:var(--accent);">본 앱의 핵심 차별점</h3>
+      <div style="font-size:0.85rem; line-height:1.8; color:var(--text-dim);">
+        <strong style="color:var(--text);">1. 3축 동시 프로파일링</strong> &mdash; 단일 점수가 아닌 3차원 공간에서 개인 위치 시각화<br>
+        <strong style="color:var(--text);">2. 공직 시나리오 기반</strong> &mdash; 연구 데이터, 조달/계약, 대인관계 3개 업무 영역 특화<br>
+        <strong style="color:var(--text);">3. 발견적 도구</strong> &mdash; 진단/선발이 아닌 자기인식 촉진. "옳고 그름" 판정 배제<br>
+        <strong style="color:var(--text);">4. AI 개인화 해석</strong> &mdash; 고정된 유형 설명이 아닌 맞춤형 조언 제공
+      </div>
+    </div>
+    <div class="card" style="border-left: 3px solid var(--yellow);">
+      <h3 style="color:var(--yellow);">한국 공직 맥락 적합성</h3>
+      <div style="font-size:0.85rem; line-height:1.8; color:var(--text-dim);">
+        <strong style="color:var(--text);">원칙&harr;유연:</strong> 감사 부담 &rarr; 재량 수축 현상<br>
+        <strong style="color:var(--text);">투명&harr;신중:</strong> 국민신문고/PETI 투명성 강제 vs 징계 기밀 유지<br>
+        <strong style="color:var(--text);">독립&harr;협력:</strong> 적극행정 면책제도(2017) vs 유교적 위계 문화<br>
+        <span style="font-size:0.75rem;">Park, Rehg & Lee(2005): 한국 공무원 343명, 수평적 집단주의가 내부고발 촉진</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 11: Validation Status -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">11 / 12</div>
+  <h1 class="slide-title">검증 상태 & <span class="highlight">로드맵</span></h1>
+  <p class="slide-subtitle">현재 단계 + 향후 4단계 검증 계획</p>
+
+  <div class="card-grid card-grid-2" style="margin-bottom: 2rem;">
+    <div class="card">
+      <h3>현재 검증 상태</h3>
+      <div class="status-row">
+        <div class="status-dot dot-yellow"></div>
+        <div class="status-label">내용 타당도</div>
+        <div class="status-info">문항 매핑 검토 + 사회적 바람직성 매칭 + 균형 재조정</div>
+      </div>
+      <div class="status-row">
+        <div class="status-dot dot-red"></div>
+        <div class="status-label">구성 타당도</div>
+        <div class="status-info">요인분석 등 통계적 검증 미실시</div>
+      </div>
+      <div class="status-row">
+        <div class="status-dot dot-red"></div>
+        <div class="status-label">신뢰도</div>
+        <div class="status-info">Cronbach's &alpha; 등 미측정</div>
+      </div>
+      <div class="status-row">
+        <div class="status-dot dot-red"></div>
+        <div class="status-label">파일럿 테스트</div>
+        <div class="status-info">배포 후 진행 예정</div>
+      </div>
+      <div class="status-row">
+        <div class="status-dot dot-green"></div>
+        <div class="status-label">시뮬레이션 검증</div>
+        <div class="status-info">100,000회 랜덤, 334 passed / 0 failed</div>
+      </div>
+      <div class="status-row">
+        <div class="status-dot dot-blue"></div>
+        <div class="status-label">외적 타당도</div>
+        <div class="status-info">자기발견 목적, 인사 평가 용도 아님 (해당 없음)</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>알려진 제한점</h3>
+      <table>
+        <tr><th>제한 사항</th><th>위험</th></tr>
+        <tr>
+          <td>경험적 요인 구조 미검증 (CFA)</td>
+          <td><span class="tag tag-red">높음</span></td>
+        </tr>
+        <tr>
+          <td>투명-신중 축 잔여 불균형 (17 vs 14)</td>
+          <td><span class="tag tag-green">낮음</span></td>
+        </tr>
+        <tr>
+          <td>원칙-독립 공변 (9/15 문항 동시 출현)</td>
+          <td><span class="tag tag-yellow">중간</span></td>
+        </tr>
+        <tr>
+          <td>파일럿 표본 미확보</td>
+          <td><span class="tag tag-red">높음</span></td>
+        </tr>
+        <tr>
+          <td>준거 타당도 미검증</td>
+          <td><span class="tag tag-red">높음</span></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>향후 검증 로드맵</h3>
+    <div style="margin-top: 1rem;">
+      <div class="roadmap-item">
+        <div class="roadmap-line">
+          <div class="roadmap-dot" style="background:var(--accent3);"></div>
+          <div class="roadmap-connector"></div>
+        </div>
+        <div class="roadmap-content">
+          <div class="rm-phase">Phase 1</div>
+          <div class="rm-title">파일럿 테스트 (n = 50~100)</div>
+          <div class="rm-detail">공공 연구기관 종사자 소규모 표본. EFA &rarr; 3요인 구조 확인. 축간 공변 과도한 문항 재설계.</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-line">
+          <div class="roadmap-dot" style="background:var(--accent);"></div>
+          <div class="roadmap-connector"></div>
+        </div>
+        <div class="roadmap-content">
+          <div class="rm-phase">Phase 2</div>
+          <div class="rm-title">본조사 및 CFA (n = 300+)</div>
+          <div class="rm-detail">확인적 요인분석 3요인 적합도 검증. 직급별/기관별 측정 동치성. EPQ, SCS, ECQ와 수렴/변별 타당도.</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-line">
+          <div class="roadmap-dot" style="background:var(--accent2);"></div>
+          <div class="roadmap-connector"></div>
+        </div>
+        <div class="roadmap-content">
+          <div class="rm-phase">Phase 3</div>
+          <div class="rm-title">준거 타당도 확보</div>
+          <div class="rm-detail">부패 행위 허용도, 내부고발 의향, 적극행정 의향 등 행동 변수 관련성. DIT-2/MES 대비 증분 타당도.</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="roadmap-line">
+          <div class="roadmap-dot" style="background:var(--green);"></div>
+        </div>
+        <div class="roadmap-content">
+          <div class="rm-phase">Phase 4</div>
+          <div class="rm-title">규범 데이터 축적</div>
+          <div class="rm-detail">기관 유형별/직급별 규범 점수. 종단 연구: 청렴 교육 전후 성향 변화 추적.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SLIDE 12: Conclusion & References -->
+<!-- ============================================================ -->
+<div class="slide">
+  <div class="slide-number">12 / 12</div>
+  <h1 class="slide-title"><span class="highlight">결론</span></h1>
+  <p class="slide-subtitle">다학제적 이론 기반 + 한국 공직 맥락 적합성 + 투명한 한계 인식</p>
+
+  <div class="card" style="margin-bottom: 2rem;">
+    <div style="font-size: 0.92rem; line-height: 1.85; color: var(--text-dim);">
+      본 앱의 3축 모델은 <strong style="color:var(--text);">성격심리학</strong>(HEXACO, Big Five, Schwartz),
+      <strong style="color:var(--text);">도덕심리학</strong>(Kohlberg, Forsyth EPQ, CNI),
+      <strong style="color:var(--text);">대인관계심리학</strong>(IPC),
+      <strong style="color:var(--text);">조직행동론</strong>(윤리풍토, 투명성 역설, 집단사고),
+      <strong style="color:var(--text);">문화심리학</strong>(I-C, 자기해석),
+      <strong style="color:var(--text);">공공행정학</strong>(관료제 재량, 적극행정)에 이르는
+      <strong style="color:var(--accent);">6개 이론 전통에서 개념적 근거</strong>를 확보하고 있다.
+    </div>
+    <div style="margin-top:1rem; font-size:0.92rem; line-height:1.85; color:var(--text-dim);">
+      한국 공직 맥락에서 이 3축은 <strong style="color:var(--text);">재량 수축</strong>(원칙-유연),
+      <strong style="color:var(--text);">디지털 투명성과 기밀 유지</strong>(투명-신중),
+      <strong style="color:var(--text);">적극행정과 유교적 위계</strong>(독립-협력)라는
+      실제적 윤리 딜레마와 직접 연결된다.
+    </div>
+    <div class="callout warn" style="margin-top:1.25rem;">
+      <strong>핵심 과제:</strong> 이론적 근거를 경험적 증거로 뒷받침하는 것이 향후 연구의 핵심 방향.
+      CFA, 파일럿 테스트, 준거 타당도 확보가 가장 시급.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>주요 참고 문헌</h3>
+
+    <div class="ref-category">성격심리학 / 심리측정</div>
+    <ul class="ref-list">
+      <li>Ashton, M. C., & Lee, K. (2007). HEXACO model of personality structure. <em>PSPR</em>, 11(2), 150-166.</li>
+      <li>Schwartz, S. H., & Cieciuch, J. (2022). Measuring refined theory of individual values in 49 cultural groups. <em>Assessment</em>, 29(5).</li>
+      <li>Zettler, I., Thielmann, I., Hilbig, B. E., & Moshagen, M. (2020). Nomological net of HEXACO. <em>PPS</em>, 15(3), 723-760.</li>
+      <li>Wiggins, J. S. (1979). Interpersonal domain taxonomy. <em>JPSP</em>, 37(3), 395-412.</li>
+      <li>Singelis, T. M. (1994). Independent/interdependent self-construals. <em>PSPB</em>, 20(5), 580-591.</li>
+    </ul>
+
+    <div class="ref-category">도덕심리학 / 윤리적 의사결정</div>
+    <ul class="ref-list">
+      <li>Forsyth, D. R. (1980). Taxonomy of ethical ideologies. <em>JPSP</em>, 39, 175-184.</li>
+      <li>Gawronski, B. et al. (2017). CNI model of moral dilemmas. <em>JPSP</em>, 113, 343-376.</li>
+      <li>Kohlberg, L. (1981). <em>The Philosophy of Moral Development</em>. Harper & Row.</li>
+      <li>Peterson, C., & Seligman, M. E. P. (2004). <em>Character Strengths and Virtues</em>. Oxford UP.</li>
+      <li>Rest, J. R. et al. (1999). DIT2: Revised instrument of moral judgment. <em>JEP</em>.</li>
+    </ul>
+
+    <div class="ref-category">조직행동론 / 윤리풍토</div>
+    <ul class="ref-list">
+      <li>Bernstein, E. S. (2017). Making transparency transparent. <em>AMA Annals</em>.</li>
+      <li>Janis, I. L. (1982). <em>Groupthink</em>. Houghton Mifflin.</li>
+      <li>Miceli, M. P., & Near, J. P. (1992). <em>Blowing the Whistle</em>. Lexington Books.</li>
+      <li>Victor, B., & Cullen, J. B. (1988). Ethical work climates. <em>ASQ</em>, 33(1), 101-125.</li>
+      <li>Walumbwa, F. O. et al. (2008). Authentic leadership. <em>JoM</em>, 34(1), 89-126.</li>
+    </ul>
+
+    <div class="ref-category">문화심리학 / 공공행정</div>
+    <ul class="ref-list">
+      <li>Hofstede, G. (2001). <em>Culture's Consequences</em> (2nd ed.). Sage.</li>
+      <li>House, R. J. et al. (2004). <em>GLOBE Study</em>. Sage.</li>
+      <li>Markus, H. R., & Kitayama, S. (1991). Culture and the self. <em>Psych. Rev.</em>, 98(2), 224-253.</li>
+      <li>Park, H., Rehg, M. T., & Lee, D. (2005). Confucian ethics and whistleblowing. <em>JBE</em>, 58(4), 387-403.</li>
+      <li>Lee, S. et al. (2025). Proactive administration in South Korea. <em>Public Organization Review</em>.</li>
+      <li>김상묵 (2017). 공직가치 모형의 실증분류. <em>한국행정연구</em>, 26(2), 1-42.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FOOTER -->
+<!-- ============================================================ -->
+<div class="footer">
+  Clean Style &mdash; 3축 과학적 타당성 보고서 &middot; 2026-03-26 &middot;
+  <a href="index.html" style="color:var(--accent);">Docs Index</a> &middot;
+  <a href="research/index.html" style="color:var(--accent);">Research Index</a>
+</div>
+
+</body>
+</html>

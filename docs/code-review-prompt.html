@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - Code Review Prompt</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232733;
+    --border: #2e3345; --text: #e1e4ed; --text-dim: #8b90a0;
+    --accent: #6c8aff; --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c; --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+    --purple: #a78bfa; --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #facc15; --yellow-soft: rgba(250,204,21,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  a.back { color: var(--accent); text-decoration: none; font-size: 0.82rem; display: inline-block; margin-bottom: 1.5rem; }
+  a.back:hover { text-decoration: underline; }
+  h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.25rem; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 2.5rem; }
+  h2 {
+    font-size: 1.15rem; font-weight: 700;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 0.95rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+  h4 { font-size: 0.88rem; font-weight: 600; margin: 1.2rem 0 0.4rem; color: var(--text); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+
+  ul, ol { margin: 0.5rem 0 0.5rem 1.2rem; font-size: 0.88rem; }
+  ul li, ol li { margin-bottom: 0.35rem; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.75rem 0; }
+  th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-dim); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+  td code { background: var(--surface2); padding: 0.1rem 0.4rem; border-radius: 4px; font-size: 0.8rem; font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+
+  code {
+    background: var(--surface2);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+
+  pre {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    overflow-x: auto;
+    margin: 0.75rem 0;
+    line-height: 1.6;
+  }
+
+  .tag {
+    display: inline-block; font-size: 0.7rem; padding: 0.1rem 0.45rem;
+    border-radius: 4px; font-weight: 600; margin-right: 0.25rem;
+  }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+  .tag-orange { background: var(--orange-soft); color: var(--orange); }
+  .tag-red { background: var(--red-soft); color: var(--red); }
+  .tag-purple { background: var(--purple-soft); color: var(--purple); }
+
+  .note {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.82rem;
+    margin: 0.75rem 0;
+  }
+  .note.warn {
+    background: var(--orange-soft);
+    border-left-color: var(--orange);
+  }
+
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .toc-title { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 0.5rem; }
+  .toc a { color: var(--accent); text-decoration: none; font-size: 0.85rem; display: block; padding: 0.2rem 0; }
+  .toc a:hover { text-decoration: underline; }
+
+  .copy-hint {
+    background: var(--green-soft);
+    border: 1px solid rgba(74,222,128,0.25);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.82rem;
+    color: var(--green);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .cols-2, .card-grid { grid-template-columns: 1fr; } }
+
+  .updated { color: var(--text-dim); font-size: 0.75rem; text-align: center; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html">&larr; Back to Docs</a>
+<h1><span>Clean Style</span> Code Review Prompt</h1>
+<p class="subtitle">코드 리뷰 요청 &mdash; 스트리밍 + 롤링 요약 + 성향 반영 조언 (v2)</p>
+
+<div class="copy-hint">아래 프롬프트를 ChatGPT, Gemini 등에 붙여넣어 리뷰를 받으세요.</div>
+
+<div class="toc">
+  <div class="toc-title">목차</div>
+  <a href="#arch">1. 아키텍처 요약</a>
+  <a href="#review-items">2. 검토 요청 사항</a>
+  <a href="#code">3. 핵심 코드</a>
+  <a href="#env">4. 환경 정보</a>
+  <a href="#format">5. 응답 형식</a>
+</div>
+
+<!-- 1. 아키텍처 요약 -->
+<h2 id="arch">1. 아키텍처 요약</h2>
+
+<div class="card">
+  <h3>전체 흐름</h3>
+  <p style="font-size:0.88rem;">
+    사용자가 15문항 테스트 완료 &rarr; 8가지 유형 판정 &rarr; 결과 화면에서 "AI 맞춤 조언" 모달 열기 &rarr; Q&amp;A 대화 (최대 10턴)
+  </p>
+</div>
+
+<div class="card">
+  <h3>핵심 상수</h3>
+  <table>
+    <tr><th>상수</th><th>값</th><th>설명</th></tr>
+    <tr><td><code>MAX_HISTORY_MESSAGES</code></td><td>20</td><td>10턴 = user+assistant 20개</td></tr>
+    <tr><td><code>SUMMARIZE_AT_MESSAGES</code></td><td>8</td><td>4턴마다 요약 트리거</td></tr>
+    <tr><td><code>MAX_CONTENT_LENGTH</code></td><td>2000</td><td>메시지당 최대 길이</td></tr>
+    <tr><td><code>MAX_QUESTION_LENGTH</code></td><td>500</td><td>사용자 질문 입력 제한</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>정량 참고</h3>
+  <table>
+    <tr><th>항목</th><th>값</th></tr>
+    <tr><td>AI 모델</td><td><code>x-ai/grok-4.1-fast</code> (OpenRouter 경유, 입력 ~$5/1M tokens)</td></tr>
+    <tr><td>평균 메시지 길이</td><td>user ~50토큰, assistant ~150토큰</td></tr>
+    <tr><td>20메시지 전체 전송 시</td><td>약 2,000토큰 (&asymp;$0.01)</td></tr>
+    <tr><td>스트리밍 타임아웃</td><td>30s (non-stream: 10s) &mdash; 600토큰 생성에 ~5-15s 소요</td></tr>
+    <tr><td>describeScores 임계값</td><td>&plusmn;1(약간), &plusmn;3(뚜렷) &mdash; 15문항 기준 점수 범위 -13~+14</td></tr>
+  </table>
+</div>
+
+<div class="card-grid">
+  <div class="card">
+    <h3>스트리밍 (SSE)</h3>
+    <ul>
+      <li><strong>서버:</strong> <code>chatStream()</code> &rarr; OpenRouter API에 <code>stream: true</code> 요청 &rarr; SSE ReadableStream 반환</li>
+      <li><strong>API route:</strong> Q&amp;A 모드에서 <code>new Response(stream, { 'Content-Type': 'text/event-stream' })</code> 반환</li>
+      <li><strong>프론트:</strong> <code>res.body.getReader()</code> 루프로 토큰 수신, 5토큰마다 <code>setAiAnswer()</code> 갱신 (리렌더 절감)</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>롤링 요약</h3>
+    <ul>
+      <li>4턴 배수마다 요약 트리거: <code>turnCount &ge; 4 &amp;&amp; turnCount % 4 === 0</code></li>
+      <li><code>summarizedUpTo</code> state로 요약된 메시지 위치 추적</li>
+      <li>Q&amp;A 전송: <code>chatHistory.slice(summarizedUpTo)</code> (요약 이후 메시지만)</li>
+      <li>재요약 시: "이전 요약 + 최근 8메시지" &rarr; 누적 요약</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>abort 전파</h3>
+    <ul>
+      <li><code>chatStream()</code>에 <code>cancel()</code> 콜백 &rarr; 클라이언트 disconnect 시 OpenRouter 업스트림도 중단</li>
+      <li><code>abortRef</code> + <code>summarizeAbortRef</code> 둘 다 unmount cleanup에서 정리</li>
+      <li>abort된 스트림은 <code>abortCtrl.signal.aborted</code> 체크 후 조용히 close</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>성향 반영 조언</h3>
+    <ul>
+      <li>클라이언트에서 <code>scores</code> 객체를 API에 전달</li>
+      <li>서버: <code>isValidScores()</code> 검증(범위 &plusmn;15) &rarr; <code>describeScores()</code>로 한글 변환</li>
+      <li>첫 턴: user 메시지에 스타일명+성향 포함 / 이어서: system 프롬프트에 "조언 방향 참고용, 직접 언급 금지" 삽입</li>
+    </ul>
+  </div>
+</div>
+
+<!-- 2. 검토 요청 사항 -->
+<h2 id="review-items">2. 검토 요청 사항</h2>
+
+<div class="card">
+  <h3>A. 스트리밍 안정성</h3>
+  <ol>
+    <li><code>chatStream()</code>의 <code>cancel()</code> 콜백이 Cloudflare Workers 환경에서 확실히 호출되나?</li>
+    <li>서버에서 OpenRouter error frame(<code>chunk.error</code>)은 감지하고 SSE 에러로 전달. 하지만 malformed JSON chunk는 <code>catch { continue }</code>로 스킵됨 &mdash; 에러가 malformed chunk에 담겨오면 유실 가능한가?</li>
+    <li>5토큰 배치 갱신(<code>tokenCount % 5 === 0</code>) &mdash; 마지막 토큰이 5의 배수가 아닐 때 <code>if (tokenCount % 5 !== 0) setAiAnswer(fullAnswer)</code>로 마무리. 이 패턴에 엣지 케이스는?</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h3>B. 롤링 요약 + summarizedUpTo</h3>
+  <ol>
+    <li><code>summarizedUpTo</code>가 히스토리 trim에 연동됨: <code>Math.max(0, summarizedUpTo - trimmed)</code>. 이 계산이 모든 경우에 올바른가?</li>
+    <li>요약 실패 시 <code>summarizedUpTo</code>는 갱신 안 됨 &rarr; <code>chatHistory.slice(summarizedUpTo)</code>가 전체 미요약 히스토리를 보냄. 이 fallback이 토큰 비용 면에서 괜찮은가?</li>
+    <li>재방문 시 <code>chatSummary=''</code>, <code>summarizedUpTo=0</code>이지만 localStorage에서 12메시지 로드 &rarr; 즉시 요약 트리거 &rarr; 성공 시 <code>summarizedUpTo=12</code> &rarr; 다음 질문에서 <code>slice(12)</code> = 빈 배열. 이 흐름이 정확한가?</li>
+    <li><code>triggerSummarize</code>는 in-flight 요약을 abort하고 최신으로 교체하는 방식. abort 후 새 요청 사이에 race condition이 있는가?</li>
+    <li>4턴(8msg), 8턴(16msg)에서 트리거. 그런데 10턴(20msg)에서는 <code>20/2=10, 10%4=2</code>이므로 트리거 안 됨. 이게 의도된 건가?</li>
+  </ol>
+</div>
+
+<div class="card">
+  <h3>C. 성향 반영 프롬프트</h3>
+  <ol>
+    <li><code>scores</code>는 클라이언트에서 오는데 <code>isValidScores()</code>로 범위만 검증. 실제 <code>answers</code>와 대조하지 않으므로 위조 가능. 위험도는?</li>
+    <li><code>describeScores()</code>의 임계값(&plusmn;1, &plusmn;3)이 15문항 기준 점수 범위(-13~+14)에서 적절한가?</li>
+    <li>첫 턴에는 user 메시지에, 이어서에는 system 프롬프트에 성향 삽입. 위치가 다른 이유와 영향은?</li>
+  </ol>
+</div>
+
+<div class="cols-2">
+  <div class="card">
+    <h3>D. localStorage 일관성</h3>
+    <ol>
+      <li><code>resetModal()</code>이 <code>clearChat(historyId)</code> 호출 &rarr; localStorage에서 chat을 빈 배열로 설정. 하지만 히스토리 엔트리 자체(스타일, 점수)는 남음. 이게 맞는 동작인가?</li>
+      <li>저장 effect는 <code>chatHistory.length &gt; 0</code>일 때만 동작. 빈 배열은 저장 안 됨 &rarr; <code>clearChat()</code>이 아니면 대화 삭제가 영속화되지 않음. resetModal 외에 빈 배열이 되는 경로가 더 있나?</li>
+    </ol>
+  </div>
+  <div class="card">
+    <h3>E. 전반적 구조</h3>
+    <ol>
+      <li>SSE 파싱 로직이 서버(<code>ai.ts</code>)와 클라이언트(<code>page.tsx</code>) 양쪽에 중복 &mdash; 공유 유틸로 빼야 하나?</li>
+      <li><code>isValidScores()</code>와 <code>describeScores()</code>가 route.ts 내부 함수인데, 테스트에서도 동일 로직을 복사 사용 중. 공유 모듈로 추출해야 하나?</li>
+      <li>30s 스트리밍 타임아웃 vs 10s non-stream 타임아웃 &mdash; 적절한가?</li>
+    </ol>
+  </div>
+</div>
+
+<!-- 3. 핵심 코드 -->
+<h2 id="code">3. 핵심 코드</h2>
+
+<div class="card">
+  <h3>src/lib/ai.ts &mdash; chatStream()</h3>
+<pre>export function chatStream(options: ChatOptions): ReadableStream {
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error('OPENROUTER_API_KEY not set');
+  const encoder = new TextEncoder();
+  const abortCtrl = new AbortController();
+
+  return new ReadableStream({
+    async start(ctrl) {
+      const timeout = setTimeout(() =&gt; abortCtrl.abort(), 30_000);
+      try {
+        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: { ... },
+          body: JSON.stringify({ ...options, stream: true }),
+          signal: abortCtrl.signal,
+        });
+
+        if (!res.ok || !res.body) {
+          ctrl.enqueue(encoder.encode(`data: ${JSON.stringify({ error: `API ${res.status}` })}\n\n`));
+          ctrl.close(); return;
+        }
+
+        const reader = res.body.getReader();
+        let buffer = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += new TextDecoder().decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+          for (const line of lines) {
+            if (!line.trim().startsWith('data: ')) continue;
+            const payload = line.trim().slice(6);
+            if (payload === '[DONE]') continue;
+            try {
+              const chunk = JSON.parse(payload);
+              if (chunk.error) {
+                ctrl.enqueue(encoder.encode(`data: ${JSON.stringify({
+                  error: chunk.error.message ?? 'provider error'
+                })}\n\n`));
+                ctrl.close(); return;
+              }
+              const delta = chunk.choices?.[0]?.delta?.content;
+              if (delta) ctrl.enqueue(encoder.encode(`data: ${JSON.stringify({ token: delta })}\n\n`));
+            } catch { /* skip malformed */ }
+          }
+        }
+        ctrl.enqueue(encoder.encode('data: [DONE]\n\n'));
+        ctrl.close();
+      } catch (err) {
+        if (abortCtrl.signal.aborted) { ctrl.close(); return; }
+        ctrl.enqueue(encoder.encode(`data: ${JSON.stringify({ error: err.message })}\n\n`));
+        ctrl.close();
+      } finally { clearTimeout(timeout); }
+    },
+    cancel() { abortCtrl.abort(); },
+  });
+}</pre>
+</div>
+
+<div class="card">
+  <h3>src/app/result/page.tsx &mdash; fetchAnswer() (SSE + rolling summary)</h3>
+<pre>const fetchAnswer = async () =&gt; {
+  setAiAnswer('');
+  const controller = new AbortController();
+  abortRef.current = controller;
+
+  const historyToSend = chatSummary
+    ? chatHistory.slice(summarizedUpTo)  // post-summary msgs only
+    : chatHistory;
+
+  const res = await fetch('/api/analyze', {
+    body: JSON.stringify({
+      mode: 'question', styleKey, scores, answers,
+      userContext: question,
+      history: historyToSend.length &gt; 0 ? historyToSend : undefined,
+      summary: chatSummary || undefined,
+    }),
+    signal: controller.signal,
+  });
+
+  if (!res.ok || !res.body) throw new Error('API error');
+
+  // SSE consumption - batch 5 tokens
+  const reader = res.body.getReader();
+  let fullAnswer = '', buffer = '', tokenCount = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() ?? '';
+    for (const line of lines) {
+      if (!line.trim().startsWith('data: ')) continue;
+      const payload = line.trim().slice(6);
+      if (payload === '[DONE]') continue;
+      let parsed;
+      try { parsed = JSON.parse(payload); } catch { continue; }
+      if (parsed.error) throw new Error(parsed.error);
+      if (parsed.token) {
+        fullAnswer += parsed.token;
+        if (++tokenCount % 5 === 0) setAiAnswer(fullAnswer);
+      }
+    }
+  }
+  if (tokenCount % 5 !== 0) setAiAnswer(fullAnswer);
+
+  // History update + trim
+  const raw = [...chatHistory,
+    { role: 'user', content: question },
+    { role: 'assistant', content: fullAnswer }];
+  const trimmed = raw.length - MAX_HISTORY_MESSAGES;
+  const newHistory = trimmed &gt; 0 ? raw.slice(trimmed) : raw;
+  if (trimmed &gt; 0 &amp;&amp; summarizedUpTo &gt; 0) {
+    setSummarizedUpTo(Math.max(0, summarizedUpTo - trimmed));
+  }
+  setChatHistory(newHistory);
+
+  // Rolling summary every 4 turns
+  const turnCount = newHistory.length / 2;
+  if (turnCount &gt;= 4 &amp;&amp; turnCount % 4 === 0) {
+    triggerSummarize(newHistory);
+  }
+};</pre>
+</div>
+
+<div class="card">
+  <h3>src/app/result/page.tsx &mdash; triggerSummarize()</h3>
+<pre>const triggerSummarize = async (messages) =&gt; {
+  summarizeAbortRef.current?.abort();
+  summarizingRef.current = true;
+  const controller = new AbortController();
+  summarizeAbortRef.current = controller;
+  try {
+    const res = await fetch('/api/analyze', {
+      body: JSON.stringify({
+        mode: 'summarize',
+        history: chatSummary
+          ? messages.slice(-SUMMARIZE_AT_MESSAGES) : messages,
+        summary: chatSummary || undefined,
+        styleKey,
+      }),
+      signal: controller.signal,
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setChatSummary(data.summary);
+      setSummarizedUpTo(messages.length);
+    }
+  } catch { /* fail/cancel: ignore, keep full history */ }
+  finally { summarizingRef.current = false; }
+};</pre>
+</div>
+
+<div class="card">
+  <h3>cleanup &amp; reset</h3>
+<pre>// unmount
+useEffect(() =&gt; {
+  return () =&gt; {
+    abortRef.current?.abort();
+    summarizeAbortRef.current?.abort();
+  };
+}, []);
+
+// new question (reset conversation)
+const resetModal = () =&gt; {
+  summarizeAbortRef.current?.abort();
+  clearChatUI();
+  setChatHistory([]);
+  setChatSummary('');
+  setSummarizedUpTo(0);
+  if (historyId) clearChat(historyId);
+};</pre>
+</div>
+
+<!-- 4. 환경 정보 -->
+<h2 id="env">4. 환경 정보</h2>
+
+<div class="card">
+  <table>
+    <tr><th>항목</th><th>값</th></tr>
+    <tr><td>Framework</td><td>Next.js 15.5 App Router, React 19</td></tr>
+    <tr><td>배포</td><td>Cloudflare Workers (OpenNext)</td></tr>
+    <tr><td>AI</td><td>OpenRouter &rarr; x-ai/grok-4.1-fast</td></tr>
+    <tr><td>상태 관리</td><td>React useState (전역 상태 없음)</td></tr>
+    <tr><td>히스토리</td><td>localStorage (최대 10건 보관)</td></tr>
+    <tr><td>테스트</td><td>513개 시뮬레이션 테스트 통과</td></tr>
+  </table>
+</div>
+
+<!-- 5. 응답 형식 -->
+<h2 id="format">5. 응답 형식</h2>
+
+<div class="card">
+  <table>
+    <tr><th>분류</th><th>설명</th></tr>
+    <tr>
+      <td><span class="tag tag-red">Findings</span></td>
+      <td>코드에서 확인 가능한 결함. 심각도(High/Medium/Low) + 근거 라인 표시</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-orange">추정/의견</span></td>
+      <td>코드만으로 확정 불가하지만 리스크가 있는 항목. "추정" 명시</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-blue">불확실</span></td>
+      <td>외부 플랫폼 동작(CF Workers, OpenRouter 등) 관련. 출처가 없으면 "불확실"로 남기고 추측하지 않음</td>
+    </tr>
+  </table>
+  <div class="note">
+    <strong>우선순위:</strong> summarizedUpTo 로직 정합성 &gt; 스트리밍 abort 완전성 &gt; 토큰 비용
+  </div>
+</div>
+
+<p class="updated">Code Review Prompt (v2) &middot; Clean Style Docs</p>
+
+</body>
+</html>

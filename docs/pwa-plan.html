@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PWA 추가 작업 계획</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f7; color: #1d1d1f; padding: 32px 24px; line-height: 1.6; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #86868b; font-size: 13px; margin-bottom: 32px; }
+  h2 { font-size: 18px; font-weight: 700; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #e5e5e7; }
+  h3 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; color: #6c8aff; }
+
+  /* 테이블 */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  th { background: #fafafa; font-weight: 600; text-align: left; padding: 10px 14px; border-bottom: 1px solid #e5e5e7; }
+  td { padding: 10px 14px; border-bottom: 1px solid #f0f0f2; }
+  tr:last-child td { border-bottom: none; }
+
+  /* 코드 블록 */
+  pre { background: #1d1d1f; color: #e5e5ea; border-radius: 10px; padding: 16px 20px; font-size: 12.5px; line-height: 1.7; overflow-x: auto; margin: 12px 0; }
+  code { font-family: 'SF Mono', 'Fira Code', monospace; }
+  .inline-code { background: #e8e8ed; padding: 2px 6px; border-radius: 4px; font-size: 12px; font-family: 'SF Mono', monospace; }
+
+  /* 카드 */
+  .card { background: white; border-radius: 12px; padding: 20px; margin: 12px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .card p { font-size: 13px; color: #48484a; }
+
+  /* 체크리스트 */
+  .checklist { list-style: none; margin: 12px 0; }
+  .checklist li { font-size: 13px; padding: 8px 0; border-bottom: 1px solid #f0f0f2; display: flex; align-items: center; gap: 8px; }
+  .checklist li:last-child { border-bottom: none; }
+  .check-box { width: 18px; height: 18px; border: 2px solid #c7c7cc; border-radius: 4px; flex-shrink: 0; }
+
+  /* 단계 표시 */
+  .step-num { display: inline-flex; width: 24px; height: 24px; align-items: center; justify-content: center; background: #6c8aff; color: white; font-size: 12px; font-weight: 700; border-radius: 50%; flex-shrink: 0; }
+  .step-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f0f2; font-size: 13px; }
+  .step-row:last-child { border-bottom: none; }
+  .step-time { margin-left: auto; color: #86868b; font-size: 12px; white-space: nowrap; }
+
+  /* 프롬프트 강조 */
+  .prompt-box { background: linear-gradient(135deg, #7C5CFC, #6B4CE0); color: white; border-radius: 12px; padding: 20px; margin: 12px 0; }
+  .prompt-box p { color: rgba(255,255,255,0.9); font-size: 13px; line-height: 1.8; }
+  .prompt-box .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.6; margin-bottom: 8px; }
+
+  /* 노트 */
+  .note { background: #fff8e1; border-left: 4px solid #ffb300; border-radius: 0 8px 8px 0; padding: 12px 16px; margin: 12px 0; font-size: 13px; color: #5d4037; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>PWA 추가 작업 계획</h1>
+<p class="subtitle">manifest.json + 아이콘만으로 "홈 화면에 추가" 구현. Service Worker는 나중에.</p>
+
+<!-- ── 1. 아이콘 ── -->
+<h2>1. 아이콘 제작</h2>
+
+<h3>필요 파일</h3>
+<table>
+  <tr><th>파일</th><th>크기</th><th>용도</th></tr>
+  <tr><td><span class="inline-code">icon-192.png</span></td><td>192 x 192</td><td>Android 홈 화면</td></tr>
+  <tr><td><span class="inline-code">icon-512.png</span></td><td>512 x 512</td><td>Android 스플래시, 설치 프롬프트</td></tr>
+  <tr><td><span class="inline-code">apple-touch-icon.png</span></td><td>180 x 180</td><td>iOS 홈 화면</td></tr>
+  <tr><td><span class="inline-code">favicon.ico</span></td><td>32 x 32</td><td>브라우저 탭</td></tr>
+  <tr><td><span class="inline-code">maskable-icon-512.png</span></td><td>512 x 512</td><td>Android 적응형 (safe zone 80%)</td></tr>
+</table>
+
+<h3>AI 이미지 생성 프롬프트</h3>
+<div class="prompt-box">
+  <div class="label">DALL-E / Midjourney Prompt</div>
+  <p>
+    Minimal flat app icon for an integrity self-assessment tool.<br>
+    Purple gradient background (#7C5CFC to #6B4CE0).<br>
+    White shield silhouette in the center with a small checkmark inside.<br>
+    No text, no border, no shadow. Clean and modern.<br>
+    Square with rounded corners (20% radius).<br>
+    Output: 1024x1024 PNG with transparent-safe edges.
+  </p>
+</div>
+
+<h3>변환 작업</h3>
+<div class="card">
+  <p>1024 x 1024 원본에서 리사이즈:</p>
+  <p>512, 192, 180, 32px 각각 생성</p>
+  <p>maskable 버전: 중앙 80% 안전 영역에 아이콘, 배경색 꽉 채움</p>
+  <p style="margin-top:8px; color:#86868b;">도구: Squoosh, sharp, 또는 <span class="inline-code">npx pwa-asset-generator</span></p>
+</div>
+
+<!-- ── 2. 파일 생성 ── -->
+<h2>2. 파일 생성</h2>
+
+<h3>public/manifest.json</h3>
+<pre><code>{
+  "name": "나의 청렴 스타일은?",
+  "short_name": "청렴스타일",
+  "description": "3분 자기발견 테스트",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8F7FF",
+  "theme_color": "#7C5CFC",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/maskable-icon-512.png", "sizes": "512x512",
+      "type": "image/png", "purpose": "maskable" }
+  ]
+}</code></pre>
+
+<h3>src/app/layout.tsx 메타태그</h3>
+<pre><code>&lt;link rel="manifest" href="/manifest.json" /&gt;
+&lt;meta name="theme-color" content="#7C5CFC" /&gt;
+&lt;link rel="apple-touch-icon" href="/apple-touch-icon.png" /&gt;
+&lt;meta name="apple-mobile-web-app-capable" content="yes" /&gt;
+&lt;meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" /&gt;</code></pre>
+
+<!-- ── 3. 작업 순서 ── -->
+<h2>3. 작업 순서</h2>
+
+<div class="card">
+  <div class="step-row"><span class="step-num">1</span> 아이콘 원본 생성 (AI 또는 수작업) <span class="step-time">~10분</span></div>
+  <div class="step-row"><span class="step-num">2</span> 리사이즈 + maskable 변환 <span class="step-time">~5분</span></div>
+  <div class="step-row"><span class="step-num">3</span> <span class="inline-code">public/</span> 폴더 생성 + 아이콘 배치 <span class="step-time">~2분</span></div>
+  <div class="step-row"><span class="step-num">4</span> <span class="inline-code">manifest.json</span> 작성 <span class="step-time">~3분</span></div>
+  <div class="step-row"><span class="step-num">5</span> <span class="inline-code">layout.tsx</span> 메타태그 추가 <span class="step-time">~3분</span></div>
+  <div class="step-row"><span class="step-num">6</span> <span class="inline-code">favicon.ico</span> 추가 <span class="step-time">~2분</span></div>
+  <div class="step-row"><span class="step-num">7</span> 로컬 테스트 (DevTools > Application > Manifest) <span class="step-time">~5분</span></div>
+</div>
+
+<!-- ── 4. Service Worker ── -->
+<h2>4. Service Worker</h2>
+
+<div class="note">
+  지금은 생략. <span class="inline-code">manifest.json</span> + 아이콘만으로 "홈 화면에 추가"는 동작합니다.<br>
+  오프라인 캐싱이 필요해지면 <span class="inline-code">next-pwa</span> 또는 <span class="inline-code">serwist</span> 추가.
+</div>
+
+<!-- ── 5. 검증 ── -->
+<h2>5. 검증 체크리스트</h2>
+
+<div class="card">
+  <ul class="checklist">
+    <li><span class="check-box"></span> Chrome DevTools > Application > Manifest 정상 표시</li>
+    <li><span class="check-box"></span> 모바일 Chrome "홈 화면에 추가" 동작</li>
+    <li><span class="check-box"></span> iOS Safari "홈 화면에 추가" 시 아이콘 표시</li>
+    <li><span class="check-box"></span> 설치 후 standalone 모드 (브라우저 UI 없음)</li>
+    <li><span class="check-box"></span> 테마 색상 상태바 반영</li>
+  </ul>
+</div>
+
+</div>
+</body>
+</html>
