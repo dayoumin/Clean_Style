@@ -4,7 +4,7 @@ import HistoryList from '@/components/HistoryList';
 const infoChips = [
   { emoji: '📋', title: '15개 상황', desc: '약 3분' },
   { emoji: '🎯', title: '오답 없음', desc: '나의 스타일' },
-  { emoji: '🧚', title: 'AI 분석', desc: '맞춤 팁' },
+  { emoji: '✨', title: 'AI 분석', desc: '맞춤 팁' },
 ];
 
 export default function HomePage() {

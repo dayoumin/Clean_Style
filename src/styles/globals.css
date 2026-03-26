@@ -178,7 +178,7 @@ body {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 24px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 /* ═══ Tip Boxes ═══ */

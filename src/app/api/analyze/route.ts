@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { chat } from '@/lib/ai';
+import { chat, chatStream } from '@/lib/ai';
 import { styleTypes, questions, calculateResult } from '@/data/questions';
 import { isValidAnalysisResult } from '@/types/analysis';
 import type { AnalysisResult } from '@/types/analysis';
-import { MAX_HISTORY_MESSAGES, MAX_CONTENT_LENGTH, SUMMARIZE_AT_MESSAGES } from '@/lib/constants';
+import { MAX_HISTORY_MESSAGES, MAX_CONTENT_LENGTH, SUMMARIZE_AT_MESSAGES, MAX_QUESTION_LENGTH } from '@/lib/constants';
 
 // ── 보안: 입력 sanitize ──
 
@@ -77,10 +77,14 @@ const QA_BASE = `당신은 공공 연구기관 종사자를 위한 청렴 조언
 - 사용자의 구체적인 질문에 **직접적이고 실용적인 답변** 제공
 - 밝고 따뜻한 톤, 실행 가능한 조언
 - 옳고 그름을 판단하지 않고 안전한 방법을 안내
+- 사용자의 청렴 성향 점수를 참고하여, 그 사람의 강점은 살리고 약점은 보완하는 방향으로 조언
+  - 예: 독립 성향이 강하면 "혼자 판단하기 전에 한 명에게만 공유해보세요" 같은 협업 보완 조언
+  - 예: 유연 성향이 강하면 "판단 근거를 한 줄로 남겨두면 일관성이 보여요" 같은 기록 보완 조언
+  - 예: 신중 성향이 강하면 "확인이 길어질 때 중간 보고를 넣으면 불안감이 줄어요" 같은 속도 보완 조언
 
 ## 응답 원칙
 - 5~7문장 이내로 핵심만 간결하게
-- 2~3문장마다 줄바꿈(\\n)을 넣어 가독성을 높이세요
+- 2~3문장마다 빈 줄을 넣어 가독성을 높이세요
 - 관련 규정이나 주의점이 있으면 짧게 언급
 - 마지막에 한 줄 격려
 - JSON이 아닌 일반 텍스트로 응답`;
@@ -312,16 +316,43 @@ ${cleaned}
   return prompt;
 }
 
+/** scores 객체 검증 — 3개 축이 모두 숫자이고 합리적 범위 내인지 */
+function isValidScores(s: unknown): s is { principle: number; transparency: number; independence: number } {
+  if (typeof s !== 'object' || s === null) return false;
+  const obj = s as Record<string, unknown>;
+  return (
+    typeof obj.principle === 'number' && typeof obj.transparency === 'number' && typeof obj.independence === 'number' &&
+    Math.abs(obj.principle as number) <= 15 && Math.abs(obj.transparency as number) <= 15 && Math.abs(obj.independence as number) <= 15
+  );
+}
+
+/** 점수를 한글 성향 설명으로 변환 */
+function describeScores(scores: { principle: number; transparency: number; independence: number }): string {
+  const axis = (score: number, pos: string, neg: string) => {
+    if (score >= 3) return `${pos} 성향 뚜렷`;
+    if (score >= 1) return `${pos} 성향 약간`;
+    if (score <= -3) return `${neg} 성향 뚜렷`;
+    if (score <= -1) return `${neg} 성향 약간`;
+    return '균형';
+  };
+  return [
+    `원칙↔유연(${scores.principle}): ${axis(scores.principle, '원칙', '유연')}`,
+    `투명↔신중(${scores.transparency}): ${axis(scores.transparency, '투명', '신중')}`,
+    `독립↔협력(${scores.independence}): ${axis(scores.independence, '독립', '협력')}`,
+  ].join('\n');
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { styleKey, answers, userContext, mode, history, summary } = body as {
+    const { styleKey, answers, userContext, mode, history, summary, scores } = body as {
       styleKey: string;
       answers: number[];
       userContext?: string;
       mode?: 'analysis' | 'question' | 'summarize';
       history?: { role: 'user' | 'assistant'; content: string }[];
       summary?: string;
+      scores?: { principle: number; transparency: number; independence: number };
     };
 
     // 입력 검증
@@ -334,28 +365,31 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid style' }, { status: 400 });
     }
 
-    if (userContext && (typeof userContext !== 'string' || userContext.length > 500)) {
-      return NextResponse.json({ error: 'userContext must be string under 500 chars' }, { status: 400 });
+    if (userContext && (typeof userContext !== 'string' || userContext.length > MAX_QUESTION_LENGTH)) {
+      return NextResponse.json({ error: `userContext must be string under ${MAX_QUESTION_LENGTH} chars` }, { status: 400 });
     }
 
-    // ── 요약 모드: 대화 히스토리를 3문장으로 축약 ──
+    // ── 요약 모드: 대화 히스토리를 3문장으로 축약 (롤링 요약 지원) ──
     if (mode === 'summarize') {
       const safeHistory = sanitizeHistory(history);
       if (safeHistory.length === 0) {
         return NextResponse.json({ error: 'history is required' }, { status: 400 });
       }
       try {
+        const safeSummary = typeof summary === 'string' ? summary.slice(0, MAX_CONTENT_LENGTH) : '';
         const conversation = safeHistory
-          .slice(0, SUMMARIZE_AT_MESSAGES)
           .map(m => `${m.role === 'user' ? '사용자' : 'AI'}: ${m.content}`)
           .join('\n');
+        const userContent = safeSummary
+          ? `## 이전 요약\n${safeSummary}\n\n## 이후 대화\n${conversation}`
+          : conversation;
         const response = await chat({
           messages: [
             { role: 'system', content: SUMMARIZE_SYSTEM_PROMPT },
-            { role: 'user', content: conversation },
+            { role: 'user', content: userContent },
           ],
           temperature: 0.3,
-          maxTokens: 200,
+          maxTokens: 300,
         });
         return NextResponse.json({ summary: response.content });
       } catch {
@@ -374,14 +408,22 @@ export async function POST(request: NextRequest) {
         const hasHistory = safeHistory.length > 0;
         const safeSummary = typeof summary === 'string' ? sanitizeUserInput(summary.slice(0, MAX_CONTENT_LENGTH)) : '';
         const basePrompt = (safeSummary || hasHistory) ? QA_SYSTEM_PROMPT_CONTINUE : QA_SYSTEM_PROMPT;
-        const systemPrompt = safeSummary
-          ? `${basePrompt}\n\n## 이전 대화 요약\n${safeSummary}`
-          : basePrompt;
+        const validScores = isValidScores(scores) ? scores : null;
+        const isFirstTurn = !hasHistory && !safeSummary;
+        // 첫 턴: 성향 정보는 user 메시지에 포함 / 이어서: system 프롬프트에 포함
+        const scoreContext = (!isFirstTurn && validScores) ? `\n\n## 사용자 성향 (조언 방향 참고용, 직접 언급 금지)\n${describeScores(validScores)}` : '';
+        const summaryContext = safeSummary ? `\n\n## 이전 대화 요약\n${safeSummary}` : '';
+        const systemPrompt = basePrompt + scoreContext + summaryContext;
         const cleanedQuestion = sanitizeUserInput(userContext);
-        const needsStyleContext = !hasHistory;
-        const userMessage = needsStyleContext
-          ? `나의 청렴 스타일: ${style.name} (${style.description})\n\n질문: ${cleanedQuestion}`
-          : cleanedQuestion;
+        let userMessage: string;
+        if (isFirstTurn) {
+          const scoreInfo = validScores
+            ? `\n\n나의 성향 점수:\n${describeScores(validScores)}`
+            : '';
+          userMessage = `나의 청렴 스타일: ${style.name} (${style.description})${scoreInfo}\n\n질문: ${cleanedQuestion}`;
+        } else {
+          userMessage = cleanedQuestion;
+        }
 
         const messages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
           { role: 'system', content: systemPrompt },
@@ -389,15 +431,18 @@ export async function POST(request: NextRequest) {
           { role: 'user', content: userMessage },
         ];
 
-        const response = await chat({
+        const stream = chatStream({
           messages,
           temperature: 0.7,
           maxTokens: 600,
         });
 
-        return NextResponse.json({
-          answer: response.content,
-          provider: response.provider,
+        return new Response(stream, {
+          headers: {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+          },
         });
       } catch {
         return NextResponse.json(

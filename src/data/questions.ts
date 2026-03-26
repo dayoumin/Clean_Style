@@ -37,7 +37,7 @@ export const questions: Question[] = [
     choices: [
       { text: '일단 전부 기록해두고 내일 다시 본다', scores: { principle: 1, independence: 1 } },
       { text: '선임연구원에게 같이 봐달라고 한다', scores: { transparency: 1, independence: -1 } },
-      { text: '전체 흐름을 먼저 파악하고, 나중에 다시 살펴본다', scores: { principle: -1 } },
+      { text: '전체 흐름을 먼저 파악하고, 나중에 다시 살펴본다', scores: { principle: -1, transparency: -1 } },
       { text: '이상한 부분만 메모해두고 팀 회의에서 꺼낸다', scores: { transparency: 1, independence: -1 } },
     ],
   },
@@ -49,7 +49,7 @@ export const questions: Question[] = [
       { text: '"원본 그대로 쓰는 게 맞지 않나" 하고 얘기한다', scores: { principle: 1 } },
       { text: '의미 있는 차이인지 먼저 확인해본다', scores: { transparency: -1, independence: 1 } },
       { text: '보고서 가독성도 중요하니 적절히 조정한다', scores: { principle: -1 } },
-      { text: '팀장한테 어디까지 정리해도 되는지 물어본다', scores: { independence: -1, transparency: -1 } },
+      { text: '팀장한테 어디까지 정리해도 되는지 물어본다', scores: { independence: -1 } },
     ],
   },
   {
@@ -60,7 +60,7 @@ export const questions: Question[] = [
       { text: '쓸 곳이 없으면 반납이 맞다고 보고 정리한다', scores: { principle: 1 } },
       { text: '다음 실험에 필요한 소모품을 미리 확보해둔다', scores: { principle: -1, independence: 1 } },
       { text: '연구관리팀에 이월 가능 여부를 먼저 확인한다', scores: { transparency: 1, independence: -1 } },
-      { text: '팀원들에게 필요한 물품이 있는지 취합해본다', scores: { independence: -1 } },
+      { text: '팀원들에게 필요한 물품이 있는지 취합해본다', scores: { independence: -1, transparency: -1 } },
     ],
   },
   {
@@ -69,7 +69,7 @@ export const questions: Question[] = [
     situation: '연구 중간보고 시점인데, 일부 실험이 예상대로 안 돼서 당초 계획보다 진도가 늦다.',
     choices: [
       { text: '지연 상황과 원인을 솔직하게 보고한다', scores: { transparency: 1 } },
-      { text: '할 수 있는 데까지 해보고, 보고 시점에 정리해서 말한다', scores: { principle: -1 } },
+      { text: '할 수 있는 데까지 해보고, 보고 시점에 정리해서 말한다', scores: { principle: -1, transparency: -1 } },
       { text: '비슷한 경험이 있는 동료에게 먼저 조언을 구한다', scores: { transparency: -1, independence: -1 } },
       { text: '방법을 바꿔서라도 일정 내 결과를 내본다', scores: { independence: 1, principle: -1 } },
     ],
@@ -94,7 +94,7 @@ export const questions: Question[] = [
     choices: [
       { text: '비교견적 절차를 밟고 최저가로 진행한다', scores: { principle: 1 } },
       { text: '금액 차이가 크지 않으면 기존 업체로 간다', scores: { principle: -1, independence: 1 } },
-      { text: '다른 업체도 알아보되, 담당자와 상의해서 결정한다', scores: { independence: -1 } },
+      { text: '다른 업체도 알아보되, 담당자와 상의해서 결정한다', scores: { independence: -1, transparency: -1 } },
       { text: '비교견적 과정과 선정 이유를 문서로 남긴다', scores: { transparency: 1 } },
     ],
   },
@@ -138,8 +138,8 @@ export const questions: Question[] = [
     choices: [
       { text: '그래도 공식 절차(수의계약 사유서 등)를 꼼꼼히 밟는다', scores: { principle: 1 } },
       { text: '상황이 상황인 만큼 빠르게 갱신 처리한다', scores: { principle: -1, independence: 1 } },
-      { text: '혹시 다른 업체가 있는지 한 번은 알아본다', scores: { transparency: -1 } },
-      { text: '계약 담당과 상의해서 적절한 방법을 찾는다', scores: { independence: -1, transparency: -1 } },
+      { text: '혹시 다른 업체가 있는지 한 번은 알아본다', scores: { transparency: -1, principle: 1 } },
+      { text: '계약 담당과 상의해서 적절한 방법을 찾는다', scores: { independence: -1 } },
     ],
   },
 
@@ -163,7 +163,7 @@ export const questions: Question[] = [
       { text: '관련 규정을 확인해보고, 문제가 있으면 알려준다', scores: { principle: 1, independence: 1 } },
       { text: '동료한테 직접 "이거 괜찮은 건지" 가볍게 물어본다', scores: { transparency: 1, independence: -1 } },
       { text: '업무 스타일 차이일 수 있으니, 상황을 좀 더 파악해본다', scores: { principle: -1, transparency: -1 } },
-      { text: '기관 윤리담당에게 일반적 질문으로 확인해본다', scores: { transparency: -1, principle: 1 } },
+      { text: '기관 윤리담당에게 일반적 질문으로 확인해본다', scores: { transparency: 1, principle: 1 } },
     ],
   },
   {
@@ -172,7 +172,7 @@ export const questions: Question[] = [
     situation: '상급자가 "이번 건은 빠르게 처리해"라며 일부 절차 생략을 암시했다.',
     choices: [
       { text: '절차가 필요한 이유를 설명하고 정식으로 진행한다', scores: { principle: 1, independence: 1 } },
-      { text: '간소화 가능한 부분과 필수 절차를 구분해서 제안한다', scores: { principle: -1, transparency: 1 } },
+      { text: '간소화 가능한 부분과 필수 절차를 구분해서 제안한다', scores: { principle: -1 } },
       { text: '속도에 맞추되, 진행 과정을 기록으로 남겨둔다', scores: { transparency: 1, principle: -1 } },
       { text: '다른 팀원과 함께 상급자에게 의견을 전달한다', scores: { independence: -1, transparency: 1 } },
     ],
@@ -195,7 +195,7 @@ export const questions: Question[] = [
     choices: [
       { text: '시간이 걸려도 내용을 확인하고 사인한다', scores: { principle: 1, independence: 1 } },
       { text: '핵심만 빠르게 확인하고 처리한다', scores: { principle: -1, independence: 1 } },
-      { text: '동료와 함께 빠르게 검토하고 사인한다', scores: { independence: -1, transparency: 1 } },
+      { text: '동료와 함께 빠르게 검토하고 사인한다', scores: { independence: -1 } },
       { text: '내일 아침 일찍 와서 제대로 확인하겠다고 한다', scores: { transparency: -1, principle: 1 } },
     ],
   },

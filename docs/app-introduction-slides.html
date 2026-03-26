@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>청렴 스타일 테스트 — 소개</title>
 <style>
-  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700;900&display=swap');
-
   :root {
     --ink: #1a1a2e;
     --ink-light: #3d3d5c;
@@ -23,8 +20,8 @@
     --accent-glow: rgba(45, 58, 140, 0.06);
     --violet: #2d3a8c;
     --violet-wash: #f0f1f6;
-    --serif: 'Noto Serif KR', 'Batang', serif;
-    --sans: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    --serif: 'Batang', 'Georgia', serif;
+    --sans: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', '맑은 고딕', 'Segoe UI', sans-serif;
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -141,6 +138,11 @@
   }
 
   .nav-bar > * { pointer-events: auto; }
+
+  /* iframe 내에서는 돌아가기 숨김 */
+  @media all {
+    body.in-iframe .nav-back { display: none; }
+  }
 
   .nav-back {
     font-family: var(--sans);
@@ -972,6 +974,11 @@
 
 <script>
   (() => {
+    // iframe 감지 — 돌아가기 숨김
+    if (window.self !== window.top) {
+      document.body.classList.add('in-iframe');
+    }
+
     const slides = document.querySelectorAll('.slide');
     const total = slides.length;
     let current = 0;

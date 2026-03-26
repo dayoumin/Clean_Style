@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>공유 UI 시안 비교</title>
+<style>
+  :root {
+    --color-primary: #1a1a2e;
+    --color-primary-hover: #2a2a4e;
+    --color-primary-accent: #4361ee;
+    --color-primary-soft: #eef1ff;
+    --color-primary-muted: #dde3ff;
+    --color-success: #06d6a0;
+    --color-success-soft: #e8faf4;
+    --color-bg: #ffffff;
+    --color-bg-page: #f0f1f5;
+    --color-card: #f7f8fc;
+    --color-text: #1a1a2e;
+    --color-text-secondary: #5a6080;
+    --color-text-muted: #9da2b8;
+    --color-border: #e2e5f0;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+    background: #e8eaf0;
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    padding: 40px 20px;
+  }
+
+  /* ── 레이아웃 ── */
+  h1.page-title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  p.page-desc {
+    text-align: center;
+    font-size: 14px;
+    color: var(--color-text-secondary);
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 700;
+    margin: 48px 0 8px;
+    color: var(--color-primary);
+  }
+  .section-desc {
+    text-align: center;
+    font-size: 13px;
+    color: var(--color-text-muted);
+    margin-bottom: 24px;
+  }
+
+  .compare-row {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+
+  .phone-label {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-primary-accent);
+    background: var(--color-primary-soft);
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+
+  /* ── 폰 프레임 ── */
+  .phone {
+    width: 360px;
+    min-height: 640px;
+    background: var(--color-bg);
+    border-radius: 32px;
+    border: 3px solid #d0d3dc;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .phone-inner {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  /* ── 결과 카드 ── */
+  .result-gradient {
+    background: var(--color-primary);
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-xl);
+    padding: 24px;
+    text-align: center;
+    color: white;
+    margin-bottom: 8px;
+  }
+  .result-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at 70% 20%, rgba(67, 97, 238, 0.3) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .result-gradient .badge {
+    position: absolute;
+    left: 16px; top: 12px;
+    background: rgba(255,255,255,0.15);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.8);
+    backdrop-filter: blur(4px);
+  }
+  .result-gradient .emoji { font-size: 36px; margin-bottom: 2px; position: relative; z-index: 1; }
+  .result-gradient h2 { font-size: 24px; font-weight: 800; margin-bottom: 4px; position: relative; z-index: 1; }
+  .result-gradient p { font-size: 13px; color: rgba(255,255,255,0.8); position: relative; z-index: 1; line-height: 1.5; }
+  .result-gradient .deco1 { position: absolute; left: -24px; top: -24px; width: 112px; height: 112px; border-radius: 50%; background: rgba(255,255,255,0.05); }
+  .result-gradient .deco2 { position: absolute; right: -16px; bottom: -16px; width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.05); }
+
+  /* ── 공유 배너 ── */
+  .shared-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--color-primary-soft);
+    border: 1px solid var(--color-primary-muted);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--color-primary-accent);
+    font-weight: 600;
+  }
+  .shared-banner .icon { font-size: 16px; }
+
+  /* ── 레이더 차트 플레이스홀더 ── */
+  .chart-placeholder {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 8px;
+    text-align: center;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chart-placeholder .hex {
+    width: 100px; height: 100px;
+    position: relative;
+  }
+  .chart-placeholder .hex svg { width: 100%; height: 100%; }
+  .chart-placeholder .labels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .chart-placeholder .label-chip {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--color-primary-soft);
+    color: var(--color-primary-accent);
+    font-weight: 600;
+  }
+
+  /* ── 탭 카드 ── */
+  .tab-card {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 8px;
+  }
+  .tab-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .tab-btn {
+    height: 32px; width: 64px;
+    border-radius: 20px;
+    border: none;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .tab-btn.active { background: var(--color-primary); color: white; }
+  .tab-btn.inactive { background: var(--color-primary-soft); color: var(--color-primary-accent); }
+  .tab-content {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+
+  /* ── AI 조언 버튼 ── */
+  .ai-btn {
+    width: 100%;
+    border: 1px dashed var(--color-primary-muted);
+    background: var(--color-primary-soft);
+    border-radius: var(--radius-md);
+    padding: 14px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-primary-accent);
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .ai-btn:hover { background: var(--color-primary-muted); }
+
+  /* ── 하단 버튼 영역 ── */
+  .bottom-actions {
+    margin-top: auto;
+    padding-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .btn-row {
+    display: flex;
+    gap: 8px;
+  }
+  .btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .btn-outline {
+    border: 1px solid var(--color-border);
+    background: var(--color-card);
+    color: var(--color-text);
+  }
+  .btn-primary {
+    background: var(--color-primary);
+    color: white;
+  }
+  .btn-accent {
+    background: var(--color-primary-accent);
+    color: white;
+  }
+  .btn-share {
+    background: var(--color-success);
+    color: white;
+  }
+  .btn-share-soft {
+    background: var(--color-success-soft);
+    color: #059669;
+    border: 1px solid #b8ede0;
+  }
+  .btn-full {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-cta {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  /* ── 토스트 ── */
+  .toast-demo {
+    background: var(--color-primary);
+    color: white;
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    margin: 0 20px 12px;
+    animation: slideUpToast 0.3s ease;
+  }
+  @keyframes slideUpToast {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── 구분선 ── */
+  .divider-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 56px 0 32px;
+  }
+  .divider-label::before,
+  .divider-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #ccc;
+  }
+  .divider-label span {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+  }
+
+  /* ── 노트 ── */
+  .note-box {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin: 0 auto 32px;
+    max-width: 760px;
+  }
+  .note-box h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-primary-accent);
+    margin-bottom: 8px;
+  }
+  .note-box ul {
+    font-size: 13px;
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    padding-left: 18px;
+  }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">공유 기능 UI 시안</h1>
+<p class="page-desc">본인 화면 vs 공유받은 화면 비교 + 버튼 배치 시안 3종</p>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 시안 A: 하단 버튼 3개 나란히 -->
+<!-- ════════════════════════════════════════ -->
+<div class="section-title">시안 A — 하단 버튼 3개 나란히</div>
+<div class="section-desc">링크 복사 버튼을 "다시 하기", "이미지 저장"과 같은 줄에 배치</div>
+
+<div class="compare-row">
+  <!-- 본인 -->
+  <div>
+    <div class="phone-label">본인 화면</div>
+    <div class="phone">
+      <div class="phone-inner">
+        <div class="result-gradient">
+          <div class="badge">청렴 스타일</div>
+          <div class="deco1"></div>
+          <div class="deco2"></div>
+          <div class="emoji">🛡️</div>
+          <h2>소신 수호자</h2>
+          <p>규정대로, 바로 말하고,<br>혼자서도 밀고 나가는 타입</p>
+        </div>
+
+        <div class="chart-placeholder">
+          <div>
+            <svg width="100" height="90" viewBox="0 0 100 90">
+              <polygon points="50,5 90,25 90,65 50,85 10,65 10,25" fill="none" stroke="#e2e5f0" stroke-width="1"/>
+              <polygon points="50,20 75,32 78,58 50,72 22,58 25,32" fill="rgba(67,97,238,0.15)" stroke="#4361ee" stroke-width="1.5"/>
+            </svg>
+            <div class="labels">
+              <span class="label-chip">원칙 3</span>
+              <span class="label-chip">투명 2</span>
+              <span class="label-chip">독립 1</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-card">
+          <div class="tab-row">
+            <button class="tab-btn active">강점</button>
+            <button class="tab-btn inactive">주의</button>
+            <button class="tab-btn inactive">팁</button>
+          </div>
+          <div class="tab-content">애매한 상황에서도 기준을 먼저 확인하고, 문제가 보이면 바로 공유하는 투명한 판단력</div>
+        </div>
+
+        <button class="ai-btn">✨ AI 맞춤 조언 받기</button>
+
+        <div class="bottom-actions">
+          <div class="btn-row">
+            <button class="btn btn-outline">다시 하기</button>
+            <button class="btn btn-primary">이미지 저장</button>
+            <button class="btn btn-share">링크 복사</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 공유받은 사람 -->
+  <div>
+    <div class="phone-label">공유받은 화면</div>
+    <div class="phone">
+      <div class="phone-inner">
+        <div class="shared-banner">
+          <span class="icon">👀</span>
+          다른 사람의 청렴 스타일 결과입니다
+        </div>
+
+        <div class="result-gradient">
+          <div class="badge">청렴 스타일</div>
+          <div class="deco1"></div>
+          <div class="deco2"></div>
+          <div class="emoji">🛡️</div>
+          <h2>소신 수호자</h2>
+          <p>규정대로, 바로 말하고,<br>혼자서도 밀고 나가는 타입</p>
+        </div>
+
+        <div class="chart-placeholder">
+          <div>
+            <svg width="100" height="90" viewBox="0 0 100 90">
+              <polygon points="50,5 90,25 90,65 50,85 10,65 10,25" fill="none" stroke="#e2e5f0" stroke-width="1"/>
+              <polygon points="50,20 75,32 78,58 50,72 22,58 25,32" fill="rgba(67,97,238,0.15)" stroke="#4361ee" stroke-width="1.5"/>
+            </svg>
+            <div class="labels">
+              <span class="label-chip">원칙 3</span>
+              <span class="label-chip">투명 2</span>
+              <span class="label-chip">독립 1</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-card">
+          <div class="tab-row">
+            <button class="tab-btn active">강점</button>
+            <button class="tab-btn inactive">주의</button>
+            <button class="tab-btn inactive">팁</button>
+          </div>
+          <div class="tab-content">애매한 상황에서도 기준을 먼저 확인하고, 문제가 보이면 바로 공유하는 투명한 판단력</div>
+        </div>
+
+        <!-- AI 조언 버튼 없음 -->
+
+        <div class="bottom-actions">
+          <button class="btn-full btn-cta">나도 테스트 해보기 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 시안 B: 링크 복사를 별도 줄 + 아이콘 -->
+<!-- ════════════════════════════════════════ -->
+<div class="divider-label"><span>시안 B</span></div>
+<div class="section-title">시안 B — 링크 복사 별도 줄 (연한 스타일)</div>
+<div class="section-desc">기존 2버튼 유지 + 아래에 링크 복사를 부드러운 톤으로 분리</div>
+
+<div class="compare-row">
+  <!-- 본인 -->
+  <div>
+    <div class="phone-label">본인 화면</div>
+    <div class="phone">
+      <div class="phone-inner">
+        <div class="result-gradient">
+          <div class="badge">청렴 스타일</div>
+          <div class="deco1"></div>
+          <div class="deco2"></div>
+          <div class="emoji">⚖️</div>
+          <h2>정의의 조율자</h2>
+          <p>규정을 중시하되,<br>팀과 공유하며 함께 해결하는 타입</p>
+        </div>
+
+        <div class="chart-placeholder">
+          <div>
+            <svg width="100" height="90" viewBox="0 0 100 90">
+              <polygon points="50,5 90,25 90,65 50,85 10,65 10,25" fill="none" stroke="#e2e5f0" stroke-width="1"/>
+              <polygon points="50,15 80,35 70,65 50,75 30,65 20,35" fill="rgba(67,97,238,0.15)" stroke="#4361ee" stroke-width="1.5"/>
+            </svg>
+            <div class="labels">
+              <span class="label-chip">원칙 4</span>
+              <span class="label-chip">투명 1</span>
+              <span class="label-chip">협력 2</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-card">
+          <div class="tab-row">
+            <button class="tab-btn inactive">강점</button>
+            <button class="tab-btn active">주의</button>
+            <button class="tab-btn inactive">팁</button>
+          </div>
+          <div class="tab-content">모두의 동의를 구하다 보면 결정이 늦어지거나 원래 기준이 흐려질 수 있어요</div>
+        </div>
+
+        <button class="ai-btn">✨ AI 맞춤 조언 받기</button>
+
+        <div class="bottom-actions">
+          <div class="btn-row">
+            <button class="btn btn-outline">다시 하기</button>
+            <button class="btn btn-primary">이미지 저장</button>
+          </div>
+          <button class="btn btn-share-soft" style="width:100%;">🔗 결과 링크 복사하기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 공유받은 사람 -->
+  <div>
+    <div class="phone-label">공유받은 화면</div>
+    <div class="phone">
+      <div class="phone-inner">
+        <div class="shared-banner">
+          <span class="icon">👀</span>
+          다른 사람의 청렴 스타일 결과입니다
+        </div>
+
+        <div class="result-gradient">
+          <div class="badge">청렴 스타일</div>
+          <div class="deco1"></div>
+          <div class="deco2"></div>
+          <div class="emoji">⚖️</div>
+          <h2>정의의 조율자</h2>
+          <p>규정을 중시하되,<br>팀과 공유하며 함께 해결하는 타입</p>
+        </div>
+
+        <div class="chart-placeholder">
+          <div>
+            <svg width="100" height="90" viewBox="0 0 100 90">
+              <polygon points="50,5 90,25 90,65 50,85 10,65 10,25" fill="none" stroke="#e2e5f0" stroke-width="1"/>
+              <polygon points="50,15 80,35 70,65 50,75 30,65 20,35" fill="rgba(67,97,238,0.15)" stroke="#4361ee" stroke-width="1.5"/>
+            </svg>
+            <div class="labels">
+              <span class="label-chip">원칙 4</span>
+              <span class="label-chip">투명 1</span>
+              <span class="label-chip">협력 2</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-card">
+          <div class="tab-row">
+            <button class="tab-btn inactive">강점</button>
+            <button class="tab-btn active">주의</button>
+            <button class="tab-btn inactive">팁</button>
+          </div>
+          <div class="tab-content">모두의 동의를 구하다 보면 결정이 늦어지거나 원래 기준이 흐려질 수 있어요</div>
+        </div>
+
+        <!-- AI 조언 없음 -->
+
+        <div class="bottom-actions">
+          <button class="btn-full btn-cta">나도 테스트 해보기 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 시안 C: 결과 카드 바로 아래 공유 바 -->
+<!-- ════════════════════════════════════════ -->
+<div class="divider-label"><span>시안 C</span></div>
+<div class="section-title">시안 C — 결과 카드 바로 아래 공유 바</div>
+<div class="section-desc">스타일 카드 직후에 공유 액션을 배치, 하단은 기존 그대로</div>
+
+<div class="compare-row">
+  <!-- 본인 -->
+  <div>
+    <div class="phone-label">본인 화면</div>
+    <div class="phone">
+      <div class="phone-inner">
+        <div class="result-gradient">
+          <div class="badge">청렴 스타일</div>
+          <div class="deco1"></div>
+          <div class="deco2"></div>
+          <div class="emoji">🚀</div>
+          <h2>실용주의 개척자</h2>
+          <p>상황에 맞게 판단하고,<br>과정은 공개하며 주도적으로 실행하는 타입</p>
+        </div>
+
+        <!-- 공유 바 -->
+        <div style="display:flex; gap:8px; margin-bottom:8px;">
+          <button style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; background:var(--color-card); border:1px solid var(--color-border); border-radius:var(--radius-md); font-size:13px; font-weight:600; color:var(--color-text-secondary); cursor:pointer;">
+            🔗 링크 복사
+          </button>
+          <button style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; background:var(--color-card); border:1px solid var(--color-border); border-radius:var(--radius-md); font-size:13px; font-weight:600; color:var(--color-text-secondary); cursor:pointer;">
+            📷 이미지 저장
+          </button>
+        </div>
+
+        <div class="chart-placeholder">
+          <div>
+            <svg width="100" height="90" viewBox="0 0 100 90">
+              <polygon points="50,5 90,25 90,65 50,85 10,65 10,25" fill="none" stroke="#e2e5f0" stroke-width="1"/>
+              <polygon points="50,25 85,30 65,60 50,70 35,60 15,30" fill="rgba(67,97,238,0.15)" stroke="#4361ee" stroke-width="1.5"/>
+            </svg>
+            <div class="labels">
+              <span class="label-chip">유연 2</span>
+              <span class="label-chip">투명 3</span>
+              <span class="label-chip">독립 2</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-card">
+          <div class="tab-row">
+            <button class="tab-btn inactive">강점</button>
+            <button class="tab-btn inactive">주의</button>
+            <button class="tab-btn active">팁</button>
+          </div>
+          <div class="tab-content">"이건 왜 이렇게 판단했는지" 한 줄이라도 남겨두면, 유연함이 신뢰로 바뀌어요</div>
+        </div>
+
+        <button class="ai-btn">✨ AI 맞춤 조언 받기</button>
+
+        <div class="bottom-actions">
+          <button class="btn-full btn-cta" style="background:var(--color-card); color:var(--color-text); border:1px solid var(--color-border);">다시 하기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 공유받은 사람 -->
+  <div>
+    <div class="phone-label">공유받은 화면</div>
+    <div class="phone">
+      <div class="phone-inner">
+        <div class="shared-banner">
+          <span class="icon">👀</span>
+          다른 사람의 청렴 스타일 결과입니다
+        </div>
+
+        <div class="result-gradient">
+          <div class="badge">청렴 스타일</div>
+          <div class="deco1"></div>
+          <div class="deco2"></div>
+          <div class="emoji">🚀</div>
+          <h2>실용주의 개척자</h2>
+          <p>상황에 맞게 판단하고,<br>과정은 공개하며 주도적으로 실행하는 타입</p>
+        </div>
+
+        <!-- 공유 바: 이미지 저장만 -->
+        <div style="display:flex; gap:8px; margin-bottom:8px;">
+          <button style="flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px; background:var(--color-card); border:1px solid var(--color-border); border-radius:var(--radius-md); font-size:13px; font-weight:600; color:var(--color-text-secondary); cursor:pointer;">
+            📷 이미지 저장
+          </button>
+        </div>
+
+        <div class="chart-placeholder">
+          <div>
+            <svg width="100" height="90" viewBox="0 0 100 90">
+              <polygon points="50,5 90,25 90,65 50,85 10,65 10,25" fill="none" stroke="#e2e5f0" stroke-width="1"/>
+              <polygon points="50,25 85,30 65,60 50,70 35,60 15,30" fill="rgba(67,97,238,0.15)" stroke="#4361ee" stroke-width="1.5"/>
+            </svg>
+            <div class="labels">
+              <span class="label-chip">유연 2</span>
+              <span class="label-chip">투명 3</span>
+              <span class="label-chip">독립 2</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-card">
+          <div class="tab-row">
+            <button class="tab-btn inactive">강점</button>
+            <button class="tab-btn inactive">주의</button>
+            <button class="tab-btn active">팁</button>
+          </div>
+          <div class="tab-content">"이건 왜 이렇게 판단했는지" 한 줄이라도 남겨두면, 유연함이 신뢰로 바뀌어요</div>
+        </div>
+
+        <!-- AI 조언 없음 -->
+
+        <div class="bottom-actions">
+          <button class="btn-full btn-cta">나도 테스트 해보기 →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 토스트 데모 -->
+<!-- ════════════════════════════════════════ -->
+<div class="divider-label"><span>공통: 복사 완료 토스트</span></div>
+<div class="section-desc">링크 복사 클릭 시 하단에 잠깐 나타나는 토스트 메시지</div>
+
+<div class="compare-row">
+  <div class="phone" style="min-height:200px;">
+    <div style="flex:1;"></div>
+    <div class="toast-demo">✅ 결과 링크가 복사되었어요</div>
+    <div style="padding:12px 20px;">
+      <div class="btn-row">
+        <button class="btn btn-outline">다시 하기</button>
+        <button class="btn btn-primary">이미지 저장</button>
+        <button class="btn btn-share">링크 복사</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 비교 정리 -->
+<!-- ════════════════════════════════════════ -->
+<div class="divider-label"><span>시안 비교 정리</span></div>
+
+<div class="note-box">
+  <h4>시안 A — 하단 3버튼</h4>
+  <ul>
+    <li>장점: 한 줄에 모든 액션, 공간 절약</li>
+    <li>단점: 버튼 3개가 좁을 수 있음 (작은 화면)</li>
+  </ul>
+</div>
+
+<div class="note-box">
+  <h4>시안 B — 별도 줄 분리</h4>
+  <ul>
+    <li>장점: 기존 레이아웃 변경 최소화, 링크 복사가 눈에 잘 띔</li>
+    <li>단점: 세로 공간을 약간 더 차지</li>
+  </ul>
+</div>
+
+<div class="note-box">
+  <h4>시안 C — 카드 아래 공유 바</h4>
+  <ul>
+    <li>장점: 결과 확인 직후 바로 공유 가능, 자연스러운 흐름</li>
+    <li>단점: 스크롤 없이 보이는 영역이 줄어듦</li>
+  </ul>
+</div>
+
+<div class="note-box">
+  <h4>공유받은 화면 (공통)</h4>
+  <ul>
+    <li>상단에 "다른 사람의 결과입니다" 배너 표시</li>
+    <li>AI 맞춤 조언 버튼 숨김</li>
+    <li>하단에 "나도 테스트 해보기" CTA로 유도</li>
+    <li>판별 기준: URL에 hid 파라미터 없음 = 공유 모드</li>
+  </ul>
+</div>
+
+</body>
+</html>
