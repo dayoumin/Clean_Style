@@ -44,8 +44,11 @@ function ResultContent() {
   const [analyzing, setAnalyzing] = useState(isNew);
   const [showModal, setShowModal] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
+  const [sharePopup, setSharePopup] = useState(false);
+  const [shareName, setShareName] = useState('');
   const toastTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [activeTab, setActiveTab] = useState<'strength' | 'caution' | 'tip'>('strength');
+  const sharedName = searchParams.get('n') ?? '';
 
   const historyId = searchParams.get('hid') ?? '';
   const styleKey = searchParams.get('style') ?? '';
@@ -109,11 +112,20 @@ function ResultContent() {
     return <AnalyzingScreen onDone={() => setAnalyzing(false)} />;
   }
 
-  const handleCopyLink = () => {
+  const handleShareClick = () => {
+    setShareName('');
+    setSharePopup(true);
+  };
+
+  const handleCopyLink = (name?: string) => {
     const url = new URL(window.location.href);
     url.searchParams.delete('hid');
     url.searchParams.delete('new');
+    url.searchParams.delete('n');
+    const trimmed = (name ?? '').trim();
+    if (trimmed) url.searchParams.set('n', trimmed);
     navigator.clipboard.writeText(url.toString()).then(() => {
+      setSharePopup(false);
       clearTimeout(toastTimerRef.current);
       setToastVisible(true);
       toastTimerRef.current = setTimeout(() => setToastVisible(false), 2000);
@@ -127,7 +139,7 @@ function ResultContent() {
         {isShared && (
           <div className="mb-2 flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-4 py-2.5 text-[13px] font-semibold text-[var(--color-primary-accent)]">
             <span className="text-base">👀</span>
-            다른 사람의 청렴 스타일 결과입니다
+            {sharedName ? `${sharedName}님의 결과를 구경 중이에요` : '누군가의 결과를 구경 중이에요'}
           </div>
         )}
 
@@ -141,9 +153,9 @@ function ResultContent() {
           </span>
           {!isShared && (
             <button
-              onClick={handleCopyLink}
+              onClick={handleShareClick}
               className="absolute right-4 top-3 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-white/80 backdrop-blur-sm hover:bg-white/25 transition-colors"
-              aria-label="결과 링크 복사"
+              aria-label="결과 공유하기"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             </button>
@@ -219,6 +231,43 @@ function ResultContent() {
                 </span>
               )}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 공유 이름 입력 팝업 */}
+      {sharePopup && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={() => setSharePopup(false)}>
+          <div
+            className="w-full max-w-[var(--max-width)] animate-slide-up rounded-t-2xl bg-[var(--color-bg)] px-5 pb-6 pt-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="mb-1 text-[15px] font-bold text-[var(--color-text)]">공유할 때 이름을 넣을까요?</p>
+            <p className="mb-4 text-[12px] text-[var(--color-text-muted)]">받는 사람이 누구의 결과인지 알 수 있어요</p>
+            <input
+              type="text"
+              value={shareName}
+              onChange={(e) => setShareName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleCopyLink(shareName); }}
+              placeholder="이름 또는 닉네임"
+              maxLength={20}
+              className="mb-3 w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-[14px] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-accent)]"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleCopyLink()}
+                className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-3 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
+              >
+                건너뛰기
+              </button>
+              <button
+                onClick={() => handleCopyLink(shareName)}
+                className="flex-[2] rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)]"
+              >
+                링크 복사
+              </button>
+            </div>
           </div>
         </div>
       )}
