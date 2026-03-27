@@ -31,5 +31,9 @@ design-concepts/
 artifacts/
 test-results/
 
+# temp / leftover
+.tmp_review/
+package-lock.json
+
 # claude
 .claude/
