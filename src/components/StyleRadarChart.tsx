@@ -124,6 +124,7 @@ export default function StyleRadarChart({ sixAxis }: StyleRadarChartProps) {
             const numX = Number(x);
             const numY = Number(y);
             const anchor = getTextAnchor(index as number, data.length);
+            const isVertical = index === 0 || index === 3;
             const offsetX = anchor === 'start' ? 8 : anchor === 'end' ? -8 : 0;
             const offsetY = index === 0 ? -6 : 6;
             return (
@@ -139,9 +140,9 @@ export default function StyleRadarChart({ sixAxis }: StyleRadarChartProps) {
                   {item.label}
                 </text>
                 <text
-                  x={numX + offsetX}
-                  y={numY + offsetY + 16}
-                  textAnchor={anchor}
+                  x={isVertical ? numX + offsetX + 14 : numX + offsetX}
+                  y={isVertical ? numY + offsetY : numY + offsetY + 16}
+                  textAnchor={isVertical ? 'start' : anchor}
                   dominantBaseline="central"
                   className="text-[10px]"
                   fill="var(--color-text-muted)"
