@@ -10,7 +10,7 @@ const infoChips = [
 
 export default function HomePage() {
   return (
-    <div className="animate-fade-in flex flex-col items-center pt-8">
+    <div className="animate-fade-in flex flex-col items-center pt-[6vh]">
       {/* 배지 */}
       <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-primary-soft)] px-4 py-1.5 text-[13px] font-semibold text-[var(--color-primary-accent)]">
         ✨ 3분 자기발견 테스트
@@ -43,7 +43,7 @@ export default function HomePage() {
       {/* 시작 버튼 */}
       <Link
         href="/test"
-        className="cta-gradient mt-2 w-full rounded-[var(--radius-md)] py-[15px] text-center text-[15px] font-bold tracking-tight text-white"
+        className="cta-gradient mt-[4vh] w-full rounded-[var(--radius-md)] py-[15px] text-center text-[15px] font-bold tracking-tight text-white mb-[2vh]"
       >
         테스트 시작하기 →
       </Link>
