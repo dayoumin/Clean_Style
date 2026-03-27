@@ -9,12 +9,16 @@ export const metadata: Metadata = {
     description: "재미로 알아보는 청렴 스타일 자기발견 테스트",
     type: "website",
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "청렴스타일",
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   themeColor: "#4f46e5",
 };
 
@@ -25,10 +29,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <body className="min-h-screen bg-[var(--color-bg)] sm:flex sm:items-center sm:justify-center sm:bg-[var(--color-bg-page)]">
-        <main className="min-h-screen max-w-md px-5 pb-6 pt-4 sm:my-8 sm:min-h-[700px] sm:w-full sm:rounded-2xl sm:border sm:border-[var(--color-border)] sm:bg-[var(--color-bg)] sm:px-6 sm:pb-8 sm:pt-6 sm:shadow-lg">
-          {children}
-        </main>
+      <head>
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+      </head>
+      <body className="min-h-screen">
+        {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js');
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );

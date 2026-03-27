@@ -24,7 +24,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { answers, durationSec, referrer } = body;
 
-    if (!Array.isArray(answers) || answers.length !== questions.length) {
+    if (
+      !Array.isArray(answers) ||
+      answers.length !== questions.length ||
+      !answers.every((a: unknown) => Number.isInteger(a) && (a as number) >= 0 && (a as number) <= 3)
+    ) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
     }
 
