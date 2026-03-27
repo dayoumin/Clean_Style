@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "../styles/globals.css";
+import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 
 export const metadata: Metadata = {
   title: "나의 청렴 스타일은? | 공공 연구기관 청렴 스타일 테스트",
@@ -8,6 +9,9 @@ export const metadata: Metadata = {
     title: "나의 청렴 스타일은?",
     description: "재미로 알아보는 청렴 스타일 자기발견 테스트",
     type: "website",
+  },
+  icons: {
+    apple: "/icons/icon-192x192.png",
   },
   appleWebApp: {
     capable: true,
@@ -29,22 +33,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ko">
-      <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-      </head>
       <body className="min-h-screen">
         {children}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                  navigator.serviceWorker.register('/sw.js');
-                });
-              }
-            `,
-          }}
-        />
+        <ServiceWorkerRegistrar />
       </body>
     </html>
   );
