@@ -134,10 +134,13 @@ export function chatStream(options: ChatOptions): ReadableStream {
         ctrl.enqueue(encoder.encode('data: [DONE]\n\n'));
         ctrl.close();
       } catch (err) {
-        if (abortCtrl.signal.aborted) { ctrl.close(); return; }
+        if (abortCtrl.signal.aborted) { try { ctrl.close(); } catch { /* already closed */ } return; }
         const msg = err instanceof Error ? err.message : 'stream error';
-        ctrl.enqueue(encoder.encode(`data: ${JSON.stringify({ error: msg })}\n\n`));
-        ctrl.close();
+        try {
+          ctrl.enqueue(encoder.encode(`data: ${JSON.stringify({ error: msg })}\n\n`));
+          ctrl.enqueue(encoder.encode('data: [DONE]\n\n'));
+          ctrl.close();
+        } catch { /* stream already closed */ }
       } finally {
         clearTimeout(timeout);
       }

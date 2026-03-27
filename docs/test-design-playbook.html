@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - 테스트 설계 플레이북</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232733;
+    --border: #2e3345; --text: #e1e4ed; --text-dim: #8b90a0;
+    --accent: #6c8aff; --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c; --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+    --purple: #a78bfa; --purple-soft: rgba(167,139,250,0.12);
+    --yellow: #facc15; --yellow-soft: rgba(250,204,21,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; padding: 2rem; max-width: 1000px; margin: 0 auto;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .back-link { display: inline-block; margin-bottom: 1.5rem; font-size: 0.85rem; }
+  h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.25rem; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 2.5rem; }
+  h2 {
+    font-size: 1.15rem; font-weight: 700; margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  h2 .step {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent);
+    font-size: 0.85rem; font-weight: 700; flex-shrink: 0;
+  }
+  h3 { font-size: 0.95rem; font-weight: 600; margin: 1.5rem 0 0.5rem; color: var(--accent); }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.75rem 0; }
+  th, td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-dim); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+  ul, ol { margin: 0.5rem 0 0.5rem 1.2rem; font-size: 0.88rem; }
+  li { margin-bottom: 0.4rem; }
+  code {
+    background: var(--surface2); padding: 0.1rem 0.4rem; border-radius: 4px;
+    font-size: 0.82rem; font-family: 'JetBrains Mono', monospace;
+  }
+  .tag {
+    display: inline-block; font-size: 0.7rem; padding: 0.15rem 0.5rem;
+    border-radius: 4px; font-weight: 600; margin-right: 0.25rem;
+  }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+  .tag-orange { background: var(--orange-soft); color: var(--orange); }
+  .tag-red { background: var(--red-soft); color: var(--red); }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .tag-purple { background: var(--purple-soft); color: var(--purple); }
+  .tag-yellow { background: var(--yellow-soft); color: var(--yellow); }
+  .note {
+    background: var(--surface2); border-left: 3px solid var(--accent);
+    padding: 0.75rem 1rem; border-radius: 0 8px 8px 0;
+    font-size: 0.82rem; color: var(--text-dim); margin: 1rem 0;
+  }
+  .note.warn { border-left-color: var(--orange); }
+  .note.danger { border-left-color: var(--red); }
+  .note strong { color: var(--text); }
+  .pitfall {
+    background: var(--red-soft); border: 1px solid rgba(248,113,113,0.3);
+    border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 0.75rem;
+  }
+  .pitfall .label { font-size: 0.75rem; font-weight: 700; color: var(--red); margin-bottom: 0.25rem; }
+  .pitfall .desc { font-size: 0.85rem; color: var(--text-dim); }
+  .pitfall .fix { font-size: 0.82rem; color: var(--green); margin-top: 0.35rem; }
+  .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 700px) { .cols-2 { grid-template-columns: 1fr; } }
+  .updated { color: var(--text-dim); font-size: 0.75rem; text-align: center; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Docs Index</a>
+<h1><span>테스트 설계</span> 플레이북</h1>
+<p class="subtitle">성향 테스트를 처음부터 만들 때 반드시 알아야 할 것들 &mdash; Clean Style 프로젝트에서 얻은 교훈</p>
+
+<!-- ================================================================ -->
+<h2><span class="step">1</span> 설계 비전을 먼저 정한다</h2>
+
+<div class="card">
+  <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.75rem;">
+    점수 체계, 문항 설계, UI 모두 비전에서 파생됩니다. 비전 없이 만들면 나중에 전체를 뒤집어야 합니다.
+  </p>
+  <table>
+    <tr><th>결정 항목</th><th>Clean Style의 선택</th><th>다른 가능한 선택</th></tr>
+    <tr>
+      <td>목적</td>
+      <td><strong>긍정적 자기발견</strong> — "나쁜 점수" 없음</td>
+      <td>진단/평가형, 순위형</td>
+    </tr>
+    <tr>
+      <td>이론 기반</td>
+      <td>조직윤리 학술 이론 3축</td>
+      <td>MBTI, Big Five, 자체 모델 등</td>
+    </tr>
+    <tr>
+      <td>결과 톤</td>
+      <td>강점 중심 서술</td>
+      <td>약점 지적, 균형 보고</td>
+    </tr>
+    <tr>
+      <td>동기 부여</td>
+      <td>발견 → 유지 → 행동 변화</td>
+      <td>경고 → 교정</td>
+    </tr>
+  </table>
+  <div class="note">
+    <strong>핵심:</strong> "이 테스트의 목적이 무엇인가?"를 한 문장으로 정의하고, 모든 후속 결정이 이 문장에 부합하는지 검증합니다.
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<h2><span class="step">2</span> 축 구조를 설계한다</h2>
+
+<div class="card">
+  <h3>양극(bipolar) vs 단극(unipolar)</h3>
+  <div class="cols-2">
+    <div>
+      <p style="font-size:0.85rem; font-weight:600; margin-bottom:0.35rem;">양극 (내부 계산용)</p>
+      <p style="font-size:0.82rem; color:var(--text-dim);">
+        하나의 축에 +1/-1로 점수 부여.<br>
+        예: <code>principle: +1</code>(원칙) ↔ <code>principle: -1</code>(유연)<br>
+        유형 판정은 순점수 부호로 결정 (양수=원칙, 음수=유연).
+      </p>
+    </div>
+    <div>
+      <p style="font-size:0.85rem; font-weight:600; margin-bottom:0.35rem;">단극 (차트 표시용)</p>
+      <p style="font-size:0.82rem; color:var(--text-dim);">
+        양극의 +1과 -1을 분리하여 6개 독립 축으로 표시.<br>
+        원칙(+1 합산), 유연(|-1| 합산) 각각 0~max.<br>
+        레이더 차트에서 6각형으로 시각화.
+      </p>
+    </div>
+  </div>
+
+  <div class="note warn">
+    <strong>함정:</strong> 양극을 단극으로 쪼개면 <strong>한 쌍의 양쪽이 동시에 낮아질 수 있습니다.</strong>
+    이것이 "축별 최소 참여" 문제의 원인입니다. (아래 Step 4에서 해결)
+  </div>
+</div>
+
+<div class="card">
+  <h3>축 수 × 문항 수 가이드</h3>
+  <table>
+    <tr><th>축쌍 수</th><th>권장 최소 문항</th><th>이유</th></tr>
+    <tr><td>2축쌍</td><td>10문항</td><td>축당 5문항 → 변별력 최소선</td></tr>
+    <tr><td>3축쌍</td><td>15문항</td><td>축당 5문항 × 3 (Clean Style 현재)</td></tr>
+    <tr><td>3축쌍 (개선)</td><td>18문항</td><td>축당 6문항 → 안정성 향상</td></tr>
+    <tr><td>4축쌍+</td><td>20문항+</td><td>많아지면 사용자 이탈 주의</td></tr>
+  </table>
+  <div class="note">
+    <strong>문항 수 증가의 핵심 이점:</strong> 강제 참여 문항을 자연스럽게 확보하기 쉬워짐.
+    15문항일 때는 의도적으로 매핑을 추가해야 했지만, 18문항이면 설계 단계에서 배분 가능.
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<h2><span class="step">3</span> 점수 표시를 설계한다 (√ 커브)</h2>
+
+<div class="card">
+  <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.75rem;">
+    원시 점수(raw)를 차트 표시 점수로 변환할 때, 테스트 목적에 맞는 커브를 선택합니다.
+  </p>
+
+  <h3>왜 선형(linear)이 아닌가</h3>
+  <p style="font-size:0.85rem; color:var(--text-dim);">
+    대립축 구조에서 선형 매핑을 쓰면 한쪽이 높을 때 반대쪽이 0~1점으로 표시됩니다.
+    "원칙 0점"은 실제로는 "유연 성향이 강하다"는 뜻이지만, 사용자는 <strong>"원칙이 없다"</strong>로 읽습니다.
+  </p>
+
+  <h3>제곱근(√) 커브</h3>
+  <div style="margin:0.75rem 0;">
+    <code style="font-size:0.9rem; padding:0.4rem 0.8rem; display:inline-block;">
+      score = round(MIN + √(raw / max) × (MAX − MIN))
+    </code>
+  </div>
+  <table>
+    <tr><th>보정</th><th>설명</th><th>효과</th></tr>
+    <tr>
+      <td><span class="tag tag-blue">바닥값</span> MIN=1</td>
+      <td>원시 0점이어도 최소 1점 표시</td>
+      <td>"0점 = 없다"로 오독 방지</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-purple">√ 커브</span></td>
+      <td>중·상위 점수를 넓게 분포</td>
+      <td>대부분 3~5점 → 긍정적 인상</td>
+    </tr>
+  </table>
+
+  <table>
+    <tr><th>raw %</th><th>선형</th><th>√ 커브</th><th>x²</th></tr>
+    <tr><td>0%</td><td>1</td><td>1</td><td>1</td></tr>
+    <tr><td>25%</td><td>2</td><td><strong>3</strong></td><td>1</td></tr>
+    <tr><td>50%</td><td>3</td><td><strong>4</strong></td><td>2</td></tr>
+    <tr><td>75%</td><td>4</td><td><strong>4</strong></td><td>3</td></tr>
+    <tr><td>100%</td><td>5</td><td>5</td><td>5</td></tr>
+  </table>
+  <div class="note">
+    <strong>참고:</strong> log 커브는 base에 따라 값이 크게 달라져 단순 비교가 어렵습니다.
+    일반적으로 √보다 상위로 끌어올리지만 축 간 차이가 거의 사라집니다.
+  </div>
+
+  <div class="note">
+    <strong>커브 선택 기준:</strong>
+    <ul style="margin-top:0.35rem;">
+      <li><strong>긍정적 자기발견</strong> 목적 → √ (중간을 올림, 차이 유지)</li>
+      <li><strong>진단/평가</strong> 목적 → 선형 (정직한 표현)</li>
+      <li><strong>게이미피케이션</strong> 목적 → log (초반 빠른 성장감, 단 base 선택에 주의)</li>
+      <li>√ 채택 이유: 선형보다 긍정적이면서 축 간 차이가 살아있는 균형점</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<h2><span class="step">4</span> 점수 매핑 시 함정을 피한다</h2>
+
+<div class="pitfall">
+  <div class="label">함정 1: 축별 최소 참여 미보장</div>
+  <div class="desc">
+    각 선택지가 3축 중 1~2축에만 점수를 주면, 특정 축쌍에 아예 점수가 안 쌓이는 응답 조합이 가능합니다.
+    레이더 차트에서 한 축쌍의 양쪽이 모두 바닥(1점)으로 표시됩니다.
+  </div>
+  <div class="fix">
+    ✅ 해결: "강제 참여 문항"(4개 선택지 모두 해당 축에 점수 부여)을 <strong>축쌍당 최소 3개</strong> 확보.
+    검증 도구: <code>npx tsx scripts/check-axis-coverage.ts</code>
+  </div>
+</div>
+
+<div class="pitfall">
+  <div class="label">함정 2: 시각화 레이어를 검증 안 함</div>
+  <div class="desc">
+    유형 판정(3축 순점수 부호)은 정상이어도, 6축 개별 표시(레이더 차트)에서 문제가 생길 수 있습니다.
+    로직 레이어만 테스트하면 시각적 문제를 놓칩니다.
+  </div>
+  <div class="fix">
+    ✅ 해결: 시뮬레이션에서 유형 분포뿐 아니라 <strong>6축 개별 표시 점수</strong>도 검증.
+    "무관 선택지만 고른 극단 시나리오"를 시뮬레이션에 포함.
+  </div>
+</div>
+
+<div class="pitfall">
+  <div class="label">함정 3: 사회적 바람직성 편향</div>
+  <div class="desc">
+    A선택지가 항상 "바른 답"으로 보이면 응답이 편향됩니다.
+    특히 청렴·윤리 주제에서 심함.
+  </div>
+  <div class="fix">
+    ✅ 해결: 선택지 순서를 seededShuffle로 랜덤화. 내용 자체의 바람직성도 매칭되도록 문항 리뷰.
+  </div>
+</div>
+
+<div class="pitfall">
+  <div class="label">함정 4: 대립축인데 둘 다 높게 표시</div>
+  <div class="desc">
+    √ 커브는 중간 점수를 끌어올리므로, 대립축 양쪽이 모두 4~5점으로 표시될 수 있습니다.
+    "독립 4점, 협력 4점"이면 대립축의 대비가 흐려집니다.
+  </div>
+  <div class="fix">
+    ⚠️ 의도적 허용: "독립성도 있고 협력도 한다"로 긍정적 해석 가능.
+    설계 비전(긍정적 인식)에 부합. 유형 판정은 원시 점수 기반이라 영향 없음.
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<h2><span class="step">5</span> 검증 체크리스트</h2>
+
+<div class="card">
+  <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.75rem;">
+    문항 추가·수정 시 반드시 확인. <strong>로직 + 시각화 양쪽</strong>을 모두 검증합니다.
+  </p>
+  <table>
+    <tr><th>#</th><th>항목</th><th>기준</th><th>검증 도구</th></tr>
+    <tr>
+      <td>1</td>
+      <td>축별 ±1 기회 균형</td>
+      <td>각 축쌍 양방향 차이 ≤ 3</td>
+      <td><code>questions-simulation.ts</code></td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>유형 분포</td>
+      <td>전 유형 출현율 5% 이상</td>
+      <td><code>questions-simulation.ts</code> (100K)</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>사회적 바람직성</td>
+      <td>특정 선택지가 "정답"으로 안 보이게</td>
+      <td><code>question-review-prompt.html</code></td>
+    </tr>
+    <tr>
+      <td><strong>4</strong></td>
+      <td><strong>축별 최소 참여</strong></td>
+      <td><strong>강제 참여 문항 ≥ 3개/축쌍</strong></td>
+      <td><code>check-axis-coverage.ts</code></td>
+    </tr>
+    <tr>
+      <td><strong>5</strong></td>
+      <td><strong>차트 시각 검증</strong></td>
+      <td><strong>축쌍 양쪽 모두 바닥 불가</strong></td>
+      <td><code>check-axis-coverage.ts</code></td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>3축 동시 점수 제한</td>
+      <td>선택지당 최대 3축 (현재 11건)</td>
+      <td><code>questions-simulation.ts</code></td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>DISPLAY_MAX 적정성</td>
+      <td>√ 커브 적용 시 차트 60~100% 채움</td>
+      <td>수동 확인</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ================================================================ -->
+<h2><span class="step">6</span> 프로젝트 구조 참고</h2>
+
+<div class="card">
+  <table>
+    <tr><th>파일</th><th>역할</th></tr>
+    <tr><td><code>src/data/questions.ts</code></td><td>문항 + 선택지 + 점수 매핑 + 유형 정의 + calculateResult()</td></tr>
+    <tr><td><code>src/components/StyleRadarChart.tsx</code></td><td>6축 레이더 차트 (√ 커브 정규화)</td></tr>
+    <tr><td><code>tests/questions-simulation.ts</code></td><td>구조·균형·유형 분포 시뮬레이션 (100K)</td></tr>
+    <tr><td><code>scripts/check-axis-coverage.ts</code></td><td>축별 강제 참여 검증</td></tr>
+    <tr><td><code>scripts/verify-scores.ts</code></td><td>60개 선택지 점수 전수 출력</td></tr>
+    <tr><td><code>docs/axis-coverage-checker.html</code></td><td>브라우저 기반 축별 참여 검증 도구</td></tr>
+    <tr><td><code>docs/scoring-and-validity.html</code></td><td>점수 체계·검증 상태 종합 문서</td></tr>
+    <tr><td><code>docs/vision.html</code></td><td>설계 비전 (3원칙 + √ + 체크리스트)</td></tr>
+  </table>
+</div>
+
+<!-- ================================================================ -->
+<h2><span class="step">7</span> 새 테스트를 만들 때 순서</h2>
+
+<div class="card">
+  <ol>
+    <li><strong>비전 정의</strong> — 목적·톤·동기부여 방식 결정</li>
+    <li><strong>축 설계</strong> — 학술 근거 확보, 양극/단극 결정</li>
+    <li><strong>문항 설계</strong> — 축당 5+ 문항, 강제 참여 3+/축쌍 의도적 배치</li>
+    <li><strong>점수 매핑</strong> — 각 선택지에 1~3축 점수, 균형 확인</li>
+    <li><strong>커브 선택</strong> — 목적에 맞는 정규화 (√, 선형, log)</li>
+    <li><strong>시뮬레이션</strong> — 100K 랜덤, 유형 분포·균형·강제 참여 검증</li>
+    <li><strong>시각 검증</strong> — 극단 시나리오에서 차트가 정상적으로 보이는지</li>
+    <li><strong>사회적 바람직성 리뷰</strong> — 선택지 순서 랜덤화 + 내용 매칭</li>
+  </ol>
+  <div class="note warn">
+    <strong>가장 흔한 실수:</strong> 1~4까지만 하고 5~8을 건너뛰는 것.
+    로직이 맞아도 시각화·사용자 경험에서 문제가 생깁니다.
+    Clean Style에서 √ 커브와 강제 참여 모두 시각 검증 단계에서 발견되었습니다.
+  </div>
+</div>
+
+<p class="updated">테스트 설계 플레이북 &middot; Clean Style Docs</p>
+
+</body>
+</html>

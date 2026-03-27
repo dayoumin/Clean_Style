@@ -2,6 +2,7 @@
 
 import { useMemo } from 'react';
 import type { Question } from '@/data/questions';
+import { seededShuffle } from '@/lib/utils';
 
 interface QuestionCardProps {
   question: Question;
@@ -18,17 +19,6 @@ const categoryInfo: Record<string, { label: string; emoji: string }> = {
 
 const choiceLabels = ['A', 'B', 'C', 'D'];
 
-// 시드 기반 셔플 (같은 문항은 세션 내에서 같은 순서 유지)
-function seededShuffle<T>(arr: T[], seed: number): T[] {
-  const shuffled = [...arr];
-  let s = seed;
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    s = (s * 1664525 + 1013904223) & 0x7fffffff;
-    const j = s % (i + 1);
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
 
 export default function QuestionCard({ question, questionIndex, shuffleSeed, onSelect }: QuestionCardProps) {
   const cat = categoryInfo[question.category];

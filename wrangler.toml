@@ -7,3 +7,8 @@ compatibility_flags = ["nodejs_compat"]
 [assets]
 directory = ".open-next/assets"
 binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "clean-style-db"
+database_id = "50c80b79-0e38-4c8e-8b38-a7652b35114c"

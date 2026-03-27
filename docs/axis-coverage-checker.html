@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - 축별 참여 검증</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232733;
+    --border: #2e3345; --text: #e1e4ed; --text-dim: #8b90a0;
+    --accent: #6c8aff; --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c; --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+    --yellow: #facc15; --yellow-soft: rgba(250,204,21,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; padding: 2rem; max-width: 1100px; margin: 0 auto;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .back-link { display: inline-block; margin-bottom: 1.5rem; font-size: 0.85rem; }
+  h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.25rem; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-bottom: 2rem; }
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.5rem 0; }
+  th, td { padding: 0.4rem 0.6rem; text-align: left; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-dim); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+  .tag {
+    display: inline-block; font-size: 0.7rem; padding: 0.15rem 0.5rem;
+    border-radius: 4px; font-weight: 600;
+  }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+  .tag-orange { background: var(--orange-soft); color: var(--orange); }
+  .tag-red { background: var(--red-soft); color: var(--red); }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .forced { background: var(--green-soft); }
+  .warn { background: var(--red-soft); }
+  .result-box {
+    text-align: center; padding: 1.5rem; border-radius: 12px;
+    font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0;
+  }
+  .result-pass { background: var(--green-soft); color: var(--green); border: 2px solid var(--green); }
+  .result-fail { background: var(--red-soft); color: var(--red); border: 2px solid var(--red); }
+  .note {
+    background: var(--surface2); border-left: 3px solid var(--accent);
+    padding: 0.75rem 1rem; border-radius: 0 8px 8px 0;
+    font-size: 0.82rem; color: var(--text-dim); margin: 1rem 0;
+  }
+  code {
+    background: var(--surface2); padding: 0.1rem 0.4rem; border-radius: 4px;
+    font-size: 0.82rem; font-family: 'JetBrains Mono', monospace;
+  }
+  #file-input {
+    margin: 1rem 0; padding: 0.75rem;
+    background: var(--surface); border: 2px dashed var(--border); border-radius: 8px;
+    color: var(--text); width: 100%; cursor: pointer;
+  }
+  button {
+    background: var(--accent); color: white; border: none;
+    padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 600;
+    cursor: pointer; font-size: 0.9rem;
+  }
+  button:hover { opacity: 0.9; }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Docs Index</a>
+<h1><span>축별 참여</span> 검증 도구</h1>
+<p class="subtitle">문항 추가/수정 후 각 축쌍의 최소 참여가 보장되는지 검증합니다</p>
+
+<div class="note">
+  <strong>사용법:</strong> <code>src/data/questions.ts</code> 파일을 아래에 드래그하거나 선택하면 자동 분석합니다.
+  또는 CLI에서 <code>npx tsx scripts/check-axis-coverage.ts</code>를 실행해도 됩니다.
+</div>
+
+<input type="file" id="file-input" accept=".ts,.tsx,.js" />
+<button onclick="analyzeCurrentData()">현재 코드로 분석 (내장 데이터)</button>
+
+<div id="results"></div>
+
+<script>
+// ── 분석 엔진 ──
+
+const AXIS_PAIRS = [
+  { name: '원칙↔유연', posLabel: '원칙', negLabel: '유연', key: 'principle' },
+  { name: '투명↔신중', posLabel: '투명', negLabel: '신중', key: 'transparency' },
+  { name: '독립↔협력', posLabel: '독립', negLabel: '협력', key: 'independence' },
+];
+const MIN_FORCED = 3;
+
+function parseQuestions(source) {
+  // 간이 파서: scores 객체 추출
+  const questions = [];
+  const qBlocks = source.split(/\{\s*id:\s*(\d+)/g);
+  for (let i = 1; i < qBlocks.length; i += 2) {
+    const id = parseInt(qBlocks[i]);
+    const block = qBlocks[i + 1];
+    const choices = [];
+    const choiceMatches = block.matchAll(/text:\s*['"`]([^'"`]+)['"`]\s*,\s*scores:\s*\{([^}]*)\}/g);
+    for (const m of choiceMatches) {
+      const text = m[1];
+      const scoresStr = m[2];
+      const scores = {};
+      const scoreMatches = scoresStr.matchAll(/(principle|transparency|independence)\s*:\s*(-?\d)/g);
+      for (const sm of scoreMatches) {
+        scores[sm[1]] = parseInt(sm[2]);
+      }
+      choices.push({ text, scores });
+    }
+    if (choices.length === 4) {
+      questions.push({ id, choices });
+    }
+  }
+  return questions;
+}
+
+function analyze(questions) {
+  const results = [];
+  let allPass = true;
+
+  for (const axis of AXIS_PAIRS) {
+    const rows = [];
+    let forcedCount = 0;
+    let totalNeutral = 0;
+
+    for (const q of questions) {
+      const details = q.choices.map((c, i) => {
+        const val = c.scores[axis.key] ?? 0;
+        return { letter: String.fromCharCode(65 + i), val, text: c.text };
+      });
+      const neutralCount = details.filter(d => d.val === 0).length;
+      totalNeutral += neutralCount;
+      const isForced = neutralCount === 0;
+      if (isForced) forcedCount++;
+
+      rows.push({ qId: q.id, details, neutralCount, isForced });
+    }
+
+    const pass = forcedCount >= MIN_FORCED;
+    if (!pass) allPass = false;
+
+    results.push({ axis, rows, forcedCount, totalNeutral, pass });
+  }
+
+  return { results, allPass };
+}
+
+function renderResults(data) {
+  const el = document.getElementById('results');
+  let html = '';
+
+  // 종합 결과
+  html += `<div class="result-box ${data.allPass ? 'result-pass' : 'result-fail'}">
+    ${data.allPass ? '✅ 모든 축 최소 참여 충족' : '❌ 일부 축 최소 참여 미충족'}
+  </div>`;
+
+  for (const r of data.results) {
+    html += `<h2>${r.axis.name} — 강제 ${r.forcedCount}개 ${r.pass ? '<span class="tag tag-green">PASS</span>' : '<span class="tag tag-red">FAIL</span>'}</h2>`;
+    html += `<div class="card"><table>
+      <tr><th>문항</th><th>A</th><th>B</th><th>C</th><th>D</th><th>상태</th></tr>`;
+
+    for (const row of r.rows) {
+      const cls = row.isForced ? 'forced' : row.neutralCount >= 3 ? 'warn' : '';
+      html += `<tr class="${cls}"><td>Q${row.qId}</td>`;
+      for (const d of row.details) {
+        const label = d.val > 0 ? r.axis.posLabel : d.val < 0 ? r.axis.negLabel : '--';
+        const style = d.val === 0 ? 'color:var(--text-dim)' : d.val > 0 ? 'color:var(--green)' : 'color:var(--orange)';
+        html += `<td style="${style}">${label}</td>`;
+      }
+      const tag = row.isForced ? '<span class="tag tag-green">강제</span>'
+        : row.neutralCount >= 3 ? '<span class="tag tag-red">위험</span>'
+        : `<span class="tag tag-orange">${row.neutralCount}무관</span>`;
+      html += `<td>${tag}</td></tr>`;
+    }
+
+    html += `</table>
+      <p style="font-size:0.82rem;color:var(--text-dim);margin-top:0.5rem;">
+        강제 참여: ${r.forcedCount}/${r.rows.length} (최소 ${MIN_FORCED}) &middot; 무관 선택지: ${r.totalNeutral}/${r.rows.length * 4}
+      </p></div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+// 파일 업로드 핸들러
+document.getElementById('file-input').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const text = await file.text();
+  const questions = parseQuestions(text);
+  if (questions.length === 0) {
+    document.getElementById('results').innerHTML = '<p style="color:var(--red)">파싱 실패: questions 배열을 찾을 수 없습니다.</p>';
+    return;
+  }
+  const data = analyze(questions);
+  renderResults(data);
+});
+
+// 현재 코드 내장 분석 (빌드 시점 데이터 하드코딩 대신 파일 업로드 권장)
+function analyzeCurrentData() {
+  // fetch로 소스 파일 읽기 시도 (같은 서버일 때)
+  fetch('../src/data/questions.ts')
+    .then(r => r.text())
+    .then(text => {
+      const questions = parseQuestions(text);
+      if (questions.length > 0) {
+        renderResults(analyze(questions));
+      } else {
+        document.getElementById('results').innerHTML =
+          '<p style="color:var(--orange)">파일을 직접 업로드해주세요 (fetch 불가 환경)</p>';
+      }
+    })
+    .catch(() => {
+      document.getElementById('results').innerHTML =
+        '<p style="color:var(--orange)">파일을 직접 드래그 & 드롭하거나 선택해주세요.</p>';
+    });
+}
+</script>
+
+</body>
+</html>

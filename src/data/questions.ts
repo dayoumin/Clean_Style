@@ -35,9 +35,9 @@ export const questions: Question[] = [
     category: 'research',
     situation: '실험 데이터 정리 중 예상과 다른 결과가 나왔다. 마감도 얼마 안 남았는데...',
     choices: [
-      { text: '일단 전부 기록해두고 내일 다시 본다', scores: { principle: 1, independence: 1 } },
+      { text: '일단 전부 기록해두고 내일 다시 본다', scores: { principle: 1, independence: 1, transparency: -1 } },
       { text: '선임연구원에게 같이 봐달라고 한다', scores: { transparency: 1, independence: -1 } },
-      { text: '전체 흐름을 먼저 파악하고, 나중에 다시 살펴본다', scores: { principle: -1, transparency: -1 } },
+      { text: '전체 흐름을 먼저 파악하고, 나중에 다시 살펴본다', scores: { principle: -1, transparency: -1, independence: 1 } },
       { text: '이상한 부분만 메모해두고 팀 회의에서 꺼낸다', scores: { transparency: 1, independence: -1 } },
     ],
   },
@@ -71,7 +71,7 @@ export const questions: Question[] = [
       { text: '지연 상황과 원인을 솔직하게 보고한다', scores: { transparency: 1 } },
       { text: '할 수 있는 데까지 해보고, 보고 시점에 정리해서 말한다', scores: { principle: -1, transparency: -1 } },
       { text: '비슷한 경험이 있는 동료에게 먼저 조언을 구한다', scores: { transparency: -1, independence: -1 } },
-      { text: '방법을 바꿔서라도 일정 내 결과를 내본다', scores: { independence: 1, principle: -1 } },
+      { text: '방법을 바꿔서라도 일정 내 결과를 내본다', scores: { independence: 1, principle: -1, transparency: -1 } },
     ],
   },
   {
@@ -81,7 +81,7 @@ export const questions: Question[] = [
     choices: [
       { text: '기여도 기준표를 만들어 객관적으로 정한다', scores: { principle: 1, independence: 1 } },
       { text: '관련된 사람들 모두 모여서 솔직하게 논의한다', scores: { transparency: 1, independence: -1 } },
-      { text: '그동안 관행을 참고해서 적절히 조율한다', scores: { principle: -1, transparency: -1 } },
+      { text: '그동안 관행을 참고해서 적절히 조율한다', scores: { principle: -1, transparency: -1, independence: 1 } },
       { text: '팀장에게 최종 판단을 맡긴다', scores: { independence: -1 } },
     ],
   },
@@ -105,7 +105,7 @@ export const questions: Question[] = [
     choices: [
       { text: '해당 조항의 문구를 구체적으로 바꿔서 제안한다', scores: { principle: 1, independence: 1 } },
       { text: '법무/계약 담당에게 의견을 구한다', scores: { transparency: 1, independence: -1 } },
-      { text: '실무 관행도 중요하니 전체 맥락을 보고 판단한다', scores: { principle: -1, transparency: -1 } },
+      { text: '실무 관행도 중요하니 전체 맥락을 보고 판단한다', scores: { principle: -1, transparency: -1, independence: 1 } },
       { text: '비슷한 계약을 해본 동료에게 경험을 물어본다', scores: { independence: -1 } },
     ],
   },
@@ -128,7 +128,7 @@ export const questions: Question[] = [
       { text: '고마웠지만 정중히 사양한다', scores: { principle: 1, independence: 1 } },
       { text: '혹시 모르니 기관 규정을 확인해본다', scores: { transparency: -1, principle: 1 } },
       { text: '앞으로 이해관계가 없으니 편하게 만난다', scores: { principle: -1 } },
-      { text: '팀장에게 알리고 판단을 구한다', scores: { independence: -1, transparency: 1 } },
+      { text: '팀장에게 알리고 판단을 구한다', scores: { independence: -1, transparency: 1, principle: 1 } },
     ],
   },
   {
@@ -139,7 +139,7 @@ export const questions: Question[] = [
       { text: '그래도 공식 절차(수의계약 사유서 등)를 꼼꼼히 밟는다', scores: { principle: 1 } },
       { text: '상황이 상황인 만큼 빠르게 갱신 처리한다', scores: { principle: -1, independence: 1 } },
       { text: '혹시 다른 업체가 있는지 한 번은 알아본다', scores: { transparency: -1, principle: 1 } },
-      { text: '계약 담당과 상의해서 적절한 방법을 찾는다', scores: { independence: -1 } },
+      { text: '계약 담당과 상의해서 적절한 방법을 찾는다', scores: { independence: -1, principle: -1 } },
     ],
   },
 
@@ -151,7 +151,7 @@ export const questions: Question[] = [
     choices: [
       { text: '기관 내 회의실에서 만나자고 제안한다', scores: { principle: 1, independence: 1 } },
       { text: '각자 비용 부담으로 가볍게 만난다', scores: { principle: -1, independence: 1 } },
-      { text: '팀장에게 보고하고 동행할지 물어본다', scores: { independence: -1, transparency: 1 } },
+      { text: '팀장에게 보고하고 동행할지 물어본다', scores: { independence: -1, transparency: 1, principle: 1 } },
       { text: '미팅 내용을 기록으로 남기고 참석한다', scores: { transparency: 1, principle: -1 } },
     ],
   },
@@ -160,7 +160,7 @@ export const questions: Question[] = [
     category: 'relation',
     situation: '동료가 절차를 좀 편하게 처리하는 걸 봤다. 명백한 위반은 아닌 것 같은데 찜찜하다.',
     choices: [
-      { text: '관련 규정을 확인해보고, 문제가 있으면 알려준다', scores: { principle: 1, independence: 1 } },
+      { text: '관련 규정을 확인해보고, 문제가 있으면 알려준다', scores: { principle: 1, independence: 1, transparency: -1 } },
       { text: '동료한테 직접 "이거 괜찮은 건지" 가볍게 물어본다', scores: { transparency: 1, independence: -1 } },
       { text: '업무 스타일 차이일 수 있으니, 상황을 좀 더 파악해본다', scores: { principle: -1, transparency: -1 } },
       { text: '기관 윤리담당에게 일반적 질문으로 확인해본다', scores: { transparency: 1, principle: 1 } },
@@ -174,7 +174,7 @@ export const questions: Question[] = [
       { text: '절차가 필요한 이유를 설명하고 정식으로 진행한다', scores: { principle: 1, independence: 1 } },
       { text: '간소화 가능한 부분과 필수 절차를 구분해서 제안한다', scores: { principle: -1 } },
       { text: '속도에 맞추되, 진행 과정을 기록으로 남겨둔다', scores: { transparency: 1, principle: -1 } },
-      { text: '다른 팀원과 함께 상급자에게 의견을 전달한다', scores: { independence: -1, transparency: 1 } },
+      { text: '다른 팀원과 함께 상급자에게 의견을 전달한다', scores: { independence: -1, transparency: 1, principle: 1 } },
     ],
   },
   {
@@ -182,7 +182,7 @@ export const questions: Question[] = [
     category: 'relation',
     situation: '민원성 데이터 분석 요청이 들어왔는데, 요청 의도가 특정 결론을 원하는 것 같다.',
     choices: [
-      { text: '데이터가 말하는 대로 객관적 결과만 제공한다', scores: { principle: 1, independence: 1 } },
+      { text: '데이터가 말하는 대로 객관적 결과만 제공한다', scores: { principle: 1, independence: 1, transparency: 1 } },
       { text: '요청 의도를 먼저 정확히 파악하고 범위를 조율한다', scores: { transparency: -1, principle: -1 } },
       { text: '팀장에게 보고하고 대응 방향을 함께 정한다', scores: { independence: -1, transparency: 1 } },
       { text: '결과와 함께 분석의 한계도 명확히 안내한다', scores: { transparency: 1 } },
@@ -195,8 +195,8 @@ export const questions: Question[] = [
     choices: [
       { text: '시간이 걸려도 내용을 확인하고 사인한다', scores: { principle: 1, independence: 1 } },
       { text: '핵심만 빠르게 확인하고 처리한다', scores: { principle: -1, independence: 1 } },
-      { text: '동료와 함께 빠르게 검토하고 사인한다', scores: { independence: -1 } },
-      { text: '내일 아침 일찍 와서 제대로 확인하겠다고 한다', scores: { transparency: -1, principle: 1 } },
+      { text: '동료와 함께 빠르게 검토하고 사인한다', scores: { independence: -1, principle: -1 } },
+      { text: '내일 아침 일찍 와서 제대로 확인하겠다고 한다', scores: { transparency: -1, principle: 1, independence: 1 } },
     ],
   },
 ];

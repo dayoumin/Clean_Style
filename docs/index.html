@@ -84,11 +84,35 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    color: #5a5f73;
+    gap: 20px;
+    color: #8b90a0;
+    padding: 2rem;
   }
-  .welcome .icon { font-size: 48px; opacity: 0.3; }
-  .welcome p { font-size: 14px; }
+  .vision-cards {
+    display: flex;
+    gap: 14px;
+    max-width: 720px;
+    width: 100%;
+  }
+  .vision-card {
+    flex: 1;
+    background: #1a1d27;
+    border: 1px solid #2e3345;
+    border-radius: 12px;
+    padding: 1.1rem;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .vision-card:hover {
+    border-color: #6c8aff;
+    background: rgba(108, 138, 255, 0.06);
+  }
+  .vision-card .vc-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+  .vision-card .vc-title { font-size: 0.85rem; font-weight: 700; color: #e1e4ed; margin-bottom: 0.25rem; }
+  .vision-card .vc-desc { font-size: 0.75rem; color: #5a5f73; line-height: 1.5; }
+  @media (max-width: 640px) {
+    .vision-cards { flex-direction: column; }
+  }
 
   /* 모바일 대응 */
   @media (max-width: 640px) {
@@ -117,6 +141,8 @@
     <a class="nav-link" data-src="question-editor.html">문항 편집기</a>
     <a class="nav-link" data-src="design-decisions.html">Design Decisions</a>
     <a class="nav-link" data-src="question-review-prompt.html">Question Review Prompt</a>
+    <a class="nav-link" data-src="axis-coverage-checker.html">축별 참여 검증 도구</a>
+    <a class="nav-link" data-src="test-design-playbook.html">테스트 설계 플레이북</a>
   </div>
 
   <div class="nav-group">
@@ -153,14 +179,39 @@
 
 <main class="content" id="content">
   <div class="welcome">
-    <div class="icon">📄</div>
-    <p>좌측 목차에서 문서를 선택하세요</p>
+    <div class="vision-cards">
+      <div class="vision-card" data-src="vision.html" onclick="openDoc(this)">
+        <div class="vc-icon">🧭</div>
+        <div class="vc-title">설계 비전</div>
+        <div class="vc-desc">핵심 원칙, √ 커브, 문항 체크리스트</div>
+      </div>
+      <div class="vision-card" data-src="scoring-and-validity.html" onclick="openDoc(this)">
+        <div class="vc-icon">📐</div>
+        <div class="vc-title">Scoring & Validity</div>
+        <div class="vc-desc">점수 체계, 유형 판정, 검증 상태</div>
+      </div>
+      <div class="vision-card" data-src="axis-coverage-checker.html" onclick="openDoc(this)">
+        <div class="vc-icon">✅</div>
+        <div class="vc-title">축별 참여 검증</div>
+        <div class="vc-desc">강제 참여 문항 점검 도구</div>
+      </div>
+    </div>
+    <p style="font-size:13px; color:#5a5f73;">좌측 목차에서 문서를 선택하세요</p>
   </div>
 </main>
 
 <script>
   const content = document.getElementById('content');
   const links = document.querySelectorAll('.nav-link');
+  const welcomeHTML = content.innerHTML;
+
+  function openDoc(el) {
+    const src = el.dataset.src;
+    links.forEach(l => l.classList.remove('active'));
+    // 사이드바 링크 중 같은 src 활성화
+    links.forEach(l => { if (l.dataset.src === src) l.classList.add('active'); });
+    content.innerHTML = `<iframe src="${src}"></iframe>`;
+  }
 
   links.forEach(link => {
     link.addEventListener('click', () => {

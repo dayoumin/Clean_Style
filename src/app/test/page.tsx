@@ -7,6 +7,7 @@ import ProgressBar from '@/components/ProgressBar';
 import QuestionCard from '@/components/QuestionCard';
 import { addHistoryEntry } from '@/lib/history';
 import { buildResultUrl } from '@/lib/utils';
+import { TEST_START_TIME_KEY, TEST_REFERRER_KEY } from '@/lib/constants';
 
 const STORAGE_KEY = 'integrity-test-progress';
 
@@ -37,11 +38,17 @@ export default function TestPage() {
   const [resumeData, setResumeData] = useState<{ answers: number[]; seed: number } | null>(null);
   const [ready, setReady] = useState(false);
 
-  // 최초 로드: 저장된 진행 상황 확인
+  // 최초 로드: 저장된 진행 상황 확인 + 분석용 메타데이터 기록
   useEffect(() => {
     const saved = loadProgress();
     if (saved) {
       setResumeData(saved);
+    }
+    if (!sessionStorage.getItem(TEST_START_TIME_KEY)) {
+      sessionStorage.setItem(TEST_START_TIME_KEY, String(Date.now()));
+    }
+    if (!sessionStorage.getItem(TEST_REFERRER_KEY)) {
+      sessionStorage.setItem(TEST_REFERRER_KEY, document.referrer || 'direct');
     }
     setReady(true);
   }, []);
@@ -78,6 +85,7 @@ export default function TestPage() {
 
   const handleStartNew = () => {
     localStorage.removeItem(STORAGE_KEY);
+    sessionStorage.setItem(TEST_START_TIME_KEY, String(Date.now()));
     setAnswers([]);
     setShuffleSeed(Math.floor(Math.random() * 100000));
     setResumeData(null);

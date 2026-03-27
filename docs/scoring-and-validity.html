@@ -444,6 +444,11 @@
       <td><span class="tag tag-green">통과</span></td>
       <td>100,000회 랜덤 테스트, 334 passed / 0 failed</td>
     </tr>
+    <tr>
+      <td>축별 최소 참여 보장</td>
+      <td><span class="tag tag-green">충족</span></td>
+      <td>원칙 5개, 투명 4개, 독립 4개 강제 참여 문항 확보 (13건 점수 매핑 추가)</td>
+    </tr>
   </table>
 </div>
 
@@ -491,6 +496,73 @@
       <span class="tag tag-yellow">대응</span> Q3, Q7, Q8에서 사회적 바람직성 매칭 수정 완료
     </p>
   </div>
+  <div class="card">
+    <h3 style="margin-top:0;">축별 최소 참여 보장 (해결됨)</h3>
+    <p style="font-size:0.85rem; color:var(--text-dim);">
+      각 선택지는 3축 중 1~3축에 점수를 부여합니다. 특정 축쌍에 점수를 주지 않는 "무관" 선택지가 존재할 수 있으나,
+      <strong>"강제 참여" 문항</strong>(4개 선택지 모두 해당 축에 점수를 부여)을 축쌍당 3개 이상 확보하여 최소 참여를 보장합니다.
+    </p>
+    <table style="margin:0.75rem 0;">
+      <tr><th>축쌍</th><th>강제 참여 문항</th><th>최소 참여 보장</th></tr>
+      <tr><td>원칙↔유연</td><td>5개 (Q9, Q10, Q11, Q13, Q15)</td><td><span class="tag tag-green">충족</span></td></tr>
+      <tr><td>투명↔신중</td><td>4개 (Q1, Q4, Q12, Q14)</td><td><span class="tag tag-green">충족</span></td></tr>
+      <tr><td>독립↔협력</td><td>4개 (Q1, Q5, Q7, Q15)</td><td><span class="tag tag-green">충족</span></td></tr>
+    </table>
+    <div class="note">
+      <strong>해결 경위:</strong> 기존 검증이 로직 레이어(유형 분포·점수 균형)에만 집중하여, 시각화 레이어(6축 개별 표시)의 문제를 놓침.
+      13건의 선택지에 빠진 축 점수를 의미적 근거에 따라 추가하여 해결.
+    </div>
+    <p style="font-size:0.8rem; margin-top:0.5rem;">
+      <span class="tag tag-green">완료</span> 검증 도구: <code>npx tsx scripts/check-axis-coverage.ts</code> 또는 docs 내 <a href="axis-coverage-checker.html">축별 참여 검증 도구</a>
+    </p>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<h2 id="question-checklist">8-1. 문항 설계 체크리스트</h2>
+
+<div class="card">
+  <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.75rem;">
+    문항 추가·수정 시 반드시 확인해야 할 항목. 로직 레이어와 시각화 레이어를 모두 검증합니다.
+  </p>
+  <table>
+    <tr><th>#</th><th>검증 항목</th><th>기준</th><th>검증 방법</th></tr>
+    <tr>
+      <td>1</td>
+      <td>축별 +1/-1 기회 균형</td>
+      <td>각 축쌍의 양방향 기회 차이 ≤ 3</td>
+      <td>기존 시뮬레이션</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>유형 분포</td>
+      <td>8유형 모두 출현율 5% 이상</td>
+      <td>100,000회 랜덤 시뮬레이션</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>사회적 바람직성</td>
+      <td>특정 선택지가 "정답"으로 보이지 않도록</td>
+      <td>문항 리뷰 프롬프트</td>
+    </tr>
+    <tr>
+      <td><strong>4</strong></td>
+      <td><strong>축별 최소 참여 (강제 참여)</strong></td>
+      <td><strong>각 축쌍에 대해, 4개 선택지 모두 해당 축 점수를 부여하는 문항이 최소 3개 이상</strong></td>
+      <td>선택지별 점수 매핑 전수 조사</td>
+    </tr>
+    <tr>
+      <td><strong>5</strong></td>
+      <td><strong>레이더 차트 시각 검증</strong></td>
+      <td><strong>축쌍 양쪽 모두 1점(바닥)이 되는 응답 조합이 존재하지 않는지 확인</strong></td>
+      <td>무관 선택지만 고른 시뮬레이션</td>
+    </tr>
+  </table>
+  <div class="note">
+    <strong>#4 "강제 참여" 설명:</strong> 한 문항의 4개 선택지가 <em>모두</em> 해당 축에 점수를 주면,
+    그 문항에서는 어떤 선택을 해도 반드시 해당 축에 점수가 쌓입니다.
+    이런 문항이 축쌍당 최소 3개 있으면, 양쪽 합계 최소 3점이 보장되어 차트가 한쪽으로 쭈그러지지 않습니다.
+  </div>
 </div>
 
 <!-- ================================================================ -->
@@ -501,17 +573,67 @@
     결과 화면에서는 3축 양극이 아닌 <strong>6축 단극</strong>으로 레이더 차트를 표시합니다.
   </p>
   <table>
-    <tr><th>차트 축</th><th>계산 방식</th><th>범위</th></tr>
-    <tr><td>원칙</td><td>원칙(+1) 점수만 합산</td><td>0 ~ DISPLAY_MAX(5)</td></tr>
-    <tr><td>유연</td><td>유연(-1) 점수의 절대값 합산</td><td>0 ~ DISPLAY_MAX(5)</td></tr>
-    <tr><td>투명</td><td>투명(+1) 점수만 합산</td><td>0 ~ DISPLAY_MAX(5)</td></tr>
-    <tr><td>신중</td><td>신중(-1) 점수의 절대값 합산</td><td>0 ~ DISPLAY_MAX(5)</td></tr>
-    <tr><td>독립</td><td>독립(+1) 점수만 합산</td><td>0 ~ DISPLAY_MAX(5)</td></tr>
-    <tr><td>협력</td><td>협력(-1) 점수의 절대값 합산</td><td>0 ~ DISPLAY_MAX(5)</td></tr>
+    <tr><th>차트 축</th><th>계산 방식</th><th>원시 범위</th></tr>
+    <tr><td>원칙</td><td>원칙(+1) 점수만 합산</td><td>0 ~ max</td></tr>
+    <tr><td>유연</td><td>유연(-1) 점수의 절대값 합산</td><td>0 ~ max</td></tr>
+    <tr><td>투명</td><td>투명(+1) 점수만 합산</td><td>0 ~ max</td></tr>
+    <tr><td>신중</td><td>신중(-1) 점수의 절대값 합산</td><td>0 ~ max</td></tr>
+    <tr><td>독립</td><td>독립(+1) 점수만 합산</td><td>0 ~ max</td></tr>
+    <tr><td>협력</td><td>협력(-1) 점수의 절대값 합산</td><td>0 ~ max</td></tr>
+  </table>
+</div>
+
+<h3>표시 점수 정규화: 제곱근(√) 커브</h3>
+<div class="card">
+  <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:0.75rem;">
+    이 테스트는 평가가 아닌 <strong>"긍정적 성향 발견"</strong>이 목적입니다.
+    사용자가 자신의 성향을 긍정적으로 인식하고, 청렴에 관심을 갖고 지키려는 동기를 얻도록 설계합니다.
+    이를 위해 원시 점수를 차트 표시 점수로 변환할 때 두 가지 보정을 적용합니다.
+  </p>
+
+  <div style="margin:1rem 0;">
+    <p style="font-size:0.9rem; font-weight:600; margin-bottom:0.5rem;">공식</p>
+    <code style="font-size:0.9rem; padding:0.4rem 0.8rem; display:inline-block;">
+      score = round(MIN + √(raw / max) × (MAX − MIN))
+    </code>
+    <p style="font-size:0.82rem; color:var(--text-dim); margin-top:0.35rem;">
+      DISPLAY_MIN = 1, DISPLAY_MAX = 5 &rarr; 표시 범위 [1, 5]
+    </p>
+  </div>
+
+  <table>
+    <tr><th>보정</th><th>내용</th><th>이유</th></tr>
+    <tr>
+      <td><span class="tag tag-blue">바닥값</span></td>
+      <td>DISPLAY_MIN = 1<br>원시 점수 0이어도 최소 1점 표시</td>
+      <td>대립축 구조상 한쪽이 0점은 불가피하나, "원칙 0점 = 원칙 없음"으로 오독되는 것을 방지</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-purple">√ 커브</span></td>
+      <td>선형 대신 제곱근 함수로 매핑<br>중·상위 점수를 넓게 분포시킴</td>
+      <td>대부분의 축이 3~5 범위에 표시되어 긍정적 인상을 주면서도 축 간 상대적 차이는 유지</td>
+    </tr>
+  </table>
+</div>
+
+<h3>선형 vs √ 커브 비교</h3>
+<div class="card">
+  <table>
+    <tr><th>raw / max</th><th>선형 매핑</th><th>√ 커브 (채택)</th><th>차이</th></tr>
+    <tr><td>0%</td><td>1점</td><td>1점</td><td>—</td></tr>
+    <tr><td>25%</td><td>2점</td><td><strong>3점</strong></td><td><span class="tag tag-green">+1</span></td></tr>
+    <tr><td>50%</td><td>3점</td><td><strong>4점</strong></td><td><span class="tag tag-green">+1</span></td></tr>
+    <tr><td>75%</td><td>4점</td><td>4점</td><td>&mdash;</td></tr>
+    <tr><td>100%</td><td>5점</td><td>5점</td><td>—</td></tr>
   </table>
   <div class="note info">
-    <strong>DISPLAY_MAX=5 근거:</strong> 15문항에서 축당 평균 2~4점. MAX=5일 때 차트 40~80% 채움으로 시각적으로 적정.
-    MAX=8이면 25~50%로 허전. 문항 24개 이상으로 늘리면 MAX 상향 가능.
+    <strong>왜 √인가?</strong>
+    log 커브는 축 간 차이가 거의 사라지고, x² 커브는 낮은 점수를 더 낮게 만들어 목적과 반대됩니다.
+    √는 중간 강도로 끌어올려 긍정적 인상과 변별력을 동시에 확보하는 균형점입니다.
+  </div>
+  <div class="note">
+    <strong>DISPLAY_MAX=5 근거:</strong> 15문항에서 축당 평균 2~4점. MAX=5일 때 √ 커브 적용 시 차트 60~100% 채움으로 시각적으로 적정.
+    문항 24개 이상으로 늘리면 MAX 상향 가능.
   </div>
 </div>
 

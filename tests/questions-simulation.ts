@@ -62,7 +62,8 @@ for (const q of questions) {
   for (const c of q.choices) {
     const scored = Object.values(c.scores).filter((v) => v !== 0).length;
     assert(scored >= 1, `Q${q.id} "${c.text}": 점수 없는 선택지`);
-    assert(scored <= 2, `Q${q.id} "${c.text}": 3축 동시 점수 (과부하)`);
+    // 강제 참여 보장을 위해 3축 동시 허용 (축별 최소 참여 체크리스트 #4 참고)
+    assert(scored <= 3, `Q${q.id} "${c.text}": 점수 과부하 (최대 3축)`);
   }
 }
 console.log(`  선택지별 점수 분포 검증 완료`);
