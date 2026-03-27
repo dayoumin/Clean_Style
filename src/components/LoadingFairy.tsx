@@ -26,9 +26,9 @@ export function AnalyzingScreen({ onDone }: { onDone: () => void }) {
   const steps = ['응답을 분석하고 있어요...', '성향을 파악하고 있어요...', '결과를 정리하고 있어요...'];
 
   useEffect(() => {
-    const t1 = setTimeout(() => setStep(1), 600);
-    const t2 = setTimeout(() => setStep(2), 1200);
-    const t3 = setTimeout(onDone, 1800);
+    const t1 = setTimeout(() => setStep(1), 800);
+    const t2 = setTimeout(() => setStep(2), 1600);
+    const t3 = setTimeout(onDone, 2500);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [onDone]);
 
