@@ -6,7 +6,7 @@ import { getHistory, deleteHistoryEntry, type HistoryEntry } from '@/lib/history
 import { buildResultUrl } from '@/lib/utils';
 import BottomSheet from '@/components/BottomSheet';
 
-const PREVIEW_COUNT = 3;
+const PREVIEW_COUNT = 2;
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
@@ -28,10 +28,10 @@ function HistoryItem({
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] font-semibold text-[var(--color-text)]">
           {entry.styleName}
-        </p>
-        <p className="text-[11px] text-[var(--color-text-muted)]">
-          {formatDate(entry.createdAt)}
-          {entry.chat.length > 0 && ` · 💬${Math.floor(entry.chat.length / 2)}`}
+          <span className="ml-1.5 text-[11px] font-normal text-[var(--color-text-muted)]">
+            {formatDate(entry.createdAt)}
+            {entry.chat.length > 0 && ` · 💬${Math.floor(entry.chat.length / 2)}`}
+          </span>
         </p>
       </div>
       <button
@@ -61,7 +61,20 @@ export default function HistoryList() {
     setMounted(true);
   }, []);
 
-  if (!mounted || entries.length === 0) return null;
+  if (!mounted) return null;
+
+  if (entries.length === 0) {
+    return (
+      <div className="mt-12 flex flex-col items-center gap-1.5 text-center">
+        <span className="text-2xl opacity-60">🧭</span>
+        <p className="text-[13px] leading-relaxed text-[var(--color-text-muted)]">
+          업무 중 만나는 애매한 상황,
+          <br />
+          나라면 어떻게 할까?
+        </p>
+      </div>
+    );
+  }
 
   const handleView = (entry: HistoryEntry) => {
     setShowModal(false);
@@ -79,7 +92,7 @@ export default function HistoryList() {
 
   return (
     <>
-      <div className="mt-5 w-full">
+      <div className="mt-6 w-full">
         <p className="mb-2 text-[12px] font-bold text-[var(--color-text-muted)]">
           이전 결과
         </p>

@@ -5,7 +5,7 @@ const infoChips = [
   { emoji: '📋', title: '15개 상황', desc: '약 3분' },
   { emoji: '🎯', title: '오답 없음', desc: '나의 스타일' },
   { emoji: '✨', title: 'AI 분석', desc: '맞춤 팁' },
-  { emoji: '🔒', title: '비공개', desc: '내 폰에만' },
+  { emoji: '🔒', title: '비공개', desc: '셀프 진단' },
 ];
 
 export default function HomePage() {
@@ -17,14 +17,9 @@ export default function HomePage() {
       </div>
 
       {/* 타이틀 */}
-      <h1 className="mb-2 text-center text-[1.75rem] font-extrabold leading-[1.25] tracking-tight text-[var(--color-text)]">
+      <h1 className="mb-10 text-center text-[1.75rem] font-extrabold leading-[1.25] tracking-tight text-[var(--color-text)]">
         나의 청렴 스타일은?
       </h1>
-      <p className="mb-7 text-center text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
-        업무 중 만나는 애매한 상황,
-        <br />
-        나라면 어떻게 할까?
-      </p>
 
       {/* 안내 칩 */}
       <div className="mb-6 flex w-full gap-2">
@@ -48,7 +43,7 @@ export default function HomePage() {
       {/* 시작 버튼 */}
       <Link
         href="/test"
-        className="cta-gradient w-full rounded-[var(--radius-md)] py-[15px] text-center text-[15px] font-bold tracking-tight text-white"
+        className="cta-gradient mt-2 w-full rounded-[var(--radius-md)] py-[15px] text-center text-[15px] font-bold tracking-tight text-white"
       >
         테스트 시작하기 →
       </Link>
@@ -56,10 +51,6 @@ export default function HomePage() {
       {/* 이전 결과 */}
       <HistoryList />
 
-      {/* 푸터 */}
-      <p className="mt-4 text-center text-[11px] leading-relaxed text-[var(--color-text-muted)]">
-        부담 없이 즐기는 셀프 테스트입니다.
-      </p>
     </div>
   );
 }

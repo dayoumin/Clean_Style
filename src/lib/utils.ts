@@ -18,6 +18,9 @@ export function buildResultUrl(
     i: String(scores.independence),
     a: answers.join(','),
   });
-  if (historyId) params.set('hid', historyId);
+  if (historyId) {
+    params.set('hid', historyId);
+    params.set('new', '1');
+  }
   return `/result?${params.toString()}`;
 }

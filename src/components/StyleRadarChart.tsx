@@ -43,6 +43,19 @@ const AXES: { key: keyof SixAxisScores; label: string }[] = [
   { key: 'cooperative', label: '협력' },
 ];
 
+// ── 표시 점수 정규화 ──
+// 이 테스트는 평가가 아닌 "긍정적 성향 발견"이 목적이므로,
+// 모든 축이 일정 수준 이상으로 표시되도록 설계함.
+//
+// 1) 바닥값(DISPLAY_MIN = 1): 대립축 구조상 한쪽 0점은 불가피하나,
+//    "원칙 0점 = 원칙 없음"으로 오독되지 않도록 최소 1점 보장.
+// 2) 제곱근 커브(√): 선형 매핑 대비 중·상위 점수를 넓게 분포시킴.
+//    raw 50% → 4점, 75% → 5점으로 대부분의 축이 3~5 범위에 표시되어
+//    긍정적 인상을 주면서도 축 간 상대적 차이는 유지.
+//
+//    공식: score = round(MIN + √(raw / max) × (MAX − MIN))
+//    범위: [1, 5]  |  raw=0 → 1점, raw=max → 5점
+const DISPLAY_MIN = 1;
 const DISPLAY_MAX = 5;
 
 function getTextAnchor(index: number, total: number): 'start' | 'middle' | 'end' {
@@ -68,7 +81,8 @@ export default function StyleRadarChart({ sixAxis }: StyleRadarChartProps) {
 
   const data: ChartDataItem[] = AXES.map(({ key, label }) => {
     const max = AXIS_MAXIMUMS[key];
-    const normalized = max > 0 ? Math.min(Math.round((sixAxis[key] / max) * DISPLAY_MAX), DISPLAY_MAX) : 0;
+    const ratio = max > 0 ? sixAxis[key] / max : 0;
+    const normalized = Math.min(Math.round(DISPLAY_MIN + Math.sqrt(ratio) * (DISPLAY_MAX - DISPLAY_MIN)), DISPLAY_MAX);
     return { axis: label, label, score: normalized };
   });
 

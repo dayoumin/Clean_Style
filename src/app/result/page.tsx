@@ -4,7 +4,6 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef, useMemo, Suspense } from 'react';
 import { styleTypes, computeSixAxisScores, type StyleType } from '@/data/questions';
 import StyleRadarChart from '@/components/StyleRadarChart';
-import type html2canvasType from 'html2canvas';
 import { MAX_HISTORY_MESSAGES, SUMMARIZE_AT_MESSAGES, MAX_QUESTION_LENGTH } from '@/lib/constants';
 import { getHistoryEntry, updateChat, clearChat } from '@/lib/history';
 import BottomSheet from '@/components/BottomSheet';
@@ -84,17 +83,15 @@ function ChatBubbles({ messages }: { messages: { role: 'user' | 'assistant'; con
 function ResultContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const captureRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const scrollAnchorRef = useRef<HTMLDivElement>(null);
-  const isRevisit = searchParams.has('hid');
-  const isShared = !isRevisit;
-  const [analyzing, setAnalyzing] = useState(!isRevisit && !isShared);
+  const isNew = searchParams.get('new') === '1';
+  const isShared = !searchParams.has('hid');
+  const [analyzing, setAnalyzing] = useState(isNew);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAnswer, setAiAnswer] = useState('');
   const [aiError, setAiError] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [capturing, setCapturing] = useState(false);
   const [userContext, setUserContext] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
   const toastTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -324,27 +321,6 @@ function ResultContent() {
     }
   };
 
-  const handleCapture = async () => {
-    if (!captureRef.current || capturing) return;
-    setCapturing(true);
-    try {
-      const { default: html2canvas } = await import('html2canvas') as { default: typeof html2canvasType };
-      const canvas = await html2canvas(captureRef.current, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-        useCORS: true,
-      });
-      const link = document.createElement('a');
-      link.download = `청렴스타일_${style?.name ?? '결과'}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch {
-      // 캡쳐 실패 시 무시
-    } finally {
-      setCapturing(false);
-    }
-  };
-
   const handleRetry = () => {
     router.push('/');
   };
@@ -381,7 +357,7 @@ function ResultContent() {
 
   return (
     <div className="flex flex-col">
-      <div className="flex-1 animate-slide-up" ref={captureRef}>
+      <div className="flex-1 animate-slide-up">
         {/* 공유 모드 배너 */}
         {isShared && (
           <div className="mb-2 flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-4 py-2.5 text-[13px] font-semibold text-[var(--color-primary-accent)]">
@@ -398,6 +374,15 @@ function ResultContent() {
           <span className="absolute left-4 top-3 z-20 rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold tracking-wide text-white/80 backdrop-blur-sm">
             청렴 스타일
           </span>
+          {!isShared && (
+            <button
+              onClick={handleCopyLink}
+              className="absolute right-4 top-3 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-white/80 backdrop-blur-sm hover:bg-white/25 transition-colors"
+              aria-label="결과 링크 복사"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            </button>
+          )}
 
           <div className="relative z-10">
             <div className="mb-0.5 text-[36px]">{style.emoji}</div>
@@ -441,20 +426,6 @@ function ResultContent() {
           </p>
         </div>
 
-        {/* AI 맞춤 조언 버튼 — 본인만 */}
-        {!isShared && (
-          <button
-            onClick={() => setShowModal(true)}
-            className="w-full rounded-[var(--radius-md)] border border-dashed border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] py-3.5 text-center text-[13px] font-semibold text-[var(--color-primary-accent)] hover:bg-[var(--color-primary-muted)]"
-          >
-            <span className="text-base">✨</span> AI 맞춤 조언 받기
-            {chatHistory.length > 0 && (
-              <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-primary)] text-[11px] text-white">
-                💬{Math.floor(chatHistory.length / 2)}
-              </span>
-            )}
-          </button>
-        )}
       </div>
 
       {/* 하단 버튼 */}
@@ -472,24 +443,22 @@ function ResultContent() {
           <div className="flex gap-2">
             <button
               onClick={handleRetry}
-              className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] py-3 text-center text-[13px] font-semibold text-[var(--color-text)] hover:bg-[var(--color-border)]"
+              className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-primary-soft)] py-3 text-center text-[13px] font-semibold text-[var(--color-text)] hover:bg-[var(--color-border)]"
             >
               다시 하기
             </button>
             <button
-              onClick={handleCapture}
-              disabled={capturing}
-              className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-center text-[13px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-40"
+              onClick={() => setShowModal(true)}
+              className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-primary-muted)] py-3 text-center text-[13px] font-semibold text-[var(--color-primary-accent)] hover:bg-[var(--color-primary-soft)]"
             >
-              {capturing ? '저장 중...' : '이미지 저장'}
+              AI 맞춤 조언
+              {chatHistory.length > 0 && (
+                <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white/25 text-[11px] text-white">
+                  {Math.floor(chatHistory.length / 2)}
+                </span>
+              )}
             </button>
           </div>
-          <button
-            onClick={handleCopyLink}
-            className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-success-soft)] py-2.5 text-center text-[13px] font-semibold text-[#059669] hover:bg-[var(--color-border)]"
-          >
-            🔗 결과 링크 복사하기
-          </button>
         </div>
       )}
 
