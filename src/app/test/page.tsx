@@ -71,7 +71,7 @@ export default function TestPage() {
         scores: result.scores,
         answers,
       });
-      router.push(buildResultUrl(result.styleKey, result.scores, answers, entry?.id));
+      router.push(buildResultUrl(result.styleKey, result.scores, answers, entry?.id, true));
     }
   }, [answers, router, ready]);
 

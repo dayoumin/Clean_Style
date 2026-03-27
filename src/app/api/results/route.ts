@@ -1,48 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { styleTypes, questions, computeSixAxisScores } from '@/data/questions';
+import { questions, calculateResult, computeSixAxisScores } from '@/data/questions';
 import type { D1Database } from '@cloudflare/workers-types';
 
 function detectDeviceType(ua: string): string {
   if (/tablet|ipad/i.test(ua)) return 'tablet';
+  if (/android/i.test(ua) && !/mobile/i.test(ua)) return 'tablet';
   if (/mobile|iphone|android.*mobile/i.test(ua)) return 'mobile';
   return 'desktop';
 }
 
-function computeBorderline(scores: { principle: number; transparency: number; independence: number }): string[] {
-  const result: string[] = [];
-  if (scores.principle === 0) result.push('principle');
-  if (scores.transparency === 0) result.push('transparency');
-  if (scores.independence === 0) result.push('independence');
-  return result;
+function normalizeReferrer(raw: string): string {
+  try {
+    const url = new URL(raw);
+    return (url.origin + url.pathname).slice(0, 200);
+  } catch {
+    return raw.slice(0, 200);
+  }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { styleKey, scores, answers, durationSec, referrer } = body;
+    const { answers, durationSec, referrer } = body;
 
-    if (
-      typeof styleKey !== 'string' ||
-      !styleTypes[styleKey] ||
-      !scores ||
-      typeof scores.principle !== 'number' ||
-      typeof scores.transparency !== 'number' ||
-      typeof scores.independence !== 'number' ||
-      !Array.isArray(answers) ||
-      answers.length !== questions.length
-    ) {
+    if (!Array.isArray(answers) || answers.length !== questions.length) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
     }
 
-    const style = styleTypes[styleKey]!;
-    const six = computeSixAxisScores(answers);
+    const result = calculateResult(answers);
+    const sixAxis = computeSixAxisScores(answers);
 
     const ua = request.headers.get('user-agent') ?? '';
     const deviceType = detectDeviceType(ua);
-    const borderline = computeBorderline(scores);
     const duration = typeof durationSec === 'number' && durationSec > 0 ? Math.round(durationSec) : null;
-    const ref = typeof referrer === 'string' ? referrer.slice(0, 200) : null;
+    const ref = typeof referrer === 'string' ? normalizeReferrer(referrer) : null;
 
     const { env } = await getCloudflareContext();
     const db = (env as { DB: D1Database }).DB;
@@ -56,21 +48,21 @@ export async function POST(request: NextRequest) {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
       .bind(
-        styleKey,
-        style.name,
-        scores.principle,
-        scores.transparency,
-        scores.independence,
-        six.principle,
-        six.flexible,
-        six.transparent,
-        six.cautious,
-        six.independent,
-        six.cooperative,
+        result.styleKey,
+        result.style.name,
+        result.scores.principle,
+        result.scores.transparency,
+        result.scores.independence,
+        sixAxis.principle,
+        sixAxis.flexible,
+        sixAxis.transparent,
+        sixAxis.cautious,
+        sixAxis.independent,
+        sixAxis.cooperative,
         JSON.stringify(answers),
         duration,
         deviceType,
-        JSON.stringify(borderline),
+        JSON.stringify(result.borderline),
         ref,
       )
       .run();

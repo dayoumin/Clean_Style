@@ -6,21 +6,23 @@ import { calculateResult, questions } from '@/data/questions';
 
 // ── 1. historyId-소유권 분리 시뮬레이션 ──
 describe('historyId-소유권 분리', () => {
-  it('localStorage 정상 → hid + new 포함', () => {
+  it('테스트 완료 → hid + new 포함', () => {
     const url = buildResultUrl('principle-transparent-independent',
       { principle: 5, transparency: -2, independence: 3 },
       [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2],
       'abc-123',
+      true,
     );
     expect(url).toContain('hid=abc-123');
     expect(url).toContain('new=1');
   });
 
-  it('localStorage 실패 → hid 없지만 new=1 있음 → 공유 모드 아님', () => {
+  it('테스트 완료 + localStorage 실패 → hid 없지만 new=1 있음 → 공유 모드 아님', () => {
     const url = buildResultUrl('principle-transparent-independent',
       { principle: 5, transparency: -2, independence: 3 },
       [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2],
-      undefined, // historyId 없음
+      undefined,
+      true,
     );
     expect(url).not.toContain('hid=');
     expect(url).toContain('new=1');
@@ -232,25 +234,23 @@ describe('전체 플로우 시뮬레이션', () => {
     const answers = questions.map(() => 0);
     const result = calculateResult(answers);
 
-    // 2. 결과 URL 생성 (localStorage 성공)
-    const urlWithHistory = buildResultUrl(result.styleKey, result.scores, answers, 'hist-id');
+    // 2. 테스트 완료 → 결과 URL (isNew=true)
+    const urlWithHistory = buildResultUrl(result.styleKey, result.scores, answers, 'hist-id', true);
     const paramsOk = new URLSearchParams(urlWithHistory.split('?')[1]);
     expect(paramsOk.has('new')).toBe(true);
     expect(paramsOk.has('hid')).toBe(true);
     const isSharedOk = !paramsOk.has('new') && !paramsOk.has('hid');
     expect(isSharedOk).toBe(false);
 
-    // 3. 결과 URL 생성 (localStorage 실패)
-    const urlNoHistory = buildResultUrl(result.styleKey, result.scores, answers);
-    const paramsFail = new URLSearchParams(urlNoHistory.split('?')[1]);
-    expect(paramsFail.has('new')).toBe(true);
-    expect(paramsFail.has('hid')).toBe(false);
-    const isSharedFail = !paramsFail.has('new') && !paramsFail.has('hid');
-    expect(isSharedFail).toBe(false); // 여전히 본인 결과
+    // 3. 히스토리에서 재조회 → new 없음
+    const urlRevisit = buildResultUrl(result.styleKey, result.scores, answers, 'hist-id');
+    const paramsRevisit = new URLSearchParams(urlRevisit.split('?')[1]);
+    expect(paramsRevisit.has('new')).toBe(false);
+    expect(paramsRevisit.has('hid')).toBe(true);
 
-    // 4. 공유 URL (new 제거)
-    paramsFail.delete('new');
-    const isSharedLink = !paramsFail.has('new') && !paramsFail.has('hid');
+    // 4. 공유 URL (hid도 없음)
+    paramsRevisit.delete('hid');
+    const isSharedLink = !paramsRevisit.has('new') && !paramsRevisit.has('hid');
     expect(isSharedLink).toBe(true);
   });
 
@@ -262,7 +262,7 @@ describe('전체 플로우 시뮬레이션', () => {
       'flexible-cautious-independent', 'flexible-cautious-cooperative',
     ];
     for (const key of validKeys) {
-      const url = buildResultUrl(key, { principle: 0, transparency: 0, independence: 0 }, [0]);
+      const url = buildResultUrl(key, { principle: 0, transparency: 0, independence: 0 }, [0], undefined, true);
       expect(url).toContain(`style=${key}`);
       expect(url).toContain('new=1');
     }

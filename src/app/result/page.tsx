@@ -65,7 +65,7 @@ function ResultContent() {
 
   const savedRef = useRef(false);
   useEffect(() => {
-    if (isNew && !isShared && styleKey && !savedRef.current) {
+    if (isNew && !isShared && !savedRef.current && answers.length > 0) {
       savedRef.current = true;
       const startTime = Number(sessionStorage.getItem(TEST_START_TIME_KEY) || 0);
       const durationSec = startTime ? Math.round((Date.now() - startTime) / 1000) : undefined;
@@ -75,10 +75,15 @@ function ResultContent() {
       fetch('/api/results', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ styleKey, scores, answers, durationSec, referrer }),
+        body: JSON.stringify({ answers, durationSec, referrer }),
+        keepalive: true,
       }).catch(() => {});
+      // 저장 후 new=1 제거 — 재방문/새로고침 시 중복 INSERT 방지
+      const url = new URL(window.location.href);
+      url.searchParams.delete('new');
+      window.history.replaceState(null, '', url.toString());
     }
-  }, [isNew, isShared, styleKey, scores, answers]);
+  }, [isNew, isShared, answers]);
 
   useEffect(() => {
     return () => clearTimeout(toastTimerRef.current);
@@ -107,6 +112,7 @@ function ResultContent() {
   const handleCopyLink = () => {
     const url = new URL(window.location.href);
     url.searchParams.delete('hid');
+    url.searchParams.delete('new');
     navigator.clipboard.writeText(url.toString()).then(() => {
       clearTimeout(toastTimerRef.current);
       setToastVisible(true);

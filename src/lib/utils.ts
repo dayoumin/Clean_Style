@@ -10,6 +10,7 @@ export function buildResultUrl(
   scores: { principle: number; transparency: number; independence: number },
   answers: number[],
   historyId?: string,
+  isNew?: boolean,
 ): string {
   const params = new URLSearchParams({
     style: styleKey,
@@ -18,7 +19,7 @@ export function buildResultUrl(
     i: String(scores.independence),
     a: answers.join(','),
   });
-  params.set('new', '1');
+  if (isNew) params.set('new', '1');
   if (historyId) {
     params.set('hid', historyId);
   }

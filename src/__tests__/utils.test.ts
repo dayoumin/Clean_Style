@@ -6,17 +6,22 @@ describe('buildResultUrl', () => {
   const scores = { principle: 3, transparency: -2, independence: 1 };
   const answers = [0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3, 0, 1, 2];
 
-  it('historyId 있으면 hid와 new=1 포함', () => {
+  it('historyId 있으면 hid 포함', () => {
     const url = buildResultUrl('principle-transparent-independent', scores, answers, 'abc-123');
     expect(url).toContain('hid=abc-123');
-    expect(url).toContain('new=1');
     expect(url).toContain('style=principle-transparent-independent');
   });
 
-  it('historyId 없어도 new=1은 포함, hid는 없음', () => {
+  it('isNew=true면 new=1 포함, 기본값은 없음', () => {
+    const url = buildResultUrl('principle-transparent-independent', scores, answers, undefined, true);
+    expect(url).toContain('new=1');
+    const urlDefault = buildResultUrl('principle-transparent-independent', scores, answers);
+    expect(urlDefault).not.toContain('new=');
+  });
+
+  it('historyId 없으면 hid 없음', () => {
     const url = buildResultUrl('principle-transparent-independent', scores, answers);
     expect(url).not.toContain('hid=');
-    expect(url).toContain('new=1');
   });
 
   it('scores가 URL 파라미터에 포함', () => {
