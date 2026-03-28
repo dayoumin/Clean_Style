@@ -15,17 +15,14 @@ export default function HomePage() {
 
   return (
     <div className="animate-fade-in flex flex-col items-center pt-[6vh]">
-      {/* 배지 */}
       <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-primary-soft)] px-4 py-1.5 text-[13px] font-semibold text-[var(--color-primary-accent)]">
         ✨ 3분 자기발견 테스트
       </div>
 
-      {/* 타이틀 */}
       <h1 className="mb-10 text-center text-[1.75rem] font-extrabold leading-[1.25] tracking-tight text-[var(--color-text)]">
         나의 청렴 스타일은?
       </h1>
 
-      {/* 안내 칩 */}
       <div className="mb-6 flex w-full gap-2">
         {infoChips.map((chip, i) => (
           <button
@@ -46,7 +43,6 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* 안내 모달 */}
       {openChip !== null && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
@@ -73,7 +69,6 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* 시작 버튼 */}
       <Link
         href="/test"
         className="cta-gradient mt-[4vh] w-full rounded-[var(--radius-md)] py-[15px] text-center text-[15px] font-bold tracking-tight text-white mb-[2vh]"
@@ -81,7 +76,6 @@ export default function HomePage() {
         테스트 시작하기 →
       </Link>
 
-      {/* 이전 결과 */}
       <HistoryList />
 
     </div>

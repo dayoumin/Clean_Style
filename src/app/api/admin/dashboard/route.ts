@@ -3,22 +3,24 @@ import { getCloudflareContext } from '@opennextjs/cloudflare';
 import type { D1Database } from '@cloudflare/workers-types';
 import { questions } from '@/data/questions';
 
-export async function HEAD(request: NextRequest) {
+function checkAdminAuth(request: NextRequest): { ok: true } | { ok: false; status: number; message: string } {
   const secret = process.env.ADMIN_SECRET;
-  if (!secret) return new NextResponse(null, { status: 500 });
+  if (!secret) return { ok: false, status: 500, message: 'ADMIN_SECRET not configured' };
   const token = request.cookies.get('admin_token')?.value;
-  if (token !== secret) return new NextResponse(null, { status: 401 });
+  if (token !== secret) return { ok: false, status: 401, message: 'Unauthorized' };
+  return { ok: true };
+}
+
+export async function HEAD(request: NextRequest) {
+  const auth = checkAdminAuth(request);
+  if (!auth.ok) return new NextResponse(null, { status: auth.status });
   return new NextResponse(null, { status: 200 });
 }
 
 export async function GET(request: NextRequest) {
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret) {
-    return NextResponse.json({ error: 'ADMIN_SECRET not configured' }, { status: 500 });
-  }
-  const token = request.cookies.get('admin_token')?.value;
-  if (token !== secret) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const auth = checkAdminAuth(request);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.message }, { status: auth.status });
   }
 
   try {

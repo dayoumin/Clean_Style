@@ -1,5 +1,12 @@
 # Clean_style TODO
 
+## 우선 확인
+
+### API 키 설정
+- [ ] OpenRouter API 키 확인 — https://openrouter.ai/settings/keys 에서 Active 상태 + 크레딧 잔액 확인
+- [ ] `.env.local`에 `OPENROUTER_API_KEY=sk-or-v1-...` 설정
+- [ ] Cloudflare 배포 환경에도 동일 키 설정 확인 (`wrangler secret put OPENROUTER_API_KEY`)
+
 ## 나중에 할 것
 
 ### PWA 지원

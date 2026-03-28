@@ -44,11 +44,9 @@ function ResultContent() {
   const [analyzing, setAnalyzing] = useState(isNew);
   const [showModal, setShowModal] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
-  const [sharePopup, setSharePopup] = useState(false);
-  const [shareName, setShareName] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
   const toastTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [activeTab, setActiveTab] = useState<'strength' | 'caution' | 'tip'>('strength');
-  const sharedName = searchParams.get('n') ?? '';
 
   const historyId = searchParams.get('hid') ?? '';
   const styleKey = searchParams.get('style') ?? '';
@@ -112,38 +110,36 @@ function ResultContent() {
     return <AnalyzingScreen onDone={() => setAnalyzing(false)} />;
   }
 
-  const handleShareClick = () => {
-    setShareName('');
-    setSharePopup(true);
-  };
-
-  const handleCopyLink = (name?: string) => {
+  const getShareUrl = () => {
     const url = new URL(window.location.href);
     url.searchParams.delete('hid');
     url.searchParams.delete('new');
-    url.searchParams.delete('n');
-    const trimmed = (name ?? '').trim();
-    if (trimmed) url.searchParams.set('n', trimmed);
-    navigator.clipboard.writeText(url.toString()).then(() => {
-      setSharePopup(false);
-      clearTimeout(toastTimerRef.current);
-      setToastVisible(true);
-      toastTimerRef.current = setTimeout(() => setToastVisible(false), 2000);
+    return url.toString();
+  };
+
+  const showToast = (msg: string) => {
+    clearTimeout(toastTimerRef.current);
+    setToastMessage(msg);
+    setToastVisible(true);
+    toastTimerRef.current = setTimeout(() => setToastVisible(false), 2000);
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(getShareUrl()).then(() => {
+      showToast('링크가 복사되었어요');
     }).catch(() => {});
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col animate-fade-in">
       <div className="flex-1 animate-slide-up">
-        {/* 공유 모드 배너 */}
         {isShared && (
           <div className="mb-2 flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-4 py-2.5 text-[13px] font-semibold text-[var(--color-primary-accent)]">
             <span className="text-base">👀</span>
-            {sharedName ? `${sharedName}님의 결과를 구경 중이에요` : '누군가의 결과를 구경 중이에요'}
+            누군가의 결과를 구경 중이에요
           </div>
         )}
 
-        {/* 유형 카드 */}
         <div className="result-gradient relative z-0 mb-2 overflow-hidden rounded-[var(--radius-xl)] px-6 py-4 text-center text-white shadow-lg">
           <div className="pointer-events-none absolute -left-6 -top-6 h-28 w-28 rounded-full bg-white/5" />
           <div className="pointer-events-none absolute -bottom-4 -right-4 h-20 w-20 rounded-full bg-white/5" />
@@ -153,11 +149,11 @@ function ResultContent() {
           </span>
           {!isShared && (
             <button
-              onClick={handleShareClick}
+              onClick={handleCopyLink}
               className="absolute right-4 top-3 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-white/80 backdrop-blur-sm hover:bg-white/25 transition-colors"
-              aria-label="결과 공유하기"
+              aria-label="결과 링크 복사"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             </button>
           )}
           <div className="relative z-10">
@@ -167,12 +163,10 @@ function ResultContent() {
           </div>
         </div>
 
-        {/* 성향 레이더 차트 */}
         <div className="result-card px-3 pb-1 pt-1">
           <StyleRadarChart sixAxis={sixAxis} />
         </div>
 
-        {/* 유형별 한줄 분석 — 탭 배지 */}
         <div className="result-card !py-4">
           <div className="flex justify-center gap-3 mb-2">
             {([
@@ -201,7 +195,6 @@ function ResultContent() {
         </div>
       </div>
 
-      {/* 하단 버튼 */}
       {isShared ? (
         <div className="mt-auto pt-2">
           <button
@@ -235,53 +228,14 @@ function ResultContent() {
         </div>
       )}
 
-      {/* 공유 이름 입력 팝업 */}
-      {sharePopup && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40" onClick={() => setSharePopup(false)}>
-          <div
-            className="w-full max-w-[var(--max-width)] animate-slide-up rounded-t-2xl bg-[var(--color-bg)] px-5 pb-6 pt-5"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <p className="mb-1 text-[15px] font-bold text-[var(--color-text)]">공유할 때 이름을 넣을까요?</p>
-            <p className="mb-4 text-[12px] text-[var(--color-text-muted)]">받는 사람이 누구의 결과인지 알 수 있어요</p>
-            <input
-              type="text"
-              value={shareName}
-              onChange={(e) => setShareName(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleCopyLink(shareName); }}
-              placeholder="이름 또는 닉네임"
-              maxLength={20}
-              className="mb-3 w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-[14px] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-accent)]"
-              autoFocus
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleCopyLink()}
-                className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-3 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
-              >
-                건너뛰기
-              </button>
-              <button
-                onClick={() => handleCopyLink(shareName)}
-                className="flex-[2] rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)]"
-              >
-                링크 복사
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 복사 완료 토스트 */}
       {toastVisible && (
         <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 animate-slide-up rounded-[var(--radius-md)] bg-[var(--color-primary)] px-5 py-2.5 text-[13px] font-semibold text-white shadow-lg">
-          결과 링크가 복사되었어요
+          {toastMessage}
         </div>
       )}
 
-      {/* AI 조언 모달 */}
       {!isShared && showModal && (
-        <BottomSheet title="✨ AI 맞춤 조언" onClose={() => { if (!chat.aiLoading) { setShowModal(false); chat.closeChat(); } }}>
+        <BottomSheet title="✨ AI 맞춤 조언" onClose={() => { if (!chat.aiLoading) { setShowModal(false); chat.clearInput(); } }}>
           {chat.aiLoading ? (
             <>
               <div className={SCROLL_AREA}>
@@ -337,7 +291,7 @@ function ResultContent() {
                     새 질문
                   </button>
                   <button
-                    onClick={chat.continueChat}
+                    onClick={chat.clearInput}
                     disabled={chat.chatMaxReached}
                     className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
                   >
@@ -366,12 +320,16 @@ function ResultContent() {
                   />
                   <span className="absolute bottom-2 right-3 text-[11px] text-[var(--color-text-muted)]">{chat.userContext.length}/{MAX_QUESTION_LENGTH}</span>
                 </div>
-                {chat.aiError && (
-                  <p className="text-[13px] text-red-500">답변 생성에 실패했어요. 다시 시도해주세요.</p>
+                {chat.aiErrorType && (
+                  <p className="text-[13px] text-red-500">
+                    {chat.aiErrorType === 'network' && '인터넷 연결을 확인해주세요.'}
+                    {chat.aiErrorType === 'rate-limit' && '요청이 너무 많아요. 잠시 후 다시 시도해주세요.'}
+                    {chat.aiErrorType === 'server' && 'AI 서비스에 일시적인 문제가 생겼어요. 잠시 후 다시 시도해주세요.'}
+                  </p>
                 )}
                 <div className="flex gap-2">
                   <button
-                    onClick={() => { setShowModal(false); chat.closeChat(); }}
+                    onClick={() => { setShowModal(false); chat.clearInput(); }}
                     className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-3 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
                   >
                     닫기
@@ -402,7 +360,11 @@ function ResultContent() {
 }
 
 function SuspenseSpinner() {
-  return <LoadingFairy message="불러오는 중..." />;
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <LoadingFairy message="불러오는 중..." />
+    </div>
+  );
 }
 
 export default function ResultPage() {

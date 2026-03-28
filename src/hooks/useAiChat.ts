@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MAX_HISTORY_MESSAGES, SUMMARIZE_AT_MESSAGES, MAX_QUESTION_LENGTH } from '@/lib/constants';
+import { MAX_HISTORY_MESSAGES, SUMMARIZE_AT_MESSAGES } from '@/lib/constants';
 import { getHistoryEntry, updateChat, clearChat, type ChatMessage } from '@/lib/history';
 
 interface UseAiChatOptions {
@@ -13,7 +13,7 @@ interface UseAiChatOptions {
 export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAnswer, setAiAnswer] = useState('');
-  const [aiError, setAiError] = useState(false);
+  const [aiErrorType, setAiErrorType] = useState<'network' | 'rate-limit' | 'server' | null>(null);
   const [userContext, setUserContext] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [chatSummary, setChatSummary] = useState('');
@@ -119,7 +119,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
   const clearChatUI = useCallback(() => {
     setAiAnswer('');
     setUserContext('');
-    setAiError(false);
+    setAiErrorType(null);
   }, []);
 
   const fetchAnswer = useCallback(async () => {
@@ -127,7 +127,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     if (!question) return;
     abortRef.current?.abort();
     setAiLoading(true);
-    setAiError(false);
+    setAiErrorType(null);
     setAiAnswer('');
 
     const controller = new AbortController();
@@ -155,6 +155,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
         signal: controller.signal,
       });
 
+      if (res.status === 429) throw new Error('RATE_LIMIT');
       if (!res.ok || !res.body) throw new Error('API 응답 오류');
 
       const reader = res.body.getReader();
@@ -211,7 +212,13 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
       if (fullAnswer) setAiAnswer(fullAnswer);
-      setAiError(true);
+      if (err instanceof TypeError) {
+        setAiErrorType('network');
+      } else if (err instanceof Error && err.message === 'RATE_LIMIT') {
+        setAiErrorType('rate-limit');
+      } else {
+        setAiErrorType('server');
+      }
     } finally {
       setAiLoading(false);
     }
@@ -239,16 +246,14 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
   }, []);
 
   return {
-    aiLoading, aiAnswer, aiError,
+    aiLoading, aiAnswer, aiErrorType,
     userContext, setUserContext,
     chatHistory, chatMaxReached, chatLastTurn,
     scrollAnchorRef,
     fetchAnswer,
     resetChat,
-    closeChat: clearChatUI,
-    continueChat: clearChatUI,
+    clearInput: clearChatUI,
     deleteChat,
     abortAnswer,
-    maxQuestionLength: MAX_QUESTION_LENGTH,
   };
 }

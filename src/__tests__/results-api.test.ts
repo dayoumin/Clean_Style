@@ -6,24 +6,7 @@ import {
   styleTypes,
 } from '@/data/questions';
 import { buildResultUrl } from '@/lib/utils';
-
-// ── API route에서 export하지 않는 순수 함수들을 동일하게 재현 ──
-
-function detectDeviceType(ua: string): string {
-  if (/tablet|ipad/i.test(ua)) return 'tablet';
-  if (/android/i.test(ua) && !/mobile/i.test(ua)) return 'tablet';
-  if (/mobile|iphone|android.*mobile/i.test(ua)) return 'mobile';
-  return 'desktop';
-}
-
-function normalizeReferrer(raw: string): string {
-  try {
-    const url = new URL(raw);
-    return (url.origin + url.pathname).slice(0, 200);
-  } catch {
-    return raw.slice(0, 200);
-  }
-}
+import { detectDeviceType, normalizeReferrer } from '@/lib/device';
 
 /**
  * API route의 D1 INSERT 직전까지의 로직을 재현.

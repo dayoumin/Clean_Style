@@ -1,23 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { questions, calculateResult, computeSixAxisScores } from '@/data/questions';
+import { detectDeviceType, normalizeReferrer } from '@/lib/device';
 import type { D1Database } from '@cloudflare/workers-types';
-
-function detectDeviceType(ua: string): string {
-  if (/tablet|ipad/i.test(ua)) return 'tablet';
-  if (/android/i.test(ua) && !/mobile/i.test(ua)) return 'tablet';
-  if (/mobile|iphone|android.*mobile/i.test(ua)) return 'mobile';
-  return 'desktop';
-}
-
-function normalizeReferrer(raw: string): string {
-  try {
-    const url = new URL(raw);
-    return (url.origin + url.pathname).slice(0, 200);
-  } catch {
-    return raw.slice(0, 200);
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
