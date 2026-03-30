@@ -156,7 +156,11 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
       });
 
       if (res.status === 429) throw new Error('RATE_LIMIT');
-      if (!res.ok || !res.body) throw new Error('API 응답 오류');
+      if (!res.ok || !res.body) {
+        const body = await res.json().catch(() => ({}));
+        console.error('Chat API error:', res.status, body.detail ?? body.error);
+        throw new Error('API 응답 오류');
+      }
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();

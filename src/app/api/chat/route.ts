@@ -90,9 +90,10 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Chat API error:', error);
+    const msg = error instanceof Error ? error.message : 'unknown';
+    console.error('Chat API error:', msg);
     return NextResponse.json(
-      { error: '답변 생성에 실패했어요. 다시 시도해주세요.' },
+      { error: '답변 생성에 실패했어요. 다시 시도해주세요.', detail: msg },
       { status: 500 },
     );
   }
