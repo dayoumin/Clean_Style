@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { styleTypes, computeSixAxisScores, type StyleType } from '@/data/questions';
 import StyleRadarChart from '@/components/StyleRadarChart';
 import { MAX_QUESTION_LENGTH, TEST_START_TIME_KEY, TEST_REFERRER_KEY } from '@/lib/constants';
@@ -47,6 +47,11 @@ export default function ResultContent() {
   const [toastMessage, setToastMessage] = useState('');
   const toastTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [activeTab, setActiveTab] = useState<'strength' | 'caution' | 'tip'>('strength');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const focusTextarea = useCallback(() => {
+    setTimeout(() => textareaRef.current?.focus(), 200);
+  }, []);
 
   const historyId = searchParams.get('hid') ?? '';
   const styleKey = searchParams.get('style') ?? '';
@@ -206,7 +211,7 @@ export default function ResultContent() {
               다시 하기
             </button>
             <button
-              onClick={() => setShowModal(true)}
+              onClick={() => { setShowModal(true); chat.scrollToBottom(); focusTextarea(); }}
               className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-primary-muted)] py-3 text-center text-[13px] font-semibold text-[var(--color-primary-accent)] hover:bg-[var(--color-primary-soft)]"
             >
               AI 맞춤 조언
@@ -266,6 +271,12 @@ export default function ResultContent() {
                     <p className="text-[13px] leading-relaxed text-[var(--color-text-secondary)] whitespace-pre-line">{chat.aiAnswer}</p>
                   </div>
                 </div>
+                <button
+                  onClick={() => { navigator.clipboard.writeText(chat.aiAnswer).then(() => showToast('답변이 복사되었어요')).catch(() => {}); }}
+                  className="mt-1 ml-1 text-[11px] text-[var(--color-text-muted)] hover:text-[var(--color-primary-accent)]"
+                >
+                  복사
+                </button>
                 <div ref={chat.scrollAnchorRef} />
               </div>
               <div className="shrink-0 space-y-2 border-t border-[var(--color-border)] px-5 py-3">
@@ -283,7 +294,7 @@ export default function ResultContent() {
                     새 질문
                   </button>
                   <button
-                    onClick={chat.clearInput}
+                    onClick={() => { chat.clearInput(); focusTextarea(); }}
                     disabled={chat.chatMaxReached}
                     className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
                   >
@@ -298,11 +309,13 @@ export default function ResultContent() {
               {chat.chatHistory.length > 0 && (
                 <div className={SCROLL_AREA}>
                   <ChatBubbles messages={chat.chatHistory} />
+                  <div ref={chat.scrollAnchorRef} />
                 </div>
               )}
               <div className={cn('shrink-0 space-y-3 px-5 py-3', chat.chatHistory.length > 0 ? 'border-t border-[var(--color-border)]' : 'pt-0')}>
                 <div className="relative">
                   <textarea
+                    ref={textareaRef}
                     value={chat.userContext}
                     onChange={(e) => chat.setUserContext(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (chat.userContext.trim()) chat.fetchAnswer(); } }}
@@ -314,11 +327,21 @@ export default function ResultContent() {
                   <span className="absolute bottom-2 right-3 text-[11px] text-[var(--color-text-muted)]">{chat.userContext.length}/{MAX_QUESTION_LENGTH}</span>
                 </div>
                 {chat.aiErrorType && (
-                  <p className="text-[13px] text-red-500">
-                    {chat.aiErrorType === 'network' && '인터넷 연결을 확인해주세요.'}
-                    {chat.aiErrorType === 'rate-limit' && '요청이 너무 많아요. 잠시 후 다시 시도해주세요.'}
-                    {chat.aiErrorType === 'server' && 'AI 서비스에 일시적인 문제가 생겼어요. 잠시 후 다시 시도해주세요.'}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="flex-1 text-[13px] text-red-500">
+                      {chat.aiErrorType === 'network' && '인터넷 연결을 확인해주세요.'}
+                      {chat.aiErrorType === 'rate-limit' && '요청이 너무 많아요. 잠시 후 다시 시도해주세요.'}
+                      {chat.aiErrorType === 'server' && 'AI 서비스에 일시적인 문제가 생겼어요.'}
+                    </p>
+                    {chat.aiErrorType !== 'rate-limit' && (
+                      <button
+                        onClick={chat.fetchAnswer}
+                        className="shrink-0 rounded-[var(--radius-md)] border border-red-300 px-3 py-1.5 text-[12px] font-semibold text-red-500 hover:bg-red-50"
+                      >
+                        재시도
+                      </button>
+                    )}
+                  </div>
                 )}
                 <div className="flex gap-2">
                   <button

@@ -120,6 +120,11 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     setAiAnswer('');
     setUserContext('');
     setAiErrorType(null);
+    setTimeout(() => scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    setTimeout(() => scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   }, []);
 
   const fetchAnswer = useCallback(async () => {
@@ -261,6 +266,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     fetchAnswer,
     resetChat,
     clearInput: clearChatUI,
+    scrollToBottom,
     deleteChat,
     abortAnswer,
   };
