@@ -42,3 +42,10 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: npx wrangler deploy
+
+      - name: Set secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          echo "${{ secrets.OPENROUTER_API_KEY }}" | npx wrangler secret put OPENROUTER_API_KEY
+          echo "${{ secrets.ADMIN_SECRET }}" | npx wrangler secret put ADMIN_SECRET
