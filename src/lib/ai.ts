@@ -84,7 +84,7 @@ export function chatStream(options: ChatOptions): ReadableStream {
             model: 'x-ai/grok-4.1-fast',
             messages: options.messages,
             temperature: options.temperature ?? 0.7,
-            max_tokens: options.maxTokens ?? 600,
+            max_tokens: options.maxTokens ?? 1200,
             stream: true,
           }),
           signal: abortCtrl.signal,

@@ -165,7 +165,8 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
-      let tokenCount = 0;
+      let lastRenderTime = 0;
+      const RENDER_INTERVAL = 30; // ms — 자연스러운 타이핑 속도
 
       while (true) {
         const { done, value } = await reader.read();
@@ -186,12 +187,15 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
           if (parsed.error) throw new Error(parsed.error);
           if (parsed.token) {
             fullAnswer += parsed.token;
-            tokenCount++;
-            if (tokenCount % 5 === 0) setAiAnswer(fullAnswer);
+            const now = performance.now();
+            if (now - lastRenderTime >= RENDER_INTERVAL) {
+              setAiAnswer(fullAnswer);
+              lastRenderTime = now;
+            }
           }
         }
       }
-      if (tokenCount % 5 !== 0) setAiAnswer(fullAnswer);
+      setAiAnswer(fullAnswer);
 
       if (!fullAnswer) throw new Error('Empty response');
 

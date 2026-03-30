@@ -4,8 +4,8 @@
 
 ### API 키 설정
 - [ ] OpenRouter API 키 확인 — https://openrouter.ai/settings/keys 에서 Active 상태 + 크레딧 잔액 확인
-- [ ] `.env.local`에 `OPENROUTER_API_KEY=sk-or-v1-...` 설정
-- [ ] Cloudflare 배포 환경에도 동일 키 설정 확인 (`wrangler secret put OPENROUTER_API_KEY`)
+- [ ] 로컬: `.env.local`에 `OPENROUTER_API_KEY=sk-or-v1-...` 설정
+- [ ] 배포: GitHub repo Settings → Secrets → `OPENROUTER_API_KEY` 설정 (deploy.yml이 Workers에 자동 반영)
 
 ## 보안: 악의적 API 반복 호출 대응
 
