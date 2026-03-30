@@ -7,6 +7,38 @@
 - [ ] `.env.local`에 `OPENROUTER_API_KEY=sk-or-v1-...` 설정
 - [ ] Cloudflare 배포 환경에도 동일 키 설정 확인 (`wrangler secret put OPENROUTER_API_KEY`)
 
+## 보안: 악의적 API 반복 호출 대응
+
+### 현재 적용된 방어 (2026-03-30)
+
+| 계층 | 방법 | 대상 | 상태 |
+|------|------|------|------|
+| 인프라 | Cloudflare WAF / DDoS 방어 | 전체 트래픽 | 자동 적용 (CF 뒤에 배포) |
+| 앱 | In-memory rate-limit (IP별) | `/api/chat` 20req/60s | 적용 |
+| 앱 | In-memory rate-limit (IP별) | `/api/summarize` 20req/60s | 적용 |
+| 앱 | In-memory rate-limit (IP별) | `/api/results` 5req/60s | 적용 |
+
+### 악의적 호출 시나리오와 대응
+
+**시나리오 1: curl 등으로 `/api/chat` 반복 호출**
+- 위험: OpenRouter API 크레딧 소모
+- 현재 대응: IP별 60초당 20회 제한 + 429 응답 + Retry-After 헤더
+- API 키는 서버 사이드에서만 사용 → 클라이언트에 노출 안 됨
+
+**시나리오 2: `/api/results` 반복 호출로 DB 쓰기 폭주**
+- 위험: D1 쓰기 비용 증가, 통계 오염
+- 현재 대응: IP별 60초당 5회 제한 (정상 사용: 테스트 완료 시 1회)
+
+**시나리오 3: IP 우회 (VPN/프록시) 대량 호출**
+- 현재 대응 없음 (in-memory rate-limit은 IP 기반)
+- 추후 필요 시: Cloudflare Rate Limiting Rules (WAF 레벨) 또는 접속 코드(1단계) 도입
+
+### 한계와 추후 고려
+
+- **In-memory 방식**: Workers cold start 시 초기화됨 (fail-open). 영구 차단 필요 시 D1에 IP 기록 필요
+- **현재 미보호**: `/api/questions` GET (공개 데이터라 영향 낮음)
+- **비용 관점**: 현재 트래픽 규모에서는 in-memory rate-limit으로 충분. 기관 확대 시 접속 코드(아래 1단계) 병행 권장
+
 ## 나중에 할 것
 
 ### PWA 지원

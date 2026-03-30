@@ -50,6 +50,69 @@ describe('checkRateLimit', () => {
   });
 });
 
+describe('checkRateLimit — /api/results 시뮬레이션 (5req/60s)', () => {
+  beforeEach(() => {
+    _resetStore();
+  });
+
+  const RESULTS_LIMIT = 5;
+  const RESULTS_WINDOW_MS = 60_000;
+
+  it('정상 사용: 테스트 완료 1회 → 허용', () => {
+    const result = checkRateLimit('user-ip', RESULTS_LIMIT, RESULTS_WINDOW_MS);
+    expect(result.allowed).toBe(true);
+  });
+
+  it('5회까지 허용, 6회째 차단', () => {
+    for (let i = 0; i < 5; i++) {
+      const r = checkRateLimit('attacker-ip', RESULTS_LIMIT, RESULTS_WINDOW_MS);
+      expect(r.allowed).toBe(true);
+    }
+    const blocked = checkRateLimit('attacker-ip', RESULTS_LIMIT, RESULTS_WINDOW_MS);
+    expect(blocked.allowed).toBe(false);
+    expect(blocked.retryAfter).toBeGreaterThan(0);
+    expect(blocked.retryAfter).toBeLessThanOrEqual(60);
+  });
+
+  it('curl 반복 호출 시뮬레이션: 100회 중 5회만 허용', () => {
+    let allowedCount = 0;
+    let blockedCount = 0;
+
+    for (let i = 0; i < 100; i++) {
+      const r = checkRateLimit('curl-attacker', RESULTS_LIMIT, RESULTS_WINDOW_MS);
+      if (r.allowed) allowedCount++;
+      else blockedCount++;
+    }
+
+    expect(allowedCount).toBe(5);
+    expect(blockedCount).toBe(95);
+  });
+
+  it('차단된 IP와 다른 IP는 독립 동작', () => {
+    for (let i = 0; i < 5; i++) {
+      checkRateLimit('bad-ip', RESULTS_LIMIT, RESULTS_WINDOW_MS);
+    }
+    expect(checkRateLimit('bad-ip', RESULTS_LIMIT, RESULTS_WINDOW_MS).allowed).toBe(false);
+    expect(checkRateLimit('good-ip', RESULTS_LIMIT, RESULTS_WINDOW_MS).allowed).toBe(true);
+  });
+
+  it('윈도우 만료 ��� 다시 허용됨', () => {
+    vi.useFakeTimers();
+    const now = Date.now();
+    vi.setSystemTime(now);
+
+    for (let i = 0; i < 5; i++) {
+      checkRateLimit('recover-ip', RESULTS_LIMIT, RESULTS_WINDOW_MS);
+    }
+    expect(checkRateLimit('recover-ip', RESULTS_LIMIT, RESULTS_WINDOW_MS).allowed).toBe(false);
+
+    vi.setSystemTime(now + 60_001);
+    expect(checkRateLimit('recover-ip', RESULTS_LIMIT, RESULTS_WINDOW_MS).allowed).toBe(true);
+
+    vi.useRealTimers();
+  });
+});
+
 describe('getClientIp', () => {
   it('cf-connecting-ip 우선', () => {
     const req = new Request('http://localhost', {
