@@ -116,15 +116,14 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     }
   }, [historyId, chatHistory]);
 
+  const scrollToBottom = useCallback(() => {
+    setTimeout(() => scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+  }, []);
+
   const clearChatUI = useCallback(() => {
     setAiAnswer('');
     setUserContext('');
     setAiErrorType(null);
-    setTimeout(() => scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-  }, []);
-
-  const scrollToBottom = useCallback(() => {
-    setTimeout(() => scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
   }, []);
 
   const fetchAnswer = useCallback(async () => {

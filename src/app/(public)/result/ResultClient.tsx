@@ -294,7 +294,7 @@ export default function ResultContent() {
                     새 질문
                   </button>
                   <button
-                    onClick={() => { chat.clearInput(); focusTextarea(); }}
+                    onClick={() => { chat.clearInput(); chat.scrollToBottom(); focusTextarea(); }}
                     disabled={chat.chatMaxReached}
                     className="flex-1 rounded-[var(--radius-md)] bg-[var(--color-primary)] py-2.5 text-[13px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-40 disabled:cursor-not-allowed"
                   >
@@ -336,7 +336,7 @@ export default function ResultContent() {
                     {chat.aiErrorType !== 'rate-limit' && (
                       <button
                         onClick={chat.fetchAnswer}
-                        className="shrink-0 rounded-[var(--radius-md)] border border-red-300 px-3 py-1.5 text-[12px] font-semibold text-red-500 hover:bg-red-50"
+                        className="shrink-0 rounded-[var(--radius-md)] border border-[var(--color-border)] px-3 py-1.5 text-[12px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
                       >
                         재시도
                       </button>
