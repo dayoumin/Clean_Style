@@ -110,10 +110,6 @@ export default function ResultContent() {
     );
   }
 
-  if (analyzing) {
-    return <AnalyzingScreen onDone={() => setAnalyzing(false)} />;
-  }
-
   const getShareUrl = () => {
     const url = new URL(window.location.href);
     url.searchParams.delete('hid');
@@ -135,7 +131,9 @@ export default function ResultContent() {
   };
 
   return (
-    <div className="flex flex-col animate-fade-in">
+    <>
+      {analyzing && <AnalyzingScreen onDone={() => setAnalyzing(false)} />}
+      <div className={analyzing ? 'hidden' : 'flex flex-col animate-fade-in'}>
       <div className="flex-1 animate-slide-up">
         <div className="result-gradient relative z-0 mb-2 overflow-hidden rounded-[var(--radius-xl)] px-6 py-4 text-center text-white shadow-lg">
           <div className="pointer-events-none absolute -left-6 -top-6 h-28 w-28 rounded-full bg-white/5" />
@@ -322,7 +320,7 @@ export default function ResultContent() {
                     maxLength={MAX_QUESTION_LENGTH}
                     placeholder={chat.chatHistory.length > 0 ? "이어서 질문해주세요" : "궁금한 상황을 자유롭게 질문해주세요"}
                     className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 pr-14 text-[14px] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-accent)]"
-                    rows={3}
+                    rows={7}
                   />
                   <span className="absolute bottom-2 right-3 text-[11px] text-[var(--color-text-muted)]">{chat.userContext.length}/{MAX_QUESTION_LENGTH}</span>
                 </div>
@@ -372,5 +370,6 @@ export default function ResultContent() {
         </BottomSheet>
       )}
     </div>
+    </>
   );
 }

@@ -4,6 +4,7 @@
 const AI_TIMEOUT_MS = 10_000;
 const PRIMARY_MODEL = 'openai/gpt-5.4-nano';
 const FALLBACK_MODEL = 'google/gemini-3.1-flash-lite-preview';
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -21,6 +22,29 @@ interface ChatResponse {
   provider: string;
 }
 
+function buildRequestInit(
+  apiKey: string,
+  options: ChatOptions,
+  stream = false,
+): Omit<RequestInit, 'signal'> {
+  return {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    },
+    body: JSON.stringify({
+      model: PRIMARY_MODEL,
+      models: [PRIMARY_MODEL, FALLBACK_MODEL],
+      messages: options.messages,
+      temperature: options.temperature ?? 0.7,
+      max_tokens: options.maxTokens ?? (stream ? 1200 : 1500),
+      ...(stream && { stream: true }),
+    }),
+  };
+}
+
 export async function chat(options: ChatOptions): Promise<ChatResponse> {
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error('OPENROUTER_API_KEY not set');
@@ -29,20 +53,8 @@ export async function chat(options: ChatOptions): Promise<ChatResponse> {
   const timeout = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
 
   try {
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-      },
-      body: JSON.stringify({
-        model: PRIMARY_MODEL,
-        models: [PRIMARY_MODEL, FALLBACK_MODEL],
-        messages: options.messages,
-        temperature: options.temperature ?? 0.7,
-        max_tokens: options.maxTokens ?? 1500,
-      }),
+    const res = await fetch(OPENROUTER_URL, {
+      ...buildRequestInit(apiKey, options),
       signal: controller.signal,
     });
 
@@ -75,21 +87,8 @@ export function chatStream(options: ChatOptions): ReadableStream {
       const timeout = setTimeout(() => abortCtrl.abort(), 30_000);
 
       try {
-        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${apiKey}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-          },
-          body: JSON.stringify({
-            model: PRIMARY_MODEL,
-            models: [PRIMARY_MODEL, FALLBACK_MODEL],
-            messages: options.messages,
-            temperature: options.temperature ?? 0.7,
-            max_tokens: options.maxTokens ?? 1200,
-            stream: true,
-          }),
+        const res = await fetch(OPENROUTER_URL, {
+          ...buildRequestInit(apiKey, options, true),
           signal: abortCtrl.signal,
         });
 

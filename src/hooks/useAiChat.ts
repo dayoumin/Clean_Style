@@ -248,9 +248,8 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
   }, [historyId, clearChatUI]);
 
   const deleteChat = useCallback(() => {
-    if (historyId) clearChat(historyId);
     resetChat();
-  }, [historyId, resetChat]);
+  }, [resetChat]);
 
   const abortAnswer = useCallback(() => {
     abortRef.current?.abort();
