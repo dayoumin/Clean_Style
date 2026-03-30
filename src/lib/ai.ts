@@ -1,7 +1,9 @@
-// AI 호출 라이브러리 — OpenRouter + Grok 전용
-// 타임아웃: 10초
+// AI 호출 라이브러리 — OpenRouter
+// 타임아웃: 10초 (non-stream), 30초 (stream)
 
 const AI_TIMEOUT_MS = 10_000;
+const PRIMARY_MODEL = 'openai/gpt-5.4-nano';
+const FALLBACK_MODEL = 'google/gemini-3.1-flash-lite-preview';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -35,7 +37,8 @@ export async function chat(options: ChatOptions): Promise<ChatResponse> {
         'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
       },
       body: JSON.stringify({
-        model: 'google/gemini-3.1-flash-lite-preview',
+        model: PRIMARY_MODEL,
+        models: [PRIMARY_MODEL, FALLBACK_MODEL],
         messages: options.messages,
         temperature: options.temperature ?? 0.7,
         max_tokens: options.maxTokens ?? 1500,
@@ -45,14 +48,14 @@ export async function chat(options: ChatOptions): Promise<ChatResponse> {
 
     if (!res.ok) {
       const errorText = await res.text().catch(() => 'unknown');
-      throw new Error(`Grok API error (${res.status}): ${errorText.slice(0, 200)}`);
+      throw new Error(`API error (${res.status}): ${errorText.slice(0, 200)}`);
     }
 
     const data = await res.json();
     const content = data.choices?.[0]?.message?.content;
-    if (!content) throw new Error('Empty response from Grok');
+    if (!content) throw new Error('Empty response');
 
-    return { content, provider: 'grok' };
+    return { content, provider: data.model ?? PRIMARY_MODEL };
   } finally {
     clearTimeout(timeout);
   }
@@ -69,7 +72,6 @@ export function chatStream(options: ChatOptions): ReadableStream {
 
   return new ReadableStream({
     async start(ctrl) {
-      // 스트리밍은 토큰별 점진 전송이므로 non-stream(10s)보다 여유 있게 설정
       const timeout = setTimeout(() => abortCtrl.abort(), 30_000);
 
       try {
@@ -81,7 +83,8 @@ export function chatStream(options: ChatOptions): ReadableStream {
             'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
           },
           body: JSON.stringify({
-            model: 'google/gemini-3.1-flash-lite-preview',
+            model: PRIMARY_MODEL,
+            models: [PRIMARY_MODEL, FALLBACK_MODEL],
             messages: options.messages,
             temperature: options.temperature ?? 0.7,
             max_tokens: options.maxTokens ?? 1200,
@@ -116,7 +119,6 @@ export function chatStream(options: ChatOptions): ReadableStream {
 
             try {
               const chunk = JSON.parse(payload);
-              // provider 에러 감지 (OpenRouter error frame)
               if (chunk.error) {
                 const errMsg = typeof chunk.error === 'string' ? chunk.error : chunk.error.message ?? 'provider error';
                 ctrl.enqueue(encoder.encode(`data: ${JSON.stringify({ error: errMsg })}\n\n`));
@@ -145,7 +147,6 @@ export function chatStream(options: ChatOptions): ReadableStream {
         clearTimeout(timeout);
       }
     },
-    // 클라이언트 disconnect 시 업스트림 OpenRouter 스트림도 중단
     cancel() { abortCtrl.abort(); },
   });
 }
