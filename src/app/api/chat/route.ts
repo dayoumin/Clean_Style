@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     const stream = chatStream({
       messages,
-      temperature: 0.7,
+      temperature: 0.4,
       maxTokens: 1200,
     });
 

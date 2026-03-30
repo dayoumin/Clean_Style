@@ -35,7 +35,7 @@ export async function chat(options: ChatOptions): Promise<ChatResponse> {
         'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
       },
       body: JSON.stringify({
-        model: 'x-ai/grok-4.1-fast',
+        model: 'google/gemini-3.1-flash-lite-preview',
         messages: options.messages,
         temperature: options.temperature ?? 0.7,
         max_tokens: options.maxTokens ?? 1500,
@@ -81,7 +81,7 @@ export function chatStream(options: ChatOptions): ReadableStream {
             'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
           },
           body: JSON.stringify({
-            model: 'x-ai/grok-4.1-fast',
+            model: 'google/gemini-3.1-flash-lite-preview',
             messages: options.messages,
             temperature: options.temperature ?? 0.7,
             max_tokens: options.maxTokens ?? 1200,
