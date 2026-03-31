@@ -14,7 +14,6 @@ export const metadata: Metadata = {
     type: "website",
   },
   icons: {
-    icon: "/favicon.ico",
     apple: "/icons/icon-192x192.png",
   },
   appleWebApp: {

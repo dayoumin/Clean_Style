@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { questions, calculateResult, styleTypes } from '@/data/questions';
 import ProgressBar from '@/components/ProgressBar';
@@ -8,6 +8,7 @@ import QuestionCard from '@/components/QuestionCard';
 import { addHistoryEntry } from '@/lib/history';
 import { buildResultUrl } from '@/lib/utils';
 import { TEST_START_TIME_KEY, TEST_REFERRER_KEY } from '@/lib/constants';
+import { AnalyzingScreen } from '@/components/LoadingFairy';
 
 const STORAGE_KEY = 'integrity-test-progress';
 
@@ -37,6 +38,7 @@ export default function TestPage() {
   const [shuffleSeed, setShuffleSeed] = useState(() => Math.floor(Math.random() * 100000));
   const [resumeData, setResumeData] = useState<{ answers: number[]; seed: number } | null>(null);
   const [ready, setReady] = useState(false);
+  const [finishing, setFinishing] = useState(false);
 
   // 최초 로드: 저장된 진행 상황 확인 + 분석용 메타데이터 기록
   useEffect(() => {
@@ -58,9 +60,11 @@ export default function TestPage() {
     saveProgress(answers, shuffleSeed);
   }, [answers, shuffleSeed]);
 
-  // 마지막 문항 완료 시 결과 페이지로 이동
+  // 마지막 문항 완료 시 즉시 분석 애니메이션 → 결과 페이지로 이동
+  const resultUrlRef = useRef<string | null>(null);
   useEffect(() => {
-    if (ready && answers.length >= questions.length) {
+    if (ready && answers.length >= questions.length && !finishing) {
+      setFinishing(true);
       localStorage.removeItem(STORAGE_KEY);
       const result = calculateResult(answers);
       const style = styleTypes[result.styleKey];
@@ -71,9 +75,9 @@ export default function TestPage() {
         scores: result.scores,
         answers,
       });
-      router.push(buildResultUrl(result.styleKey, result.scores, answers, entry?.id, true));
+      resultUrlRef.current = buildResultUrl(result.styleKey, result.scores, answers, entry?.id, true);
     }
-  }, [answers, router, ready]);
+  }, [answers, ready, finishing]);
 
   const handleResume = () => {
     if (resumeData) {
@@ -103,6 +107,16 @@ export default function TestPage() {
   };
 
   if (!ready) return <div className="min-h-[60vh]" />;
+
+  if (finishing) {
+    return (
+      <AnalyzingScreen
+        onDone={() => {
+          if (resultUrlRef.current) router.push(resultUrlRef.current);
+        }}
+      />
+    );
+  }
 
   // 이어하기 안내
   if (resumeData) {

@@ -41,7 +41,7 @@ export default function ResultContent() {
   const router = useRouter();
   const isNew = searchParams.get('new') === '1';
   const isShared = !searchParams.has('new') && !searchParams.has('hid');
-  const [analyzing, setAnalyzing] = useState(isNew);
+  const [analyzing, setAnalyzing] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
