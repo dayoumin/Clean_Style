@@ -4,49 +4,10 @@ import { useState } from 'react';
 import Link from 'next/link';
 import HistoryList from '@/components/HistoryList';
 
-const IC = '#9da2b8';
-const IC_FILL = '#e8e9f0';
-
-function ChipIcon({ type, className }: { type: 'clipboard' | 'target' | 'sparkles'; className?: string }) {
-  if (type === 'clipboard') return (
-    <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <rect x="5" y="4" width="14" height="17" rx="2.5" stroke={IC} strokeWidth="1.6" fill={IC_FILL}/>
-      <rect x="8.5" y="2" width="7" height="3.5" rx="1.5" fill={IC}/>
-      <line x1="8.5" y1="10.5" x2="15.5" y2="10.5" stroke={IC} strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="8.5" y1="13.8" x2="13.5" y2="13.8" stroke={IC} strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="8.5" y1="17.1" x2="14.5" y2="17.1" stroke={IC} strokeWidth="1.4" strokeLinecap="round"/>
-    </svg>
-  );
-  if (type === 'target') return (
-    <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9.5" stroke={IC} strokeWidth="1.5" fill={IC_FILL}/>
-      <circle cx="12" cy="12" r="6" stroke={IC} strokeWidth="1.5" fill="white"/>
-      <circle cx="12" cy="12" r="2.5" fill={IC}/>
-    </svg>
-  );
-  return (
-    <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M10 5L11.2 9.2L15 10L11.2 10.8L10 15L8.8 10.8L5 10L8.8 9.2Z" fill={IC} fillOpacity="0.2" stroke={IC} strokeWidth="1.2" strokeLinejoin="round"/>
-      <path d="M18 3L18.8 5.8L21 6L18.8 6.2L18 9L17.2 6.2L15 6L17.2 5.8Z" fill={IC} fillOpacity="0.35" stroke={IC} strokeWidth="1" strokeLinejoin="round"/>
-      <path d="M16 16L16.6 18L18.5 18L16.6 18L16 20L15.4 18L13.5 18L15.4 18Z" fill={IC} stroke={IC} strokeWidth="0.9" strokeLinejoin="round"/>
-    </svg>
-  );
-}
-
-function BadgeSparkle({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none">
-      <path d="M12 2C12 2 13.5 7.5 14.5 9.5C15.5 11.5 18 12 22 12C18 12 15.5 12.5 14.5 14.5C13.5 16.5 12 22 12 22C12 22 10.5 16.5 9.5 14.5C8.5 12.5 6 12 2 12C6 12 8.5 11.5 9.5 9.5C10.5 7.5 12 2 12 2Z" fill="currentColor" fillOpacity="0.4" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-    </svg>
-  );
-}
-
-const chipIconTypes = ['clipboard', 'target', 'sparkles'] as const;
-
 const infoChips = [
-  { title: '15개 상황', desc: '약 3분', detail: '업무 중 겪을 수 있는 15가지 상황에 대해 답해보는 테스트입니다.' },
-  { title: '오답 없음', desc: '다 맞는 답', detail: '정답·오답이 없는 테스트입니다. 생각대로 편하게 선택하세요.' },
-  { title: 'AI 분석', desc: '맞춤 팁', detail: 'AI가 응답 패턴을 분석해 나만의 청렴 스타일과 실천 팁을 알려드립니다.' },
+  { emoji: '📋', title: '15개 상황', desc: '약 3분', detail: '업무 중 겪을 수 있는 15가지 상황에 대해 답해보는 테스트입니다.' },
+  { emoji: '🎯', title: '오답 없음', desc: '다 맞는 답', detail: '정답·오답이 없는 테스트입니다. 생각대로 편하게 선택하세요.' },
+  { emoji: '✨', title: 'AI 분석', desc: '맞춤 팁', detail: 'AI가 응답 패턴을 분석해 나만의 청렴 스타일과 실천 팁을 알려드립니다.' },
 ];
 
 export default function HomePage() {
@@ -54,8 +15,8 @@ export default function HomePage() {
 
   return (
     <div className="animate-fade-in flex min-h-[80vh] flex-col items-center justify-center">
-      <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-card)] border border-[var(--color-border)] px-4 py-1.5 text-[13px] font-semibold text-[var(--color-text-secondary)]">
-        <BadgeSparkle /> 3분 자기발견 테스트
+      <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-primary-soft)] px-4 py-1.5 text-[13px] font-semibold text-[var(--color-primary-accent)]">
+        ✨ 3분 자기발견 테스트
       </div>
 
       <h1 className="mb-10 text-center text-[1.75rem] font-extrabold leading-[1.25] tracking-tight text-[var(--color-text)]">
@@ -71,10 +32,10 @@ export default function HomePage() {
             className="flex flex-1 flex-col items-center rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-2 py-3.5 text-center shadow-sm active:scale-95 transition-transform"
           >
             <span
-              className="animate-bounce-soft mb-1.5 inline-block"
+              className="animate-bounce-soft mb-1.5 inline-block text-xl"
               style={{ animationDelay: `${i * 0.25}s` }}
             >
-              <ChipIcon type={chipIconTypes[i]} />
+              {chip.emoji}
             </span>
             <p className="text-[12px] font-bold tracking-tight text-[var(--color-text)]">{chip.title}</p>
             <p className="text-[10px] text-[var(--color-text-muted)]">{chip.desc}</p>
@@ -91,9 +52,7 @@ export default function HomePage() {
             className="mx-6 w-full max-w-xs rounded-2xl bg-[var(--color-card)] px-6 py-7 text-center shadow-xl animate-scale-in"
             onClick={(e) => e.stopPropagation()}
           >
-            <span className="mb-3 inline-block">
-              <ChipIcon type={chipIconTypes[openChip]} className="w-10 h-10" />
-            </span>
+            <span className="mb-3 inline-block text-4xl">{infoChips[openChip].emoji}</span>
             <h2 className="mb-1 text-[16px] font-bold text-[var(--color-text)]">{infoChips[openChip].title}</h2>
             <p className="mb-4 text-[12px] text-[var(--color-text-muted)]">{infoChips[openChip].desc}</p>
             <p className="mb-5 text-[13px] leading-relaxed text-[var(--color-text)]">
