@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import type { Question } from '@/data/questions';
 import { seededShuffle } from '@/lib/utils';
+import { FluentEmoji } from '@/components/FluentEmoji';
 
 interface QuestionCardProps {
   question: Question;
@@ -32,7 +33,7 @@ export default function QuestionCard({ question, questionIndex, shuffleSeed, onS
     <div className="animate-fade-in">
       {/* 카테고리 */}
       <div className="mb-3.5 inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide text-[var(--color-primary-accent)]">
-        <span>{cat?.emoji}</span>
+        {cat && <FluentEmoji emoji={cat.emoji} size={16} />}
         <span>{cat?.label}</span>
       </div>
 

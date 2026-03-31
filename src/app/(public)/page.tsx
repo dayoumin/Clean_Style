@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import HistoryList from '@/components/HistoryList';
+import { FluentEmoji } from '@/components/FluentEmoji';
 
 const infoChips = [
   { emoji: '📋', title: '15개 상황', desc: '약 3분', detail: '업무 중 겪을 수 있는 15가지 상황에 대해 답해보는 테스트입니다.' },
@@ -16,7 +17,7 @@ export default function HomePage() {
   return (
     <div className="animate-fade-in flex min-h-[80vh] flex-col items-center justify-center">
       <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-primary-soft)] px-4 py-1.5 text-[13px] font-semibold text-[var(--color-primary-accent)]">
-        ✨ 3분 자기발견 테스트
+        <FluentEmoji emoji="✨" size={16} /> 3분 자기발견 테스트
       </div>
 
       <h1 className="mb-10 text-center text-[1.75rem] font-extrabold leading-[1.25] tracking-tight text-[var(--color-text)]">
@@ -32,10 +33,10 @@ export default function HomePage() {
             className="flex flex-1 flex-col items-center rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-2 py-3.5 text-center shadow-sm active:scale-95 transition-transform"
           >
             <span
-              className="animate-bounce-soft mb-1.5 inline-block text-xl"
+              className="animate-bounce-soft mb-1.5 inline-block"
               style={{ animationDelay: `${i * 0.25}s` }}
             >
-              {chip.emoji}
+              <FluentEmoji emoji={chip.emoji} size={28} />
             </span>
             <p className="text-[12px] font-bold tracking-tight text-[var(--color-text)]">{chip.title}</p>
             <p className="text-[10px] text-[var(--color-text-muted)]">{chip.desc}</p>
@@ -52,7 +53,7 @@ export default function HomePage() {
             className="mx-6 w-full max-w-xs rounded-2xl bg-[var(--color-card)] px-6 py-7 text-center shadow-xl animate-scale-in"
             onClick={(e) => e.stopPropagation()}
           >
-            <span className="mb-3 inline-block text-4xl">{infoChips[openChip].emoji}</span>
+            <span className="mb-3 inline-block"><FluentEmoji emoji={infoChips[openChip].emoji} size={48} /></span>
             <h2 className="mb-1 text-[16px] font-bold text-[var(--color-text)]">{infoChips[openChip].title}</h2>
             <p className="mb-4 text-[12px] text-[var(--color-text-muted)]">{infoChips[openChip].desc}</p>
             <p className="mb-5 text-[13px] leading-relaxed text-[var(--color-text)]">

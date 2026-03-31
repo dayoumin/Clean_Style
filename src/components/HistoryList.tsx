@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getHistory, deleteHistoryEntry, type HistoryEntry } from '@/lib/history';
 import { buildResultUrl } from '@/lib/utils';
 import BottomSheet from '@/components/BottomSheet';
+import { FluentEmoji } from '@/components/FluentEmoji';
 
 const PREVIEW_COUNT = 2;
 
@@ -24,13 +25,13 @@ function HistoryItem({
 }) {
   return (
     <div className="flex items-center gap-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2">
-      <span className="text-lg">{entry.styleEmoji}</span>
+      <FluentEmoji emoji={entry.styleEmoji} size={24} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] font-semibold text-[var(--color-text)]">
           {entry.styleName}
           <span className="ml-1.5 text-[11px] font-normal text-[var(--color-text-muted)]">
             {formatDate(entry.createdAt)}
-            {entry.chat.length > 0 && ` · 💬${Math.floor(entry.chat.length / 2)}`}
+            {entry.chat.length > 0 && (<> · <FluentEmoji emoji="💬" size={12} className="inline align-baseline" />{Math.floor(entry.chat.length / 2)}</>)}
           </span>
         </p>
       </div>

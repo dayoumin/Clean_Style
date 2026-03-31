@@ -9,6 +9,7 @@ import BottomSheet from '@/components/BottomSheet';
 import { cn } from '@/lib/utils';
 import { AnalyzingScreen } from '@/components/LoadingFairy';
 import { useAiChat } from '@/hooks/useAiChat';
+import { FluentEmoji } from '@/components/FluentEmoji';
 
 const SCROLL_AREA = 'flex-1 space-y-3 overflow-y-auto px-5 py-4';
 
@@ -152,7 +153,7 @@ export default function ResultContent() {
             </button>
           )}
           <div className="relative z-10">
-            <div className="mb-0.5 text-[36px]">{style.emoji}</div>
+            <div className="mb-0.5"><FluentEmoji emoji={style.emoji} size={48} /></div>
             <h1 className="mb-1 text-[24px] font-extrabold tracking-tight">{style.name}</h1>
             <p className="text-[13px] leading-relaxed text-white/80">{style.description}</p>
           </div>
@@ -230,7 +231,7 @@ export default function ResultContent() {
       )}
 
       {!isShared && showModal && (
-        <BottomSheet title="✨ AI 맞춤 조언" onClose={() => { if (!chat.aiLoading) { setShowModal(false); chat.clearInput(); } }}>
+        <BottomSheet title="AI 맞춤 조언" onClose={() => { if (!chat.aiLoading) { setShowModal(false); chat.clearInput(); } }}>
           {chat.aiLoading ? (
             <>
               <div className={SCROLL_AREA}>

@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { FluentEmoji } from '@/components/FluentEmoji';
 
 export function LoadingFairy({ message, children }: { message: string; children?: React.ReactNode }) {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center">
-      <div className="animate-bounce-soft mb-5 inline-flex h-14 w-14 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-primary-soft)] text-3xl">
-        ✨
+      <div className="animate-bounce-soft mb-5 inline-flex h-14 w-14 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-primary-soft)]">
+        <FluentEmoji emoji="✨" size={32} />
       </div>
       <p className="mb-3 text-base font-semibold text-[var(--color-text)]">
         {message}
