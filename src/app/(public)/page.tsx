@@ -4,31 +4,39 @@ import { useState } from 'react';
 import Link from 'next/link';
 import HistoryList from '@/components/HistoryList';
 
+const IC = '#9da2b8';
+const IC_FILL = '#e8e9f0';
+
 function ChipIcon({ type, className }: { type: 'clipboard' | 'target' | 'sparkles'; className?: string }) {
   if (type === 'clipboard') return (
     <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <rect x="5" y="4" width="14" height="17" rx="2.5" stroke="#4361ee" strokeWidth="1.6" fill="#eef1ff"/>
-      <rect x="8.5" y="2" width="7" height="3.5" rx="1.5" fill="#4361ee"/>
-      <line x1="8.5" y1="10.5" x2="15.5" y2="10.5" stroke="#4361ee" strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="8.5" y1="13.8" x2="13.5" y2="13.8" stroke="#4361ee" strokeWidth="1.4" strokeLinecap="round"/>
-      <line x1="8.5" y1="17.1" x2="14.5" y2="17.1" stroke="#4361ee" strokeWidth="1.4" strokeLinecap="round"/>
+      <rect x="5" y="4" width="14" height="17" rx="2.5" stroke={IC} strokeWidth="1.6" fill={IC_FILL}/>
+      <rect x="8.5" y="2" width="7" height="3.5" rx="1.5" fill={IC}/>
+      <line x1="8.5" y1="10.5" x2="15.5" y2="10.5" stroke={IC} strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="8.5" y1="13.8" x2="13.5" y2="13.8" stroke={IC} strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="8.5" y1="17.1" x2="14.5" y2="17.1" stroke={IC} strokeWidth="1.4" strokeLinecap="round"/>
     </svg>
   );
   if (type === 'target') return (
     <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9.5" stroke="#4361ee" strokeWidth="1.5" fill="#eef1ff"/>
-      <circle cx="12" cy="12" r="6" stroke="#4361ee" strokeWidth="1.5" fill="white"/>
-      <circle cx="12" cy="12" r="2.5" fill="#4361ee"/>
+      <circle cx="12" cy="12" r="9.5" stroke={IC} strokeWidth="1.5" fill={IC_FILL}/>
+      <circle cx="12" cy="12" r="6" stroke={IC} strokeWidth="1.5" fill="white"/>
+      <circle cx="12" cy="12" r="2.5" fill={IC}/>
     </svg>
   );
   return (
     <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none">
-      {/* large star - center left */}
-      <path d="M10 5L11.2 9.2L15 10L11.2 10.8L10 15L8.8 10.8L5 10L8.8 9.2Z" fill="#4361ee" fillOpacity="0.2" stroke="#4361ee" strokeWidth="1.2" strokeLinejoin="round"/>
-      {/* medium star - upper right */}
-      <path d="M18 3L18.8 5.8L21 6L18.8 6.2L18 9L17.2 6.2L15 6L17.2 5.8Z" fill="#4361ee" fillOpacity="0.35" stroke="#4361ee" strokeWidth="1" strokeLinejoin="round"/>
-      {/* small star - lower right */}
-      <path d="M16 16L16.6 18L18.5 18L16.6 18L16 20L15.4 18L13.5 18L15.4 18Z" fill="#4361ee" stroke="#4361ee" strokeWidth="0.9" strokeLinejoin="round"/>
+      <path d="M10 5L11.2 9.2L15 10L11.2 10.8L10 15L8.8 10.8L5 10L8.8 9.2Z" fill={IC} fillOpacity="0.2" stroke={IC} strokeWidth="1.2" strokeLinejoin="round"/>
+      <path d="M18 3L18.8 5.8L21 6L18.8 6.2L18 9L17.2 6.2L15 6L17.2 5.8Z" fill={IC} fillOpacity="0.35" stroke={IC} strokeWidth="1" strokeLinejoin="round"/>
+      <path d="M16 16L16.6 18L18.5 18L16.6 18L16 20L15.4 18L13.5 18L15.4 18Z" fill={IC} stroke={IC} strokeWidth="0.9" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function BadgeSparkle({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C12 2 13.5 7.5 14.5 9.5C15.5 11.5 18 12 22 12C18 12 15.5 12.5 14.5 14.5C13.5 16.5 12 22 12 22C12 22 10.5 16.5 9.5 14.5C8.5 12.5 6 12 2 12C6 12 8.5 11.5 9.5 9.5C10.5 7.5 12 2 12 2Z" fill="currentColor" fillOpacity="0.4" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
     </svg>
   );
 }
@@ -45,9 +53,9 @@ export default function HomePage() {
   const [openChip, setOpenChip] = useState<number | null>(null);
 
   return (
-    <div className="animate-fade-in flex flex-col items-center pt-[6vh]">
-      <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-primary-soft)] px-4 py-1.5 text-[13px] font-semibold text-[var(--color-primary-accent)]">
-        ✨ 3분 자기발견 테스트
+    <div className="animate-fade-in flex min-h-[80vh] flex-col items-center justify-center">
+      <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-card)] border border-[var(--color-border)] px-4 py-1.5 text-[13px] font-semibold text-[var(--color-text-secondary)]">
+        <BadgeSparkle /> 3분 자기발견 테스트
       </div>
 
       <h1 className="mb-10 text-center text-[1.75rem] font-extrabold leading-[1.25] tracking-tight text-[var(--color-text)]">
