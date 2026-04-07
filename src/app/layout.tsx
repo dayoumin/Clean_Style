@@ -12,9 +12,10 @@ export const metadata: Metadata = {
     title: "나의 청렴 스타일은?",
     description: "재미로 알아보는 청렴 스타일 자기발견 테스트",
     type: "website",
+    locale: "ko_KR",
   },
-  icons: {
-    apple: "/icons/icon-192x192.png",
+  twitter: {
+    card: "summary_large_image",
   },
   appleWebApp: {
     capable: true,
