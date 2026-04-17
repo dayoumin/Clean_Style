@@ -136,7 +136,7 @@ export default function ResultContent() {
       {analyzing && <AnalyzingScreen onDone={() => setAnalyzing(false)} />}
       <div className={analyzing ? 'hidden' : 'flex flex-col animate-fade-in'}>
       <div className="flex-1 animate-slide-up">
-        <div className="result-gradient relative z-0 mb-2 overflow-hidden rounded-[var(--radius-xl)] px-6 py-4 text-center text-white shadow-lg">
+        <div className="result-gradient relative z-0 mb-2 overflow-hidden rounded-[var(--radius-xl)] px-6 pt-12 pb-4 text-center text-white shadow-lg">
           <div className="pointer-events-none absolute -left-6 -top-6 h-28 w-28 rounded-full bg-white/5" />
           <div className="pointer-events-none absolute -bottom-4 -right-4 h-20 w-20 rounded-full bg-white/5" />
           <div className="pointer-events-none absolute right-8 top-4 h-3 w-3 rounded-full bg-white/10" />
@@ -153,7 +153,7 @@ export default function ResultContent() {
             </button>
           )}
           <div className="relative z-10">
-            <div className="mb-0.5"><FluentEmoji emoji={style.emoji} size={48} /></div>
+            <div className="mb-2 flex justify-center"><FluentEmoji emoji={style.emoji} size={56} /></div>
             <h1 className="mb-1 text-[24px] font-extrabold tracking-tight">{style.name}</h1>
             <p className="text-[13px] leading-relaxed text-white/80">{style.description}</p>
           </div>
