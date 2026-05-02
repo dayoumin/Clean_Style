@@ -7,7 +7,7 @@ export const contentType = "image/png";
 export default function AppleIcon() {
   return new ImageResponse(
     (
-      <div
+      <div role="img" aria-label="Apple icon"
         style={{
           width: 180,
           height: 180,
