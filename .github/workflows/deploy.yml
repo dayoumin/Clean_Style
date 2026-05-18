@@ -42,10 +42,14 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || (echo "CLOUDFLARE_API_TOKEN is missing" && exit 1)
           test -n "$OPENROUTER_API_KEY" || (echo "OPENROUTER_API_KEY is missing" && exit 1)
           test -n "$ADMIN_SECRET" || (echo "ADMIN_SECRET is missing" && exit 1)
+          if [ -z "$NVIDIA_API_KEY" ]; then
+            echo "NVIDIA_API_KEY is missing; nvidia: model fallback will be skipped"
+          fi
 
       - name: Build
         run: pnpm run build
@@ -54,8 +58,9 @@ jobs:
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
         run: |
-          node -e "const fs = require('node:fs'); const keys = ['OPENROUTER_API_KEY', 'ADMIN_SECRET']; const data = Object.fromEntries(keys.map((key) => [key, process.env[key] || ''])); fs.writeFileSync('.secrets.json', JSON.stringify(data));"
+          node -e "const fs = require('node:fs'); const required = ['OPENROUTER_API_KEY', 'ADMIN_SECRET']; const optional = ['NVIDIA_API_KEY']; const data = Object.fromEntries(required.map((key) => [key, process.env[key] || ''])); for (const key of optional) { if (process.env[key]) data[key] = process.env[key]; } fs.writeFileSync('.secrets.json', JSON.stringify(data));"
 
       - name: Deploy
         env:

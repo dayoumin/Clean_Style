@@ -12,5 +12,6 @@
 
 - Production AI calls depend on Cloudflare Worker runtime values:
   - `OPENROUTER_API_KEY` as a Worker secret.
+  - `NVIDIA_API_KEY` as an optional Worker secret for `nvidia:` model fallback.
   - `NEXT_PUBLIC_APP_URL=https://clean-style.ecomarin.workers.dev` as a Worker var.
 - A local `.env.local` success only proves the local key/model works. It does not prove the deployed Worker has the same secret or OpenRouter permissions.

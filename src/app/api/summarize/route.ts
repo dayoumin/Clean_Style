@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
       temperature: 0.3,
       maxTokens: 300,
       apiKey: aiEnv.OPENROUTER_API_KEY,
+      nvidiaApiKey: aiEnv.NVIDIA_API_KEY,
       appUrl: aiEnv.NEXT_PUBLIC_APP_URL,
     });
 

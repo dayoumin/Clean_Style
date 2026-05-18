@@ -30,6 +30,7 @@ Cloudflare Workers (OpenNext SSR). `main` 브랜치에 push하면 GitHub Actions
 - **URL**: `https://clean-style.ecomarin.workers.dev`
 - **설정**: `wrangler.toml` + `open-next.config.ts`
 - **GitHub Secrets**: `CLOUDFLARE_API_TOKEN`, `OPENROUTER_API_KEY`, `ADMIN_SECRET`
+- **Optional Secret**: `NVIDIA_API_KEY` (`nvidia:deepseek-ai/deepseek-v4-flash` fallback용)
 - **Worker Vars**: `NEXT_PUBLIC_APP_URL=https://clean-style.ecomarin.workers.dev` (`wrangler.toml`)
 - **배포 검증**: GitHub Actions가 secrets를 `wrangler deploy --secrets-file`로 함께 배포하고 `/api/chat` smoke test를 실행
 - **상세**: `D:\Projects\html-docs\deployment-guide.html`
