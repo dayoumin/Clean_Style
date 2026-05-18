@@ -2,8 +2,8 @@
 // 타임아웃: 10초 (non-stream), 30초 (stream)
 
 const AI_TIMEOUT_MS = 10_000;
-const PRIMARY_MODEL = 'google/gemini-3.1-flash-lite-preview';
-const FALLBACK_MODEL = 'openai/gpt-5.4-nano';
+const PRIMARY_MODEL = 'openai/gpt-5-nano';
+const FALLBACK_MODEL = 'anthropic/claude-haiku-4.5';
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const DEFAULT_APP_URL = 'https://clean-style.ecomarin.workers.dev';
 
