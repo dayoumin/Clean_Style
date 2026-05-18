@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { chatStream } from '@/lib/ai';
 import { styleTypes } from '@/data/questions';
 import { MAX_HISTORY_MESSAGES, MAX_CONTENT_LENGTH, MAX_QUESTION_LENGTH } from '@/lib/constants';
-import { QA_SYSTEM_PROMPT, QA_SYSTEM_PROMPT_CONTINUE } from '@/lib/prompts';
+import {
+  QA_SYSTEM_PROMPT,
+  QA_SYSTEM_PROMPT_CONTINUE,
+  QA_SYSTEM_PROMPT_NEUTRAL,
+  QA_SYSTEM_PROMPT_STYLE_INFO,
+} from '@/lib/prompts';
 import { sanitizeUserInput, sanitizeHistory, isValidScores, describeScores, scanAndRedactPii } from '@/lib/sanitize';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 import { getAiRuntimeEnv } from '@/lib/runtime-env';
+import { getChatResponseMode } from '@/lib/chat-intent';
 
 /** 두 ReadableStream을 순차적으로 연결 */
 function concatStreams(a: ReadableStream<Uint8Array>, b: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
@@ -86,14 +92,27 @@ export async function POST(request: NextRequest) {
     const safeHistory = sanitizeHistory(history);
     const hasHistory = safeHistory.length > 0;
     const safeSummary = typeof summary === 'string' ? sanitizeUserInput(summary.slice(0, MAX_CONTENT_LENGTH)) : '';
-    const basePrompt = (safeSummary || hasHistory) ? QA_SYSTEM_PROMPT_CONTINUE : QA_SYSTEM_PROMPT;
     const validScores = isValidScores(scores) ? scores : null;
     const isFirstTurn = !hasHistory && !safeSummary;
-    const scoreContext = (!isFirstTurn && validScores) ? `\n\n## 사용자 성향 (조언 방향 참고용, 직접 언급 금지)\n${describeScores(validScores)}` : '';
-    const systemPrompt = basePrompt + scoreContext;
     const cleanedQuestion = sanitizeUserInput(userContext);
     const piiResult = scanAndRedactPii(cleanedQuestion);
     const finalQuestion = piiResult.hasPii ? piiResult.redacted : cleanedQuestion;
+    const responseMode = getChatResponseMode(finalQuestion, hasHistory || Boolean(safeSummary));
+    const isAdviceMode = responseMode === 'advice';
+
+    let basePrompt: string;
+    if (isAdviceMode) {
+      basePrompt = (safeSummary || hasHistory) ? QA_SYSTEM_PROMPT_CONTINUE : QA_SYSTEM_PROMPT;
+    } else if (responseMode === 'style-info') {
+      basePrompt = QA_SYSTEM_PROMPT_STYLE_INFO;
+    } else {
+      basePrompt = QA_SYSTEM_PROMPT_NEUTRAL;
+    }
+
+    const scoreContext = (isAdviceMode && !isFirstTurn && validScores)
+      ? `\n\n## 사용자 성향 (조언 방향 참고용, 직접 언급 금지)\n${describeScores(validScores)}`
+      : '';
+    const systemPrompt = basePrompt + scoreContext;
 
     // 요약은 system prompt가 아닌 user 메시지에 참고 정보로 포함 (권한 승격 방지)
     const summaryPrefix = safeSummary
@@ -101,18 +120,22 @@ export async function POST(request: NextRequest) {
       : '';
 
     let userMessage: string;
-    if (isFirstTurn) {
+    if (isAdviceMode && isFirstTurn) {
       const scoreInfo = validScores
         ? `\n\n나의 성향 점수:\n${describeScores(validScores)}`
         : '';
       userMessage = `나의 청렴 스타일: ${style.name} (${style.description})${scoreInfo}\n\n질문: ${finalQuestion}`;
-    } else {
+    } else if (responseMode === 'style-info') {
+      userMessage = `나의 청렴 스타일: ${style.name} (${style.description})\n\n사용자 질문: ${finalQuestion}`;
+    } else if (isAdviceMode) {
       userMessage = `${summaryPrefix}${finalQuestion}`;
+    } else {
+      userMessage = finalQuestion;
     }
 
     const messages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
       { role: 'system', content: systemPrompt },
-      ...(hasHistory ? safeHistory.slice(-MAX_HISTORY_MESSAGES) : []),
+      ...(isAdviceMode && hasHistory ? safeHistory.slice(-MAX_HISTORY_MESSAGES) : []),
       { role: 'user', content: userMessage },
     ];
 
