@@ -1,9 +1,11 @@
-const CACHE_NAME = "clean-style-v2";
+const CACHE_NAME = "clean-style-v3";
 
 const PRECACHE_URLS = [
   "/offline.html",
   "/icons/icon-192x192.png",
   "/icons/icon-512x512.png",
+  "/icons/icon-192-maskable.png",
+  "/icons/icon-512-maskable.png",
 ];
 
 self.addEventListener("install", (event) => {
