@@ -999,12 +999,15 @@
       if (index < 0 || index >= total || index === current || transitioning) return;
       transitioning = true;
 
-      const dir = index > current ? 'exit-up' : '';
-      slides[current].classList.remove('active');
-      if (dir) slides[current].classList.add(dir);
+      const previous = current;
+      const dir = index > previous ? 'exit-up' : '';
+      const previousSlide = slides[previous];
+
+      previousSlide.classList.remove('active');
+      if (dir) previousSlide.classList.add(dir);
 
       setTimeout(() => {
-        slides[current].classList.remove(dir);
+        if (dir) previousSlide.classList.remove(dir);
         current = index;
         slides[current].classList.add('active');
         progress.style.width = ((current + 1) / total * 100) + '%';
