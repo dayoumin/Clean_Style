@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    env:
+      NEXT_PUBLIC_APP_URL: https://clean-style.ecomarin.workers.dev
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,17 +37,83 @@ jobs:
           pnpm add -D --ignore-scripts lightningcss-linux-x64-gnu
           pnpm add -D --ignore-scripts @tailwindcss/oxide-linux-x64-gnu
 
+      - name: Validate required secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || (echo "CLOUDFLARE_API_TOKEN is missing" && exit 1)
+          test -n "$OPENROUTER_API_KEY" || (echo "OPENROUTER_API_KEY is missing" && exit 1)
+          test -n "$ADMIN_SECRET" || (echo "ADMIN_SECRET is missing" && exit 1)
+
       - name: Build
         run: pnpm run build
+
+      - name: Write Workers secrets file
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+        run: |
+          node -e "const fs = require('node:fs'); const keys = ['OPENROUTER_API_KEY', 'ADMIN_SECRET']; const data = Object.fromEntries(keys.map((key) => [key, process.env[key] || ''])); fs.writeFileSync('.secrets.json', JSON.stringify(data));"
 
       - name: Deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        run: npx wrangler deploy
+        run: npx wrangler deploy --secrets-file .secrets.json
 
-      - name: Set Workers secrets
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Clean Workers secrets file
+        if: always()
+        run: rm -f .secrets.json
+
+      - name: Smoke test deployed AI chat
         run: |
-          echo "${{ secrets.OPENROUTER_API_KEY }}" | npx wrangler secret put OPENROUTER_API_KEY
-          echo "${{ secrets.ADMIN_SECRET }}" | npx wrangler secret put ADMIN_SECRET
+          node --input-type=module <<'NODE'
+          const url = `${process.env.NEXT_PUBLIC_APP_URL}/api/chat`;
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              styleKey: 'principle-transparent-independent',
+              scores: { principle: 80, transparency: 80, independence: 80 },
+              userContext: '출장을 하루면 되는데 2일로 가도 될까?',
+            }),
+          });
+
+          if (!res.ok || !res.body) {
+            throw new Error(`AI smoke HTTP ${res.status}`);
+          }
+
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          const errors = [];
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop() ?? '';
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed.startsWith('data: ')) continue;
+              const payload = trimmed.slice(6);
+              if (payload === '[DONE]') continue;
+
+              const event = JSON.parse(payload);
+              if (event.error) {
+                errors.push(`${event.error}${event.status ? `:${event.status}` : ''}`);
+              }
+              if (event.token) {
+                await reader.cancel();
+                console.log('AI smoke passed');
+                process.exit(0);
+              }
+            }
+          }
+
+          throw new Error(`AI smoke failed: ${errors.join(', ') || 'no token returned'}`);
+          NODE

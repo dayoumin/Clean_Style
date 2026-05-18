@@ -5,6 +5,7 @@ import { MAX_CONTENT_LENGTH } from '@/lib/constants';
 import { SUMMARIZE_SYSTEM_PROMPT } from '@/lib/prompts';
 import { sanitizeHistory, sanitizeUserInput } from '@/lib/sanitize';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { getAiRuntimeEnv } from '@/lib/runtime-env';
 
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
       ? `## 이전 요약\n${safeSummary}\n\n## 이후 대화\n${conversation}`
       : conversation;
 
+    const aiEnv = await getAiRuntimeEnv();
     const response = await chat({
       messages: [
         { role: 'system', content: SUMMARIZE_SYSTEM_PROMPT },
@@ -50,6 +52,8 @@ export async function POST(request: NextRequest) {
       ],
       temperature: 0.3,
       maxTokens: 300,
+      apiKey: aiEnv.OPENROUTER_API_KEY,
+      appUrl: aiEnv.NEXT_PUBLIC_APP_URL,
     });
 
     return NextResponse.json({ summary: response.content });

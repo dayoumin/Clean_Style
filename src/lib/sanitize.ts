@@ -71,3 +71,93 @@ export function describeScores(scores: { principle: number; transparency: number
     `독립↔협력(${scores.independence}): ${axis(scores.independence, '독립', '협력')}`,
   ].join('\n');
 }
+
+// ---------------------------------------------------------------------------
+// PII 탐지 및 마스킹
+// ---------------------------------------------------------------------------
+
+/**
+ * 신용카드 Luhn 체크섬 검증.
+ * 구분자(-, 공백)를 제거한 순수 숫자열을 받는다.
+ */
+function luhnCheck(digits: string): boolean {
+  let sum = 0;
+  let alt = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let n = Number(digits[i]);
+    if (alt) {
+      n *= 2;
+      if (n > 9) n -= 9;
+    }
+    sum += n;
+    alt = !alt;
+  }
+  return sum % 10 === 0;
+}
+
+/** PII 패턴 정의 — 탐지 순서가 우선순위 */
+const PII_PATTERNS: {
+  type: PiiType;
+  regex: RegExp;
+  validate?: (match: string) => boolean;
+}[] = [
+  {
+    type: '주민등록번호',
+    // 6자리 생년월일 + 구분자 + 1-4로 시작하는 7자리
+    regex: /\d{6}[-–]\s?[1-4]\d{6}/g,
+  },
+  {
+    type: '신용카드번호',
+    // 4자리-4자리-4자리-4자리 (구분자: 하이픈, 공백)
+    regex: /\d{4}[-– ]\d{4}[-– ]\d{4}[-– ]\d{4}/g,
+    validate: (match) => luhnCheck(match.replace(/[-– ]/g, '')),
+  },
+  {
+    type: '전화번호',
+    // 한국 휴대폰: 010/011/016/017/018/019 + 3~4자리 + 4자리
+    regex: /01[016789][-– ]?\d{3,4}[-– ]?\d{4}/g,
+  },
+  {
+    type: '이메일',
+    regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+  },
+  {
+    type: '계좌번호',
+    // 한국 은행 계좌: 3~6자리-2~6자리-4~8자리 (최소 10자리 숫자)
+    regex: /\d{3,6}[-–]\d{2,6}[-–]\d{4,8}/g,
+    validate: (match) => match.replace(/[-–]/g, '').length >= 10,
+  },
+];
+
+export type PiiType = '주민등록번호' | '신용카드번호' | '전화번호' | '이메일' | '계좌번호';
+
+export interface PiiScanResult {
+  /** PII가 하나라도 감지되었는지 */
+  hasPii: boolean;
+  /** 감지된 PII 유형 목록 (중복 없음) */
+  detected: PiiType[];
+  /** PII가 마스킹된 텍스트 */
+  redacted: string;
+}
+
+/** 자유 텍스트에서 고위험 PII를 탐지하고 마스킹한다. */
+export function scanAndRedactPii(input: string): PiiScanResult {
+  const detected = new Set<PiiType>();
+  let redacted = input;
+
+  for (const { type, regex, validate } of PII_PATTERNS) {
+    // 각 패턴의 regex는 g 플래그 — 매번 lastIndex를 리셋해야 안전
+    const freshRegex = new RegExp(regex.source, regex.flags);
+    redacted = redacted.replace(freshRegex, (match) => {
+      if (validate && !validate(match)) return match;
+      detected.add(type);
+      return `[${type}]`;
+    });
+  }
+
+  return {
+    hasPii: detected.size > 0,
+    detected: [...detected],
+    redacted,
+  };
+}

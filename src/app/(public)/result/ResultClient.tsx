@@ -46,6 +46,7 @@ export default function ResultContent() {
   const [showModal, setShowModal] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'default' | 'warning'>('default');
   const toastTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [activeTab, setActiveTab] = useState<'strength' | 'caution' | 'tip'>('strength');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -118,11 +119,12 @@ export default function ResultContent() {
     return url.toString();
   };
 
-  const showToast = (msg: string) => {
+  const showToast = (msg: string, type: 'default' | 'warning' = 'default') => {
     clearTimeout(toastTimerRef.current);
     setToastMessage(msg);
+    setToastType(type);
     setToastVisible(true);
-    toastTimerRef.current = setTimeout(() => setToastVisible(false), 2000);
+    toastTimerRef.current = setTimeout(() => setToastVisible(false), type === 'warning' ? 4000 : 2000);
   };
 
   const handleCopyLink = () => {
@@ -130,6 +132,15 @@ export default function ResultContent() {
       showToast('링크가 복사되었어요');
     }).catch(() => {});
   };
+
+  // PII 경고 감지 시 토스트 표시
+  useEffect(() => {
+    if (chat.piiWarning && chat.piiWarning.length > 0) {
+      const types = chat.piiWarning.join(', ');
+      showToast(`⚠️ 개인정보(${types})가 감지되어 자동으로 가려졌습니다.`, 'warning');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chat.piiWarning]);
 
   return (
     <>
@@ -225,7 +236,11 @@ export default function ResultContent() {
       )}
 
       {toastVisible && (
-        <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2 animate-slide-up rounded-[var(--radius-md)] bg-[var(--color-primary)] px-5 py-2.5 text-[13px] font-semibold text-white shadow-lg">
+        <div className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 animate-slide-up rounded-[var(--radius-md)] px-5 py-2.5 text-[13px] font-semibold shadow-lg ${
+          toastType === 'warning'
+            ? 'bg-amber-600 text-white'
+            : 'bg-[var(--color-primary)] text-white'
+        }`}>
           {toastMessage}
         </div>
       )}

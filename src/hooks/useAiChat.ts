@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { MAX_HISTORY_MESSAGES, SUMMARIZE_AT_MESSAGES } from '@/lib/constants';
 import { getHistoryEntry, updateChat, clearChat, type ChatMessage } from '@/lib/history';
+import { compressHistoryToSummary } from '@/lib/compress-history';
 
 interface UseAiChatOptions {
   styleKey: string;
@@ -14,6 +15,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAnswer, setAiAnswer] = useState('');
   const [aiErrorType, setAiErrorType] = useState<'network' | 'rate-limit' | 'server' | null>(null);
+  const [piiWarning, setPiiWarning] = useState<string[] | null>(null);
   const [userContext, setUserContext] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [chatSummary, setChatSummary] = useState('');
@@ -63,11 +65,12 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     summarizeAbortRef.current = controller;
     try {
       const currentSummary = chatSummaryRef.current;
+      const messagesToSummarize = currentSummary ? messages.slice(-SUMMARIZE_AT_MESSAGES) : messages;
       const res = await fetch('/api/summarize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          history: currentSummary ? messages.slice(-SUMMARIZE_AT_MESSAGES) : messages,
+          history: messagesToSummarize,
           summary: currentSummary || undefined,
           styleKey,
         }),
@@ -77,9 +80,19 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
         const data = await res.json();
         setChatSummary(data.summary);
         setSummarizedUpTo(messages.length);
+      } else {
+        // LLM 요약 실패 → 문자열 축약 fallback
+        setChatSummary(compressHistoryToSummary(messagesToSummarize, currentSummary || undefined));
+        setSummarizedUpTo(messages.length);
       }
     } catch {
-      // 요약 실패/취소 시 무시
+      // 네트워크 실패/취소 → 문자열 축약 fallback (취소 제외)
+      if (!controller.signal.aborted) {
+        const currentSummary = chatSummaryRef.current;
+        const messagesToSummarize = currentSummary ? messages.slice(-SUMMARIZE_AT_MESSAGES) : messages;
+        setChatSummary(compressHistoryToSummary(messagesToSummarize, currentSummary || undefined));
+        setSummarizedUpTo(messages.length);
+      }
     } finally {
       summarizingRef.current = false;
     }
@@ -132,6 +145,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     abortRef.current?.abort();
     setAiLoading(true);
     setAiErrorType(null);
+    setPiiWarning(null);
     setAiAnswer('');
 
     const controller = new AbortController();
@@ -189,6 +203,10 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
           let parsed;
           try { parsed = JSON.parse(payload); } catch { continue; }
           if (parsed.error) throw new Error(parsed.error);
+          if (parsed.pii_warning) {
+            setPiiWarning(parsed.pii_warning);
+            continue;
+          }
           if (parsed.token) {
             fullAnswer += parsed.token;
             const now = performance.now();
@@ -211,14 +229,18 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
       const trimCount = raw.length - MAX_HISTORY_MESSAGES;
       const newHistory = trimCount > 0 ? raw.slice(trimCount) : raw;
 
+      const newSummarizedUpTo = (trimCount > 0 && currentSummarizedUpTo > 0)
+        ? Math.max(0, currentSummarizedUpTo - trimCount)
+        : currentSummarizedUpTo;
+
       if (trimCount > 0 && currentSummarizedUpTo > 0) {
-        setSummarizedUpTo(Math.max(0, currentSummarizedUpTo - trimCount));
+        setSummarizedUpTo(newSummarizedUpTo);
       }
 
       setChatHistory(newHistory);
 
-      const turnCount = newHistory.length / 2;
-      if (turnCount >= 4 && turnCount % 4 === 0) {
+      const unsummarized = newHistory.length - newSummarizedUpTo;
+      if (unsummarized >= SUMMARIZE_AT_MESSAGES && !summarizingRef.current) {
         triggerSummarize(newHistory);
       }
     } catch (err) {
@@ -257,7 +279,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
   }, []);
 
   return {
-    aiLoading, aiAnswer, aiErrorType,
+    aiLoading, aiAnswer, aiErrorType, piiWarning,
     userContext, setUserContext,
     chatHistory, chatMaxReached, chatLastTurn,
     scrollAnchorRef,

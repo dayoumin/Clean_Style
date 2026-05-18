@@ -5,6 +5,7 @@ const AI_TIMEOUT_MS = 10_000;
 const PRIMARY_MODEL = 'google/gemini-3.1-flash-lite-preview';
 const FALLBACK_MODEL = 'openai/gpt-5.4-nano';
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const DEFAULT_APP_URL = 'https://clean-style.ecomarin.workers.dev';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -15,6 +16,8 @@ interface ChatOptions {
   messages: ChatMessage[];
   temperature?: number;
   maxTokens?: number;
+  apiKey?: string;
+  appUrl?: string;
 }
 
 interface ChatResponse {
@@ -22,17 +25,25 @@ interface ChatResponse {
   provider: string;
 }
 
+interface ServiceErrorEvent {
+  error: 'AI_SERVICE_ERROR';
+  status?: number;
+}
+
 function buildRequestInit(
   apiKey: string,
   options: ChatOptions,
   stream = false,
 ): Omit<RequestInit, 'signal'> {
+  const appUrl = options.appUrl?.trim() || process.env.NEXT_PUBLIC_APP_URL || DEFAULT_APP_URL;
+
   return {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
-      'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+      'HTTP-Referer': appUrl,
+      'X-Title': 'Clean Style',
     },
     body: JSON.stringify({
       model: PRIMARY_MODEL,
@@ -45,9 +56,23 @@ function buildRequestInit(
   };
 }
 
-export async function chat(options: ChatOptions): Promise<ChatResponse> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+function getApiKey(options: ChatOptions): string {
+  const apiKey = options.apiKey?.trim() || process.env.OPENROUTER_API_KEY;
   if (!apiKey) throw new Error('OPENROUTER_API_KEY not set');
+  return apiKey;
+}
+
+async function readErrorText(res: Response): Promise<string> {
+  const text = await res.text().catch(() => 'unknown');
+  return text.replace(/\s+/g, ' ').trim().slice(0, 500) || 'empty error body';
+}
+
+function serviceErrorEvent(status?: number): ServiceErrorEvent {
+  return status ? { error: 'AI_SERVICE_ERROR', status } : { error: 'AI_SERVICE_ERROR' };
+}
+
+export async function chat(options: ChatOptions): Promise<ChatResponse> {
+  const apiKey = getApiKey(options);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
@@ -59,8 +84,9 @@ export async function chat(options: ChatOptions): Promise<ChatResponse> {
     });
 
     if (!res.ok) {
-      const errorText = await res.text().catch(() => 'unknown');
-      throw new Error(`API error (${res.status}): ${errorText.slice(0, 200)}`);
+      const errorText = await readErrorText(res);
+      console.error('OpenRouter API error:', res.status, errorText);
+      throw new Error(`API error (${res.status}): ${errorText}`);
     }
 
     const data = await res.json();
@@ -75,16 +101,19 @@ export async function chat(options: ChatOptions): Promise<ChatResponse> {
 
 /** 스트리밍 호출 — SSE ReadableStream 반환 */
 export function chatStream(options: ChatOptions): ReadableStream {
-  const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) throw new Error('OPENROUTER_API_KEY not set');
+  const apiKey = getApiKey(options);
 
   const encoder = new TextEncoder();
 
   const abortCtrl = new AbortController();
+  let timedOut = false;
 
   return new ReadableStream({
     async start(ctrl) {
-      const timeout = setTimeout(() => abortCtrl.abort(), 30_000);
+      const timeout = setTimeout(() => {
+        timedOut = true;
+        abortCtrl.abort();
+      }, 30_000);
 
       try {
         const res = await fetch(OPENROUTER_URL, {
@@ -93,7 +122,9 @@ export function chatStream(options: ChatOptions): ReadableStream {
         });
 
         if (!res.ok || !res.body) {
-          ctrl.enqueue(encoder.encode(`data: ${JSON.stringify({ error: `API ${res.status}` })}\n\n`));
+          const errorText = await readErrorText(res);
+          console.error('OpenRouter stream error:', res.status, errorText);
+          ctrl.enqueue(encoder.encode(`data: ${JSON.stringify(serviceErrorEvent(res.status))}\n\n`));
           ctrl.close();
           return;
         }
@@ -120,7 +151,8 @@ export function chatStream(options: ChatOptions): ReadableStream {
               const chunk = JSON.parse(payload);
               if (chunk.error) {
                 const errMsg = typeof chunk.error === 'string' ? chunk.error : chunk.error.message ?? 'provider error';
-                ctrl.enqueue(encoder.encode(`data: ${JSON.stringify({ error: errMsg })}\n\n`));
+                console.error('OpenRouter stream chunk error:', errMsg);
+                ctrl.enqueue(encoder.encode(`data: ${JSON.stringify(serviceErrorEvent())}\n\n`));
                 ctrl.close();
                 return;
               }
@@ -135,10 +167,11 @@ export function chatStream(options: ChatOptions): ReadableStream {
         ctrl.enqueue(encoder.encode('data: [DONE]\n\n'));
         ctrl.close();
       } catch (err) {
-        if (abortCtrl.signal.aborted) { try { ctrl.close(); } catch { /* already closed */ } return; }
+        if (abortCtrl.signal.aborted && !timedOut) { try { ctrl.close(); } catch { /* already closed */ } return; }
         const msg = err instanceof Error ? err.message : 'stream error';
+        console.error('OpenRouter stream request failed:', msg);
         try {
-          ctrl.enqueue(encoder.encode(`data: ${JSON.stringify({ error: msg })}\n\n`));
+          ctrl.enqueue(encoder.encode(`data: ${JSON.stringify(serviceErrorEvent())}\n\n`));
           ctrl.enqueue(encoder.encode('data: [DONE]\n\n'));
           ctrl.close();
         } catch { /* stream already closed */ }

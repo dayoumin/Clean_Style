@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sanitizeUserInput, sanitizeHistory, isValidScores, describeScores } from '@/lib/sanitize';
+import { sanitizeUserInput, sanitizeHistory, isValidScores, describeScores, scanAndRedactPii } from '@/lib/sanitize';
 
 describe('sanitizeUserInput', () => {
   it('backtick 제거', () => {
@@ -105,5 +105,105 @@ describe('describeScores', () => {
     expect(result).toContain('원칙 성향 뚜렷');
     expect(result).toContain('신중 성향 약간');
     expect(result).toContain('균형');
+  });
+});
+
+describe('scanAndRedactPii', () => {
+  // --- 주민등록번호 ---
+  it('주민등록번호 탐지', () => {
+    const result = scanAndRedactPii('제 주민번호는 901231-1234567입니다');
+    expect(result.hasPii).toBe(true);
+    expect(result.detected).toContain('주민등록번호');
+    expect(result.redacted).toBe('제 주민번호는 [주민등록번호]입니다');
+  });
+
+  it('주민등록번호 — en-dash 구분자', () => {
+    const result = scanAndRedactPii('번호: 850101–2345678');
+    expect(result.detected).toContain('주민등록번호');
+  });
+
+  it('주민등록번호 — 뒷자리 5-8 시작은 무시', () => {
+    const result = scanAndRedactPii('코드: 123456-5678901');
+    expect(result.detected).not.toContain('주민등록번호');
+  });
+
+  // --- 신용카드 ---
+  it('신용카드번호 탐지 (Luhn 통과)', () => {
+    // 4111-1111-1111-1111 은 Luhn 통과하는 테스트 카드번호
+    const result = scanAndRedactPii('카드: 4111-1111-1111-1111');
+    expect(result.hasPii).toBe(true);
+    expect(result.detected).toContain('신용카드번호');
+    expect(result.redacted).toContain('[신용카드번호]');
+  });
+
+  it('신용카드번호 — Luhn 실패 시 무시', () => {
+    const result = scanAndRedactPii('번호: 1234-5678-9012-3456');
+    expect(result.detected).not.toContain('신용카드번호');
+  });
+
+  // --- 전화번호 ---
+  it('전화번호 탐지 — 하이픈 있음', () => {
+    const result = scanAndRedactPii('연락처: 010-1234-5678');
+    expect(result.hasPii).toBe(true);
+    expect(result.detected).toContain('전화번호');
+    expect(result.redacted).toBe('연락처: [전화번호]');
+  });
+
+  it('전화번호 탐지 — 하이픈 없음', () => {
+    const result = scanAndRedactPii('전화 01012345678로 연락주세요');
+    expect(result.detected).toContain('전화번호');
+  });
+
+  it('전화번호 탐지 — 011 번호', () => {
+    const result = scanAndRedactPii('옛날번호 011-234-5678');
+    expect(result.detected).toContain('전화번호');
+  });
+
+  // --- 이메일 ---
+  it('이메일 탐지', () => {
+    const result = scanAndRedactPii('메일은 test@example.com 입니다');
+    expect(result.hasPii).toBe(true);
+    expect(result.detected).toContain('이메일');
+    expect(result.redacted).toBe('메일은 [이메일] 입니다');
+  });
+
+  // --- 계좌번호 ---
+  it('계좌번호 탐지', () => {
+    const result = scanAndRedactPii('입금 계좌: 110-123-456789');
+    expect(result.hasPii).toBe(true);
+    expect(result.detected).toContain('계좌번호');
+  });
+
+  it('계좌번호 — 숫자 10자리 미만은 무시', () => {
+    const result = scanAndRedactPii('코드: 12-34-5678');
+    expect(result.detected).not.toContain('계좌번호');
+  });
+
+  // --- 복합 ---
+  it('여러 PII 동시 탐지', () => {
+    const input = '전화 010-9999-8888, 메일 a@b.com, 주민 900101-1234567';
+    const result = scanAndRedactPii(input);
+    expect(result.hasPii).toBe(true);
+    expect(result.detected).toContain('전화번호');
+    expect(result.detected).toContain('이메일');
+    expect(result.detected).toContain('주민등록번호');
+    expect(result.redacted).not.toContain('010-9999-8888');
+    expect(result.redacted).not.toContain('a@b.com');
+    expect(result.redacted).not.toContain('900101-1234567');
+  });
+
+  // --- PII 없는 정상 입력 ---
+  it('PII 없는 일반 텍스트 — 변경 없음', () => {
+    const input = '청렴 교육을 받았는데 업무 처리 기준이 궁금합니다';
+    const result = scanAndRedactPii(input);
+    expect(result.hasPii).toBe(false);
+    expect(result.detected).toHaveLength(0);
+    expect(result.redacted).toBe(input);
+  });
+
+  it('숫자가 포함된 일반 텍스트 — 오탐 없음', () => {
+    const input = '2024년 예산 1000만원으로 3개 사업을 진행합니다';
+    const result = scanAndRedactPii(input);
+    expect(result.hasPii).toBe(false);
   });
 });

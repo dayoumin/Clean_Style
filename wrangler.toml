@@ -2,7 +2,13 @@
 main = ".open-next/worker.js"
 name = "clean-style"
 compatibility_date = "2026-03-20"
-compatibility_flags = ["nodejs_compat"]
+compatibility_flags = ["nodejs_compat", "nodejs_compat_populate_process_env"]
+
+[vars]
+NEXT_PUBLIC_APP_URL = "https://clean-style.ecomarin.workers.dev"
+
+[secrets]
+required = ["OPENROUTER_API_KEY", "ADMIN_SECRET"]
 
 [assets]
 directory = ".open-next/assets"
