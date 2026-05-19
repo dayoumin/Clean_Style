@@ -4,12 +4,21 @@ import { styleTypes } from '@/data/questions';
 import { MAX_CONTENT_LENGTH } from '@/lib/constants';
 import { SUMMARIZE_SYSTEM_PROMPT } from '@/lib/prompts';
 import { sanitizeHistory, sanitizeUserInput } from '@/lib/sanitize';
-import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { checkScopedRateLimit } from '@/lib/rate-limit';
 import { getAiRuntimeEnv } from '@/lib/runtime-env';
 
+const SUMMARIZE_CLIENT_LIMIT = 20;
+const SUMMARIZE_IP_LIMIT = 200;
+const SUMMARIZE_WINDOW_MS = 60_000;
+
 export async function POST(request: NextRequest) {
-  const ip = getClientIp(request);
-  const rateCheck = checkRateLimit(ip);
+  const rateCheck = checkScopedRateLimit({
+    scope: 'summarize',
+    request,
+    clientLimit: SUMMARIZE_CLIENT_LIMIT,
+    ipLimit: SUMMARIZE_IP_LIMIT,
+    windowMs: SUMMARIZE_WINDOW_MS,
+  });
   if (!rateCheck.allowed) {
     return NextResponse.json(
       { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },

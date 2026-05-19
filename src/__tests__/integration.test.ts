@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { CLIENT_ID_HEADER } from '@/lib/constants';
 import { sanitizeUserInput, sanitizeHistory, isValidScores } from '@/lib/sanitize';
-import { checkRateLimit, getClientIp, _resetStore } from '@/lib/rate-limit';
+import { checkRateLimit, checkScopedRateLimit, getClientIp, _resetStore } from '@/lib/rate-limit';
 import { buildResultUrl } from '@/lib/utils';
 import { calculateResult, questions } from '@/data/questions';
 
@@ -141,19 +142,42 @@ describe('history sanitize', () => {
 describe('rate limiter 시뮬레이션', () => {
   beforeEach(() => _resetStore());
 
-  it('정상 사용 패턴: 채팅 10턴 (질문 10 + 요약 2) → 통과', () => {
-    // 실제 사용: 질문 10회 + 4턴마다 요약 2회 = 12 요청/세션
-    for (let i = 0; i < 12; i++) {
-      const result = checkRateLimit('normal-user', 20, 60_000);
+  function scopedRequest(ip: string, clientId: string) {
+    return new Request('http://localhost', {
+      headers: {
+        'cf-connecting-ip': ip,
+        [CLIENT_ID_HEADER]: clientId,
+      },
+    });
+  }
+
+  it('정상 사용 패턴: 채팅 질문 5회/분까지 통과', () => {
+    for (let i = 0; i < 5; i++) {
+      const result = checkScopedRateLimit({
+        scope: 'chat',
+        request: scopedRequest('1.1.1.1', 'client-normal-user'),
+        clientLimit: 5,
+        ipLimit: 200,
+      });
       expect(result.allowed).toBe(true);
     }
   });
 
-  it('abuse 패턴: 30회 연속 요청 → 21번째부터 차단', () => {
-    for (let i = 0; i < 20; i++) {
-      expect(checkRateLimit('abuser', 20, 60_000).allowed).toBe(true);
+  it('abuse 패턴: 채팅 6회 연속 요청 → 6번째부터 차단', () => {
+    for (let i = 0; i < 5; i++) {
+      expect(checkScopedRateLimit({
+        scope: 'chat',
+        request: scopedRequest('2.2.2.2', 'client-abuser-user'),
+        clientLimit: 5,
+        ipLimit: 200,
+      }).allowed).toBe(true);
     }
-    const blocked = checkRateLimit('abuser', 20, 60_000);
+    const blocked = checkScopedRateLimit({
+      scope: 'chat',
+      request: scopedRequest('2.2.2.2', 'client-abuser-user'),
+      clientLimit: 5,
+      ipLimit: 200,
+    });
     expect(blocked.allowed).toBe(false);
     expect(blocked.retryAfter).toBeGreaterThan(0);
     expect(blocked.retryAfter).toBeLessThanOrEqual(60);

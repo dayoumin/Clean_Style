@@ -17,11 +17,18 @@ pnpm install
 
 cp .env.local.example .env.local
 # .env.local에 OPENROUTER_API_KEY 입력
+# NVIDIA DeepSeek fallback을 로컬에서 테스트할 때만 NVIDIA_API_KEY도 입력
 
 pnpm dev
 ```
 
 http://localhost:3000 에서 확인
+
+### 환경변수 기준
+
+- 로컬 개발: `.env.local`만 사람이 직접 관리
+- 운영 배포: GitHub Secrets → GitHub Actions → Cloudflare Worker secrets
+- `.dev.vars`: 이 프로젝트의 기본 env 파일로 쓰지 않음. `wrangler dev` 같은 Cloudflare 로컬 런타임을 명시적으로 테스트할 때만 `.env.local` 값을 임시로 맞춰 사용
 
 ## 배포
 

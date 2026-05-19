@@ -9,9 +9,13 @@ import {
   QA_SYSTEM_PROMPT_STYLE_INFO,
 } from '@/lib/prompts';
 import { sanitizeUserInput, sanitizeHistory, isValidScores, describeScores, scanAndRedactPii } from '@/lib/sanitize';
-import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { checkScopedRateLimit } from '@/lib/rate-limit';
 import { getAiRuntimeEnv } from '@/lib/runtime-env';
 import { getChatResponseMode } from '@/lib/chat-intent';
+
+const CHAT_CLIENT_LIMIT = 5;
+const CHAT_IP_LIMIT = 200;
+const CHAT_WINDOW_MS = 60_000;
 
 /** 두 ReadableStream을 순차적으로 연결 */
 function concatStreams(a: ReadableStream<Uint8Array>, b: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
@@ -51,11 +55,24 @@ function concatStreams(a: ReadableStream<Uint8Array>, b: ReadableStream<Uint8Arr
 }
 
 export async function POST(request: NextRequest) {
-  const ip = getClientIp(request);
-  const rateCheck = checkRateLimit(ip);
+  const rateCheck = checkScopedRateLimit({
+    scope: 'chat',
+    request,
+    clientLimit: CHAT_CLIENT_LIMIT,
+    ipLimit: CHAT_IP_LIMIT,
+    windowMs: CHAT_WINDOW_MS,
+  });
   if (!rateCheck.allowed) {
+    const message = rateCheck.limitedBy === 'ip'
+      ? '같은 네트워크에서 AI 요청이 많아요. 잠시 후 다시 시도해주세요.'
+      : 'AI 질문은 1분에 5번까지 가능해요. 잠시 후 다시 시도해주세요.';
+
     return NextResponse.json(
-      { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },
+      {
+        error: message,
+        limitedBy: rateCheck.limitedBy,
+        retryAfter: rateCheck.retryAfter,
+      },
       { status: 429, headers: { 'Retry-After': String(rateCheck.retryAfter) } },
     );
   }

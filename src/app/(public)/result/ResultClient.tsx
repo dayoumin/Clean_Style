@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { AnalyzingScreen } from '@/components/LoadingFairy';
 import { useAiChat } from '@/hooks/useAiChat';
 import { FluentEmoji } from '@/components/FluentEmoji';
+import { getClientIdHeader } from '@/lib/client-id';
 
 const SCROLL_AREA = 'flex-1 space-y-3 overflow-y-auto px-5 py-4';
 
@@ -82,7 +83,7 @@ export default function ResultContent() {
       sessionStorage.removeItem(TEST_REFERRER_KEY);
       fetch('/api/results', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getClientIdHeader() },
         body: JSON.stringify({ answers, durationSec, referrer }),
         keepalive: true,
       }).catch(() => {});
@@ -344,10 +345,11 @@ export default function ResultContent() {
                   <div className="flex items-center gap-2">
                     <p className="flex-1 text-[13px] text-red-500">
                       {chat.aiErrorType === 'network' && '인터넷 연결을 확인해주세요.'}
-                      {chat.aiErrorType === 'rate-limit' && '요청이 너무 많아요. 잠시 후 다시 시도해주세요.'}
+                      {chat.aiErrorType === 'rate-limit' && 'AI 질문은 1분에 5번까지 가능해요. 잠시 후 다시 시도해주세요.'}
+                      {chat.aiErrorType === 'shared-rate-limit' && '같은 네트워크에서 AI 요청이 많아요. 잠시 후 다시 시도해주세요.'}
                       {chat.aiErrorType === 'server' && 'AI 서비스에 일시적인 문제가 생겼어요.'}
                     </p>
-                    {chat.aiErrorType !== 'rate-limit' && (
+                    {chat.aiErrorType !== 'rate-limit' && chat.aiErrorType !== 'shared-rate-limit' && (
                       <button
                         onClick={chat.fetchAnswer}
                         className="shrink-0 rounded-[var(--radius-md)] border border-[var(--color-border)] px-3 py-1.5 text-[12px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"

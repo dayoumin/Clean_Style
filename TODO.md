@@ -14,20 +14,20 @@
 | 계층 | 방법 | 대상 | 상태 |
 |------|------|------|------|
 | 인프라 | Cloudflare WAF / DDoS 방어 | 전체 트래픽 | 자동 적용 (CF 뒤에 배포) |
-| 앱 | In-memory rate-limit (IP별) | `/api/chat` 20req/60s | 적용 |
-| 앱 | In-memory rate-limit (IP별) | `/api/summarize` 20req/60s | 적용 |
-| 앱 | In-memory rate-limit (IP별) | `/api/results` 5req/60s | 적용 |
+| 앱 | In-memory rate-limit (clientId+IP별, API별 카운터) | `/api/chat` 브라우저 5req/60s + IP 200req/60s | 적용 |
+| 앱 | In-memory rate-limit (clientId+IP별, API별 카운터) | `/api/summarize` 브라우저 20req/60s + IP 200req/60s | 적용 |
+| 앱 | In-memory rate-limit (clientId+IP별, API별 카운터) | `/api/results` 브라우저 5req/60s + IP 200req/60s | 적용 |
 
 ### 악의적 호출 시나리오와 대응
 
 **시나리오 1: curl 등으로 `/api/chat` 반복 호출**
 - 위험: OpenRouter API 크레딧 소모
-- 현재 대응: IP별 60초당 20회 제한 + 429 응답 + Retry-After 헤더
+- 현재 대응: 브라우저별 60초당 5회 제한 + IP 전체 60초당 200회 제한 + 429 응답 + Retry-After 헤더
 - API 키는 서버 사이드에서만 사용 → 클라이언트에 노출 안 됨
 
 **시나리오 2: `/api/results` 반복 호출로 DB 쓰기 폭주**
 - 위험: D1 쓰기 비용 증가, 통계 오염
-- 현재 대응: IP별 60초당 5회 제한 (정상 사용: 테스트 완료 시 1회)
+- 현재 대응: 브라우저별 60초당 5회 제한 + IP 전체 60초당 200회 제한 (정상 사용: 테스트 완료 시 1회)
 
 **시나리오 3: IP 우회 (VPN/프록시) 대량 호출**
 - 현재 대응 없음 (in-memory rate-limit은 IP 기반)
@@ -40,6 +40,21 @@
 - **비용 관점**: 현재 트래픽 규모에서는 in-memory rate-limit으로 충분. 기관 확대 시 접속 코드(아래 1단계) 병행 권장
 
 ## 나중에 할 것
+
+### AI 모델 운영 헬스체크
+- [ ] BioHub `.dev.vars`에 있는 `NVIDIA_API_KEY`를 Clean_style GitHub Secrets에 별도 추가
+- [ ] NVIDIA 키 추가 후 `nvidia:deepseek-ai/deepseek-v4-flash` 단독 smoke test로 실제 토큰 반환 확인
+- [ ] Gemini, Grok, NVIDIA DeepSeek 각각을 강제로 호출하는 provider별 smoke test 추가
+- [ ] GitHub Actions scheduled workflow 또는 Cloudflare Cron Trigger로 주기적 AI smoke test 구성
+- [ ] 실패 시 알림 경로 지정 (GitHub Actions 실패 알림, 이메일, Slack 등)
+- 참고: 2026-05-18 확인 기준 BioHub `.dev.vars`에는 `NVIDIA_API_KEY`가 있지만, Clean_style `.env.local`, 현재 프로세스 env, GitHub repo secrets, 최종 Worker 배포 바인딩에는 없어 NVIDIA DeepSeek fallback은 운영에서 건너뛰어졌음
+
+### Rate limit 장기 개선
+- [ ] 엄격한 사용자별 제한이 필요해지면 Cloudflare KV, Durable Object, D1 중 하나로 rate limit 카운터 공유 저장소 도입 검토
+- [ ] 공개 트래픽 증가 전 Cloudflare WAF Rate Limiting Rules 도입 검토
+- [ ] 기관 단체 사용 전 IP 전체 한도(`200req/60s`)가 충분한지 실제 교육 규모 기준으로 재점검
+- [ ] AI 제공사 쿼터/비용 한도 초과 시 사용자 안내 문구와 관리자 알림 경로 추가
+- [ ] 기관 확대 시 접속 코드 또는 기관별 quota로 AI 호출량 관리
 
 ### PWA 지원
 - [ ] favicon 추가 (탭 구분용)

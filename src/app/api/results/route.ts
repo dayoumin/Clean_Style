@@ -2,16 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { questions, calculateResult, computeSixAxisScores } from '@/data/questions';
 import { detectDeviceType, normalizeReferrer } from '@/lib/device';
-import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
+import { checkScopedRateLimit } from '@/lib/rate-limit';
 import type { D1Database } from '@cloudflare/workers-types';
 
 // 결과 저장은 테스트 완료 시 1회만 호출되므로 넉넉하게 설정
-const RESULTS_LIMIT = 5;
+const RESULTS_CLIENT_LIMIT = 5;
+const RESULTS_IP_LIMIT = 200;
 const RESULTS_WINDOW_MS = 60_000;
 
 export async function POST(request: NextRequest) {
-  const ip = getClientIp(request);
-  const rateCheck = checkRateLimit(ip, RESULTS_LIMIT, RESULTS_WINDOW_MS);
+  const rateCheck = checkScopedRateLimit({
+    scope: 'results',
+    request,
+    clientLimit: RESULTS_CLIENT_LIMIT,
+    ipLimit: RESULTS_IP_LIMIT,
+    windowMs: RESULTS_WINDOW_MS,
+  });
   if (!rateCheck.allowed) {
     return NextResponse.json(
       { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' },

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { MAX_HISTORY_MESSAGES, SUMMARIZE_AT_MESSAGES } from '@/lib/constants';
 import { getHistoryEntry, updateChat, clearChat, type ChatMessage } from '@/lib/history';
 import { compressHistoryToSummary } from '@/lib/compress-history';
+import { getClientIdHeader } from '@/lib/client-id';
 
 interface UseAiChatOptions {
   styleKey: string;
@@ -14,7 +15,7 @@ interface UseAiChatOptions {
 export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiAnswer, setAiAnswer] = useState('');
-  const [aiErrorType, setAiErrorType] = useState<'network' | 'rate-limit' | 'server' | null>(null);
+  const [aiErrorType, setAiErrorType] = useState<'network' | 'rate-limit' | 'shared-rate-limit' | 'server' | null>(null);
   const [piiWarning, setPiiWarning] = useState<string[] | null>(null);
   const [userContext, setUserContext] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
@@ -68,7 +69,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
       const messagesToSummarize = currentSummary ? messages.slice(-SUMMARIZE_AT_MESSAGES) : messages;
       const res = await fetch('/api/summarize', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getClientIdHeader() },
         body: JSON.stringify({
           history: messagesToSummarize,
           summary: currentSummary || undefined,
@@ -163,7 +164,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
 
       const res = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getClientIdHeader() },
         body: JSON.stringify({
           styleKey, scores,
           userContext: question,
@@ -173,7 +174,10 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
         signal: controller.signal,
       });
 
-      if (res.status === 429) throw new Error('RATE_LIMIT');
+      if (res.status === 429) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.limitedBy === 'ip' ? 'SHARED_RATE_LIMIT' : 'RATE_LIMIT');
+      }
       if (!res.ok || !res.body) {
         const body = await res.json().catch(() => ({}));
         console.error('Chat API error:', res.status, body.detail ?? body.error);
@@ -250,6 +254,8 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
         setAiErrorType('network');
       } else if (err instanceof Error && err.message === 'RATE_LIMIT') {
         setAiErrorType('rate-limit');
+      } else if (err instanceof Error && err.message === 'SHARED_RATE_LIMIT') {
+        setAiErrorType('shared-rate-limit');
       } else {
         setAiErrorType('server');
       }

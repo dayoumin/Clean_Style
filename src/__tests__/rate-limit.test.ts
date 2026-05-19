@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { checkRateLimit, getClientIp, _resetStore } from '@/lib/rate-limit';
+import { CLIENT_ID_HEADER } from '@/lib/constants';
+import { checkRateLimit, checkScopedRateLimit, getClientId, getClientIp, _getStoreSize, _resetStore } from '@/lib/rate-limit';
 
 describe('checkRateLimit', () => {
   beforeEach(() => {
@@ -113,6 +114,143 @@ describe('checkRateLimit — /api/results 시뮬레이션 (5req/60s)', () => {
   });
 });
 
+describe('checkScopedRateLimit', () => {
+  beforeEach(() => {
+    _resetStore();
+  });
+
+  function request(ip: string, clientId?: string) {
+    return new Request('http://localhost', {
+      headers: {
+        'cf-connecting-ip': ip,
+        ...(clientId ? { [CLIENT_ID_HEADER]: clientId } : {}),
+      },
+    });
+  }
+
+  it('채팅은 브라우저별 5회/분까지 허용하고 6회째 차단', () => {
+    for (let i = 0; i < 5; i++) {
+      expect(checkScopedRateLimit({
+        scope: 'chat',
+        request: request('1.1.1.1', 'client-aaaaaaaaaaaa'),
+        clientLimit: 5,
+        ipLimit: 200,
+      }).allowed).toBe(true);
+    }
+
+    const blocked = checkScopedRateLimit({
+      scope: 'chat',
+      request: request('1.1.1.1', 'client-aaaaaaaaaaaa'),
+      clientLimit: 5,
+      ipLimit: 200,
+    });
+    expect(blocked.allowed).toBe(false);
+    expect(blocked.limitedBy).toBe('client');
+  });
+
+  it('같은 IP라도 clientId가 다르면 브라우저별 카운터가 분리됨', () => {
+    for (let i = 0; i < 5; i++) {
+      expect(checkScopedRateLimit({
+        scope: 'chat',
+        request: request('2.2.2.2', 'client-aaaaaaaaaaaa'),
+        clientLimit: 5,
+        ipLimit: 200,
+      }).allowed).toBe(true);
+    }
+
+    expect(checkScopedRateLimit({
+      scope: 'chat',
+      request: request('2.2.2.2', 'client-bbbbbbbbbbbb'),
+      clientLimit: 5,
+      ipLimit: 200,
+    }).allowed).toBe(true);
+  });
+
+  it('브라우저가 달라도 같은 IP 전체 요청이 과도하면 IP 집계 제한이 막음', () => {
+    for (let i = 0; i < 3; i++) {
+      expect(checkScopedRateLimit({
+        scope: 'chat',
+        request: request('3.3.3.3', `client-${i}aaaaaaaaaaaa`),
+        clientLimit: 5,
+        ipLimit: 3,
+      }).allowed).toBe(true);
+    }
+
+    const blocked = checkScopedRateLimit({
+      scope: 'chat',
+      request: request('3.3.3.3', 'client-dddddddddddd'),
+      clientLimit: 5,
+      ipLimit: 3,
+    });
+    expect(blocked.allowed).toBe(false);
+    expect(blocked.limitedBy).toBe('ip');
+  });
+
+  it('IP 제한을 먼저 검사해 rotating clientId가 추가 client key를 만들지 않음', () => {
+    expect(checkScopedRateLimit({
+      scope: 'chat',
+      request: request('3.3.3.4', 'client-aaaaaaaaaaaa'),
+      clientLimit: 5,
+      ipLimit: 1,
+    }).allowed).toBe(true);
+    expect(_getStoreSize()).toBe(2);
+
+    const blocked = checkScopedRateLimit({
+      scope: 'chat',
+      request: request('3.3.3.4', 'client-bbbbbbbbbbbb'),
+      clientLimit: 5,
+      ipLimit: 1,
+    });
+    expect(blocked.allowed).toBe(false);
+    expect(blocked.limitedBy).toBe('ip');
+    expect(_getStoreSize()).toBe(2);
+  });
+
+  it('client 제한에 막힌 요청은 IP 전체 카운터를 소모하지 않음', () => {
+    expect(checkScopedRateLimit({
+      scope: 'chat',
+      request: request('3.3.3.5', 'client-aaaaaaaaaaaa'),
+      clientLimit: 1,
+      ipLimit: 2,
+    }).allowed).toBe(true);
+
+    const clientBlocked = checkScopedRateLimit({
+      scope: 'chat',
+      request: request('3.3.3.5', 'client-aaaaaaaaaaaa'),
+      clientLimit: 1,
+      ipLimit: 2,
+    });
+    expect(clientBlocked.allowed).toBe(false);
+    expect(clientBlocked.limitedBy).toBe('client');
+
+    const otherClient = checkScopedRateLimit({
+      scope: 'chat',
+      request: request('3.3.3.5', 'client-bbbbbbbbbbbb'),
+      clientLimit: 1,
+      ipLimit: 2,
+    });
+    expect(otherClient.allowed).toBe(true);
+  });
+
+  it('API scope가 다르면 같은 사용자라도 카운터가 분리됨', () => {
+    for (let i = 0; i < 5; i++) {
+      checkScopedRateLimit({
+        scope: 'chat',
+        request: request('4.4.4.4', 'client-aaaaaaaaaaaa'),
+        clientLimit: 5,
+        ipLimit: 200,
+      });
+    }
+
+    expect(checkScopedRateLimit({
+      scope: 'results',
+      request: request('4.4.4.4', 'client-aaaaaaaaaaaa'),
+      clientLimit: 5,
+      ipLimit: 200,
+    }).allowed).toBe(true);
+  });
+});
+
 describe('getClientIp', () => {
   it('cf-connecting-ip 우선', () => {
     const req = new Request('http://localhost', {
@@ -134,5 +272,23 @@ describe('getClientIp', () => {
   it('둘 다 없으면 unknown', () => {
     const req = new Request('http://localhost');
     expect(getClientIp(req)).toBe('unknown');
+  });
+});
+
+describe('getClientId', () => {
+  it('유효한 clientId 헤더를 반환', () => {
+    const req = new Request('http://localhost', {
+      headers: { [CLIENT_ID_HEADER]: 'client-aaaaaaaaaaaa' },
+    });
+    expect(getClientId(req)).toBe('client-aaaaaaaaaaaa');
+  });
+
+  it('너무 짧거나 허용되지 않는 문자가 있으면 무시', () => {
+    expect(getClientId(new Request('http://localhost', {
+      headers: { [CLIENT_ID_HEADER]: 'short' },
+    }))).toBeNull();
+    expect(getClientId(new Request('http://localhost', {
+      headers: { [CLIENT_ID_HEADER]: 'client<script>alert(1)</script>' },
+    }))).toBeNull();
   });
 });
