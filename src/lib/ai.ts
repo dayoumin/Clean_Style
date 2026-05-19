@@ -4,8 +4,8 @@
 const AI_TIMEOUT_MS = 10_000;
 const AI_STREAM_TIMEOUT_MS = 90_000;
 export const AI_MODELS = [
-  'nvidia:deepseek-ai/deepseek-v4-flash',
   'google/gemini-3.1-flash-lite-preview',
+  'nvidia:deepseek-ai/deepseek-v4-flash',
   'x-ai/grok-4.3',
 ] as const;
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
