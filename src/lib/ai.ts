@@ -2,10 +2,11 @@
 // 타임아웃: 10초 (non-stream), 30초 (stream)
 
 const AI_TIMEOUT_MS = 10_000;
-const AI_MODELS = [
+const AI_STREAM_TIMEOUT_MS = 90_000;
+export const AI_MODELS = [
+  'nvidia:deepseek-ai/deepseek-v4-flash',
   'google/gemini-3.1-flash-lite-preview',
   'x-ai/grok-4.3',
-  'nvidia:deepseek-ai/deepseek-v4-flash',
 ] as const;
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
@@ -159,7 +160,7 @@ export function chatStream(options: ChatOptions): ReadableStream {
         const timeout = setTimeout(() => {
           timedOut = true;
           abortCtrl.abort();
-        }, 30_000);
+        }, AI_STREAM_TIMEOUT_MS);
 
         try {
           const res = await fetch(url, {
@@ -232,6 +233,12 @@ export function chatStream(options: ChatOptions): ReadableStream {
           if (abortCtrl.signal.aborted && !timedOut) { try { ctrl.close(); } catch { /* already closed */ } return; }
           const msg = err instanceof Error ? err.message : 'stream error';
           console.error('AI stream request failed:', model, timedOut ? 'request timed out' : msg);
+          if (emittedToken) {
+            ctrl.enqueue(encoder.encode(`data: ${JSON.stringify(serviceErrorEvent(lastStatus))}\n\n`));
+            ctrl.enqueue(encoder.encode('data: [DONE]\n\n'));
+            ctrl.close();
+            return;
+          }
         } finally {
           clearTimeout(timeout);
           if (activeAbortCtrl === abortCtrl) activeAbortCtrl = null;
