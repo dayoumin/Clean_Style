@@ -6,6 +6,7 @@ compatibility_flags = ["nodejs_compat", "nodejs_compat_populate_process_env"]
 
 [vars]
 NEXT_PUBLIC_APP_URL = "https://clean-style.ecomarin.workers.dev"
+NEXT_PUBLIC_ENABLE_RESPECT_PILOT = "0"
 
 [secrets]
 required = ["OPENROUTER_API_KEY", "ADMIN_SECRET"]

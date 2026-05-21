@@ -3,9 +3,10 @@
 interface ProgressBarProps {
   current: number;
   total: number;
+  ariaLabel?: string;
 }
 
-export default function ProgressBar({ current, total }: ProgressBarProps) {
+export default function ProgressBar({ current, total, ariaLabel = '진행률' }: ProgressBarProps) {
   const percentage = Math.round((current / total) * 100);
 
   return (
@@ -17,7 +18,14 @@ export default function ProgressBar({ current, total }: ProgressBarProps) {
         </span>
         <span className="text-[12px] text-[var(--color-text-muted)]">{percentage}%</span>
       </div>
-      <div className="h-1 w-full overflow-hidden rounded-sm bg-[var(--color-border)]">
+      <div
+        role="progressbar"
+        aria-label={ariaLabel}
+        aria-valuemin={1}
+        aria-valuemax={total}
+        aria-valuenow={current}
+        className="h-1 w-full overflow-hidden rounded-sm bg-[var(--color-border)]"
+      >
         <div
           className="progress-fill h-full rounded-sm bg-[var(--color-primary)]"
           style={{ width: `${percentage}%` }}
