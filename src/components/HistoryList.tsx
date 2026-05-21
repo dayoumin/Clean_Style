@@ -69,9 +69,9 @@ export default function HistoryList() {
       <div className="mt-12 flex flex-col items-center gap-1.5 text-center">
         <span className="text-2xl opacity-60">🧭</span>
         <p className="text-[13px] leading-relaxed text-[var(--color-text-muted)]">
-          업무 중 만나는 애매한 상황,
+          점검을 마치면
           <br />
-          나라면 어떻게 할까?
+          이전 결과가 여기에 표시됩니다.
         </p>
       </div>
     );
@@ -95,7 +95,7 @@ export default function HistoryList() {
     <>
       <div className="mt-6 w-full">
         <p className="mb-2 text-[12px] font-bold text-[var(--color-text-muted)]">
-          이전 결과
+          청렴 스타일 이전 결과
         </p>
         <div className="space-y-2">
           {entries.slice(0, PREVIEW_COUNT).map(entry => (

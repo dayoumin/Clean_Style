@@ -1,81 +1,91 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import HistoryList from '@/components/HistoryList';
 import { FluentEmoji } from '@/components/FluentEmoji';
+import { RESPECT_FEATURE_ENABLED } from '@/data/workplaceRespectFeature';
 
-const infoChips = [
-  { emoji: '📋', title: '15개 상황', desc: '약 3분', detail: '업무 중 겪을 수 있는 15가지 상황에 대해 답해보는 테스트입니다.' },
-  { emoji: '🎯', title: '오답 없음', desc: '다 맞는 답', detail: '정답·오답이 없는 테스트입니다. 생각대로 편하게 선택하세요.' },
-  { emoji: '✨', title: 'AI 분석', desc: '맞춤 팁', detail: 'AI가 응답 패턴을 분석해 나만의 청렴 스타일과 실천 팁을 알려드립니다.' },
+const featureCards = [
+  {
+    href: '/test',
+    emoji: '✨',
+    label: '청렴',
+    title: '청렴 스타일 진단',
+    description: '업무 상황에서 내가 중요하게 보는 기준과 실천 방식을 확인합니다.',
+    tags: ['15개 상황', '약 3분', 'AI 조언'],
+  },
+  {
+    href: '/respect',
+    emoji: '🧭',
+    label: '존중',
+    title: '일터 존중 점검',
+    description: '내 행동이나 내가 겪은 일을 기준으로 기록과 도움 경로를 확인합니다.',
+    tags: ['2개 경로', '10문항', '도움 경로'],
+    enabled: RESPECT_FEATURE_ENABLED,
+  },
 ];
 
 export default function HomePage() {
-  const [openChip, setOpenChip] = useState<number | null>(null);
+  const visibleCards = featureCards.filter(card => card.enabled !== false);
 
   return (
-    <div className="animate-fade-in flex min-h-[80vh] flex-col items-center justify-center">
-      <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-primary-soft)] px-4 py-1.5 text-[13px] font-semibold text-[var(--color-primary-accent)]">
-        <FluentEmoji emoji="✨" size={16} /> 3분 자기발견 테스트
+    <div className="animate-fade-in flex min-h-[80vh] flex-col justify-center">
+      <div className="mb-7 text-center">
+        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-primary-soft)] px-4 py-1.5 text-[13px] font-semibold text-[var(--color-primary-accent)]">
+          셀프 점검
+        </div>
+
+        <h1 className="text-[1.75rem] font-extrabold leading-[1.25] tracking-tight text-[var(--color-text)]">
+          무엇을 확인할까요?
+        </h1>
+        <p className="mx-auto mt-3 max-w-[20rem] text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
+          업무 중 마주한 상황을 기준으로 필요한 점검을 선택하세요.
+        </p>
       </div>
 
-      <h1 className="mb-10 text-center text-[1.75rem] font-extrabold leading-[1.25] tracking-tight text-[var(--color-text)]">
-        나의 청렴 스타일은?
-      </h1>
-
-      <div className="mb-6 flex w-full gap-2">
-        {infoChips.map((chip, i) => (
-          <button
-            key={chip.title}
-            type="button"
-            onClick={() => setOpenChip(i)}
-            className="flex flex-1 flex-col items-center rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-2 py-3.5 text-center shadow-sm active:scale-95 transition-transform"
+      <div className="grid gap-3">
+        {visibleCards.map(card => (
+          <Link
+            key={card.href}
+            href={card.href}
+            className="flex min-h-[178px] flex-col justify-between rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-5 py-5 text-left shadow-sm transition-transform hover:border-[var(--color-primary-muted)] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-accent)] focus-visible:ring-offset-2"
           >
-            <span
-              className="animate-bounce-soft mb-1.5 inline-block"
-              style={{ animationDelay: `${i * 0.25}s` }}
-            >
-              <FluentEmoji emoji={chip.emoji} size={28} />
-            </span>
-            <p className="text-[12px] font-bold tracking-tight text-[var(--color-text)]">{chip.title}</p>
-            <p className="text-[10px] text-[var(--color-text-muted)]">{chip.desc}</p>
-          </button>
+            <div>
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-primary-soft)]">
+                  <FluentEmoji emoji={card.emoji} size={28} />
+                </span>
+                <span className="rounded-full bg-[var(--color-bg)] px-3 py-1 text-[11px] font-extrabold text-[var(--color-primary-accent)]">
+                  {card.label}
+                </span>
+              </div>
+              <h2 className="text-[19px] font-extrabold tracking-tight text-[var(--color-text)]">
+                {card.title}
+              </h2>
+              <p className="mt-2 text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
+                {card.description}
+              </p>
+            </div>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-1.5">
+                {card.tags.map(tag => (
+                  <span
+                    key={tag}
+                    className="rounded-full bg-[var(--color-bg)] px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-muted)]"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <div>
+                <span className="text-[12px] font-extrabold text-[var(--color-primary-accent)]">
+                  시작 →
+                </span>
+              </div>
+            </div>
+          </Link>
         ))}
       </div>
-
-      {openChip !== null && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-fade-in"
-          onClick={() => setOpenChip(null)}
-        >
-          <div
-            className="mx-6 w-full max-w-xs rounded-2xl bg-[var(--color-card)] px-6 py-7 text-center shadow-xl animate-scale-in"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <span className="mb-3 inline-block"><FluentEmoji emoji={infoChips[openChip].emoji} size={48} /></span>
-            <h2 className="mb-1 text-[16px] font-bold text-[var(--color-text)]">{infoChips[openChip].title}</h2>
-            <p className="mb-4 text-[12px] text-[var(--color-text-muted)]">{infoChips[openChip].desc}</p>
-            <p className="mb-5 text-[13px] leading-relaxed text-[var(--color-text)]">
-              {infoChips[openChip].detail}
-            </p>
-            <button
-              type="button"
-              onClick={() => setOpenChip(null)}
-              className="rounded-full bg-[var(--color-primary-soft)] px-6 py-2 text-[13px] font-semibold text-[var(--color-primary-accent)] transition-colors active:bg-[var(--color-primary-accent)] active:text-white"
-            >
-              확인
-            </button>
-          </div>
-        </div>
-      )}
-
-      <Link
-        href="/test"
-        className="cta-gradient mt-[4vh] w-full rounded-[var(--radius-md)] py-[15px] text-center text-[15px] font-bold tracking-tight text-white mb-[2vh]"
-      >
-        테스트 시작하기 →
-      </Link>
 
       <HistoryList />
 

@@ -6,7 +6,7 @@
 <title>일터 존중·안전 신뢰성 및 운영 승인 기준</title>
 <style>
   :root {
-    --bg: #0f1117; --surface: #1a1d27; --surface2: #232733;
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232733; --surface3: #2a2f3d;
     --border: #2e3345; --text: #e1e4ed; --text-dim: #9aa1b5;
     --accent: #6c8aff; --accent-soft: rgba(108,138,255,0.12);
     --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
@@ -17,7 +17,10 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: var(--bg);
+    background:
+      radial-gradient(circle at 10% 0%, rgba(108,138,255,0.16), transparent 34rem),
+      radial-gradient(circle at 90% 4%, rgba(74,222,128,0.1), transparent 30rem),
+      var(--bg);
     color: var(--text);
     line-height: 1.72;
     padding: 2rem;
@@ -27,22 +30,33 @@
   a.back { color: var(--accent); text-decoration: none; font-size: 0.82rem; display: inline-block; margin-bottom: 1.5rem; }
   a.back:hover { text-decoration: underline; }
   a { color: var(--accent); }
-  h1 { font-size: 1.85rem; font-weight: 800; margin-bottom: 0.35rem; }
+  h1 { font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 850; margin-bottom: 0.7rem; line-height: 1.12; letter-spacing: -0.02em; }
   h1 span { color: var(--accent); }
-  .subtitle { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 2rem; }
+  .subtitle { color: var(--text-dim); font-size: 1rem; margin-bottom: 0; max-width: 48rem; }
   h2 {
-    font-size: 1.15rem; font-weight: 750;
-    margin: 2.25rem 0 1rem;
+    font-size: 1.25rem; font-weight: 800;
+    margin: 2.5rem 0 1rem;
     padding-bottom: 0.55rem;
     border-bottom: 1px solid var(--border);
+    scroll-margin-top: 1rem;
   }
   h3 { font-size: 0.96rem; font-weight: 700; margin: 1.35rem 0 0.5rem; color: var(--accent); }
   p { font-size: 0.9rem; color: var(--text); margin: 0.45rem 0; }
   ul, ol { margin: 0.55rem 0 0.55rem 1.15rem; font-size: 0.88rem; color: var(--text); }
   li { margin-bottom: 0.35rem; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.75rem 0; }
-  th, td { padding: 0.62rem 0.75rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
-  th { color: var(--text-dim); font-weight: 700; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin: 0.75rem 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: rgba(26,29,39,0.72);
+  }
+  th, td { padding: 0.8rem 0.85rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  th { color: var(--text-dim); font-weight: 800; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; background: rgba(255,255,255,0.025); }
   code {
     background: var(--surface2);
     padding: 0.1rem 0.4rem;
@@ -51,11 +65,12 @@
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
   }
   .card {
-    background: var(--surface);
+    background: linear-gradient(180deg, rgba(35,39,51,0.92), rgba(26,29,39,0.94));
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 1.15rem 1.25rem;
     margin-bottom: 1rem;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
   }
   .note {
     background: var(--accent-soft);
@@ -80,32 +95,210 @@
   .tag-orange { background: var(--orange-soft); color: var(--orange); }
   .tag-red { background: var(--red-soft); color: var(--red); }
   .tag-yellow { background: var(--yellow-soft); color: var(--yellow); }
-  .toc {
-    background: var(--surface);
+  .page-shell { position: relative; }
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+    gap: 1.25rem;
+    align-items: stretch;
+    margin-bottom: 1.25rem;
+  }
+  .hero-panel {
+    background: linear-gradient(135deg, rgba(35,39,51,0.95), rgba(26,29,39,0.9));
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.15rem 1.35rem;
+    border-radius: 24px;
+    padding: 1.75rem;
+    box-shadow: 0 18px 44px rgba(0,0,0,0.22);
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.76rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+  }
+  .status-board {
+    display: grid;
+    gap: 0.75rem;
+    background: rgba(248,113,113,0.06);
+    border: 1px solid rgba(248,113,113,0.28);
+    border-radius: 24px;
+    padding: 1.1rem;
+  }
+  .status-pill {
+    display: inline-flex;
+    width: fit-content;
+    border-radius: 999px;
+    padding: 0.24rem 0.62rem;
+    background: var(--orange-soft);
+    color: var(--orange);
+    font-size: 0.73rem;
+    font-weight: 850;
+  }
+  .status-board strong { display: block; font-size: 1.15rem; line-height: 1.35; }
+  .status-board p { color: var(--text-dim); font-size: 0.84rem; margin: 0; }
+  .signal-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .signal-card {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(26,29,39,0.72);
+    padding: 1rem;
+  }
+  .signal-card .label { color: var(--text-dim); font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+  .signal-card .value { margin-top: 0.35rem; color: var(--text); font-size: 1.05rem; font-weight: 850; line-height: 1.35; }
+  .signal-card.blue { border-color: rgba(108,138,255,0.35); background: rgba(108,138,255,0.08); }
+  .signal-card.green { border-color: rgba(74,222,128,0.35); background: rgba(74,222,128,0.08); }
+  .signal-card.orange { border-color: rgba(251,146,60,0.38); background: rgba(251,146,60,0.08); }
+  .signal-card.red { border-color: rgba(248,113,113,0.38); background: rgba(248,113,113,0.08); }
+  .toc {
+    background: rgba(26,29,39,0.74);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.1rem;
     margin-bottom: 2rem;
   }
   .toc-title { color: var(--text-dim); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.45rem; }
-  .toc a { display: block; text-decoration: none; font-size: 0.85rem; padding: 0.16rem 0; }
+  .toc-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+  .toc a {
+    display: block;
+    text-decoration: none;
+    font-size: 0.84rem;
+    padding: 0.55rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.018);
+  }
+  .toc a:hover { border-color: rgba(108,138,255,0.55); background: var(--accent-soft); }
   .cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .summary-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+  .summary-card {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(35,39,51,0.76);
+    padding: 1rem;
+    min-height: 8.25rem;
+  }
+  .summary-card .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 9px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 850;
+    margin-bottom: 0.7rem;
+  }
+  .summary-card p { font-size: 0.82rem; margin: 0; color: var(--text-dim); }
+  .timeline {
+    counter-reset: step;
+    list-style: none;
+    margin: 0.9rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.7rem;
+  }
+  .timeline li {
+    counter-increment: step;
+    position: relative;
+    margin: 0;
+    padding: 0.75rem 0.85rem 0.75rem 3rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.018);
+    font-size: 0.86rem;
+  }
+  .timeline li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0.8rem;
+    top: 0.72rem;
+    width: 1.45rem;
+    height: 1.45rem;
+    border-radius: 8px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.76rem;
+    font-weight: 850;
+  }
+  .score-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin: 0.9rem 0 1.2rem; }
+  .score-card {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1rem;
+    background: rgba(35,39,51,0.76);
+  }
+  .score-card strong { display: block; margin: 0.45rem 0 0.35rem; font-size: 1rem; }
+  .score-card p { color: var(--text-dim); font-size: 0.82rem; margin: 0; }
+  .approval-matrix td:last-child { font-weight: 800; color: var(--orange); }
+  .quote-card {
+    border-left: 4px solid var(--accent);
+    background: rgba(108,138,255,0.08);
+  }
   .updated { color: var(--text-dim); font-size: 0.75rem; text-align: center; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
   @media (max-width: 760px) {
     body { padding: 1.25rem; }
-    .cols-2 { grid-template-columns: 1fr; }
+    .hero, .cols-2, .signal-grid, .summary-grid, .score-grid, .toc-links { grid-template-columns: 1fr; }
+    .hero-panel { padding: 1.25rem; border-radius: 18px; }
     table { font-size: 0.78rem; }
   }
 </style>
 </head>
 <body>
 
+<main class="page-shell">
 <a class="back" href="index.html">&larr; Research Hub로 돌아가기</a>
-<h1><span>일터 존중·안전</span> 신뢰성 및 운영 승인 기준</h1>
-<p class="subtitle">기관 내부 설명, 신뢰성 근거, 운영 전 승인 체크리스트, 잔여 리스크 관리</p>
+
+<section class="hero">
+  <div class="hero-panel">
+    <div class="eyebrow">Internal reliability brief</div>
+    <h1><span>일터 존중·안전</span> 신뢰성 및 운영 승인 기준</h1>
+    <p class="subtitle">기관 내부 설명, 신뢰성 근거, 운영 전 승인 체크리스트, 잔여 리스크 관리를 한눈에 확인하는 운영 준비 문서</p>
+  </div>
+  <aside class="status-board" aria-label="현재 운영 상태">
+    <span class="status-pill">파일럿·내부 검토용</span>
+    <strong>공개 운영 전 승인 게이트가 남아 있습니다.</strong>
+    <p>법·노무, 인권·고충처리, 정신건강·위기 문구, 개인정보 통제, 모바일 QA를 확인한 뒤 운영 플래그를 전환합니다.</p>
+  </aside>
+</section>
+
+<section class="signal-grid" aria-label="핵심 운영 신호">
+  <div class="signal-card blue">
+    <div class="label">Purpose</div>
+    <div class="value">자가점검·도움 연결</div>
+  </div>
+  <div class="signal-card green">
+    <div class="label">Data</div>
+    <div class="value">개인정보 미수집</div>
+  </div>
+  <div class="signal-card orange">
+    <div class="label">Status</div>
+    <div class="value">초안·파일럿</div>
+  </div>
+  <div class="signal-card red">
+    <div class="label">Safety</div>
+    <div class="value">위기 도움 우선</div>
+  </div>
+</section>
 
 <div class="toc">
   <div class="toc-title">목차</div>
+  <div class="toc-links">
   <a href="#summary">1. 내부 설명 요약</a>
   <a href="#scope">2. 범위와 한계</a>
   <a href="#trust">3. 신뢰성 근거 체계</a>
@@ -115,19 +308,36 @@
   <a href="#validation">7. 검증 계획</a>
   <a href="#risks">8. 잔여 리스크와 대응</a>
   <a href="#statement">9. 기관 설명 문안</a>
+  </div>
 </div>
 
 <h2 id="summary">1. 내부 설명 요약</h2>
 
 <div class="card">
   <p><strong>일터 존중·안전 자가점검</strong>은 갑질, 직장 내 괴롭힘, 즉각적 안전위험을 공식 판정하는 도구가 아니다. 사용자가 자신의 상황을 구조화하고, 기록·상담·도움 연결을 빠르게 확인하도록 돕는 <strong>자가점검 및 안내 도구</strong>다.</p>
-  <ul>
-    <li>공식 기준을 참고하되, 공식 문항이나 자가검진 도구를 그대로 탑재하지 않는다.</li>
-    <li>문항별 근거, 위험 플래그, 검토 상태는 내부 관리 파일과 문서에서 추적한다.</li>
-    <li>이름, 소속, 연락처를 받지 않고 응답 배열을 서버나 URL에 남기지 않는다.</li>
-    <li>자해·자살·폭력·즉각적 안전위험은 일반 점수보다 도움 연결을 우선한다.</li>
-    <li>운영 공개 전에는 법·노무, 인권·고충처리, 정신건강·위기 문구 검토가 필요하다.</li>
-  </ul>
+</div>
+
+<div class="summary-grid">
+  <div class="summary-card">
+    <span class="num">1</span>
+    <p>공식 기준을 참고하되 공식 문항이나 자가검진 도구를 그대로 탑재하지 않는다.</p>
+  </div>
+  <div class="summary-card">
+    <span class="num">2</span>
+    <p>문항별 근거, 위험 플래그, 검토 상태는 내부 관리 파일과 문서에서 추적한다.</p>
+  </div>
+  <div class="summary-card">
+    <span class="num">3</span>
+    <p>이름, 소속, 연락처를 받지 않고 응답 배열을 서버나 URL에 남기지 않는다.</p>
+  </div>
+  <div class="summary-card">
+    <span class="num">4</span>
+    <p>자해·자살·폭력·즉각적 안전위험은 일반 점수보다 도움 연결을 우선한다.</p>
+  </div>
+  <div class="summary-card">
+    <span class="num">5</span>
+    <p>운영 공개 전에는 법·노무, 인권·고충처리, 정신건강·위기 문구 검토가 필요하다.</p>
+  </div>
 </div>
 
 <div class="note warn">
@@ -173,7 +383,7 @@
 <div class="cols-2">
   <div class="card">
     <h3>근거 흐름</h3>
-    <ol>
+    <ol class="timeline">
       <li>공식 기준 문서 확인</li>
       <li>기준을 판단 축으로 분해</li>
       <li>직접 인용이 아닌 자체 문항 작성</li>
@@ -232,16 +442,32 @@
 
 <h2 id="scoring">4. 결과 산출 설명</h2>
 
-<div class="card">
-  <p>결과는 단순 합산 점수만으로 정하지 않는다. 현재 1차 구현은 다음 세 요소를 함께 본다.</p>
-  <ul>
-    <li><span class="tag tag-blue">점수</span> 각 문항 선택지의 위험 신호 강도를 0~3으로 반영한다.</li>
-    <li><span class="tag tag-green">핵심 축</span> 관계상 우위, 업무범위·방식, 존엄감 영향, 사적 요구, 불이익, 반복성 축이 함께 나타나는지 확인한다.</li>
-    <li><span class="tag tag-red">위기 게이트</span> 자해·자살·폭력·즉각 위험은 점수와 무관하게 도움 연결을 우선한다.</li>
-  </ul>
+<p>결과는 단순 합산 점수만으로 정하지 않는다. 현재 1차 구현은 다음 세 요소를 함께 본다.</p>
+
+<div class="score-grid">
+  <div class="score-card">
+    <span class="tag tag-blue">점수</span>
+    <strong>선택지 강도</strong>
+    <p>각 문항 선택지의 위험 신호 강도를 0~3으로 반영한다.</p>
+  </div>
+  <div class="score-card">
+    <span class="tag tag-green">핵심 축</span>
+    <strong>복합 신호</strong>
+    <p>관계상 우위, 업무범위, 존엄감 영향, 사적 요구, 불이익, 반복성을 함께 본다.</p>
+  </div>
+  <div class="score-card">
+    <span class="tag tag-red">위기 게이트</span>
+    <strong>도움 우선</strong>
+    <p>자해·자살·폭력·즉각 위험은 점수와 무관하게 도움 연결을 우선한다.</p>
+  </div>
+  <div class="score-card">
+    <span class="tag tag-orange">설명 가능성</span>
+    <strong>확인된 신호</strong>
+    <p>결과 화면에서 주요 축을 보여 사용자가 왜 그런 안내가 나왔는지 알 수 있게 한다.</p>
+  </div>
 </div>
 
-<table>
+<table class="approval-matrix">
   <thead>
     <tr>
       <th>결과</th>
@@ -433,17 +659,18 @@
 
 <h2 id="statement">9. 기관 설명 문안</h2>
 
-<div class="card">
+<div class="card quote-card">
   <p><strong>짧은 설명</strong></p>
   <p>이 기능은 갑질 또는 직장 내 괴롭힘을 공식 판정하는 도구가 아니라, 사용자가 자신의 상황을 안전하게 정리하고 기록·상담·도움 연결을 확인하기 위한 자가점검 도구입니다. 문항은 공식 기준을 참고해 자체 작성했으며, 문항별 근거와 검토 상태를 내부적으로 관리합니다. 개인정보를 요구하지 않고, 응답은 서버나 URL에 저장하지 않는 것을 기본 원칙으로 합니다.</p>
 </div>
 
-<div class="card">
+<div class="card quote-card">
   <p><strong>운영 승인 전 설명</strong></p>
   <p>현재 버전은 내부 검토와 파일럿을 위한 초안입니다. 공식 운영 전에는 법·노무, 인권·고충처리, 정신건강·위기 대응 문구 검토를 거쳐야 하며, 파일럿 응답과 사용자 이해도 확인을 통해 문항과 결과 기준을 조정해야 합니다. 운영 공개는 검토 상태가 내부검토 이상으로 올라가고, 파일럿 플래그 전환 승인자가 지정된 뒤에 진행합니다.</p>
 </div>
 
 <p class="updated">Updated: 2026-05-21 · Status: Internal pilot reliability checklist</p>
 
+</main>
 </body>
 </html>

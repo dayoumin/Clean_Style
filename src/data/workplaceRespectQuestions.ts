@@ -51,7 +51,7 @@ export const respectEntryLabels: Record<RespectEntry, { title: string; shortTitl
   action: {
     title: '내 행동 점검',
     shortTitle: '내 행동',
-    description: '내 말이나 지시가 상대에게 부담이나 갑질 위험으로 보일 수 있는지 살펴봅니다.',
+    description: '내 말이나 지시가 상대에게 부담으로 보일 수 있는지 살펴봅니다.',
   },
   experience: {
     title: '내가 겪은 일 점검',

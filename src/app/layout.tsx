@@ -6,11 +6,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "https://clean-style.ecomarin.workers.dev"
   ),
-  title: "나의 청렴 스타일은? | 공공 연구기관 청렴 스타일 테스트",
-  description: "재미로 알아보는 청렴 스타일 자기발견 테스트. 15개 상황, 3분이면 나의 업무 스타일을 알 수 있어요.",
+  title: "청렴·존중 셀프 점검 | 공공 연구기관",
+  description: "청렴 스타일 진단과 일터 존중 점검을 통해 업무 상황을 기준으로 필요한 조언과 도움 경로를 확인합니다.",
   openGraph: {
-    title: "나의 청렴 스타일은?",
-    description: "재미로 알아보는 청렴 스타일 자기발견 테스트",
+    title: "청렴·존중 셀프 점검",
+    description: "청렴 스타일 진단과 일터 존중 점검",
     type: "website",
     locale: "ko_KR",
   },
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "청렴스타일",
+    title: "청렴·존중",
   },
 };
 
