@@ -1,4 +1,6 @@
 const CACHE_NAME = "clean-style-v3";
+const LOCAL_HOSTS = ["localhost", "127.0.0.1", "::1"];
+const isLocalHost = LOCAL_HOSTS.includes(self.location.hostname);
 
 const PRECACHE_URLS = [
   "/offline.html",
@@ -18,6 +20,16 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
+  if (isLocalHost) {
+    event.waitUntil(
+      caches
+        .keys()
+        .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+        .then(() => self.registration.unregister())
+    );
+    return;
+  }
+
   event.waitUntil(
     caches
       .keys()
@@ -33,6 +45,7 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  if (isLocalHost) return;
   if (event.request.method !== "GET") return;
   if (!event.request.url.startsWith(self.location.origin)) return;
 

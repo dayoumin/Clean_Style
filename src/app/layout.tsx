@@ -35,9 +35,38 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const shouldResetLocalServiceWorker = process.env.NODE_ENV !== "production";
+
   return (
     <html lang="ko">
       <body className="min-h-screen">
+        {shouldResetLocalServiceWorker && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+(() => {
+  const localHosts = ["localhost", "127.0.0.1", "::1"];
+  if (!localHosts.includes(location.hostname)) return;
+  if (!("serviceWorker" in navigator)) return;
+  const resetKey = "clean-style-local-sw-reset-v2";
+  if (sessionStorage.getItem(resetKey) === "done") return;
+
+  Promise.all([
+    navigator.serviceWorker.getRegistrations().then((registrations) =>
+      Promise.all(registrations.map((registration) => registration.unregister()))
+    ),
+    "caches" in window
+      ? caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+      : Promise.resolve([])
+  ]).then(() => {
+    sessionStorage.setItem(resetKey, "done");
+    location.reload();
+  }).catch(() => undefined);
+})();
+              `.trim(),
+            }}
+          />
+        )}
         {children}
         <ServiceWorkerRegistrar />
       </body>
