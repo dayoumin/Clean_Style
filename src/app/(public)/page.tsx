@@ -35,10 +35,11 @@ export default function HomePage() {
   const visibleCards = featureCards.filter(card => card.enabled !== false);
 
   return (
-    <div className="animate-fade-in relative -mx-6 -mb-6 -mt-4 flex flex-1 flex-col overflow-hidden bg-[#f8faf5] px-6 pb-6 pt-4 sm:-mx-8 sm:-mb-8 sm:-mt-6 sm:rounded-2xl sm:px-8 sm:pb-8 sm:pt-6">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[235px] bg-[linear-gradient(180deg,#edf5e8,rgba(237,245,232,0))]" />
-      <LeafLineArt className="pointer-events-none absolute -right-12 top-20 h-56 w-56 text-[#98aa87] opacity-30" />
-      <LeafLineArt className="pointer-events-none absolute -left-24 bottom-16 h-60 w-60 rotate-[-18deg] text-[#b5c3a8] opacity-22" />
+    <div className="animate-fade-in relative -mx-6 -mb-6 -mt-4 flex flex-1 flex-col overflow-hidden bg-[#f6f9ff] px-6 pb-6 pt-4 sm:-mx-6 sm:-mb-8 sm:-mt-6 sm:rounded-2xl sm:px-6 sm:pb-8 sm:pt-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[235px] bg-[linear-gradient(180deg,#eaf2ff,rgba(234,242,255,0))]" />
+      <LeafLineArt className="pointer-events-none absolute -left-16 top-9 h-44 w-44 rotate-[22deg] text-[#c5d4ea] opacity-[0.20]" />
+      <LeafLineArt className="pointer-events-none absolute -right-12 top-20 h-56 w-56 text-[#9eb7d8] opacity-[0.30]" />
+      <LeafLineArt className="pointer-events-none absolute -left-24 bottom-16 h-60 w-60 rotate-[-18deg] text-[#cbd8ea] opacity-[0.24]" />
 
       <section className="relative z-10 flex flex-1 flex-col justify-center py-6">
         <div className="mb-8 text-center">

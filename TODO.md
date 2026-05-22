@@ -41,6 +41,10 @@
 
 ## 나중에 할 것
 
+### 일터 존중 점검 운영 전 검토
+- [ ] `docs/research`에 만든 내 행동 점검·일터 존중 점검 신뢰성 HTML 문서를 다시 점검하고, 판단축·임계값·문항 출처·승인 절차가 기관 내부 설명에 충분한지 확인
+- [ ] 내 행동 점검과 일터 존중 점검이 사용자에게 과도하게 민감하거나 낙인처럼 보이지 않는지 문항, 결과 문구, AI 조언 톤, 도움 연결 문구를 별도로 검토
+
 ### AI 모델 운영 헬스체크
 - [ ] BioHub `.dev.vars`에 있는 `NVIDIA_API_KEY`를 Clean_style GitHub Secrets에 별도 추가
 - [ ] NVIDIA 키 추가 후 `nvidia:deepseek-ai/deepseek-v4-flash` 단독 smoke test로 실제 토큰 반환 확인

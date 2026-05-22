@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { chatStream } from '@/lib/ai';
 import { getAiRuntimeEnv } from '@/lib/runtime-env';
 import { checkScopedRateLimit } from '@/lib/rate-limit';
-import { MAX_HISTORY_MESSAGES, MAX_QUESTION_LENGTH } from '@/lib/constants';
+import { MAX_QUESTION_LENGTH, RESPECT_MAX_HISTORY_MESSAGES } from '@/lib/constants';
 import { sanitizeHistory, sanitizeUserInput, scanAndRedactPii } from '@/lib/sanitize';
 import {
   calculateRespectResult,
@@ -64,8 +64,8 @@ const RESPECT_ADVICE_SYSTEM_PROMPT_BASE = `당신은 공공 연구기관 종사�
 ## 응답 원칙
 - 한국어 일반 텍스트로 답하세요.
 - 사용자의 질문에 직접 답하되, 자가점검 결과 맥락을 반영하세요.
-- 답변은 기본적으로 7~10개의 완성된 문장으로 작성하세요.
-- 2~3문장마다 빈 줄을 넣어 전체 답변을 4~6개의 짧은 문단으로 나누세요.
+- 답변은 기본적으로 5~7개의 완성된 문장으로 작성하세요.
+- 1~2문장마다 빈 줄을 넣어 전체 답변을 3~4개의 짧은 문단으로 나누세요.
 - 첫 문단은 결론과 핵심 이유를 말하고, 중간 문단은 확인할 사실과 기록 방법을 다루며, 마지막 문단은 다음 행동을 안내하세요.
 - "갑질입니다", "괴롭힘입니다", "진단되었습니다"처럼 단정하는 표현을 쓰지 마세요.
 - 사용자를 가해자나 피해자로 단정하지 말고, 상황을 기준으로 차분하게 정리하세요.
@@ -84,10 +84,20 @@ const RESPECT_ADVICE_ENTRY_PROMPTS: Record<RespectEntry, string> = {
 - 혼자 판단하게 두지 말고, 날짜·장소·말투·증거를 남기기, 신뢰할 수 있는 사람이나 인사·감사·인권·청렴 담당자에게 일반 기준을 확인하기 같은 도움 경로를 제안하세요.`,
 };
 
-function getRespectAdviceSystemPrompt(entry: RespectEntry): string {
+const RESPECT_ADVICE_CRISIS_PROMPT = `## 긴급 도움 연결 답변 방향
+- 사용자가 스스로를 해칠 생각, 즉각적인 안전위험, 폭력 위험을 선택한 상태입니다.
+- 전문 상담사처럼 안전과 감정을 먼저 확인하되, 과장된 위로나 반복적인 호소 대신 차분하고 실무적인 문장으로 답하세요.
+- 답변은 직장 내 괴롭힘 판단보다 지금 연결할 사람과 기관의 순서를 먼저 안내하세요.
+- 화면에서 긴급 연락처는 이미 안내되므로 모든 답변에 109, 112, 119를 반복하지 마세요. 사용자가 현재 즉시 위험하다고 말하거나 긴급 연락처를 묻는 경우에만 한 문장으로 짧게 안내하세요.
+- 사용자가 "누구에게 먼저 말할까", "어디에 문의할까"처럼 연결 순서를 묻는 경우에는 가까운 신뢰할 수 있는 사람, 기관 내 안전한 공식 창구, 외부 긴급·전문기관 순서로 답하세요.
+- 기관 내부 문의처는 직장 내 괴롭힘·갑질 담당자, 인사·감사·인권·청렴 담당부서, 고충처리·EAP·노동조합 등 기관에 있는 안전한 상담 창구로 표현하세요.
+- 사용자가 바로 보낼 수 있는 짧은 문장을 1개 포함하세요. 예: "지금 혼자 감당하기 어렵고 안전이 걱정됩니다. 상담 가능한 창구와 보호조치를 확인하고 싶습니다."
+- 과도한 설명이나 법률 판단은 줄이고, 4~6개의 짧은 문장으로 답하세요.`;
+
+function getRespectAdviceSystemPrompt(entry: RespectEntry, crisis: boolean): string {
   return `${RESPECT_ADVICE_SYSTEM_PROMPT_BASE}
 
-${RESPECT_ADVICE_ENTRY_PROMPTS[entry]}`;
+${RESPECT_ADVICE_ENTRY_PROMPTS[entry]}${crisis ? `\n\n${RESPECT_ADVICE_CRISIS_PROMPT}` : ''}`;
 }
 
 function sanitizeAndRedactText(text: string) {
@@ -162,7 +172,7 @@ export async function POST(request: NextRequest) {
     const finalQuestion = questionRedaction.text;
     const detectedPii = new Set(questionRedaction.detected);
     const safeHistory = sanitizeHistory(body.history)
-      .slice(-MAX_HISTORY_MESSAGES)
+      .slice(-RESPECT_MAX_HISTORY_MESSAGES)
       .map((message) => {
         const redacted = sanitizeAndRedactText(message.content);
         redacted.detected.forEach((type) => detectedPii.add(type));
@@ -204,12 +214,12 @@ ${finalQuestion}
     const aiEnv = await getAiRuntimeEnv();
     const stream = chatStream({
       messages: [
-        { role: 'system', content: getRespectAdviceSystemPrompt(entry) },
+        { role: 'system', content: getRespectAdviceSystemPrompt(entry, result.crisis) },
         ...safeHistory,
         { role: 'user', content: userMessage },
       ],
       temperature: 0.35,
-      maxTokens: 900,
+      maxTokens: 700,
       apiKey: aiEnv.OPENROUTER_API_KEY,
       nvidiaApiKey: aiEnv.NVIDIA_API_KEY,
       appUrl: aiEnv.NEXT_PUBLIC_APP_URL,

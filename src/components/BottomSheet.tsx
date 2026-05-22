@@ -6,10 +6,12 @@ export default function BottomSheet({
   title,
   onClose,
   children,
+  hideHeader = false,
 }: {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  hideHeader?: boolean;
 }) {
   const titleId = useId();
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -52,7 +54,11 @@ export default function BottomSheet({
       ? document.activeElement
       : null;
 
-    closeButtonRef.current?.focus();
+    if (closeButtonRef.current) {
+      closeButtonRef.current.focus();
+    } else {
+      sheetRef.current?.focus();
+    }
 
     return () => {
       previousActiveElement?.focus();
@@ -66,29 +72,33 @@ export default function BottomSheet({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/25 backdrop-blur-[2px] sm:items-center sm:p-4"
       onClick={handleBackdrop}
     >
       <div
         ref={sheetRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
+        aria-label={hideHeader ? title : undefined}
+        aria-labelledby={hideHeader ? undefined : titleId}
+        tabIndex={hideHeader ? -1 : undefined}
         onKeyDown={handleDialogKeyDown}
-        className="animate-slide-up flex w-full max-w-md flex-col rounded-t-[20px] bg-[var(--color-bg)] shadow-xl max-h-[85dvh] sm:max-h-[70vh] sm:rounded-[20px]"
+        className="animate-slide-up flex max-h-[88dvh] w-full max-w-md flex-col rounded-t-[20px] bg-[var(--color-bg)] shadow-xl sm:max-h-[82vh] sm:rounded-[20px]"
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
-          <h2 id={titleId} className="text-[16px] font-bold text-[var(--color-text)]">{title}</h2>
-          <button
-            ref={closeButtonRef}
-            type="button"
-            onClick={onClose}
-            aria-label="닫기"
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-card)] text-[var(--color-text-muted)] hover:bg-[var(--color-border)]"
-          >
-            ✕
-          </button>
-        </div>
+        {!hideHeader && (
+          <div className="flex shrink-0 items-center justify-between border-b border-[var(--color-border)] px-5 py-4">
+            <h2 id={titleId} className="text-[16px] font-bold text-[var(--color-text)]">{title}</h2>
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={onClose}
+              aria-label="닫기"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-card)] text-[var(--color-text-muted)] hover:bg-[var(--color-border)]"
+            >
+              ✕
+            </button>
+          </div>
+        )}
         {children}
       </div>
     </div>

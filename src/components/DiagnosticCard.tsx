@@ -32,11 +32,11 @@ export function DiagnosticCard({
       </span>
 
       <div className="min-w-0 flex-1">
-        <h2 className="text-[17px] font-extrabold tracking-normal text-[var(--color-text)]">
+        <h2 className="text-[17px] font-bold tracking-normal text-[var(--color-text)]">
           {title}
         </h2>
         {description && (
-          <p className="mt-0.5 text-[12px] font-semibold leading-snug text-[var(--color-text-secondary)]">
+          <p className="mt-0.5 text-[12px] font-medium leading-snug text-[var(--color-text-secondary)]">
             {description}
           </p>
         )}

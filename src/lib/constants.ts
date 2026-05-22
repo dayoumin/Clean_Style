@@ -1,6 +1,9 @@
 // 이어서 질문 시 유지할 최대 대화 메시지 수 (10턴 = user+assistant 20개)
 export const MAX_HISTORY_MESSAGES = 20;
 
+// 일터 존중 점검 AI 조언은 상황 정리가 길어질 수 있어 조금 더 긴 맥락을 유지
+export const RESPECT_MAX_HISTORY_MESSAGES = 32;
+
 // 대화 요약 트리거 시점 (4턴 = user+assistant 8개)
 export const SUMMARIZE_AT_MESSAGES = 8;
 

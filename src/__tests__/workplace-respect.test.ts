@@ -186,6 +186,47 @@ describe('calculateRespectResult', () => {
     expect(result.crisis).toBe(true);
   });
 
+  it('내 행동 점검 urgent 결과는 기준 확인과 기관 절차 안내를 우선한다', () => {
+    const answers = Array(10).fill(0);
+    answers[9] = 3;
+
+    const result = calculateRespectResult('action', answers);
+    const resultText = [
+      result.title,
+      result.summary,
+      ...result.primaryActions,
+      ...result.supportActions,
+    ].join(' ');
+
+    expect(result.title).toContain('기준 확인');
+    expect(resultText).toContain('인사·감사·인권 담당자');
+    expect(resultText).toContain('매뉴얼');
+    expect(resultText).not.toContain('109');
+    expect(resultText).not.toContain('112');
+    expect(resultText).not.toContain('119');
+    expect(resultText).not.toContain('자살예방');
+  });
+
+  it('일터 존중 점검 high 결과는 자해·긴급 선택 없이 긴급전화 문구를 앞세우지 않는다', () => {
+    const answers = [2, 2, 2, 0, 2, 2, 2, 0, 0, 0];
+
+    const result = calculateRespectResult('experience', answers);
+    const resultText = [
+      result.title,
+      result.summary,
+      ...result.primaryActions,
+      ...result.supportActions,
+    ].join(' ');
+
+    expect(result.level).toBe('high');
+    expect(result.crisis).toBe(false);
+    expect(result.support).toBe(false);
+    expect(resultText).toContain('정신건강복지센터');
+    expect(resultText).not.toContain('109');
+    expect(resultText).not.toContain('112');
+    expect(resultText).not.toContain('119');
+  });
+
   it('자해 생각이 가끔 스치는 선택지는 최소 caution과 도움 연결 표시로 이어진다', () => {
     const answers = Array(10).fill(0);
     answers[9] = 1;

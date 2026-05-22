@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { questions, calculateResult, styleTypes } from '@/data/questions';
 import ProgressBar from '@/components/ProgressBar';
 import QuestionCard from '@/components/QuestionCard';
+import { LeafLineArt } from '@/components/LeafLineArt';
 import { addHistoryEntry } from '@/lib/history';
 import { buildResultUrl } from '@/lib/utils';
 import { TEST_START_TIME_KEY, TEST_REFERRER_KEY } from '@/lib/constants';
@@ -150,34 +151,39 @@ export default function TestPage() {
   if (!question) return null;
 
   return (
-    <div>
-      <div className="mb-4 flex items-center justify-between border-b border-[var(--color-border)] pb-3">
-        <h1 className="text-[17px] font-bold text-[var(--color-text)]">나의 청렴 스타일은?</h1>
-        <div className="flex gap-1.5">
-          {answers.length > 0 && (
+    <div className="relative -mx-6 -mb-6 -mt-4 flex flex-1 flex-col overflow-hidden bg-white px-6 pb-6 pt-4 sm:-mx-6 sm:-mb-8 sm:-mt-6 sm:px-6 sm:pb-8 sm:pt-6">
+      <LeafLineArt className="pointer-events-none absolute -right-16 top-16 h-52 w-52 text-[#b9c8aa] opacity-[0.16]" />
+      <LeafLineArt className="pointer-events-none absolute -left-24 bottom-10 h-56 w-56 rotate-[-18deg] text-[#cbd6c0] opacity-[0.14]" />
+
+      <div className="relative z-10">
+        <div className="mb-4 flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+          <h1 className="text-[17px] font-bold text-[var(--color-text)]">나의 청렴 스타일은?</h1>
+          <div className="flex gap-1.5">
+            {answers.length > 0 && (
+              <button
+                onClick={handleBack}
+                className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
+              >
+                ← 이전
+              </button>
+            )}
             <button
-              onClick={handleBack}
+              onClick={handleQuit}
               className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
             >
-              ← 이전
+              중단
             </button>
-          )}
-          <button
-            onClick={handleQuit}
-            className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
-          >
-            중단
-          </button>
+          </div>
         </div>
+        <ProgressBar current={answers.length + 1} total={questions.length} />
+        <QuestionCard
+          key={question.id}
+          question={question}
+          questionIndex={answers.length}
+          shuffleSeed={shuffleSeed}
+          onSelect={handleSelect}
+        />
       </div>
-      <ProgressBar current={answers.length + 1} total={questions.length} />
-      <QuestionCard
-        key={question.id}
-        question={question}
-        questionIndex={answers.length}
-        shuffleSeed={shuffleSeed}
-        onSelect={handleSelect}
-      />
     </div>
   );
 }

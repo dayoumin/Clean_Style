@@ -116,7 +116,7 @@ describe('/api/respect-advice', () => {
     const call = lastCall?.[0] as { messages: Array<{ role: string; content: string }> } | undefined;
     expect(call).toBeDefined();
     const systemPrompt = call?.messages[0]?.content ?? '';
-    expect(systemPrompt).toContain('7~10개의 완성된 문장');
+    expect(systemPrompt).toContain('5~7개의 완성된 문장');
     expect(systemPrompt).toContain('내 행동 점검 조언 방향');
     expect(systemPrompt).toContain('업무 목적과 기준');
     expect(systemPrompt).not.toContain('일터 존중 점검 조언 방향');
@@ -135,9 +135,33 @@ describe('/api/respect-advice', () => {
     const call = lastCall?.[0] as { messages: Array<{ role: string; content: string }> } | undefined;
     expect(call).toBeDefined();
     const systemPrompt = call?.messages[0]?.content ?? '';
-    expect(systemPrompt).toContain('7~10개의 완성된 문장');
+    expect(systemPrompt).toContain('5~7개의 완성된 문장');
     expect(systemPrompt).toContain('일터 존중 점검 조언 방향');
     expect(systemPrompt).toContain('날짜·장소·말투·증거');
     expect(systemPrompt).not.toContain('내 행동 점검 조언 방향');
+  });
+
+  it('일터 존중 긴급 결과는 전문 상담사 톤과 즉시 도움 연결 프롬프트를 추가한다', async () => {
+    const answers = Array(10).fill(0);
+    answers[9] = 2;
+
+    const res = await POST(adviceRequest({
+      entry: 'experience',
+      answers,
+      question: '기관 내에 보통 어디에 문의하면 되지?',
+    }));
+
+    expect(res.status).toBe(200);
+    const lastCall = mocks.chatStream.mock.calls.at(-1) as unknown[] | undefined;
+    expect(lastCall).toBeDefined();
+    const call = lastCall?.[0] as { messages: Array<{ role: string; content: string }> } | undefined;
+    expect(call).toBeDefined();
+    const systemPrompt = call?.messages[0]?.content ?? '';
+    expect(systemPrompt).toContain('긴급 도움 연결 답변 방향');
+    expect(systemPrompt).toContain('전문 상담사처럼');
+    expect(systemPrompt).toContain('모든 답변에 109, 112, 119를 반복하지 마세요');
+    expect(systemPrompt).toContain('연결 순서를 묻는 경우');
+    expect(systemPrompt).toContain('고충처리·EAP·노동조합');
+    expect(systemPrompt).toContain('지금 혼자 감당하기 어렵고 안전이 걱정됩니다');
   });
 });
