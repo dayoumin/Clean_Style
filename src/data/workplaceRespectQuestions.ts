@@ -54,8 +54,8 @@ export const respectEntryLabels: Record<RespectEntry, { title: string; shortTitl
     description: '내 말이나 지시가 상대에게 부담으로 보일 수 있는지 살펴봅니다.',
   },
   experience: {
-    title: '내가 겪은 일 점검',
-    shortTitle: '겪은 일',
+    title: '일터 존중 점검',
+    shortTitle: '존중 점검',
     description: '내가 겪은 일이 부당한지, 기록이나 상담이 필요한지 살펴봅니다.',
   },
 };
@@ -346,6 +346,7 @@ export function calculateRespectResult(entry: RespectEntry, answers: number[]): 
   let score = 0;
   let crisis = false;
   let support = false;
+  let resultGate = false;
   let answeredCount = 0;
   const axisScores = createAxisScores();
 
@@ -359,12 +360,13 @@ export function calculateRespectResult(entry: RespectEntry, answers: number[]): 
     if (isRespectRiskAxis(question.axis)) {
       axisScores[question.axis] += choice.score;
     }
+    if (question.axis === 'resultGate' && choice.score >= 2) resultGate = true;
     if (choice.crisis) crisis = true;
     if (choice.support) support = true;
   });
 
   const axisSummary = summarizeAxes(axisScores);
-  const level = getRespectLevel(score, crisis, support, axisSummary);
+  const level = getRespectLevel(score, crisis, support, resultGate, axisSummary);
   const content = resultContent[entry][level];
 
   return {
@@ -420,11 +422,13 @@ function getRespectLevel(
   score: number,
   crisis: boolean,
   support: boolean,
+  resultGate: boolean,
   axisSummary: RespectAxisSummary,
 ): RespectRiskLevel {
   if (crisis) return 'urgent';
   if (axisSummary.coreCriteriaMet && score >= 12) return 'high';
   if (score >= 18 && axisSummary.scores.relationPower >= 2 && axisSummary.activeAxes.length >= 4) return 'high';
+  if (resultGate) return 'caution';
   if (support) return 'caution';
   if (score >= 9 || axisSummary.activeAxes.length >= 3) return 'caution';
   return 'low';

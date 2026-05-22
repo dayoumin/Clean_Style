@@ -1,26 +1,32 @@
 'use client';
 
-import Link from 'next/link';
+import { DiagnosticCard } from '@/components/DiagnosticCard';
 import HistoryList from '@/components/HistoryList';
-import { FluentEmoji } from '@/components/FluentEmoji';
+import { LeafLineArt } from '@/components/LeafLineArt';
 import { RESPECT_FEATURE_ENABLED } from '@/data/workplaceRespectFeature';
 
 const featureCards = [
   {
     href: '/test',
     emoji: '✨',
-    label: '청렴',
     title: '청렴 스타일 진단',
-    description: '업무 상황에서 내가 중요하게 보는 기준과 실천 방식을 확인합니다.',
-    tags: ['15개 상황', '약 3분', 'AI 조언'],
+    description: '나의 청렴 성향 파악하기',
+    iconClassName: 'bg-[#fff8e7]',
   },
   {
-    href: '/respect',
-    emoji: '🧭',
-    label: '존중',
+    href: '/respect/check?entry=action',
+    emoji: '🤝',
+    title: '내 행동 점검',
+    description: '일상 속 올바른 실천 확인',
+    iconClassName: 'bg-[#eaf5ff]',
+    enabled: RESPECT_FEATURE_ENABLED,
+  },
+  {
+    href: '/respect/check?entry=experience',
+    emoji: '📑',
     title: '일터 존중 점검',
-    description: '내 행동이나 내가 겪은 일을 기준으로 기록과 도움 경로를 확인합니다.',
-    tags: ['2개 경로', '10문항', '도움 경로'],
+    description: '상호 존중하는 문화 만들기',
+    iconClassName: 'bg-[#f3f4f7]',
     enabled: RESPECT_FEATURE_ENABLED,
   },
 ];
@@ -29,65 +35,39 @@ export default function HomePage() {
   const visibleCards = featureCards.filter(card => card.enabled !== false);
 
   return (
-    <div className="animate-fade-in flex min-h-[80vh] flex-col justify-center">
-      <div className="mb-7 text-center">
-        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[var(--color-primary-soft)] px-4 py-1.5 text-[13px] font-semibold text-[var(--color-primary-accent)]">
-          셀프 점검
+    <div className="animate-fade-in relative -mx-6 -mb-6 -mt-4 flex flex-1 flex-col overflow-hidden bg-[#f8faf5] px-6 pb-6 pt-4 sm:-mx-8 sm:-mb-8 sm:-mt-6 sm:rounded-2xl sm:px-8 sm:pb-8 sm:pt-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[235px] bg-[linear-gradient(180deg,#edf5e8,rgba(237,245,232,0))]" />
+      <LeafLineArt className="pointer-events-none absolute -right-12 top-20 h-56 w-56 text-[#98aa87] opacity-30" />
+      <LeafLineArt className="pointer-events-none absolute -left-24 bottom-16 h-60 w-60 rotate-[-18deg] text-[#b5c3a8] opacity-22" />
+
+      <section className="relative z-10 flex flex-1 flex-col justify-center py-6">
+        <div className="mb-8 text-center">
+          <h1
+            id="home-start"
+            tabIndex={-1}
+            className="text-[16px] font-medium leading-relaxed tracking-normal text-[var(--color-text-secondary)] focus-visible:outline-none"
+          >
+            잠깐 체크해 볼까요?
+          </h1>
         </div>
 
-        <h1 className="text-[1.75rem] font-extrabold leading-[1.25] tracking-tight text-[var(--color-text)]">
-          무엇을 확인할까요?
-        </h1>
-        <p className="mx-auto mt-3 max-w-[20rem] text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
-          업무 중 마주한 상황을 기준으로 필요한 점검을 선택하세요.
-        </p>
-      </div>
+        <div className="grid gap-4">
+          {visibleCards.map(card => (
+            <DiagnosticCard
+              key={card.href}
+              href={card.href}
+              emoji={card.emoji}
+              title={card.title}
+              description={card.description}
+              iconClassName={card.iconClassName}
+            />
+          ))}
+        </div>
+      </section>
 
-      <div className="grid gap-3">
-        {visibleCards.map(card => (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="flex min-h-[178px] flex-col justify-between rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-5 py-5 text-left shadow-sm transition-transform hover:border-[var(--color-primary-muted)] active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-accent)] focus-visible:ring-offset-2"
-          >
-            <div>
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-primary-soft)]">
-                  <FluentEmoji emoji={card.emoji} size={28} />
-                </span>
-                <span className="rounded-full bg-[var(--color-bg)] px-3 py-1 text-[11px] font-extrabold text-[var(--color-primary-accent)]">
-                  {card.label}
-                </span>
-              </div>
-              <h2 className="text-[19px] font-extrabold tracking-tight text-[var(--color-text)]">
-                {card.title}
-              </h2>
-              <p className="mt-2 text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
-                {card.description}
-              </p>
-            </div>
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap gap-1.5">
-                {card.tags.map(tag => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-[var(--color-bg)] px-2.5 py-1 text-[11px] font-semibold text-[var(--color-text-muted)]"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <div>
-                <span className="text-[12px] font-extrabold text-[var(--color-primary-accent)]">
-                  시작 →
-                </span>
-              </div>
-            </div>
-          </Link>
-        ))}
+      <div className="relative z-10">
+        <HistoryList buttonLabel="청렴 결과 보기" emptyFocusTargetId="home-start" />
       </div>
-
-      <HistoryList />
 
     </div>
   );

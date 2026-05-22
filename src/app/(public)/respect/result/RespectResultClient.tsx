@@ -1,8 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import BottomSheet from '@/components/BottomSheet';
+import { getClientIdHeader } from '@/lib/client-id';
+import { MAX_HISTORY_MESSAGES, MAX_QUESTION_LENGTH } from '@/lib/constants';
 import {
   calculateRespectResult,
   getRespectQuestions,
@@ -36,6 +39,7 @@ const levelStyle: Record<RespectRiskLevel, { label: string; className: string }>
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-accent)] focus-visible:ring-offset-2';
 const dangerFocusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#be123c] focus-visible:ring-offset-2';
+const CHAT_SCROLL_AREA = 'flex-1 space-y-3 overflow-y-auto px-5 py-4';
 
 const urgentCallLinks: Record<RespectEntry, Array<{ href: string; label: string; subLabel: string; ariaLabel: string }>> = {
   action: [
@@ -57,9 +61,51 @@ interface StoredRespectResult {
   version: string;
 }
 
+interface RespectChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+type RespectChatErrorType = 'network' | 'rate-limit' | 'shared-rate-limit' | 'server';
+
+function ChatBubbles({ messages }: { messages: RespectChatMessage[] }) {
+  if (messages.length === 0) return null;
+
+  return (
+    <>
+      {messages.map((msg, idx) => (
+        <div
+          key={idx}
+          className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+        >
+          <div
+            className={`max-w-[85%] rounded-[var(--radius-md)] px-3.5 py-2.5 text-[13px] leading-relaxed ${
+              msg.role === 'user'
+                ? 'rounded-br-sm bg-[var(--color-primary)] text-white'
+                : 'rounded-bl-sm bg-[var(--color-card)] text-[var(--color-text-secondary)]'
+            }`}
+          >
+            <p className="whitespace-pre-line">{msg.content}</p>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
 export default function RespectResultClient({ entry }: { entry: RespectEntry }) {
   const router = useRouter();
   const [stored, setStored] = useState<StoredRespectResult | null | undefined>(undefined);
+  const [showAiChat, setShowAiChat] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [chatMessages, setChatMessages] = useState<RespectChatMessage[]>([]);
+  const [streamingAnswer, setStreamingAnswer] = useState('');
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatErrorType, setChatErrorType] = useState<RespectChatErrorType | null>(null);
+  const [piiWarning, setPiiWarning] = useState<string[] | null>(null);
+  const chatAbortRef = useRef<AbortController | null>(null);
+  const chatScrollAnchorRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const storageKey = useMemo(() => getRespectResultStorageKey(entry), [entry]);
 
   useEffect(() => {
@@ -107,6 +153,18 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
     }
   }, [entry, storageKey]);
 
+  useEffect(() => {
+    return () => chatAbortRef.current?.abort();
+  }, [chatAbortRef]);
+
+  useEffect(() => {
+    if (!chatLoading) return;
+    const interval = setInterval(() => {
+      chatScrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 400);
+    return () => clearInterval(interval);
+  }, [chatLoading]);
+
   const questions = useMemo(() => getRespectQuestions(entry), [entry]);
   const result = useMemo(() => {
     if (!stored) return null;
@@ -120,6 +178,115 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
     clearStoredResult();
     router.push(href);
   }, [clearStoredResult, router]);
+  const openAiChat = useCallback(() => {
+    setShowAiChat(true);
+    setTimeout(() => textareaRef.current?.focus(), 200);
+  }, []);
+  const fetchAiChat = useCallback(async () => {
+    const question = chatInput.trim();
+    if (!stored || !question) return;
+
+    chatAbortRef.current?.abort();
+    const controller = new AbortController();
+    chatAbortRef.current = controller;
+    setStreamingAnswer('');
+    setChatErrorType(null);
+    setPiiWarning(null);
+    setChatLoading(true);
+
+    let fullAnswer = '';
+
+    try {
+      const res = await fetch('/api/respect-advice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getClientIdHeader() },
+        body: JSON.stringify({
+          entry,
+          answers: stored.answers,
+          question,
+          history: chatMessages.length > 0 ? chatMessages : undefined,
+        }),
+        signal: controller.signal,
+      });
+
+      if (res.status === 429) {
+        const body = await res.json().catch(() => ({}));
+        setChatErrorType(body.limitedBy === 'ip' ? 'shared-rate-limit' : 'rate-limit');
+        return;
+      }
+
+      if (!res.ok || !res.body) {
+        setChatErrorType('server');
+        return;
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let lastRenderTime = 0;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data: ')) continue;
+          const payload = trimmed.slice(6);
+          if (payload === '[DONE]') continue;
+
+          let parsed: { token?: string; error?: string; pii_warning?: string[] };
+          try { parsed = JSON.parse(payload); } catch { continue; }
+          if (parsed.pii_warning) {
+            setPiiWarning(parsed.pii_warning);
+            continue;
+          }
+          if (parsed.error) {
+            setChatErrorType('server');
+            return;
+          }
+          if (parsed.token) {
+            fullAnswer += parsed.token;
+            const now = performance.now();
+            if (now - lastRenderTime > 30) {
+              setStreamingAnswer(fullAnswer);
+              lastRenderTime = now;
+            }
+          }
+        }
+      }
+
+      if (!fullAnswer.trim()) {
+        setChatErrorType('server');
+        return;
+      }
+
+      setStreamingAnswer(fullAnswer);
+      setChatMessages((prev) => {
+        const next: RespectChatMessage[] = [
+          ...prev,
+          { role: 'user', content: question },
+          { role: 'assistant', content: fullAnswer },
+        ];
+        const trimCount = next.length - MAX_HISTORY_MESSAGES;
+        return trimCount > 0 ? next.slice(trimCount) : next;
+      });
+      setChatInput('');
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      setChatErrorType(error instanceof TypeError ? 'network' : 'server');
+    } finally {
+      setChatLoading(false);
+    }
+  }, [chatInput, chatMessages, entry, stored]);
+  const abortAiChat = useCallback(() => {
+    chatAbortRef.current?.abort();
+    setChatLoading(false);
+  }, []);
 
   if (stored === undefined) {
     return <div className="min-h-[60vh]" />;
@@ -149,6 +316,9 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
           </h1>
           <p className="text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
             {result.summary}
+          </p>
+          <p className="mt-3 rounded-[var(--radius-md)] bg-white/70 px-3 py-2 text-[12px] leading-relaxed text-[#be123c]">
+            이 결과는 법적·기관 공식 판정이 아니라 자가점검 안내입니다. 실제 위험이 있으면 앱보다 사람과 기관의 도움을 먼저 받으세요.
           </p>
           <div className="mt-4 grid grid-cols-3 gap-2">
             {callLinks.map((link) => (
@@ -203,6 +373,7 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
   }
 
   return (
+    <>
     <div className="animate-fade-in">
       <div className="result-gradient -mx-6 -mt-4 mb-5 px-6 py-8 text-white sm:-mx-8 sm:-mt-6 sm:px-8">
         <p className="relative mb-2 text-[12px] font-bold uppercase tracking-wide text-white/70">
@@ -221,6 +392,12 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
           </span>
         </div>
       </div>
+
+      <section className="mb-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3">
+        <p className="text-[12px] leading-relaxed text-[var(--color-text-secondary)]">
+          이 결과는 법적·기관 공식 판정이 아니라 상황 정리와 도움 연결을 위한 자가점검입니다.
+        </p>
+      </section>
 
       {result.support && !result.crisis && (
         <section className="result-card border-[#facc15] bg-[var(--color-warning-soft)]">
@@ -313,10 +490,10 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
         </button>
         <button
           type="button"
-          onClick={clearStoredResult}
-          className={`rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-center text-[14px] font-semibold text-white hover:bg-[var(--color-primary-accent)] ${focusRing}`}
+          onClick={openAiChat}
+          className={`rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-center text-[14px] font-semibold text-white hover:bg-[var(--color-primary-accent)] disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
         >
-          결과 지우기
+          AI 조언
         </button>
       </div>
       <button
@@ -327,6 +504,121 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
           처음으로
       </button>
     </div>
+    {showAiChat && (
+      <BottomSheet title="AI 조언" onClose={() => { if (!chatLoading) setShowAiChat(false); }}>
+        {chatLoading ? (
+          <>
+            <div className={CHAT_SCROLL_AREA}>
+              <ChatBubbles messages={chatMessages} />
+              <ChatBubbles messages={[{ role: 'user', content: chatInput.trim() }]} />
+              {streamingAnswer ? (
+                <div className="flex justify-start">
+                  <div className="max-w-[85%] rounded-[var(--radius-md)] rounded-bl-sm border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-3.5 py-2.5">
+                    <p className="whitespace-pre-line text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
+                      {streamingAnswer}
+                      <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-[var(--color-primary-accent)] align-text-bottom" />
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="py-4 text-center">
+                  <span className="mb-3 inline-block h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-primary-accent)] border-t-transparent" />
+                  <p className="text-[14px] font-semibold text-[var(--color-primary-accent)]">답변을 작성하고 있어요...</p>
+                </div>
+              )}
+              <div ref={chatScrollAnchorRef} />
+            </div>
+            <div className="shrink-0 border-t border-[var(--color-border)] px-5 py-3">
+              <button
+                type="button"
+                onClick={abortAiChat}
+                className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
+              >
+                중단
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            {chatMessages.length > 0 && (
+              <div className={CHAT_SCROLL_AREA}>
+                <ChatBubbles messages={chatMessages} />
+                <div ref={chatScrollAnchorRef} />
+              </div>
+            )}
+            <div className={`shrink-0 space-y-3 px-5 py-3 ${chatMessages.length > 0 ? 'border-t border-[var(--color-border)]' : 'pt-0'}`}>
+              <p className="rounded-[var(--radius-md)] bg-[var(--color-primary-soft)] px-3 py-2 text-[12px] leading-relaxed text-[var(--color-text-secondary)]">
+                AI 조언을 요청하면 점검 결과와 질문이 답변 생성을 위해 전송됩니다. 이름, 소속, 연락처 같은 개인정보는 쓰지 마세요.
+              </p>
+              <div className="relative">
+                <textarea
+                  ref={textareaRef}
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      if (chatInput.trim()) fetchAiChat();
+                    }
+                  }}
+                  maxLength={MAX_QUESTION_LENGTH}
+                  placeholder="결과를 바탕으로 더 궁금한 점을 질문하세요"
+                  className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 pr-14 text-[14px] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-accent)]"
+                  rows={6}
+                />
+                <span className="absolute bottom-2 right-3 text-[11px] text-[var(--color-text-muted)]">{chatInput.length}/{MAX_QUESTION_LENGTH}</span>
+              </div>
+              {piiWarning && piiWarning.length > 0 && (
+                <p className="text-[12px] leading-relaxed text-amber-600">
+                  개인정보({piiWarning.join(', ')})가 감지되어 자동으로 가렸습니다.
+                </p>
+              )}
+              {chatErrorType && (
+                <p className="text-[13px] text-red-500">
+                  {chatErrorType === 'network' && '인터넷 연결을 확인해주세요.'}
+                  {chatErrorType === 'rate-limit' && 'AI 질문은 1분에 5번까지 가능해요. 잠시 후 다시 시도해주세요.'}
+                  {chatErrorType === 'shared-rate-limit' && '같은 네트워크에서 AI 요청이 많아요. 잠시 후 다시 시도해주세요.'}
+                  {chatErrorType === 'server' && 'AI 서비스에 일시적인 문제가 생겼어요.'}
+                </p>
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAiChat(false)}
+                  className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-3 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
+                >
+                  닫기
+                </button>
+                <button
+                  type="button"
+                  onClick={fetchAiChat}
+                  disabled={!chatInput.trim()}
+                  className="flex-[2] rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  질문하기
+                </button>
+              </div>
+              {chatMessages.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setChatMessages([]);
+                    setStreamingAnswer('');
+                    setChatInput('');
+                    setChatErrorType(null);
+                    setPiiWarning(null);
+                  }}
+                  className="w-full py-2 text-[12px] text-[var(--color-text-muted)] hover:text-red-500"
+                >
+                  대화 지우기
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </BottomSheet>
+    )}
+    </>
   );
 }
 

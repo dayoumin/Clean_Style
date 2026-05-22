@@ -142,6 +142,32 @@ describe('calculateRespectResult', () => {
     expect(result.level).toBe('caution');
   });
 
+  it('내 행동 점검의 명확한 중단 신호는 최소 caution 결과를 반환한다', () => {
+    const answers = Array(10).fill(0);
+    answers[9] = 2;
+
+    const result = calculateRespectResult('action', answers);
+    expect(result.level).toBe('caution');
+    expect(result.crisis).toBe(false);
+  });
+
+  it('내 행동 점검은 핵심 기준과 충분한 점수가 함께 나타날 때 high를 반환한다', () => {
+    const answers = [2, 2, 2, 0, 2, 2, 2, 0, 0, 0];
+
+    const result = calculateRespectResult('action', answers);
+    expect(result.level).toBe('high');
+    expect(result.axisSummary.coreCriteriaMet).toBe(true);
+    expect(result.score).toBeGreaterThanOrEqual(12);
+  });
+
+  it('내 행동 점검은 관계상 우위가 없으면 높은 합산 점수만으로 high를 반환하지 않는다', () => {
+    const answers = [0, 3, 3, 3, 3, 3, 3, 3, 3, 0];
+
+    const result = calculateRespectResult('action', answers);
+    expect(result.axisSummary.coreCriteriaMet).toBe(false);
+    expect(result.level).toBe('caution');
+  });
+
   it('위기 선택지는 점수와 무관하게 urgent 결과를 반환한다', () => {
     const answers = Array(10).fill(0);
     answers[9] = 2;

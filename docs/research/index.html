@@ -3,17 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clean Style - Research</title>
+<title>Clean Style 검토 문서</title>
 <style>
-  :root, [data-theme="light"] {
-    --bg: #f5f6f8; --sidebar-bg: #fff; --border: #e2e5ec;
-    --text: #1a1d27; --text-dim: #495057; --text-muted: #868e9c;
-    --accent: #4263eb; --hover-bg: #f0f2ff; --active-bg: #edf0ff;
-    --footer-hover: #4263eb;
-  }
-  [data-theme="dark"] {
+  :root, [data-theme="light"], [data-theme="dark"] {
     --bg: #0f1117; --sidebar-bg: #13151d; --border: #2e3345;
-    --text: #e1e4ed; --text-dim: #8b90a0; --text-muted: #5a5f73;
+    --text: #e1e4ed; --text-dim: #b6bccd; --text-muted: #9aa1b5;
     --accent: #6c8aff; --hover-bg: rgba(108,138,255,0.06); --active-bg: rgba(108,138,255,0.1);
     --footer-hover: #6c8aff;
   }
@@ -67,7 +61,7 @@
     position: fixed; top: 1rem; right: 1rem; z-index: 100;
     width: 36px; height: 36px; border-radius: 50%;
     background: var(--sidebar-bg); border: 1px solid var(--border);
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; display: none; align-items: center; justify-content: center;
     font-size: 1rem; color: var(--text-dim); transition: all 0.2s;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   }
@@ -134,22 +128,34 @@
   </div>
 
   <div class="nav-group">
-    <div class="nav-group-label">확장 기획</div>
-    <a class="nav-link" href="workplace-respect-safety-plan.html" data-src="workplace-respect-safety-plan.html" data-title="일터 존중·안전 자가점검">
-      일터 존중&middot;안전 자가점검
-      <span class="nav-desc">갑질·직장 내 괴롭힘·마음위기 도움 연결을 청렴 진단과 분리해 설계</span>
+    <div class="nav-group-label">일터 존중·안전 검토 자료</div>
+    <a class="nav-link" href="workplace-respect-decision-criteria.html" data-src="workplace-respect-decision-criteria.html" data-title="일터 존중·안전 공통 판정 구조">
+      공통 판정 구조
+      <span class="nav-desc">두 점검의 공통 판단축, 파일럿 임계값, 운영 전 승인 게이트</span>
+    </a>
+    <a class="nav-link" href="workplace-respect-action-criteria.html" data-src="workplace-respect-action-criteria.html" data-title="내 행동 점검 판정 기준">
+      내 행동 점검 기준
+      <span class="nav-desc">행위자 예방 관점의 문항 축, 게이트, 결과 안내 기준</span>
+    </a>
+    <a class="nav-link" href="workplace-respect-experience-criteria.html" data-src="workplace-respect-experience-criteria.html" data-title="일터 존중 점검 판정 기준">
+      일터 존중 점검 기준
+      <span class="nav-desc">당사자 보호·기록 관점의 문항 축, 도움 연결, 결과 안내 기준</span>
     </a>
     <a class="nav-link" href="workplace-respect-source-policy.html" data-src="workplace-respect-source-policy.html" data-title="자료 사용 및 문항 관리 기준">
       자료 사용 및 문항 관리 기준
       <span class="nav-desc">공식 자료 사용 정책, 문항 출처 관리, 검토 게이트 고정</span>
     </a>
+    <a class="nav-link" href="workplace-respect-reliability-ops.html" data-src="workplace-respect-reliability-ops.html" data-title="일터 존중·안전 신뢰성 및 운영 승인 기준">
+      신뢰성&middot;운영 승인 기준
+      <span class="nav-desc">기관 내부 설명, 승인 체크리스트, 검증 계획, 잔여 리스크 관리</span>
+    </a>
     <a class="nav-link" href="workplace-respect-question-design.html" data-src="workplace-respect-question-design.html" data-title="일터 존중·안전 문항·결과 1차안">
       문항&middot;결과 1차안
       <span class="nav-desc">기존 청렴 스타일 UI를 재사용하는 문항, 점수, 결과 화면 설계</span>
     </a>
-    <a class="nav-link" href="workplace-respect-reliability-ops.html" data-src="workplace-respect-reliability-ops.html" data-title="일터 존중·안전 신뢰성 및 운영 승인 기준">
-      신뢰성&middot;운영 승인 기준
-      <span class="nav-desc">기관 내부 설명, 승인 체크리스트, 검증 계획, 잔여 리스크 관리</span>
+    <a class="nav-link" href="workplace-respect-safety-plan.html" data-src="workplace-respect-safety-plan.html" data-title="일터 존중·안전 기획 배경">
+      기획 배경
+      <span class="nav-desc">갑질·직장 내 괴롭힘·마음위기 도움 연결을 청렴 진단과 분리해 설계</span>
     </a>
   </div>
 

@@ -6,20 +6,46 @@ import {
   type RespectRiskAxis,
 } from './workplaceRespectQuestions';
 
-export interface RespectSourceMapping {
+type ReviewStatus = '초안' | '내부검토' | '전문가검토' | '운영중' | '폐기';
+type ApprovalDecision = '미검토' | '보완필요' | '승인' | '폐기';
+
+interface RespectSourceMappingBase {
   sourceTitle: string;
   sourceUrl: string;
+  additionalSourceUrls: string[];
   publishedDate: string;
   retrievedAt: string;
   sectionOrPage: string;
+  sourceLocatorStatus: '보완필요' | '확정';
   basis: string;
   sourceTextSummary: string;
   useCondition: '기준 참고' | '링크아웃' | '도움 연결';
   derivedOrDirect: '기준 기반 자체 문항' | '링크아웃';
   riskFlags: Array<'법률오인' | '의료오인' | '개인정보' | '위기표현'>;
-  expertReviewer: string | null;
-  reviewStatus: '초안' | '내부검토' | '전문가검토' | '운영중' | '폐기';
 }
+
+type NonOperationalApproval = {
+  reviewStatus: Exclude<ReviewStatus, '운영중'>;
+  expertReviewer: string | null;
+  reviewerRole: string | null;
+  reviewedAt: string | null;
+  approvalDecision: ApprovalDecision;
+  approvalScope: string | null;
+  approvalArtifact: string | null;
+};
+
+type OperationalApproval = {
+  reviewStatus: '운영중';
+  expertReviewer: string;
+  reviewerRole: string;
+  reviewedAt: string;
+  approvalDecision: '승인';
+  approvalScope: string;
+  approvalArtifact: string;
+  sourceLocatorStatus: '확정';
+};
+
+export type RespectSourceMapping = RespectSourceMappingBase & (NonOperationalApproval | OperationalApproval);
 
 export interface RespectGovernanceQuestion extends RuntimeRespectQuestion {
   source: RespectSourceMapping;
@@ -30,7 +56,9 @@ export interface RespectGovernanceQuestion extends RuntimeRespectQuestion {
 const MOEL_SOURCE_URL = 'https://www.moel.go.kr/policy/policydata/view.do?bbs_seq=20230500514';
 const GAPJIL_SOURCE_URL = 'https://www.korea.kr/archive/expDocView.do?docId=38412';
 const HELP_SOURCE_URL = 'https://www.129.go.kr/109';
-const RETRIEVED_AT = '2026-05-21';
+const POLICE_SOURCE_URL = 'https://www.112.go.kr/';
+const FIRE_SOURCE_URL = 'https://www.119.go.kr/Center119/main.do';
+const RETRIEVED_AT = '2026-05-22';
 
 function moelSource(
   sectionOrPage: string,
@@ -41,15 +69,22 @@ function moelSource(
   return {
     sourceTitle: '직장 내 괴롭힘 판단 및 예방·대응 매뉴얼',
     sourceUrl: MOEL_SOURCE_URL,
+    additionalSourceUrls: [],
     publishedDate: '2023-05-10',
     retrievedAt: RETRIEVED_AT,
     sectionOrPage,
+    sourceLocatorStatus: '보완필요',
     basis,
     sourceTextSummary,
     useCondition: '기준 참고',
     derivedOrDirect: '기준 기반 자체 문항',
     riskFlags,
     expertReviewer: null,
+    reviewerRole: null,
+    reviewedAt: null,
+    approvalDecision: '미검토',
+    approvalScope: null,
+    approvalArtifact: null,
     reviewStatus: '초안',
   };
 }
@@ -62,15 +97,22 @@ function gapjilSource(
   return {
     sourceTitle: '공공분야 갑질 근절 가이드라인',
     sourceUrl: GAPJIL_SOURCE_URL,
+    additionalSourceUrls: [],
     publishedDate: '2019-02-22',
     retrievedAt: RETRIEVED_AT,
     sectionOrPage,
+    sourceLocatorStatus: '보완필요',
     basis,
     sourceTextSummary,
     useCondition: '기준 참고',
     derivedOrDirect: '기준 기반 자체 문항',
     riskFlags: ['법률오인'],
     expertReviewer: null,
+    reviewerRole: null,
+    reviewedAt: null,
+    approvalDecision: '미검토',
+    approvalScope: null,
+    approvalArtifact: null,
     reviewStatus: '초안',
   };
 }
@@ -82,15 +124,76 @@ function helpSource(
   return {
     sourceTitle: '109 자살예방상담전화',
     sourceUrl: HELP_SOURCE_URL,
+    additionalSourceUrls: [],
     publishedDate: '2024-01-01',
     retrievedAt: RETRIEVED_AT,
     sectionOrPage: '상담전화 안내',
+    sourceLocatorStatus: '보완필요',
     basis,
     sourceTextSummary,
     useCondition: '도움 연결',
     derivedOrDirect: '기준 기반 자체 문항',
     riskFlags: ['의료오인', '개인정보', '위기표현'],
     expertReviewer: null,
+    reviewerRole: null,
+    reviewedAt: null,
+    approvalDecision: '미검토',
+    approvalScope: null,
+    approvalArtifact: null,
+    reviewStatus: '초안',
+  };
+}
+
+function safetySource(
+  basis: string,
+  sourceTextSummary: string,
+): RespectSourceMapping {
+  return {
+    sourceTitle: '112신고포털 및 119 안전신고센터',
+    sourceUrl: POLICE_SOURCE_URL,
+    additionalSourceUrls: [FIRE_SOURCE_URL],
+    publishedDate: '상시',
+    retrievedAt: RETRIEVED_AT,
+    sectionOrPage: '긴급 신고 안내',
+    sourceLocatorStatus: '보완필요',
+    basis,
+    sourceTextSummary,
+    useCondition: '도움 연결',
+    derivedOrDirect: '기준 기반 자체 문항',
+    riskFlags: ['법률오인', '개인정보', '위기표현'],
+    expertReviewer: null,
+    reviewerRole: null,
+    reviewedAt: null,
+    approvalDecision: '미검토',
+    approvalScope: null,
+    approvalArtifact: null,
+    reviewStatus: '초안',
+  };
+}
+
+function crisisSource(
+  basis: string,
+  sourceTextSummary: string,
+): RespectSourceMapping {
+  return {
+    sourceTitle: '109 자살예방상담전화, 112신고포털, 119 안전신고센터',
+    sourceUrl: HELP_SOURCE_URL,
+    additionalSourceUrls: [POLICE_SOURCE_URL, FIRE_SOURCE_URL],
+    publishedDate: '상시',
+    retrievedAt: RETRIEVED_AT,
+    sectionOrPage: '자해 위험 및 긴급 신고 안내',
+    sourceLocatorStatus: '보완필요',
+    basis,
+    sourceTextSummary,
+    useCondition: '도움 연결',
+    derivedOrDirect: '기준 기반 자체 문항',
+    riskFlags: ['의료오인', '개인정보', '위기표현'],
+    expertReviewer: null,
+    reviewerRole: null,
+    reviewedAt: null,
+    approvalDecision: '미검토',
+    approvalScope: null,
+    approvalArtifact: null,
     reviewStatus: '초안',
   };
 }
@@ -236,7 +339,7 @@ export const workplaceRespectQuestions: RespectGovernanceQuestion[] = [
       { text: '분명히 있다', score: 2 },
       { text: '폭력, 보복, 안전 위험이 있다', score: 0, crisis: true },
     ],
-    source: helpSource('즉각적 안전위험', '폭력, 보복, 심각한 안전위험이 있으면 일반 결과보다 제3자 도움을 우선한다.'),
+    source: safetySource('즉각적 안전위험', '폭력, 보복, 심각한 안전위험이 있으면 일반 결과보다 112, 119 또는 기관 보호 절차 연결을 우선한다.'),
   }, ['즉시 도움 필요']),
   withQuestionMeta({
     id: 'E01',
@@ -366,6 +469,6 @@ export const workplaceRespectQuestions: RespectGovernanceQuestion[] = [
       { text: '지금 위험하다', score: 0, crisis: true },
       { text: '즉시 도움이 필요하다', score: 0, crisis: true },
     ],
-    source: helpSource('자해·자살 생각 또는 즉각적 안전위험', '위험 신호가 있으면 일반 결과보다 도움 연결을 우선한다.'),
+    source: crisisSource('자해·자살 생각 또는 즉각적 안전위험', '자해 생각은 109 등 정신건강 도움 연결을, 즉각적 안전위험은 112·119 또는 기관 보호 절차 연결을 우선한다.'),
   }, ['도움 연결', '즉시 도움 필요']),
 ];

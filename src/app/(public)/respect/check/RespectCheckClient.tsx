@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ProgressBar from '@/components/ProgressBar';
-import EmergencyHelpStrip from '../EmergencyHelpStrip';
 import {
   buildRespectResultUrl,
   getRespectQuestions,
@@ -58,10 +57,10 @@ export default function RespectCheckClient({ entry }: { entry: RespectEntry }) {
 
   return (
     <div className="animate-fade-in">
-      <div className="mb-4 flex items-center justify-between border-b border-[var(--color-border)] pb-3">
+      <div className="mb-4 flex items-center justify-between">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-wide text-[var(--color-primary-accent)]">
-            일터 존중·안전
+            일터 존중 점검
           </p>
           <h1 className="text-[17px] font-bold text-[var(--color-text)]">{label.title}</h1>
         </div>
@@ -83,14 +82,6 @@ export default function RespectCheckClient({ entry }: { entry: RespectEntry }) {
             중단
           </button>
         </div>
-      </div>
-
-      <div className="mb-4 rounded-[var(--radius-md)] bg-[var(--color-primary-soft)] px-4 py-3 text-[12px] leading-relaxed text-[var(--color-primary-accent)]">
-        실명, 기관명, 부서명, 연락처는 쓰지 않고 답해주세요. 이 점검은 판정이 아니라 상황 정리와 도움 연결을 위한 자가점검입니다.
-      </div>
-
-      <div className="mb-4">
-        <EmergencyHelpStrip compact />
       </div>
 
       <ProgressBar current={answers.length + 1} total={questions.length} ariaLabel="자가점검 진행률" />

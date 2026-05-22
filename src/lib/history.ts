@@ -30,13 +30,81 @@ function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function normalizeScores(value: unknown): HistoryEntry['scores'] | null {
+  if (!isRecord(value)) return null;
+  const { principle, transparency, independence } = value;
+
+  if (
+    typeof principle !== 'number'
+    || typeof transparency !== 'number'
+    || typeof independence !== 'number'
+  ) {
+    return null;
+  }
+
+  return { principle, transparency, independence };
+}
+
+function normalizeChat(value: unknown): ChatMessage[] {
+  if (!Array.isArray(value)) return [];
+
+  return value.filter((message): message is ChatMessage => (
+    isRecord(message)
+    && (message.role === 'user' || message.role === 'assistant')
+    && typeof message.content === 'string'
+  ));
+}
+
+function normalizeHistoryEntry(value: unknown): HistoryEntry | null {
+  if (!isRecord(value)) return null;
+
+  const scores = normalizeScores(value.scores);
+  if (!scores) return null;
+
+  if (
+    typeof value.styleKey !== 'string'
+    || typeof value.styleName !== 'string'
+    || typeof value.styleEmoji !== 'string'
+    || !Array.isArray(value.answers)
+    || !value.answers.every(answer => typeof answer === 'number')
+  ) {
+    return null;
+  }
+
+  return {
+    id: typeof value.id === 'string' && value.id ? value.id : generateId(),
+    createdAt: typeof value.createdAt === 'string' && value.createdAt ? value.createdAt : new Date().toISOString(),
+    styleKey: value.styleKey,
+    styleName: value.styleName,
+    styleEmoji: value.styleEmoji,
+    scores,
+    answers: value.answers,
+    chat: normalizeChat(value.chat),
+  };
+}
+
 export function getHistory(): HistoryEntry[] {
   if (!isBrowser()) return [];
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
     if (!raw) return [];
     const data = JSON.parse(raw);
-    return Array.isArray(data) ? data : [];
+    if (!Array.isArray(data)) return [];
+
+    const entries = data
+      .map(normalizeHistoryEntry)
+      .filter((entry): entry is HistoryEntry => entry !== null)
+      .slice(0, MAX_ENTRIES);
+
+    if (JSON.stringify(entries) !== JSON.stringify(data)) {
+      saveHistory(entries);
+    }
+
+    return entries;
   } catch {
     return [];
   }

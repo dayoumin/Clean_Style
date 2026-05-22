@@ -17,10 +17,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background:
-      radial-gradient(circle at 10% 0%, rgba(108,138,255,0.16), transparent 34rem),
-      radial-gradient(circle at 90% 4%, rgba(74,222,128,0.1), transparent 30rem),
-      var(--bg);
+    background: var(--bg);
     color: var(--text);
     line-height: 1.72;
     padding: 2rem;
@@ -30,7 +27,7 @@
   a.back { color: var(--accent); text-decoration: none; font-size: 0.82rem; display: inline-block; margin-bottom: 1.5rem; }
   a.back:hover { text-decoration: underline; }
   a { color: var(--accent); }
-  h1 { font-size: clamp(2rem, 4vw, 3.25rem); font-weight: 850; margin-bottom: 0.7rem; line-height: 1.12; letter-spacing: -0.02em; }
+  h1 { font-size: 1.9rem; font-weight: 850; margin-bottom: 0.55rem; line-height: 1.22; letter-spacing: 0; }
   h1 span { color: var(--accent); }
   .subtitle { color: var(--text-dim); font-size: 1rem; margin-bottom: 0; max-width: 48rem; }
   h2 {
@@ -65,12 +62,11 @@
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
   }
   .card {
-    background: linear-gradient(180deg, rgba(35,39,51,0.92), rgba(26,29,39,0.94));
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 12px;
     padding: 1.15rem 1.25rem;
     margin-bottom: 1rem;
-    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
   }
   .note {
     background: var(--accent-soft);
@@ -98,17 +94,16 @@
   .page-shell { position: relative; }
   .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
     gap: 1.25rem;
     align-items: stretch;
     margin-bottom: 1.25rem;
   }
   .hero-panel {
-    background: linear-gradient(135deg, rgba(35,39,51,0.95), rgba(26,29,39,0.9));
+    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 24px;
+    border-radius: 12px;
     padding: 1.75rem;
-    box-shadow: 0 18px 44px rgba(0,0,0,0.22);
   }
   .eyebrow {
     display: inline-flex;
@@ -127,7 +122,7 @@
     gap: 0.75rem;
     background: rgba(248,113,113,0.06);
     border: 1px solid rgba(248,113,113,0.28);
-    border-radius: 24px;
+    border-radius: 12px;
     padding: 1.1rem;
   }
   .status-pill {
@@ -150,7 +145,7 @@
   }
   .signal-card {
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 12px;
     background: rgba(26,29,39,0.72);
     padding: 1rem;
   }
@@ -163,7 +158,7 @@
   .toc {
     background: rgba(26,29,39,0.74);
     border: 1px solid var(--border);
-    border-radius: 18px;
+    border-radius: 12px;
     padding: 1.1rem;
     margin-bottom: 2rem;
   }
@@ -183,7 +178,7 @@
   .summary-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem; margin: 1rem 0; }
   .summary-card {
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 12px;
     background: rgba(35,39,51,0.76);
     padding: 1rem;
     min-height: 8.25rem;
@@ -216,7 +211,7 @@
     margin: 0;
     padding: 0.75rem 0.85rem 0.75rem 3rem;
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 12px;
     background: rgba(255,255,255,0.018);
     font-size: 0.86rem;
   }
@@ -239,7 +234,7 @@
   .score-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin: 0.9rem 0 1.2rem; }
   .score-card {
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 12px;
     padding: 1rem;
     background: rgba(35,39,51,0.76);
   }
@@ -254,15 +249,21 @@
   @media (max-width: 760px) {
     body { padding: 1.25rem; }
     .hero, .cols-2, .signal-grid, .summary-grid, .score-grid, .toc-links { grid-template-columns: 1fr; }
-    .hero-panel { padding: 1.25rem; border-radius: 18px; }
-    table { font-size: 0.78rem; }
+    .hero-panel { padding: 1.25rem; border-radius: 12px; }
+    table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      font-size: 0.78rem;
+    }
+    th, td { min-width: 9rem; }
   }
 </style>
 </head>
 <body>
 
 <main class="page-shell">
-<a class="back" href="index.html">&larr; Research Hub로 돌아가기</a>
+<a class="back" href="index.html" target="_parent">&larr; 검토 문서 목록으로 돌아가기</a>
 
 <section class="hero">
   <div class="hero-panel">
@@ -284,7 +285,7 @@
   </div>
   <div class="signal-card green">
     <div class="label">Data</div>
-    <div class="value">개인정보 미수집</div>
+    <div class="value">식별정보 미요구</div>
   </div>
   <div class="signal-card orange">
     <div class="label">Status</div>
@@ -517,7 +518,7 @@
     <tr>
       <td>개인정보 입력</td>
       <td>이름, 소속, 부서, 직위, 연락처를 묻지 않음</td>
-      <td>문항은 선택지형이며 자유입력은 1차 구현에서 제외</td>
+      <td>점검 문항은 선택지형이며 자유입력 없이 결과를 산출함</td>
     </tr>
     <tr>
       <td>결과 전달</td>
@@ -536,8 +537,18 @@
     </tr>
     <tr>
       <td>운영 로그</td>
-      <td>문항별 응답 배열과 자유입력 원문 저장을 기본값으로 하지 않음</td>
-      <td>필요 시 오류 상태처럼 최소 정보만 남기는 원칙</td>
+      <td>문항별 응답 배열과 AI 조언 원문을 서버에 저장하지 않는 것을 기본값으로 함</td>
+      <td>필요 시 오류 상태, 시간, 요청 성공 여부처럼 최소 운영 정보만 남기는 원칙</td>
+    </tr>
+    <tr>
+      <td>AI 조언 채팅</td>
+      <td>사용자가 조언을 요청하면 점검 유형, 응답 요약, 결과 수준, 사용자 질문, 최근 대화 일부가 AI 모델 제공자에게 전송될 수 있음</td>
+      <td>이름·연락처 등 직접 식별자를 묻지 않고, 입력값 마스킹은 보조 안전장치로 보며 완전한 비식별 처리가 아님</td>
+    </tr>
+    <tr>
+      <td>외부 전송 승인</td>
+      <td>AI 모델 제공자, 로그 보관, 보안 설정, rate limit, 장애 대응 기준은 운영 전 승인 항목</td>
+      <td>기관 내부 개인정보·보안 담당자가 고지 문구와 전송 범위를 확인해야 함</td>
     </tr>
   </tbody>
 </table>
@@ -604,13 +615,14 @@
       <li>낮음·주의·높음·즉시 도움 필요 결과 산출</li>
       <li>위기 선택지의 urgent 라우팅</li>
       <li>잘못된 답변 인덱스 제외</li>
+      <li>사용자 노출 문항과 내부 거버넌스 문항의 id, 관점, 축, 문구, 선택지, 점수 일치 여부</li>
     </ul>
   </div>
   <div class="card">
     <h3>수동 QA</h3>
     <ul>
       <li>모바일 폭에서 문항·선택지 줄바꿈 확인</li>
-      <li>긴급 도움 링크가 시작·문항·결과 화면에 보이는지 확인</li>
+      <li>위기 신호가 있는 경우 문항 진행보다 도움 요청 안내가 먼저 보이는지 확인</li>
       <li>결과 지우기 후 재접속 시 결과가 사라지는지 확인</li>
       <li>파일럿 플래그가 꺼진 운영 빌드에서 공개되지 않는지 확인</li>
       <li>기관별 상담창구 안내가 추가될 경우 문구 충돌이 없는지 확인</li>
@@ -637,12 +649,17 @@
     <tr>
       <td>사용자가 결과를 공식 판정처럼 오해할 수 있음</td>
       <td>자가점검, 기록, 상담, 도움 연결 중심 문구 사용</td>
-      <td>결과 화면에 “공식 판정 아님” 문구를 운영 전 추가 검토</td>
+      <td>결과 화면과 AI 조언 문구의 판정처럼 보이는 표현을 운영 전 재검토</td>
     </tr>
     <tr>
       <td>위기 사용자가 문항을 끝까지 진행할 수 있음</td>
-      <td>시작·문항 화면에 긴급 도움 연결 표시</td>
-      <td>위기 도움 버튼의 시각적 우선순위와 문구를 전문가 검토</td>
+      <td>위기 문항과 결과 화면에서 도움 연결 안내를 우선함</td>
+      <td>도움 요청 문구, 노출 위치, 상담 경로 순서를 전문가 검토</td>
+    </tr>
+    <tr>
+      <td>결과 문구와 도움 연결이 문항 출처 관리에서 빠질 수 있음</td>
+      <td>문항 출처와 결과 산출 기준은 분리해서 문서화함</td>
+      <td>정신건강복지센터, 공식 자가검진, 109·112·119 안내 문구도 출처·승인 관리 대상에 포함</td>
     </tr>
     <tr>
       <td>기관별 내부 절차와 앱 안내가 다를 수 있음</td>
@@ -661,15 +678,15 @@
 
 <div class="card quote-card">
   <p><strong>짧은 설명</strong></p>
-  <p>이 기능은 갑질 또는 직장 내 괴롭힘을 공식 판정하는 도구가 아니라, 사용자가 자신의 상황을 안전하게 정리하고 기록·상담·도움 연결을 확인하기 위한 자가점검 도구입니다. 문항은 공식 기준을 참고해 자체 작성했으며, 문항별 근거와 검토 상태를 내부적으로 관리합니다. 개인정보를 요구하지 않고, 응답은 서버나 URL에 저장하지 않는 것을 기본 원칙으로 합니다.</p>
+  <p>이 기능은 갑질 또는 직장 내 괴롭힘을 공식 판정하는 도구가 아니라, 사용자가 자신의 상황을 안전하게 정리하고 기록·상담·도움 연결을 확인하기 위한 자가점검 도구입니다. 문항은 공식 기준을 참고해 자체 작성했으며, 문항별 근거와 검토 상태를 내부적으로 관리합니다. 개인정보를 요구하지 않고, 응답은 서버나 URL에 저장하지 않는 것을 기본 원칙으로 합니다. AI 조언은 사용자가 요청할 때만 제공하며, 이때 질문과 결과 요약이 모델 제공자에게 전송될 수 있어 운영 전 개인정보·보안 승인이 필요합니다.</p>
 </div>
 
 <div class="card quote-card">
   <p><strong>운영 승인 전 설명</strong></p>
-  <p>현재 버전은 내부 검토와 파일럿을 위한 초안입니다. 공식 운영 전에는 법·노무, 인권·고충처리, 정신건강·위기 대응 문구 검토를 거쳐야 하며, 파일럿 응답과 사용자 이해도 확인을 통해 문항과 결과 기준을 조정해야 합니다. 운영 공개는 검토 상태가 내부검토 이상으로 올라가고, 파일럿 플래그 전환 승인자가 지정된 뒤에 진행합니다.</p>
+  <p>현재 버전은 내부 검토와 파일럿을 위한 초안입니다. 공개 운영 전에는 법·노무, 인권·고충처리, 정신건강·위기 대응 문구, 개인정보·보안, 기술 QA의 승인 기록이 필요합니다. 운영 공개는 문항별 출처 위치가 확정되고, 승인 증빙과 승인 범위가 남아 있으며, 최종 상태가 운영 가능으로 전환된 뒤에만 진행합니다.</p>
 </div>
 
-<p class="updated">Updated: 2026-05-21 · Status: Internal pilot reliability checklist</p>
+<p class="updated">작성·확인: 2026-05-22 · 상태: 내부 파일럿 신뢰성 점검</p>
 
 </main>
 </body>

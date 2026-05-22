@@ -95,13 +95,19 @@
   @media (max-width: 760px) {
     body { padding: 1.25rem; }
     .cols-2 { grid-template-columns: 1fr; }
-    table { font-size: 0.78rem; }
+    table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      font-size: 0.78rem;
+    }
+    th, td { min-width: 9rem; }
   }
 </style>
 </head>
 <body>
 
-<a class="back" href="index.html">&larr; Research Hub로 돌아가기</a>
+<a class="back" href="index.html" target="_parent">&larr; 검토 문서 목록으로 돌아가기</a>
 <h1><span>일터 존중·안전</span> 문항·결과 1차안</h1>
 <p class="subtitle">기존 청렴 스타일 UI/UX를 재사용하기 위한 사용자 흐름, 문항 후보, 점수 기준, 결과 화면 설계</p>
 
@@ -111,7 +117,7 @@
   <a href="#flow">2. 사용자 흐름</a>
   <a href="#scoring">3. 점수와 게이트</a>
   <a href="#action-questions">4. 내 행동 점검 문항</a>
-  <a href="#experience-questions">5. 내가 겪은 일 점검 문항</a>
+  <a href="#experience-questions">5. 일터 존중 점검 문항</a>
   <a href="#results">6. 결과 등급과 안내문</a>
   <a href="#text-review">7. 설문 텍스트 점검 기준</a>
   <a href="#diagnosis-checks">8. 진단 관련 추가 확인</a>
@@ -183,7 +189,7 @@
     </ol>
   </div>
   <div class="card">
-    <h3>입구 B: 내가 겪은 일 점검</h3>
+    <h3>입구 B: 일터 존중 점검</h3>
     <p><span class="tag tag-green">보호형</span> 내가 겪은 일이 부당한지 확인하고 도움을 찾는다.</p>
     <ol>
     <li>입구 선택 또는 “잘 모르겠어요” 보조 선택. 1차 구현은 직접 선택하되, 행위자·당사자·목격자·지원자 관점을 구분하는 문장으로 선택 부담을 줄인다. 자동 안내 문항은 다음 할 일로 둔다.</li>
@@ -245,7 +251,7 @@
   </tbody>
 </table>
 
-<h2 id="experience-questions">5. 내가 겪은 일 점검 문항</h2>
+<h2 id="experience-questions">5. 일터 존중 점검 문항</h2>
 
 <table>
   <thead>
@@ -281,7 +287,7 @@
     <tr>
       <th>등급</th>
       <th>내 행동 점검</th>
-      <th>내가 겪은 일 점검</th>
+      <th>일터 존중 점검</th>
       <th>주요 행동</th>
     </tr>
   </thead>
@@ -372,7 +378,7 @@
   </ul>
 </div>
 
-<div class="updated">Last updated: 2026-05-21 · Branch: codex/workplace-respect-safety-plan</div>
+<div class="updated">작성·확인: 2026-05-22 · 상태: 내부 파일럿 문항·결과 1차안</div>
 
 </body>
 </html>

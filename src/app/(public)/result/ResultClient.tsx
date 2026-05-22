@@ -14,6 +14,25 @@ import { getClientIdHeader } from '@/lib/client-id';
 
 const SCROLL_AREA = 'flex-1 space-y-3 overflow-y-auto px-5 py-4';
 
+function ChatCopyIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M8 8h9a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3h-4l-3 3v-3H8a3 3 0 0 1-3-3v-5a3 3 0 0 1 3-3Z" />
+      <path d="M4 15H3a2 2 0 0 1-2-2V5a3 3 0 0 1 3-3h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
 function ChatBubbles({ messages }: { messages: { role: 'user' | 'assistant'; content: string }[] }) {
   if (messages.length === 0) return null;
   return (
@@ -131,6 +150,13 @@ export default function ResultContent() {
   const handleCopyLink = () => {
     navigator.clipboard.writeText(getShareUrl()).then(() => {
       showToast('링크가 복사되었어요');
+    }).catch(() => {});
+  };
+
+  const handleCopyAnswer = () => {
+    if (!chat.aiAnswer) return;
+    navigator.clipboard.writeText(chat.aiAnswer).then(() => {
+      showToast('답변이 복사되었어요');
     }).catch(() => {});
   };
 
@@ -282,16 +308,20 @@ export default function ResultContent() {
                 <ChatBubbles messages={chat.chatHistory.slice(0, -2)} />
                 <ChatBubbles messages={[{ role: 'user', content: chat.userContext }]} />
                 <div className="flex justify-start">
-                  <div className="max-w-[85%] rounded-[var(--radius-md)] rounded-bl-sm border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-3.5 py-2.5">
-                    <p className="text-[13px] leading-relaxed text-[var(--color-text-secondary)] whitespace-pre-line">{chat.aiAnswer}</p>
+                  <div className="flex max-w-[85%] flex-col">
+                    <div className="rounded-[var(--radius-md)] rounded-bl-sm border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-3.5 py-2.5">
+                      <p className="text-[13px] leading-relaxed text-[var(--color-text-secondary)] whitespace-pre-line">{chat.aiAnswer}</p>
+                    </div>
+                    <button
+                      onClick={handleCopyAnswer}
+                      className="mt-1 self-end inline-flex h-7 w-7 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-card)] hover:text-[var(--color-primary-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-muted)]"
+                      aria-label="AI 답변 복사"
+                      title="답변 복사"
+                    >
+                      <ChatCopyIcon />
+                    </button>
                   </div>
                 </div>
-                <button
-                  onClick={() => { navigator.clipboard.writeText(chat.aiAnswer).then(() => showToast('답변이 복사되었어요')).catch(() => {}); }}
-                  className="mt-1 ml-1 text-[11px] text-[var(--color-text-muted)] hover:text-[var(--color-primary-accent)]"
-                >
-                  복사
-                </button>
                 <div ref={chat.scrollAnchorRef} />
               </div>
               <div className="shrink-0 space-y-2 border-t border-[var(--color-border)] px-5 py-3">
