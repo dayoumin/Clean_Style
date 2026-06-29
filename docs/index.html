@@ -110,6 +110,19 @@
   .vision-card .vc-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
   .vision-card .vc-title { font-size: 0.85rem; font-weight: 700; color: #e1e4ed; margin-bottom: 0.25rem; }
   .vision-card .vc-desc { font-size: 0.75rem; color: #5a5f73; line-height: 1.5; }
+  .doc-rule {
+    margin-top: 18px;
+    max-width: 720px;
+    width: 100%;
+    border: 1px solid #2e3345;
+    border-radius: 8px;
+    padding: 0.75rem 0.9rem;
+    background: #13151d;
+    color: #8b90a0;
+    font-size: 0.75rem;
+    line-height: 1.55;
+  }
+  .doc-rule strong { color: #e1e4ed; }
   @media (max-width: 640px) {
     .vision-cards { flex-direction: column; }
   }
@@ -136,6 +149,7 @@
 
   <div class="nav-group">
     <div class="nav-group-label">설계 & 검증</div>
+    <a class="nav-link" data-src="diagnostic-design-theory.html">진단 설계 이론 정리</a>
     <a class="nav-link" data-src="scoring-and-validity.html">Scoring & Validity</a>
     <a class="nav-link" data-src="three-axis-validity-slides.html">3축 과학적 타당성 (슬라이드)</a>
     <a class="nav-link" data-src="design-decisions.html">Design Decisions</a>
@@ -167,7 +181,7 @@
 
   <div class="nav-group">
     <div class="nav-group-label">연구</div>
-    <a class="nav-link" data-src="research/index.html">Research Hub (5건)</a>
+    <a class="nav-link" data-src="research/index.html">Research Hub</a>
   </div>
 
   <div class="nav-group">
@@ -185,6 +199,11 @@
         <div class="vc-title">설계 비전</div>
         <div class="vc-desc">핵심 원칙, √ 커브, 문항 체크리스트</div>
       </div>
+      <div class="vision-card" data-src="diagnostic-design-theory.html" onclick="openDoc(this)">
+        <div class="vc-icon">▦</div>
+        <div class="vc-title">진단 설계 이론</div>
+        <div class="vc-desc">자기발견형 도구의 이론적 경계와 타당도 기준</div>
+      </div>
       <div class="vision-card" data-src="scoring-and-validity.html" onclick="openDoc(this)">
         <div class="vc-icon">📐</div>
         <div class="vc-title">Scoring & Validity</div>
@@ -195,6 +214,10 @@
         <div class="vc-title">축별 참여 검증</div>
         <div class="vc-desc">강제 참여 문항 점검 도구</div>
       </div>
+    </div>
+    <div class="doc-rule">
+      <strong>문서 추가 위치:</strong> 설계·검증, 기술, 보안, UI·기능, 연구, 소개 중 가장 직접적인 한 섹션에 먼저 연결합니다.
+      학술 근거와 조사 자료는 Research Hub에, 운영 규칙이나 개발자 작업 메모는 사용자용 HTML로 정리된 뒤 이 허브에 연결합니다.
     </div>
     <p style="font-size:13px; color:#5a5f73;">좌측 목차에서 문서를 선택하세요</p>
   </div>
