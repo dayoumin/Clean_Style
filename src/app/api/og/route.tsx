@@ -57,7 +57,14 @@ export async function GET(request: NextRequest) {
             display: 'flex',
           }}
         >
-          {name}
+          {displayName && style ? (
+            <>
+              <span style={{ color: '#ffffff', display: 'flex' }}>&apos;</span>
+              <span style={{ color: '#fde68a', display: 'flex' }}>{displayName}</span>
+              <span style={{ color: '#ffffff', display: 'flex' }}>&apos;</span>
+              <span style={{ display: 'flex' }}>님은 {style.name}</span>
+            </>
+          ) : name}
         </div>
 
         <div

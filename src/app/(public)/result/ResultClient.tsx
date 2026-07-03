@@ -175,7 +175,14 @@ export default function ResultContent() {
                 displayName ? 'text-[22px]' : 'text-[24px]',
               )}
             >
-              {resultTitle}
+              {displayName ? (
+                <>
+                  <span className="text-white">&apos;</span>
+                  <span className="text-[#fde68a]">{displayName}</span>
+                  <span className="text-white">&apos;</span>
+                  {`님은 ${style.name}`}
+                </>
+              ) : resultTitle}
             </h1>
             <p className="text-[13px] leading-relaxed text-white/80">{style.description}</p>
           </div>
