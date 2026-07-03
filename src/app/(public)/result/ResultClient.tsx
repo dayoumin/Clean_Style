@@ -11,6 +11,7 @@ import { AnalyzingScreen } from '@/components/LoadingFairy';
 import { useAiChat } from '@/hooks/useAiChat';
 import { FluentEmoji } from '@/components/FluentEmoji';
 import { getClientIdHeader } from '@/lib/client-id';
+import { formatNamedResultTitle, normalizeDisplayName } from '@/lib/display-name';
 
 const SCROLL_AREA = 'flex-1 space-y-3 overflow-y-auto px-5 py-4';
 
@@ -69,6 +70,7 @@ export default function ResultContent() {
   const answersRaw = searchParams.get('a') ?? '';
   const answers = useMemo(() => answersRaw.split(',').map(Number), [answersRaw]);
   const sixAxis = useMemo(() => computeSixAxisScores(answers), [answers]);
+  const displayName = normalizeDisplayName(searchParams.get('name'));
 
   const chat = useAiChat({ styleKey, historyId, scores });
 
@@ -98,6 +100,7 @@ export default function ResultContent() {
   }, []);
 
   const style: StyleType | undefined = styleTypes[styleKey];
+  const resultTitle = style ? formatNamedResultTitle(displayName, style.name) : '';
 
   if (!style) {
     return (
@@ -166,7 +169,14 @@ export default function ResultContent() {
           )}
           <div className="relative z-10">
             <div className="mb-2 flex justify-center"><FluentEmoji emoji={style.emoji} size={56} /></div>
-            <h1 className="mb-1 text-[24px] font-extrabold tracking-tight">{style.name}</h1>
+            <h1
+              className={cn(
+                'mb-1 font-extrabold leading-tight tracking-tight [word-break:keep-all]',
+                displayName ? 'text-[22px]' : 'text-[24px]',
+              )}
+            >
+              {resultTitle}
+            </h1>
             <p className="text-[13px] leading-relaxed text-white/80">{style.description}</p>
           </div>
         </div>

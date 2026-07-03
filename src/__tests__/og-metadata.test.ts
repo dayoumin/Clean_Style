@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { styleTypes } from '@/data/questions';
+import { formatNamedResultTitle, normalizeDisplayName } from '@/lib/display-name';
 
 /**
  * OG 이미지 라우트 + generateMetadata 로직 시뮬레이션.
@@ -8,25 +9,29 @@ import { styleTypes } from '@/data/questions';
  */
 
 // OG 라우트의 스타일 조회 로직 재현
-function resolveOgData(styleKey: string) {
+function resolveOgData(styleKey: string, rawName = '') {
   const style = styleTypes[styleKey];
+  const displayName = normalizeDisplayName(rawName);
   return {
     emoji: style?.emoji ?? '🧭',
+    displayName,
     name: style?.name ?? '청렴 스타일',
     description: style?.description ?? '나의 업무 스타일을 알아보세요',
   };
 }
 
 // generateMetadata의 메타데이터 생성 로직 재현
-function resolveMetadata(styleKey: string) {
+function resolveMetadata(styleKey: string, rawName = '') {
   const style = styleTypes[styleKey];
+  const displayName = normalizeDisplayName(rawName);
   const defaultTitle = '나의 청렴 스타일은?';
   const defaultDesc = '재미로 알아보는 청렴 스타일 자기발견 테스트';
 
-  const title = style ? `${style.emoji} ${style.name} — 나의 청렴 스타일` : defaultTitle;
+  const resultTitle = style ? formatNamedResultTitle(displayName, style.name) : '';
+  const title = style ? `${style.emoji} ${resultTitle} — 나의 청렴 스타일` : defaultTitle;
   const description = style?.description ?? defaultDesc;
   const ogImagePath = style
-    ? `/api/og?style=${encodeURIComponent(styleKey)}`
+    ? `/api/og?style=${encodeURIComponent(styleKey)}${displayName ? `&name=${encodeURIComponent(displayName)}` : ''}`
     : '/api/og';
 
   return { title, description, ogImagePath };
@@ -62,6 +67,12 @@ describe('OG 이미지 데이터 조회', () => {
     expect(data.emoji).toBe('🧭');
     expect(data.name).toBe('청렴 스타일');
   });
+
+  it('공유용 이름이 있으면 이름을 정규화해서 반환', () => {
+    const data = resolveOgData('principle-transparent-independent', '홍길동');
+    expect(data.displayName).toBe('홍길동');
+    expect(data.name).toBe('소신 수호자');
+  });
 });
 
 // ── 2. generateMetadata: 동적 OG 태그 생성 ──
@@ -92,6 +103,12 @@ describe('generateMetadata 메타데이터 생성', () => {
     // 현재 스타일 키에 특수문자는 없지만, 하이픈이 포함된 키 테스트
     const meta = resolveMetadata('principle-transparent-independent');
     expect(meta.ogImagePath).toContain('principle-transparent-independent');
+  });
+
+  it('공유용 이름이 있으면 메타 제목과 OG 이미지 경로에 포함', () => {
+    const meta = resolveMetadata('principle-transparent-independent', '홍 길동');
+    expect(meta.title).toContain("'홍 길동'님은 소신 수호자");
+    expect(meta.ogImagePath).toContain(`name=${encodeURIComponent('홍 길동')}`);
   });
 });
 

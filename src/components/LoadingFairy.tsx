@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FluentEmoji } from '@/components/FluentEmoji';
 
 export function LoadingFairy({ message, children }: { message: string; children?: React.ReactNode }) {
@@ -22,16 +22,31 @@ export function LoadingFairy({ message, children }: { message: string; children?
   );
 }
 
-export function AnalyzingScreen({ onDone }: { onDone: () => void }) {
+export function AnalyzingScreen({
+  onDone,
+  autoComplete = true,
+  children,
+}: {
+  onDone: () => void;
+  autoComplete?: boolean;
+  children?: React.ReactNode;
+}) {
   const [step, setStep] = useState(0);
+  const onDoneRef = useRef(onDone);
   const steps = ['응답을 분석하고 있어요...', '성향을 파악하고 있어요...', '결과를 정리하고 있어요...'];
+
+  useEffect(() => {
+    onDoneRef.current = onDone;
+  }, [onDone]);
 
   useEffect(() => {
     const t1 = setTimeout(() => setStep(1), 800);
     const t2 = setTimeout(() => setStep(2), 1600);
-    const t3 = setTimeout(onDone, 2500);
+    const t3 = setTimeout(() => {
+      if (autoComplete) onDoneRef.current();
+    }, 2500);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [onDone]);
+  }, [autoComplete]);
 
   return (
     <LoadingFairy message={steps[step]}>
@@ -41,6 +56,7 @@ export function AnalyzingScreen({ onDone }: { onDone: () => void }) {
           style={{ width: `${((step + 1) / steps.length) * 100}%` }}
         />
       </div>
+      {children}
     </LoadingFairy>
   );
 }

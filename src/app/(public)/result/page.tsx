@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { styleTypes } from '@/data/questions';
 import { LoadingFairy } from '@/components/LoadingFairy';
+import { formatNamedResultTitle, normalizeDisplayName } from '@/lib/display-name';
 import ResultContent from './ResultClient';
 
 const DEFAULT_TITLE = '나의 청렴 스타일은?';
@@ -14,12 +15,14 @@ interface Props {
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const params = await searchParams;
   const styleKey = typeof params.style === 'string' ? params.style : '';
+  const displayName = normalizeDisplayName(typeof params.name === 'string' ? params.name : '');
   const style = styleTypes[styleKey];
 
-  const title = style ? `${style.emoji} ${style.name} — 나의 청렴 스타일` : DEFAULT_TITLE;
+  const resultTitle = style ? formatNamedResultTitle(displayName, style.name) : '';
+  const title = style ? `${style.emoji} ${resultTitle} — 나의 청렴 스타일` : DEFAULT_TITLE;
   const description = style?.description ?? DEFAULT_DESC;
   const ogImagePath = style
-    ? `/api/og?style=${encodeURIComponent(styleKey)}`
+    ? `/api/og?style=${encodeURIComponent(styleKey)}${displayName ? `&name=${encodeURIComponent(displayName)}` : ''}`
     : '/api/og';
 
   return {

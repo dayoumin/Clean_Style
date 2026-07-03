@@ -9,8 +9,10 @@ import { addHistoryEntry } from '@/lib/history';
 import { buildResultUrl } from '@/lib/utils';
 import { TEST_START_TIME_KEY, TEST_REFERRER_KEY } from '@/lib/constants';
 import { AnalyzingScreen } from '@/components/LoadingFairy';
+import { normalizeDisplayName, MAX_DISPLAY_NAME_LENGTH } from '@/lib/display-name';
 
 const STORAGE_KEY = 'integrity-test-progress';
+const AUTO_RESULT_DELAY_SECONDS = 10;
 
 function loadProgress(): { answers: number[]; seed: number } | null {
   try {
@@ -39,6 +41,11 @@ export default function TestPage() {
   const [resumeData, setResumeData] = useState<{ answers: number[]; seed: number } | null>(null);
   const [ready, setReady] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  const [shareName, setShareName] = useState('');
+  const [autoSecondsLeft, setAutoSecondsLeft] = useState(AUTO_RESULT_DELAY_SECONDS);
+  const [nameFieldFocused, setNameFieldFocused] = useState(false);
+  const shareNameRef = useRef('');
+  const navigatedRef = useRef(false);
 
   // 최초 로드: 저장된 진행 상황 확인 + 분석용 메타데이터 기록
   useEffect(() => {
@@ -60,10 +67,15 @@ export default function TestPage() {
     saveProgress(answers, shuffleSeed);
   }, [answers, shuffleSeed]);
 
-  // 마지막 문항 완료 시 즉시 분석 애니메이션 → 결과 페이지로 이동
+  useEffect(() => {
+    shareNameRef.current = shareName;
+  }, [shareName]);
+
+  // 마지막 문항 완료 시 분석 화면에서 공유용 이름을 선택 입력
   const resultUrlRef = useRef<string | null>(null);
   useEffect(() => {
     if (ready && answers.length >= questions.length && !finishing) {
+      navigatedRef.current = false;
       setFinishing(true);
       localStorage.removeItem(STORAGE_KEY);
       const result = calculateResult(answers);
@@ -106,15 +118,81 @@ export default function TestPage() {
     router.push('/');
   };
 
+  const handleViewResult = useCallback(() => {
+    if (!resultUrlRef.current || navigatedRef.current) return;
+    navigatedRef.current = true;
+    const url = new URL(resultUrlRef.current, window.location.origin);
+    const displayName = normalizeDisplayName(shareNameRef.current);
+    if (displayName) url.searchParams.set('name', displayName);
+    router.push(`${url.pathname}${url.search}`);
+  }, [router]);
+
+  useEffect(() => {
+    const autoResultEnabled = finishing && !nameFieldFocused && !normalizeDisplayName(shareName);
+    if (!autoResultEnabled) return;
+
+    setAutoSecondsLeft(AUTO_RESULT_DELAY_SECONDS);
+    const startedAt = Date.now();
+    const interval = setInterval(() => {
+      const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
+      setAutoSecondsLeft(Math.max(0, AUTO_RESULT_DELAY_SECONDS - elapsedSeconds));
+    }, 250);
+    const timeout = setTimeout(handleViewResult, AUTO_RESULT_DELAY_SECONDS * 1000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [finishing, nameFieldFocused, shareName, handleViewResult]);
+
   if (!ready) return <div className="min-h-[60vh]" />;
 
   if (finishing) {
+    const hasShareName = Boolean(normalizeDisplayName(shareName));
+    const autoResultEnabled = !nameFieldFocused && !hasShareName;
+
     return (
       <AnalyzingScreen
-        onDone={() => {
-          if (resultUrlRef.current) router.push(resultUrlRef.current);
-        }}
-      />
+        autoComplete={false}
+        onDone={handleViewResult}
+      >
+        <div className="mt-7 w-full max-w-xs rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-4 shadow-sm">
+          <label className="block text-left text-[12px] font-bold text-[var(--color-text-muted)]" htmlFor="share-name">
+            공유용 이름(선택)
+          </label>
+          <input
+            id="share-name"
+            value={shareName}
+            onChange={(event) => setShareName(normalizeDisplayName(event.target.value))}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
+                event.preventDefault();
+                handleViewResult();
+              }
+            }}
+            onFocus={() => setNameFieldFocused(true)}
+            onBlur={() => setNameFieldFocused(false)}
+            maxLength={MAX_DISPLAY_NAME_LENGTH}
+            placeholder="이름"
+            className="mt-2 w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-white px-3 py-2.5 text-[14px] font-semibold text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:ring-1 focus:ring-[var(--color-primary-accent)]"
+          />
+          <button
+            onClick={handleViewResult}
+            className="mt-3 w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-bold text-white hover:bg-[var(--color-primary-hover)]"
+          >
+            결과 보기
+          </button>
+          <p
+            className="mt-2 text-center text-[11px] font-medium text-[var(--color-text-muted)]"
+            role="status"
+            aria-live="polite"
+          >
+            {autoResultEnabled
+              ? `입력하지 않아도 ${autoSecondsLeft}초 뒤 결과로 이동해요`
+              : '이름 입력 후 결과 보기를 눌러주세요'}
+          </p>
+        </div>
+      </AnalyzingScreen>
     );
   }
 

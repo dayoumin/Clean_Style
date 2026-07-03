@@ -1,14 +1,16 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { styleTypes } from '@/data/questions';
+import { formatNamedResultTitle, normalizeDisplayName } from '@/lib/display-name';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const styleKey = searchParams.get('style') ?? '';
+  const displayName = normalizeDisplayName(searchParams.get('name'));
   const style = styleTypes[styleKey];
 
   const emoji = style?.emoji ?? '🧭';
-  const name = style?.name ?? '청렴 스타일';
+  const name = style ? formatNamedResultTitle(displayName, style.name) : '청렴 스타일';
   const description = style?.description ?? '나의 업무 스타일을 알아보세요';
 
   return new ImageResponse(
@@ -48,7 +50,7 @@ export async function GET(request: NextRequest) {
 
         <div
           style={{
-            fontSize: 48,
+            fontSize: displayName && style ? 42 : 48,
             fontWeight: 800,
             color: '#ffffff',
             marginBottom: 12,
