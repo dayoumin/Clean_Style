@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - 8 Style Profiles</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface2: #eef1f6;
+    --border: #dde3ec;
+    --text: #1a1d27;
+    --text-dim: #4f5767;
+    --muted: #7b8495;
+    --accent: #4263eb;
+    --green: #1f9d55;
+    --orange: #c76a15;
+  }
+  [data-theme="dark"] {
+    --bg: #0f1117;
+    --surface: #171a23;
+    --surface2: #222736;
+    --border: #30364a;
+    --text: #e1e4ed;
+    --text-dim: #a1a8b8;
+    --muted: #71798c;
+    --accent: #6c8aff;
+    --green: #4ade80;
+    --orange: #fb923c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.66;
+  }
+  main {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 30px 28px 48px;
+  }
+  .top-link {
+    display: inline-flex;
+    color: var(--accent);
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-decoration: none;
+    margin-bottom: 18px;
+  }
+  h1 {
+    margin: 0;
+    font-size: 2rem;
+    letter-spacing: 0;
+  }
+  .subtitle {
+    margin: 8px 0 26px;
+    max-width: 880px;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+  section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+  h2 { margin: 0 0 12px; font-size: 1.2rem; }
+  p { margin: 0 0 12px; }
+  .axis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .axis-card, .style-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 15px;
+  }
+  .axis-card b {
+    display: block;
+    color: var(--accent);
+    margin-bottom: 5px;
+  }
+  .style-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .style-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .emoji { font-size: 1.7rem; line-height: 1; }
+  .name { font-size: 1.02rem; font-weight: 850; }
+  .combo {
+    color: var(--accent);
+    font-size: 0.82rem;
+    font-weight: 800;
+    margin-top: 2px;
+  }
+  .style-card p {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+  }
+  .labels {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 7px 10px;
+    margin-top: 10px;
+    font-size: 0.88rem;
+  }
+  .labels b { color: var(--muted); }
+  .note {
+    background: var(--surface2);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    color: var(--text-dim);
+    margin-top: 14px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.9rem;
+  }
+  th, td {
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 9px;
+  }
+  th {
+    color: var(--muted);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  a { color: var(--accent); }
+  @media (max-width: 820px) {
+    main { padding: 22px 16px 36px; }
+    .axis-grid, .style-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 1.55rem; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <a class="top-link" href="index.html">&larr; Research Hub로 돌아가기</a>
+  <h1>8가지 청렴 스타일 설명</h1>
+  <p class="subtitle">
+    Clean Style의 8가지 결과는 청렴성의 높고 낮음을 매기는 등급이 아니라, 청렴 딜레마에서 어떤 판단 방식을 상대적으로 선호하는지 보여주는 성향 프로파일이다.
+    각 유형은 세 판단 축의 조합으로 만들어진다.
+  </p>
+
+  <section>
+    <h2>세 가지 판단 축</h2>
+    <div class="axis-grid">
+      <div class="axis-card">
+        <b>원칙 ↔ 유연</b>
+        <p>규정, 절차, 기준을 우선할지, 상황과 맥락을 고려해 조정할지의 차이다.</p>
+      </div>
+      <div class="axis-card">
+        <b>투명 ↔ 신중</b>
+        <p>바로 공유하고 공개할지, 먼저 확인하고 근거를 갖춘 뒤 판단할지의 차이다.</p>
+      </div>
+      <div class="axis-card">
+        <b>독립 ↔ 협력</b>
+        <p>스스로 판단해 움직일지, 주변과 상의하고 함께 결정할지의 차이다.</p>
+      </div>
+    </div>
+    <div class="note">
+      모든 유형은 강점과 주의점이 함께 있다. 어떤 유형도 "좋은 유형" 또는 "나쁜 유형"으로 해석하지 않는다.
+    </div>
+  </section>
+
+  <section>
+    <h2>8가지 스타일</h2>
+    <div class="style-grid">
+      <div class="style-card">
+        <div class="style-head"><span class="emoji">🛡️</span><div><div class="name">소신 수호자</div><div class="combo">원칙 · 투명 · 독립</div></div></div>
+        <p>기준을 중시하고, 문제가 보이면 바로 말하며, 혼자서도 밀고 나가는 스타일이다.</p>
+        <div class="labels"><b>강점</b><span>애매한 상황에서도 기준을 확인하고 문제를 빠르게 드러낸다.</span><b>주의</b><span>혼자 판단하고 직설적으로 전달하면 주변이 부담을 느낄 수 있다.</span></div>
+      </div>
+
+      <div class="style-card">
+        <div class="style-head"><span class="emoji">⚖️</span><div><div class="name">정의의 조율자</div><div class="combo">원칙 · 투명 · 협력</div></div></div>
+        <p>원칙을 지키되, 팀과 공유하고 함께 해결하려는 스타일이다.</p>
+        <div class="labels"><b>강점</b><span>기준을 지키면서도 합의와 조율을 이끌어낸다.</span><b>주의</b><span>모두의 동의를 기다리다 결정이 늦어질 수 있다.</span></div>
+      </div>
+
+      <div class="style-card">
+        <div class="style-head"><span class="emoji">🏔️</span><div><div class="name">묵묵한 파수꾼</div><div class="combo">원칙 · 신중 · 독립</div></div></div>
+        <p>기준을 지키면서도 조용히 확인하고 스스로 판단하는 스타일이다.</p>
+        <div class="labels"><b>강점</b><span>소란 없이 근거를 확인하고 안정적으로 기준을 지킨다.</span><b>주의</b><span>공유 타이밍을 놓치거나 무관심하게 보일 수 있다.</span></div>
+      </div>
+
+      <div class="style-card">
+        <div class="style-head"><span class="emoji">🤝</span><div><div class="name">신중한 중재자</div><div class="combo">원칙 · 신중 · 협력</div></div></div>
+        <p>충분히 파악한 뒤 팀과 상의해 안정적으로 결론을 내리는 스타일이다.</p>
+        <div class="labels"><b>강점</b><span>성급하지 않고 신뢰할 수 있는 합의를 만든다.</span><b>주의</b><span>너무 신중하면 결정이 지연되고 자기 의견이 약해질 수 있다.</span></div>
+      </div>
+
+      <div class="style-card">
+        <div class="style-head"><span class="emoji">🚀</span><div><div class="name">실용주의 개척자</div><div class="combo">유연 · 투명 · 독립</div></div></div>
+        <p>상황에 맞게 빠르게 판단하고, 과정은 공개하며 주도적으로 실행하는 스타일이다.</p>
+        <div class="labels"><b>강점</b><span>변화에 빠르게 대응하면서도 과정을 숨기지 않는다.</span><b>주의</b><span>유연한 판단이 반복되면 기준이 흔들려 보일 수 있다.</span></div>
+      </div>
+
+      <div class="style-card">
+        <div class="style-head"><span class="emoji">💬</span><div><div class="name">열린 소통가</div><div class="combo">유연 · 투명 · 협력</div></div></div>
+        <p>여러 의견을 듣고 공유하면서 유연하게 풀어가는 스타일이다.</p>
+        <div class="labels"><b>강점</b><span>정보를 열어두고 팀 전체가 함께 판단하게 만든다.</span><b>주의</b><span>모든 의견을 수용하다 방향이 흐려질 수 있다.</span></div>
+      </div>
+
+      <div class="style-card">
+        <div class="style-head"><span class="emoji">🎯</span><div><div class="name">전략적 해결사</div><div class="combo">유연 · 신중 · 독립</div></div></div>
+        <p>상황을 조용히 파악한 뒤 혼자 효율적인 해결책을 찾는 스타일이다.</p>
+        <div class="labels"><b>강점</b><span>갈등을 크게 만들지 않고 현실적인 해법을 찾는다.</span><b>주의</b><span>혼자 처리하면 팀이 상황을 모르거나 소극적으로 보일 수 있다.</span></div>
+      </div>
+
+      <div class="style-card">
+        <div class="style-head"><span class="emoji">🕊️</span><div><div class="name">온건한 조정자</div><div class="combo">유연 · 신중 · 협력</div></div></div>
+        <p>분위기와 관계를 살피며 팀 합의로 부드럽게 조정하는 스타일이다.</p>
+        <div class="labels"><b>강점</b><span>갈등을 줄이고 사람과 상황을 함께 살핀다.</span><b>주의</b><span>갈등을 피하다 꼭 해야 할 말을 미룰 수 있다.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>빠른 비교표</h2>
+    <table>
+      <tr><th>유형</th><th>축 조합</th><th>한 줄 설명</th></tr>
+      <tr><td>소신 수호자</td><td>원칙 · 투명 · 독립</td><td>기준을 바로 드러내고 혼자서도 밀고 나간다.</td></tr>
+      <tr><td>정의의 조율자</td><td>원칙 · 투명 · 협력</td><td>기준을 지키며 팀과 함께 해결한다.</td></tr>
+      <tr><td>묵묵한 파수꾼</td><td>원칙 · 신중 · 독립</td><td>조용히 확인하고 스스로 기준을 지킨다.</td></tr>
+      <tr><td>신중한 중재자</td><td>원칙 · 신중 · 협력</td><td>충분히 파악한 뒤 함께 안정적으로 결론을 낸다.</td></tr>
+      <tr><td>실용주의 개척자</td><td>유연 · 투명 · 독립</td><td>상황에 맞게 빠르게 판단하고 과정을 공개한다.</td></tr>
+      <tr><td>열린 소통가</td><td>유연 · 투명 · 협력</td><td>공유와 소통으로 유연하게 풀어간다.</td></tr>
+      <tr><td>전략적 해결사</td><td>유연 · 신중 · 독립</td><td>조용히 상황을 읽고 현실적인 해법을 찾는다.</td></tr>
+      <tr><td>온건한 조정자</td><td>유연 · 신중 · 협력</td><td>관계와 맥락을 살피며 부드럽게 조정한다.</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>관련 문서</h2>
+    <ul>
+      <li><a href="evidence-brief.html">Clean Style 과학적 근거 요약</a></li>
+      <li><a href="three-axis-validity.html">3축 모델의 이론적 근거 및 타당화 설계 보고서</a></li>
+      <li><a href="scientific-validation-plan.html">청렴 성향 척도 타당화 계획</a></li>
+      <li><a href="../scoring-and-validity.html">Scoring &amp; Validity</a></li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

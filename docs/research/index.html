@@ -103,23 +103,35 @@
 
   <div class="nav-group">
     <div class="nav-group-label">3축 모델 종합</div>
-    <a class="nav-link" data-src="three-axis-validity.html">
+    <a class="nav-link" href="evidence-brief.html" data-src="evidence-brief.html">
+      과학적 근거 요약
+      <span class="nav-desc">외부 공유용 근거 수준, 해석 범위, 검증 예정 사항</span>
+    </a>
+    <a class="nav-link" href="style-profiles.html" data-src="style-profiles.html">
+      8가지 스타일 설명
+      <span class="nav-desc">소신 수호자부터 온건한 조정자까지 유형별 강점과 주의점</span>
+    </a>
+    <a class="nav-link" href="three-axis-validity.html" data-src="three-axis-validity.html">
       3축 이론적 근거
       <span class="nav-desc">원칙&ndash;유연성 / 투명성&ndash;신중성 / 독립&ndash;협력 이론적 근거 및 타당화 설계</span>
+    </a>
+    <a class="nav-link" href="scientific-validation-plan.html" data-src="scientific-validation-plan.html">
+      청렴 성향 척도 타당화 계획
+      <span class="nav-desc">기존 문서 검토, 표본 수집, 신뢰도·타당도 검증, QA 리스크 등록부</span>
     </a>
   </div>
 
   <div class="nav-group">
     <div class="nav-group-label">축별 심층 연구</div>
-    <a class="nav-link" data-src="transparency-prudence.html">
+    <a class="nav-link" href="transparency-prudence.html" data-src="transparency-prudence.html">
       투명성 &amp; 신중성
       <span class="nav-desc">조직행동론 및 공직 윤리에서의 투명성과 신중성</span>
     </a>
-    <a class="nav-link" data-src="principle-flexibility.html">
+    <a class="nav-link" href="principle-flexibility.html" data-src="principle-flexibility.html">
       원칙 &amp; 유연성
       <span class="nav-desc">규칙 기반 의사결정 vs 상황적 맥락 판단</span>
     </a>
-    <a class="nav-link" data-src="independence-cooperation.html">
+    <a class="nav-link" href="independence-cooperation.html" data-src="independence-cooperation.html">
       독립 &amp; 협력
       <span class="nav-desc">개인 판단 &middot; 독자 실행 vs 팀 합의 &middot; 집단적 행동</span>
     </a>
@@ -127,7 +139,7 @@
 
   <div class="nav-group">
     <div class="nav-group-label">설문 도구</div>
-    <a class="nav-link" data-src="integrity-survey-tools.html">
+    <a class="nav-link" href="integrity-survey-tools.html" data-src="integrity-survey-tools.html">
       청렴 설문도구 정리
       <span class="nav-desc">EDM &middot; 도덕 판단 &middot; 청렴 측정 7종 도구 심층 비교</span>
     </a>
@@ -153,11 +165,24 @@
   const content = document.getElementById('content');
   const links = document.querySelectorAll('.nav-link');
   links.forEach(link => {
-    link.addEventListener('click', () => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
       const src = link.dataset.src;
+      const label = link.childNodes[0]?.textContent?.trim() || src;
       links.forEach(l => l.classList.remove('active'));
       link.classList.add('active');
-      content.innerHTML = `<iframe src="${src}"></iframe>`;
+      content.innerHTML = `<iframe src="${src}" title="${label}"></iframe>`;
+      const iframe = document.querySelector('.content iframe');
+      if (iframe) {
+        iframe.addEventListener('load', () => {
+          try {
+            iframe.contentDocument.documentElement.setAttribute(
+              'data-theme',
+              document.documentElement.getAttribute('data-theme') || 'light'
+            );
+          } catch(e) {}
+        });
+      }
     });
   });
 

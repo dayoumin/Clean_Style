@@ -101,6 +101,9 @@
     border-radius: 12px;
     padding: 1.1rem;
     cursor: pointer;
+    color: inherit;
+    font: inherit;
+    text-align: left;
     transition: border-color 0.15s, background 0.15s;
   }
   .vision-card:hover {
@@ -136,65 +139,68 @@
 
   <div class="nav-group">
     <div class="nav-group-label">설계 & 검증</div>
-    <a class="nav-link" data-src="scoring-and-validity.html">Scoring & Validity</a>
-    <a class="nav-link" data-src="three-axis-validity-slides.html">3축 과학적 타당성 (슬라이드)</a>
-    <a class="nav-link" data-src="design-decisions.html">Design Decisions</a>
-    <a class="nav-link" data-src="question-review-prompt.html">Question Review Prompt</a>
-    <a class="nav-link" data-src="axis-coverage-checker.html">축별 참여 검증 도구</a>
-    <a class="nav-link" data-src="test-design-playbook.html">테스트 설계 플레이북</a>
+    <a class="nav-link" href="scoring-and-validity.html" data-src="scoring-and-validity.html">Scoring & Validity</a>
+    <a class="nav-link" href="research/evidence-brief.html" data-src="research/evidence-brief.html">과학적 근거 요약</a>
+    <a class="nav-link" href="research/style-profiles.html" data-src="research/style-profiles.html">8가지 스타일 설명</a>
+    <a class="nav-link" href="research/scientific-validation-plan.html" data-src="research/scientific-validation-plan.html">청렴 성향 척도 타당화 계획</a>
+    <a class="nav-link" href="three-axis-validity-slides.html" data-src="three-axis-validity-slides.html">3축 과학적 타당성 (슬라이드)</a>
+    <a class="nav-link" href="design-decisions.html" data-src="design-decisions.html">Design Decisions</a>
+    <a class="nav-link" href="question-review-prompt.html" data-src="question-review-prompt.html">Question Review Prompt</a>
+    <a class="nav-link" href="axis-coverage-checker.html" data-src="axis-coverage-checker.html">축별 참여 검증 도구</a>
+    <a class="nav-link" href="test-design-playbook.html" data-src="test-design-playbook.html">테스트 설계 플레이북</a>
   </div>
 
   <div class="nav-group">
     <div class="nav-group-label">기술 문서</div>
-    <a class="nav-link" data-src="chat-flow-reference.html">Chat Flow Reference</a>
-    <a class="nav-link" data-src="multi-user-rate-limit.html">Multi User & Rate Limit</a>
-    <a class="nav-link" data-src="ui-layout-guide.html">UI Layout Guide</a>
-    <a class="nav-link" data-src="token-cost-analysis.html">Token Cost Analysis</a>
+    <a class="nav-link" href="chat-flow-reference.html" data-src="chat-flow-reference.html">Chat Flow Reference</a>
+    <a class="nav-link" href="multi-user-rate-limit.html" data-src="multi-user-rate-limit.html">Multi User & Rate Limit</a>
+    <a class="nav-link" href="ui-layout-guide.html" data-src="ui-layout-guide.html">UI Layout Guide</a>
+    <a class="nav-link" href="token-cost-analysis.html" data-src="token-cost-analysis.html">Token Cost Analysis</a>
   </div>
 
   <div class="nav-group">
     <div class="nav-group-label">보안</div>
-    <a class="nav-link" data-src="security.html">Security</a>
-    <a class="nav-link" data-src="code-review-prompt.html">Code Review Prompt</a>
+    <a class="nav-link" href="security.html" data-src="security.html">Security</a>
+    <a class="nav-link" href="code-review-prompt.html" data-src="code-review-prompt.html">Code Review Prompt</a>
   </div>
 
   <div class="nav-group">
     <div class="nav-group-label">UI & 기능</div>
-    <a class="nav-link" data-src="share-ui-mockup.html">Share UI Mockup</a>
-    <a class="nav-link" data-src="pwa-icon-mockups.html">PWA Icon Mockups</a>
-    <a class="nav-link" data-src="pwa-plan.html">PWA Plan</a>
+    <a class="nav-link" href="share-ui-mockup.html" data-src="share-ui-mockup.html">Share UI Mockup</a>
+    <a class="nav-link" href="pwa-icon-mockups.html" data-src="pwa-icon-mockups.html">PWA Icon Mockups</a>
+    <a class="nav-link" href="pwa-plan.html" data-src="pwa-plan.html">PWA Plan</a>
   </div>
 
   <div class="nav-group">
     <div class="nav-group-label">연구</div>
-    <a class="nav-link" data-src="research/index.html">Research Hub (5건)</a>
+    <a class="nav-link" href="research/index.html" data-src="research/index.html">Research Hub (8건)</a>
   </div>
 
   <div class="nav-group">
     <div class="nav-group-label">소개</div>
-    <a class="nav-link" data-src="app-introduction.html">App Introduction</a>
-    <a class="nav-link" data-src="app-introduction-slides.html">Slides</a>
+    <a class="nav-link" href="app-introduction.html" data-src="app-introduction.html">App Introduction</a>
+    <a class="nav-link" href="app-introduction-slides.html" data-src="app-introduction-slides.html">Slides</a>
   </div>
 </nav>
 
 <main class="content" id="content">
   <div class="welcome">
     <div class="vision-cards">
-      <div class="vision-card" data-src="vision.html" onclick="openDoc(this)">
+      <button type="button" class="vision-card" data-src="vision.html" onclick="openDoc(this)">
         <div class="vc-icon">🧭</div>
         <div class="vc-title">설계 비전</div>
         <div class="vc-desc">핵심 원칙, √ 커브, 문항 체크리스트</div>
-      </div>
-      <div class="vision-card" data-src="scoring-and-validity.html" onclick="openDoc(this)">
+      </button>
+      <button type="button" class="vision-card" data-src="scoring-and-validity.html" onclick="openDoc(this)">
         <div class="vc-icon">📐</div>
         <div class="vc-title">Scoring & Validity</div>
         <div class="vc-desc">점수 체계, 유형 판정, 검증 상태</div>
-      </div>
-      <div class="vision-card" data-src="axis-coverage-checker.html" onclick="openDoc(this)">
+      </button>
+      <button type="button" class="vision-card" data-src="axis-coverage-checker.html" onclick="openDoc(this)">
         <div class="vc-icon">✅</div>
         <div class="vc-title">축별 참여 검증</div>
         <div class="vc-desc">강제 참여 문항 점검 도구</div>
-      </div>
+      </button>
     </div>
     <p style="font-size:13px; color:#5a5f73;">좌측 목차에서 문서를 선택하세요</p>
   </div>
@@ -207,16 +213,19 @@
 
   function openDoc(el) {
     const src = el.dataset.src;
+    const label = el.querySelector('.vc-title')?.textContent?.trim() || src;
     links.forEach(l => l.classList.remove('active'));
     // 사이드바 링크 중 같은 src 활성화
     links.forEach(l => { if (l.dataset.src === src) l.classList.add('active'); });
-    content.innerHTML = `<iframe src="${src}"></iframe>`;
+    content.innerHTML = `<iframe src="${src}" title="${label}"></iframe>`;
   }
 
   links.forEach(link => {
-    link.addEventListener('click', () => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
       const src = link.dataset.src;
       const isExternal = link.hasAttribute('data-external');
+      const label = link.textContent.trim();
 
       // active 표시
       links.forEach(l => l.classList.remove('active'));
@@ -229,7 +238,7 @@
       }
 
       // HTML은 iframe으로 표시
-      content.innerHTML = `<iframe src="${src}"></iframe>`;
+      content.innerHTML = `<iframe src="${src}" title="${label}"></iframe>`;
     });
   });
 </script>

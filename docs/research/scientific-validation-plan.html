@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - Scale Validation Plan</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface2: #eef1f6;
+    --border: #dde3ec;
+    --text: #1a1d27;
+    --text-dim: #4f5767;
+    --muted: #7b8495;
+    --accent: #4263eb;
+    --green: #1f9d55;
+    --orange: #c76a15;
+    --red: #c92a2a;
+    --purple: #6f42c1;
+  }
+  [data-theme="dark"] {
+    --bg: #0f1117;
+    --surface: #171a23;
+    --surface2: #222736;
+    --border: #30364a;
+    --text: #e1e4ed;
+    --text-dim: #a1a8b8;
+    --muted: #71798c;
+    --accent: #6c8aff;
+    --green: #4ade80;
+    --orange: #fb923c;
+    --red: #f87171;
+    --purple: #a78bfa;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.68;
+  }
+  .page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 28px 48px;
+  }
+  .top-link {
+    display: inline-flex;
+    color: var(--accent);
+    font-size: 0.86rem;
+    font-weight: 700;
+    text-decoration: none;
+    margin-bottom: 18px;
+  }
+  h1 {
+    margin: 0;
+    font-size: 2rem;
+    letter-spacing: 0;
+  }
+  .subtitle {
+    margin: 8px 0 26px;
+    max-width: 900px;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+  .status-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 18px 0 30px;
+  }
+  .status {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .status b {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .status span {
+    display: block;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 22px;
+    align-items: start;
+  }
+  nav {
+    position: sticky;
+    top: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+  nav h2 {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 10px;
+    letter-spacing: 0.08em;
+  }
+  nav a {
+    display: block;
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.88rem;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  nav a:last-child { border-bottom: 0; }
+  nav a:hover { color: var(--accent); }
+  section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+  h2 {
+    margin: 0 0 12px;
+    font-size: 1.2rem;
+  }
+  h3 {
+    margin: 20px 0 8px;
+    color: var(--accent);
+    font-size: 1rem;
+  }
+  p { margin: 0 0 12px; }
+  ul, ol { margin: 8px 0 0 1.25rem; padding: 0; }
+  li { margin: 5px 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.88rem;
+  }
+  th, td {
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+    padding: 10px 9px;
+  }
+  th {
+    color: var(--muted);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  code {
+    background: var(--surface2);
+    border-radius: 4px;
+    padding: 0.08rem 0.32rem;
+    font-family: "JetBrains Mono", Consolas, monospace;
+    font-size: 0.82em;
+  }
+  .pill {
+    display: inline-block;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--text-dim);
+  }
+  .red { color: var(--red); }
+  .orange { color: var(--orange); }
+  .green { color: var(--green); }
+  .purple { color: var(--purple); }
+  .note {
+    background: var(--surface2);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 14px;
+    color: var(--text-dim);
+    margin: 14px 0;
+  }
+  .phase {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 14px;
+    margin-top: 14px;
+  }
+  .phase strong {
+    color: var(--accent);
+  }
+  .doc-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+  }
+  .doc-card a {
+    color: var(--accent);
+    font-weight: 800;
+    text-decoration: none;
+  }
+  .doc-card p {
+    margin: 5px 0 0;
+    color: var(--text-dim);
+    font-size: 0.88rem;
+  }
+  @media (max-width: 860px) {
+    .page { padding: 20px 16px 36px; }
+    .status-row { grid-template-columns: 1fr 1fr; }
+    .grid { grid-template-columns: 1fr; }
+    nav { position: static; }
+    .phase { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .status-row { grid-template-columns: 1fr; }
+    h1 { font-size: 1.55rem; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <a class="top-link" href="index.html">&larr; Research Hub로 돌아가기</a>
+  <h1>청렴 성향 척도 타당화 계획</h1>
+  <p class="subtitle">
+    Clean Style을 자기성찰 테스트에서 타당화된 청렴 의사결정 성향 척도(validated scale) 후보로 올리기 위한 실행 계획이다.
+    기존 문서 검토 결과, 이론적 근거는 상당히 축적되어 있으나 표본 기반 검증은 아직 시작 전 단계로 본다.
+  </p>
+
+  <div class="status-row">
+    <div class="status"><b>현재 포지션</b><span>자기성찰 도구</span></div>
+    <div class="status"><b>목표 포지션</b><span>타당화된 성향 척도 후보</span></div>
+    <div class="status"><b>핵심 부족분</b><span>응답 표본과 통계 검증</span></div>
+    <div class="status"><b>마지막 검토</b><span>2026-07-06</span></div>
+  </div>
+
+  <div class="grid">
+    <nav>
+      <h2>Sections</h2>
+      <a href="#review">기존 문서 검토</a>
+      <a href="#position">목표와 경계</a>
+      <a href="#current-app">현재 앱 업데이트 원칙</a>
+      <a href="#measurement-model">측정 모델 결정</a>
+      <a href="#ethics">연구윤리와 개인정보</a>
+      <a href="#workplan">단계별 실행 계획</a>
+      <a href="#analysis">분석 설계</a>
+      <a href="#scoring">점수 체계 개편</a>
+      <a href="#risk">QA / 리스크 등록부</a>
+      <a href="#docs-rule">문서 관리 규칙</a>
+    </nav>
+
+    <div>
+      <section id="review">
+        <h2>1. 기존 문서 검토</h2>
+        <p>
+          기존 문서는 "왜 3축이 의미 있는가"를 설명하는 데 강하고, "현재 앱 문항이 실제로 3축 구조를 재현하는가"는 아직 검증 과제로 남겨 두고 있다.
+          따라서 새 계획은 이론 검토를 반복하지 않고, 표본 수집과 통계 검증을 실제 작업으로 바꾸는 데 집중한다.
+        </p>
+
+        <div class="doc-card">
+          <a href="three-axis-validity.html">3축 모델의 이론적 근거 및 타당화 설계 보고서</a>
+          <p>현재 모델의 핵심 한계를 이미 명시한다. 경험적 요인 구조 미검증, 파일럿 데이터 미확보, 준거 타당도 미검증이 높은 위험으로 분류되어 있다.</p>
+        </div>
+        <div class="doc-card">
+          <a href="integrity-survey-tools.html">청렴 설문도구 정리</a>
+          <p>DIT-2, MCT/MJT, MES, EDM-CS 등 외부 척도 후보와 신뢰도 정보를 정리한다. Clean Style 검증의 비교 기준으로 활용한다.</p>
+        </div>
+        <div class="doc-card">
+          <a href="principle-flexibility.html">원칙 &amp; 유연성</a>
+          <p>원칙-유연성 축의 이론적 근거와 한계를 정리한다. 특히 자기보고식 편향과 한국 맥락 재타당화 필요성이 중요하다.</p>
+        </div>
+        <div class="doc-card">
+          <a href="transparency-prudence.html">투명성 &amp; 신중성</a>
+          <p>즉시 보고와 충분한 확인의 긴장을 조직 윤리와 리스크 관리 관점에서 설명한다. 문항 설계 시 "투명=무조건 선"으로 흐르지 않게 하는 근거가 된다.</p>
+        </div>
+        <div class="doc-card">
+          <a href="independence-cooperation.html">독립 &amp; 협력</a>
+          <p>독립-협력 축의 심리측정적 독립성을 정리하지만, 현재 앱의 단일 양극축 단순화는 파일럿 데이터로 확인해야 한다고 본다.</p>
+        </div>
+        <div class="doc-card">
+          <a href="../scoring-and-validity.html">Scoring &amp; Validity</a>
+          <p>현재 앱은 과학적 진단 도구가 아니라 자기발견 및 교육 보조 도구라고 명시한다. 이 포지셔닝은 타당화 완료 전까지 유지한다.</p>
+        </div>
+      </section>
+
+      <section id="position">
+        <h2>2. 목표와 경계</h2>
+        <table>
+          <tr><th>구분</th><th>현재</th><th>목표</th></tr>
+          <tr>
+            <td>사용 목적</td>
+            <td>자기성찰, 교육 대화 시작점</td>
+            <td>청렴 의사결정 성향의 연구·교육용 측정</td>
+          </tr>
+          <tr>
+            <td>금지 목적</td>
+            <td>인사평가, 선발, 징계 판단</td>
+            <td>타당화 후에도 선발·징계에는 별도 윤리심의와 법무 검토 전까지 사용 금지</td>
+          </tr>
+          <tr>
+            <td>결과 표현</td>
+            <td>8유형 중심 설명</td>
+            <td>3축 연속 점수 + 안정도 + 가장 가까운 프로파일</td>
+          </tr>
+          <tr>
+            <td>증거 수준</td>
+            <td>이론적 근거와 로직 검증</td>
+            <td>신뢰도(reliability), 구성 타당도(construct validity), 준거 타당도(criterion validity) 확보</td>
+          </tr>
+        </table>
+        <div class="note">
+          "진단"이라는 표현은 검증 완료 전에는 쓰지 않는다. 외부 설명에서는 "청렴 의사결정 성향 검사", "성향 프로파일", "자기성찰 테스트"를 우선 사용한다.
+        </div>
+      </section>
+
+      <section id="current-app">
+        <h2>3. 현재 앱 업데이트 원칙</h2>
+        <p>
+          여기서 "현재 결과를 업데이트한다"는 뜻은 현재 앱의 계산식을 곧바로 과학적 진단 점수로 바꾼다는 의미가 아니다.
+          검증 전까지 현재 앱은 자기성찰 도구로 유지하고, 연구용 검증 도구는 별도 경로로 만든다.
+        </p>
+        <table>
+          <tr><th>시점</th><th>앱에서 바꾸는 것</th><th>바꾸지 않는 것</th></tr>
+          <tr>
+            <td>지금</td>
+            <td>결과 설명의 표현 수위를 낮춘다. "확정 진단"이 아니라 "현재 응답 기준의 가장 가까운 성향 프로파일"로 설명한다.</td>
+            <td>15문항 계산 로직과 8유형 산출 방식은 유지한다.</td>
+          </tr>
+          <tr>
+            <td>파일럿 후</td>
+            <td>문항별 편향, 축간 공변, 경계형 비율을 보고 문항 후보를 수정한다.</td>
+            <td>검증 전에는 백분위나 규준 점수처럼 보이는 표현을 추가하지 않는다.</td>
+          </tr>
+          <tr>
+            <td>본조사 후</td>
+            <td>연속 축 점수, 결과 안정도, 경계형, 규준 백분위를 도입할지 결정한다.</td>
+            <td>8유형은 독립 검증 전까지 확정 분류가 아니라 설명용 프로파일로 취급한다.</td>
+          </tr>
+        </table>
+        <div class="note">
+          운영 원칙: 현재 사용자에게는 "당신은 이 유형이다"보다 "이번 응답에서는 이 프로파일에 가장 가깝다"라고 설명한다.
+        </div>
+      </section>
+
+      <section id="measurement-model">
+        <h2>4. 측정 모델 결정</h2>
+        <p>
+          현재 앱은 15개 시나리오의 4지선다 강제선택형(forced-choice) 구조다. 이 형식의 응답을 일반 리커트 척도처럼 바로 요인분석하거나 alpha/omega로 해석하면
+          선택지 간 의존성과 다축 점수 코딩 때문에 왜곡이 생길 수 있다. 따라서 표본 수집 전에 연구용 문항 형식을 먼저 결정한다.
+        </p>
+        <table>
+          <tr><th>선택지</th><th>장점</th><th>검증 방식</th><th>판단</th></tr>
+          <tr>
+            <td>현재 강제선택형 유지</td>
+            <td>사용자 경험과 가장 일치한다.</td>
+            <td>선택지 수준 다항모형, IRT 계열 모델, 프로파일 안정도, 재검사 일치율을 우선 검토한다.</td>
+            <td>앱 경험 검증용으로 적합하나 분석 난도가 높다.</td>
+          </tr>
+          <tr>
+            <td>시나리오별 평정형</td>
+            <td>같은 시나리오 안에서 여러 반응 경향을 독립적으로 측정할 수 있다.</td>
+            <td>EFA/CFA, alpha/omega, 측정 동치성 분석이 상대적으로 자연스럽다.</td>
+            <td>연구용 타당화 도구의 1차 후보로 둔다.</td>
+          </tr>
+          <tr>
+            <td>리커트형 진술문</td>
+            <td>축별 문항 수 확보와 신뢰도 산출이 쉽다.</td>
+            <td>전통적 척도 개발 절차를 적용한다.</td>
+            <td>성향 기반 보조 척도로 사용하고, 앱의 시나리오 결과와 연결한다.</td>
+          </tr>
+        </table>
+        <div class="note">
+          결정 게이트: Phase 0 종료 전 연구용 주 문항 형식을 하나로 정한다. 형식이 정해지기 전에는 CFA, alpha/omega, 백분위 규준을 확정 계획으로 쓰지 않는다.
+        </div>
+      </section>
+
+      <section id="ethics">
+        <h2>5. 연구윤리와 개인정보</h2>
+        <p>
+          공공기관 또는 연구기관 구성원을 대상으로 성향 자료를 수집하면 응답 강제, 조직 내 식별, 인사평가 오용 위험이 생긴다.
+          따라서 아래 항목은 파일럿 전에 준비해야 하는 선행 조건이다.
+        </p>
+        <ul>
+          <li>참여 동의서: 연구 목적, 자발 참여, 중도 철회, 불이익 없음, 결과 사용 범위를 명시한다.</li>
+          <li>개인정보 최소화: 직급·직무·기관 유형은 분석 목적에 필요한 수준으로 범주화하고, 소수 집단 재식별 위험을 점검한다.</li>
+          <li>재검사 식별자: 이메일이나 사번 대신 별도 난수 코드 또는 응답자 생성 코드를 사용한다.</li>
+          <li>보관·삭제: 원자료, 분석자료, 보고자료의 보관 기간과 삭제 기준을 사전에 정한다.</li>
+          <li>직장 내 강제성 방지: 기관 단위 배포 시 상급자가 개별 참여 여부와 결과를 알 수 없게 한다.</li>
+          <li>윤리심의: 외부 발표, 논문화, 기관 표본 수집이 예정되면 IRB 또는 이에 준하는 연구윤리 검토를 받는다.</li>
+        </ul>
+      </section>
+
+      <section id="workplan">
+        <h2>6. 단계별 실행 계획</h2>
+
+        <div class="phase">
+          <strong>Phase 0<br>준비</strong>
+          <div>
+            <p><span class="pill">목표</span> 현재 15문항을 기준선으로 고정하고, 연구용 문항 풀과 측정 모델을 별도로 확정한다.</p>
+            <ul>
+              <li>각 축의 조작적 정의와 제외 기준을 1페이지로 고정한다.</li>
+              <li>연구용 주 문항 형식과 분석 모델을 결정한다. 강제선택형 유지 여부를 이 단계에서 확정한다.</li>
+              <li>동의서, 개인정보 최소화, 재검사 식별자, 데이터 보관·삭제 기준을 만든다.</li>
+              <li>현재 문항 매핑표를 만들고, 선택지별 사회적 바람직성 편향을 표시한다.</li>
+              <li>연구용 후보 문항을 45~60개로 확장한다. 최종 앱 문항과 연구 문항은 분리 관리한다.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="phase">
+          <strong>Phase 1<br>전문가 검토</strong>
+          <div>
+            <p><span class="pill">목표</span> 내용 타당도(content validity)를 수치화한다.</p>
+            <ul>
+              <li>청렴·공직윤리, 조직심리, 통계/측정, 현장 실무자 각 1명 이상을 섭외한다.</li>
+              <li>문항-축 적합도, 선택지 균형, 정답처럼 보이는 표현, 법 위반 선택지 오해 가능성을 평가한다.</li>
+              <li>문항별 CVI(Content Validity Index)를 산출하고 낮은 문항은 수정 또는 제거한다.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="phase">
+          <strong>Phase 2<br>파일럿</strong>
+          <div>
+            <p><span class="pill">목표</span> 문항 작동 여부를 빠르게 확인한다.</p>
+            <ul>
+              <li>권장 표본: 최소 n=200, 가능하면 n=300 이상.</li>
+              <li>대상: 공공 연구기관 종사자를 1차 목표 모집단으로 두고, 직무군과 직급이 한쪽으로 몰리지 않게 모집한다.</li>
+              <li>분석: 응답 분포, 문항 난이도, 문항-총점 관계, 축간 상관, 측정 형식에 맞는 탐색 분석을 수행한다.</li>
+              <li>자료 품질: 미완료, 과도하게 짧은 응답 시간, 동일 패턴 반복, 주의확인 문항 실패 기준을 사전에 정한다.</li>
+              <li>삭제 후보: 한 선택지에 80% 이상 몰리는 문항, 특정 축과 반대로 움직이는 문항, 축간 공변을 과도하게 만드는 문항.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="phase">
+          <strong>Phase 3<br>본조사</strong>
+          <div>
+            <p><span class="pill">목표</span> 3축 구조와 외부 기준과의 관계를 검증한다.</p>
+            <ul>
+              <li>권장 표본: n=500~1,000. 직무군, 직급, 기관 유형을 기록한다.</li>
+              <li>표본 설계: 가능하면 EFA용 표본과 CFA용 표본을 분리하고, 집단 비교가 필요한 하위집단은 최소 표본 기준을 사전에 정한다.</li>
+              <li>확인 분석: 문항 형식에 맞는 CFA 또는 대안 잠재모형으로 3축 모형, 6하위축 모형, 대안 모형을 비교한다.</li>
+              <li>비교 척도: HEXACO 일부 하위척도, EPQ/EPQ-5, SCS, ECQ, DIT-2 또는 MCT/MJT 중 사용권과 목적이 맞는 도구.</li>
+              <li>준거 변수: 내부 신고 의향, 적극행정 의향, 절차 준수 성향, 조직 청렴도 인식, 사회적 바람직성 척도.</li>
+              <li>공통방법 편향 보완: 행동 시나리오 선택, 교육 전후 변화, 알려진 집단 비교, 가능한 경우 외부 평정을 추가한다.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="phase">
+          <strong>Phase 4<br>재검사</strong>
+          <div>
+            <p><span class="pill">목표</span> 결과 안정성을 확인한다.</p>
+            <ul>
+              <li>2~4주 간격으로 같은 응답자 일부를 재측정한다.</li>
+              <li>축 점수의 검사-재검사 신뢰도(test-retest reliability)를 산출한다.</li>
+              <li>8유형 변경률과 경계형 비율을 함께 보고한다.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="phase">
+          <strong>Phase 5<br>운영 전환</strong>
+          <div>
+            <p><span class="pill">목표</span> 앱 결과 표현을 검증 증거 수준에 맞게 바꾼다.</p>
+            <ul>
+              <li>연속 점수, 백분위, 경계형, 결과 안정도 문구를 도입한다.</li>
+              <li>8유형은 확정 판정이 아니라 "가장 가까운 프로파일"로 표시한다.</li>
+              <li>검증 보고서, 사용 제한, 개인정보 처리 기준을 함께 공개한다.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="analysis">
+        <h2>7. 분석 설계</h2>
+        <table>
+          <tr><th>검증 항목</th><th>최소 기준</th><th>판단</th></tr>
+          <tr>
+            <td>문항 형식 적합성</td>
+            <td>강제선택형, 시나리오 평정형, 리커트형 중 확정된 형식에 맞는 분석 모델을 사용한다.</td>
+            <td>형식과 분석 모델이 맞지 않으면 표본 수집 또는 분석을 중단한다.</td>
+          </tr>
+          <tr>
+            <td>내적 일관성</td>
+            <td>평정형 또는 리커트형 문항에는 축별 Cronbach's alpha 또는 omega를 산출한다. 강제선택형에는 적합한 대안 신뢰도 지표를 사용한다.</td>
+            <td>낮으면 문항 확대 또는 축 정의 재검토</td>
+          </tr>
+          <tr>
+            <td>요인 구조</td>
+            <td>EFA에서 3축 또는 6하위축 구조가 해석 가능해야 하며, CFA에서 대안 모형보다 적합해야 한다.</td>
+            <td>불일치 시 8유형 구조를 유지하지 않는다.</td>
+          </tr>
+          <tr>
+            <td>수렴 타당도</td>
+            <td>관련 외부 척도와 예측 방향이 맞아야 한다. 예: 원칙 성향은 규칙·의무 관련 척도와 양의 관련.</td>
+            <td>방향이 다르면 축 명칭 또는 문항 해석 재검토</td>
+          </tr>
+          <tr>
+            <td>변별 타당도</td>
+            <td>서로 다른 축이 지나치게 같은 점수처럼 움직이지 않아야 한다.</td>
+            <td>과도한 상관은 문항 독립성 문제로 처리</td>
+          </tr>
+          <tr>
+            <td>준거 타당도</td>
+            <td>내부 신고 의향, 적극행정 의향, 절차 준수 태도, 행동 시나리오 선택 등과 사전 가설 방향의 관계를 보여야 한다.</td>
+            <td>관계 없음이면 진단 도구 주장을 보류</td>
+          </tr>
+          <tr>
+            <td>공정성</td>
+            <td>직급, 직무군, 성별, 연령대, 기관 유형별 측정 동치성(measurement invariance)을 점검한다.</td>
+            <td>불일치 시 집단 비교 금지</td>
+          </tr>
+        </table>
+        <h3>의사결정 게이트</h3>
+        <table>
+          <tr><th>결과</th><th>조치</th></tr>
+          <tr>
+            <td>3축 구조가 재현되고 준거 타당도가 예상 방향으로 확인됨</td>
+            <td>타당화된 성향 척도 후보로 격상하고, 결과 화면 개편을 검토한다.</td>
+          </tr>
+          <tr>
+            <td>축 일부만 안정적임</td>
+            <td>안정적인 축만 연구용 점수로 사용하고, 불안정한 축은 자기성찰 설명으로 제한한다.</td>
+          </tr>
+          <tr>
+            <td>3축 구조가 재현되지 않음</td>
+            <td>8유형 구조를 검증 주장으로 사용하지 않고, 문항 또는 이론 모형을 재설계한다.</td>
+          </tr>
+        </table>
+      </section>
+
+      <section id="scoring">
+        <h2>8. 점수 체계 개편 방향</h2>
+        <p>
+          현재 앱의 8유형은 3개 순점수의 부호로 결정된다. 과학적 도구로 올릴 때는 이 방식만으로는 부족하므로, 유형보다 축 점수와 결과 안정도를 앞세운다.
+        </p>
+        <ul>
+          <li>각 축은 원점수, 표준점수, 백분위를 함께 산출한다.</li>
+          <li>0 근처 또는 신뢰구간이 축 중앙을 포함하는 경우 "경계형"으로 표시한다.</li>
+          <li>8유형은 대표 이름이 아니라 프로파일 라벨로 취급한다.</li>
+          <li>레이더 차트용 제곱근 정규화는 "시각화 점수"로 분리하고, 연구 분석에는 원점수 또는 표준화 점수를 사용한다.</li>
+          <li>점수 해석 문구는 "좋다/나쁘다"가 아니라 상황별 강점과 취약 조건으로 작성한다.</li>
+        </ul>
+      </section>
+
+      <section id="risk">
+        <h2>9. QA / 리스크 등록부</h2>
+        <p>
+          아래 항목은 현재 문서 검토에서 확인된 출시 전 검토 필요사항이다. 반복 항목은 이 표에서 상태를 갱신하고, 실제 결함이나 개발 과제가 되면 TODO 또는 이슈로 승격한다.
+        </p>
+        <table>
+          <tr>
+            <th>리스크</th>
+            <th>상태</th>
+            <th>등록일</th>
+            <th>필요 증거</th>
+            <th>종료 기준</th>
+            <th>마지막 확인</th>
+          </tr>
+          <tr>
+            <td>문항 형식과 분석 모델 불일치</td>
+            <td><span class="red">열림</span></td>
+            <td>2026-07-06</td>
+            <td>Phase 0 측정 모델 결정서, 선택한 모델에 맞는 분석 계획</td>
+            <td>강제선택형·평정형·리커트형 중 주 형식과 분석 모델이 명시됨</td>
+            <td>2026-07-06</td>
+          </tr>
+          <tr>
+            <td>응답자 보호와 개인정보 처리 기준 미확정</td>
+            <td><span class="red">열림</span></td>
+            <td>2026-07-06</td>
+            <td>동의서, 데이터 최소화 기준, 재검사 식별자 설계, 보관·삭제 정책</td>
+            <td>파일럿 모집 전 연구윤리·개인정보 체크리스트가 승인됨</td>
+            <td>2026-07-06</td>
+          </tr>
+          <tr>
+            <td>현재 15문항의 3축 요인 구조 미검증</td>
+            <td><span class="red">열림</span></td>
+            <td>2026-07-06</td>
+            <td>파일럿 EFA와 본조사 CFA 결과</td>
+            <td>3축 또는 수정 모형이 해석 가능하고 대안 모형 대비 우수함</td>
+            <td>2026-07-06</td>
+          </tr>
+          <tr>
+            <td>신뢰도 계수 미산출</td>
+            <td><span class="red">열림</span></td>
+            <td>2026-07-06</td>
+            <td>축별 alpha/omega, 문항-총점 상관, 재검사 상관</td>
+            <td>교육·연구용 척도 기준을 충족하거나 낮은 축의 사용 제한을 명시함</td>
+            <td>2026-07-06</td>
+          </tr>
+          <tr>
+            <td>외부 준거 타당도 미확보</td>
+            <td><span class="red">열림</span></td>
+            <td>2026-07-06</td>
+            <td>외부 척도 및 행동 의향 변수와의 상관·회귀·증분 타당도 결과</td>
+            <td>예측 방향이 사전 가설과 일치하고 효과 크기가 보고됨</td>
+            <td>2026-07-06</td>
+          </tr>
+          <tr>
+            <td>인사평가·선발 목적 오용 가능성</td>
+            <td><span class="orange">감시</span></td>
+            <td>2026-07-06</td>
+            <td>결과 화면, 소개 문서, 개인정보 고지의 사용 제한 문구</td>
+            <td>검증 전후 모두 선발·징계 금지 문구가 명확히 노출됨</td>
+            <td>2026-07-06</td>
+          </tr>
+          <tr>
+            <td>8유형 확정 판정처럼 보이는 표현</td>
+            <td><span class="orange">감시</span></td>
+            <td>2026-07-06</td>
+            <td>결과 화면 문구 리뷰와 사용자 이해도 테스트</td>
+            <td>"가장 가까운 프로파일"과 경계형 설명이 도입됨</td>
+            <td>2026-07-06</td>
+          </tr>
+        </table>
+      </section>
+
+      <section id="docs-rule">
+        <h2>10. 문서 관리 규칙</h2>
+        <ul>
+          <li>이론 문헌 검토는 <code>docs/research/</code>의 축별 문서에 추가한다.</li>
+          <li>실행 계획, 검증 상태, QA 리스크는 이 문서의 표를 갱신한다.</li>
+          <li>문항 설계 원칙은 <code>test-design-playbook.html</code>과 <code>question-review-prompt.html</code>에 반영한다.</li>
+          <li>점수 계산이나 결과 표현이 바뀌면 <code>scoring-and-validity.html</code>도 함께 갱신한다.</li>
+          <li>원자료, 로그, 분석 코드 파일은 허브의 기본 카드로 직접 노출하지 않고, 필요하면 별도 HTML 요약 문서로 연결한다.</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</main>
+</body>
+</html>
