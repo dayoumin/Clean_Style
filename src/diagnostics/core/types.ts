@@ -17,3 +17,38 @@ export interface DiagnosticDefinition {
   storagePolicy: DiagnosticStoragePolicy;
   resultMode: 'classified-style' | 'risk-guidance' | 'unscored-feedback';
 }
+
+export type DiagnosticResponsePhase = 'initial' | 'reconsidered' | 'transfer';
+
+export type DiagnosticItemResponse =
+  | {
+      questionId: string;
+      phase: DiagnosticResponsePhase;
+      status: 'answered';
+      choiceId: string;
+      reasonId: string;
+    }
+  | {
+      questionId: string;
+      phase: DiagnosticResponsePhase;
+      status: 'skipped';
+    };
+
+export interface DiagnosticResponseEnvelope<
+  ProductId extends string = string,
+  InstrumentId extends DiagnosticId = DiagnosticId,
+> {
+  schemaVersion: 'diagnostic-response-v1';
+  productId: ProductId;
+  instrumentId: InstrumentId;
+  instrumentVersion: string;
+  scoringVersion: string;
+  formId: string;
+  phase: DiagnosticResponsePhase;
+  status: 'in-progress' | 'completed' | 'abandoned';
+  responseMode: 'unscored' | 'scored';
+  storagePolicy: DiagnosticStoragePolicy;
+  startedAt: string;
+  completedAt: string | null;
+  responses: DiagnosticItemResponse[];
+}

@@ -1,0 +1,73 @@
+import type { StudentScenario } from './types';
+
+export const studentPrototypeScenarios = [
+  {
+    id: 'SI-GROUP-001',
+    contentStatus: 'sample-unvalidated',
+    safetyMode: 'standard',
+    domain: 'group-participation',
+    title: '모둠 과제의 이름',
+    situation: '모둠 과제 마감 직전입니다. 한 친구가 개인 사정으로 거의 참여하지 못했고, 모둠에서는 그 친구의 이름을 빼자는 의견이 나왔습니다.',
+    prompt: '나라면 먼저 어떻게 할까요?',
+    choices: [
+      { id: 'contact-first', text: '친구에게 상황을 먼저 확인하고 가능한 역할을 다시 정한다' },
+      { id: 'group-decision', text: '지금 참여한 모둠원끼리 이름을 뺄지 바로 결정한다' },
+      { id: 'teacher-check', text: '사실관계를 정리해 선생님과 평가 기준을 확인한다' },
+      { id: 'keep-as-is', text: '갈등을 피하기 위해 원래대로 모두의 이름을 적는다' },
+    ],
+    reasonPrompt: '그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?',
+    reasons: [
+      { id: 'fair-contribution', text: '실제로 기여한 정도가 공정하게 반영되어야 해서' },
+      { id: 'check-context', text: '판단하기 전에 친구의 사정과 가능한 역할을 알아야 해서' },
+      { id: 'shared-standard', text: '모두가 동의할 수 있는 기준을 먼저 확인해야 해서' },
+      { id: 'protect-relationship', text: '친구 관계와 모둠 분위기가 상하지 않는 것이 중요해서' },
+    ],
+  },
+  {
+    id: 'SI-DIGITAL-001',
+    contentStatus: 'sample-unvalidated',
+    safetyMode: 'standard',
+    domain: 'digital-life',
+    title: '단체 대화방의 사진',
+    situation: '친구가 재미있는 사진이라며 다른 학생의 얼굴이 나온 사진을 단체 대화방에 올리려고 합니다. 사진 속 학생은 아직 이 사실을 모릅니다.',
+    prompt: '나라면 먼저 어떻게 할까요?',
+    choices: [
+      { id: 'ask-permission', text: '사진 속 학생에게 먼저 공유해도 되는지 물어보자고 한다' },
+      { id: 'share-limited', text: '우리 반 대화방 안에서만 보는 조건으로 올린다' },
+      { id: 'remove-face', text: '얼굴을 가린 뒤 사진의 다른 부분만 공유한다' },
+      { id: 'stay-out', text: '내가 올리는 사진이 아니므로 따로 말하지 않는다' },
+    ],
+    reasonPrompt: '그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?',
+    reasons: [
+      { id: 'consent', text: '사진에 나온 사람이 공개 범위를 결정할 수 있어야 해서' },
+      { id: 'group-fun', text: '친구들과 즐거움을 나누는 것도 중요해서' },
+      { id: 'reduce-harm', text: '당사자가 불편하거나 피해를 볼 가능성을 줄여야 해서' },
+      { id: 'personal-boundary', text: '내가 직접 한 행동에 대해서만 책임지면 된다고 생각해서' },
+    ],
+  },
+  {
+    id: 'SI-LEARNING-001',
+    contentStatus: 'sample-unvalidated',
+    safetyMode: 'standard',
+    domain: 'learning',
+    title: '과제와 생성형 AI',
+    situation: '수행평가 초안을 만들 시간이 부족합니다. 생성형 AI가 만들어 준 글에는 출처를 확인하지 못한 내용도 있지만 문장은 자연스럽습니다.',
+    prompt: '나라면 어떻게 제출 준비를 할까요?',
+    choices: [
+      { id: 'submit-directly', text: '시간이 없으므로 AI가 만든 글을 거의 그대로 제출한다' },
+      { id: 'verify-and-disclose', text: '내용과 출처를 확인하고 AI를 사용한 부분을 밝힌다' },
+      { id: 'rewrite-only', text: '문장만 내 말투로 바꾸고 AI 사용 여부는 따로 쓰지 않는다' },
+      { id: 'ask-standard', text: '제출 전에 선생님에게 허용 범위와 표시 방법을 확인한다' },
+    ],
+    reasonPrompt: '그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?',
+    reasons: [
+      { id: 'authorship', text: '내가 작성하고 확인한 범위를 분명히 해야 해서' },
+      { id: 'accuracy', text: '틀린 정보나 확인되지 않은 출처가 들어갈 수 있어서' },
+      { id: 'deadline', text: '정해진 시간 안에 과제를 제출하는 것이 우선이라서' },
+      { id: 'clear-rule', text: '도구 사용 규칙을 정확히 알고 따르는 것이 중요해서' },
+    ],
+  },
+] as const satisfies readonly StudentScenario[];
+
+export const STUDENT_PROTOTYPE_NOTICE =
+  '이 문항은 화면과 응답 흐름을 점검하기 위한 검증 전 예시입니다. 점수나 유형을 만들지 않습니다.';
