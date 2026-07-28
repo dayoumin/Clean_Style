@@ -18,3 +18,6 @@
   `item-bank-data.js` with `corepack pnpm docs:student-item-bank`; do not edit the generated file.
 - Candidate items remain out of the student app until content, student-language, and safeguarding
   reviews are all approved and the required student cognitive interviews are documented.
+- Use `item-review-protocol.html` as the shared expert-review and student cognitive-interview
+  procedure. Store only de-identified issue summaries and revision decisions in Git, never raw
+  interview notes or student statements.

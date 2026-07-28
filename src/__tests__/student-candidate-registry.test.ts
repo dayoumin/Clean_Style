@@ -19,9 +19,33 @@ describe('student candidate item registry', () => {
 
     for (const item of items) {
       expect(item.status).toBe('draft');
+      expect(item.revision).toBe(2);
+      expect(item.revisionHistory.at(-1)?.revision).toBe(2);
+      expect(item.construct.id).toBeTruthy();
+      expect(item.construct.label).toBeTruthy();
+      expect(item.valueTension).toHaveLength(2);
+      expect(item.decisionPrompt).toContain('가장 먼저');
       expect(item.choices).toHaveLength(4);
       expect(item.reasons).toHaveLength(4);
-      expect(Object.values(item.reviews)).toEqual(['pending', 'pending', 'pending']);
+      expect(Object.values(item.reviews).map((review) => review.status)).toEqual([
+        'pending',
+        'pending',
+        'pending',
+      ]);
+      expect(Object.values(item.reviews).every((review) => review.evidenceRefs.length === 0)).toBe(true);
+    }
+  });
+
+  it('removes the leading or blaming copy identified in the first review', () => {
+    const serialized = JSON.stringify(items);
+
+    for (const discouragedCopy of [
+      '괜히 나서지',
+      '내가 직접 한 행동에 대해서만 책임',
+      '시간이 없으므로 거의 그대로',
+      '다른 사람은 모를 것',
+    ]) {
+      expect(serialized).not.toContain(discouragedCopy);
     }
   });
 
@@ -40,9 +64,9 @@ describe('student candidate item registry', () => {
     const candidate = structuredClone(items[0]);
     candidate.status = 'approved-candidate';
     candidate.reviews = {
-      content: 'approved',
-      studentLanguage: 'approved',
-      safeguarding: 'pending',
+      content: { status: 'approved', evidenceRefs: ['ER-001'] },
+      studentLanguage: { status: 'approved', evidenceRefs: ['CI-001'] },
+      safeguarding: { status: 'pending', evidenceRefs: [] },
     };
 
     expect(validateStudentCandidateItems([candidate])).toContain(
@@ -53,6 +77,15 @@ describe('student candidate item registry', () => {
     delete (missingReview.reviews as Partial<StudentCandidateItem['reviews']>).safeguarding;
     expect(validateStudentCandidateItems([missingReview])).toContain(
       `${missingReview.id}: invalid safeguarding review status`,
+    );
+  });
+
+  it('requires evidence references for every approved review', () => {
+    const candidate = structuredClone(items[0]);
+    candidate.reviews.content = { status: 'approved', evidenceRefs: [] };
+
+    expect(validateStudentCandidateItems([candidate])).toContain(
+      `${candidate.id}: approved content review requires evidence`,
     );
   });
 
@@ -77,8 +110,22 @@ describe('student candidate item registry', () => {
       path.join(root, 'docs/research/student-integrity/korean-evidence-base.html'),
       'utf8',
     );
+    const itemBoard = fs.readFileSync(
+      path.join(root, 'docs/research/student-integrity/item-bank.html'),
+      'utf8',
+    );
+    const reviewProtocol = fs.readFileSync(
+      path.join(root, 'docs/research/student-integrity/item-review-protocol.html'),
+      'utf8',
+    );
 
     expect(hub).toContain('href="item-bank.html"');
+    expect(hub).toContain('href="item-review-protocol.html"');
+    expect(itemBoard).toContain('item.construct.label');
+    expect(itemBoard).toContain('item.valueTension');
+    expect(itemBoard).toContain('item.revisionHistory');
+    expect(reviewProtocol).toContain('학생 인지면담');
+    expect(reviewProtocol).toContain('즉시 중단 기준');
     const sourceIds = items.flatMap((item) => [
       ...item.sourceBasis.content,
       ...item.sourceBasis.method,

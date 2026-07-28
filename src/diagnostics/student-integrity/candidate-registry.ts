@@ -6,10 +6,26 @@ export type CandidateItemStatus =
   | 'rejected';
 
 export type CandidateReviewStatus = 'pending' | 'in-review' | 'approved' | 'revise';
+export type CandidateChoiceFrame =
+  | 'first-information-check'
+  | 'first-support-path'
+  | 'first-protective-response'
+  | 'first-collaboration-step';
 
 export interface CandidateItemOption {
   id: string;
   text: string;
+}
+
+export interface CandidateRevisionEntry {
+  revision: number;
+  date: string;
+  summary: string;
+}
+
+export interface CandidateReviewRecord {
+  status: CandidateReviewStatus;
+  evidenceRefs: readonly string[];
 }
 
 export interface StudentCandidateItem {
@@ -19,6 +35,13 @@ export interface StudentCandidateItem {
   domain: string;
   gradeBands: readonly ('middle' | 'high')[];
   safetyMode: 'standard' | 'help-seeking';
+  construct: {
+    id: string;
+    label: string;
+    definition: string;
+  };
+  valueTension: readonly [string, string];
+  choiceFrame: CandidateChoiceFrame;
   title: string;
   scenario: string;
   decisionPrompt: string;
@@ -30,10 +53,11 @@ export interface StudentCandidateItem {
     method: readonly string[];
   };
   riskNotes: readonly string[];
+  revisionHistory: readonly CandidateRevisionEntry[];
   reviews: {
-    content: CandidateReviewStatus;
-    studentLanguage: CandidateReviewStatus;
-    safeguarding: CandidateReviewStatus;
+    content: CandidateReviewRecord;
+    studentLanguage: CandidateReviewRecord;
+    safeguarding: CandidateReviewRecord;
   };
 }
 
@@ -51,6 +75,12 @@ const reviewStatuses = new Set<CandidateReviewStatus>([
   'revise',
 ]);
 const gradeBands = new Set<StudentCandidateItem['gradeBands'][number]>(['middle', 'high']);
+const choiceFrames = new Set<CandidateChoiceFrame>([
+  'first-information-check',
+  'first-support-path',
+  'first-protective-response',
+  'first-collaboration-step',
+]);
 const reviewNames = ['content', 'studentLanguage', 'safeguarding'] as const;
 
 export function validateStudentCandidateItems(value: unknown): string[] {
@@ -86,6 +116,25 @@ export function validateStudentCandidateItems(value: unknown): string[] {
     }
     if (item.safetyMode !== 'standard' && item.safetyMode !== 'help-seeking') {
       errors.push(`${label}: invalid safetyMode`);
+    }
+    if (
+      !item.construct
+      || !item.construct.id
+      || !item.construct.label
+      || !item.construct.definition
+    ) {
+      errors.push(`${label}: construct is required`);
+    }
+    if (
+      !Array.isArray(item.valueTension)
+      || item.valueTension.length !== 2
+      || item.valueTension.some((valueName) => typeof valueName !== 'string' || !valueName.trim())
+      || item.valueTension[0] === item.valueTension[1]
+    ) {
+      errors.push(`${label}: valueTension must contain two distinct values`);
+    }
+    if (!item.choiceFrame || !choiceFrames.has(item.choiceFrame)) {
+      errors.push(`${label}: invalid choiceFrame`);
     }
 
     for (const [field, options] of [
@@ -126,19 +175,50 @@ export function validateStudentCandidateItems(value: unknown): string[] {
     ) {
       errors.push(`${label}: riskNotes must be an array of non-empty strings`);
     }
+    if (!Array.isArray(item.revisionHistory) || item.revisionHistory.length === 0) {
+      errors.push(`${label}: revisionHistory is required`);
+    } else {
+      const revisions = item.revisionHistory.map((entry) => entry.revision);
+      const latestRevision = Math.max(...revisions);
+      const isAscending = revisions.every((revision, historyIndex) => (
+        historyIndex === 0 || revision > revisions[historyIndex - 1]
+      ));
+      const invalidEntry = item.revisionHistory.some((entry) => (
+        !Number.isInteger(entry.revision)
+        || entry.revision < 1
+        || !/^\d{4}-\d{2}-\d{2}$/.test(entry.date)
+        || !entry.summary.trim()
+      ));
+      if (
+        invalidEntry
+        || new Set(revisions).size !== revisions.length
+        || !isAscending
+        || latestRevision !== item.revision
+      ) {
+        errors.push(`${label}: revisionHistory must be valid, unique, and match revision`);
+      }
+    }
 
     const reviews = item.reviews;
     if (!reviews) {
       errors.push(`${label}: reviews are required`);
     } else {
       for (const reviewName of reviewNames) {
-        if (!reviewStatuses.has(reviews[reviewName])) {
+        const review = reviews[reviewName];
+        if (
+          !review
+          || !reviewStatuses.has(review.status)
+          || !Array.isArray(review.evidenceRefs)
+          || review.evidenceRefs.some((reference) => !reference.trim())
+        ) {
           errors.push(`${label}: invalid ${reviewName} review status`);
+        } else if (review.status === 'approved' && review.evidenceRefs.length === 0) {
+          errors.push(`${label}: approved ${reviewName} review requires evidence`);
         }
       }
       if (
         item.status === 'approved-candidate'
-        && Object.values(reviews).some((status) => status !== 'approved')
+        && Object.values(reviews).some((review) => review.status !== 'approved')
       ) {
         errors.push(`${label}: approved candidates require all reviews`);
       }
