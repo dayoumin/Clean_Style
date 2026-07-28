@@ -4,7 +4,6 @@ export {
 } from './definition';
 
 export {
-  STUDENT_PROTOTYPE_NOTICE,
   studentPrototypeScenarios,
 } from './prototype-content';
 export {

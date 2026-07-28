@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
-  STUDENT_PROTOTYPE_NOTICE,
   studentPrototypeScenarios,
   takeStudentResponseFromHandoff,
   type StudentResponseEnvelope,
@@ -53,17 +52,14 @@ export default function StudentResultClient() {
 
   return (
     <div className="mx-auto w-full max-w-xl pb-6">
-      <header className="border-b border-[var(--color-border)] pb-6">
+      <header className="pb-7">
         <p className="text-[12px] font-bold text-[#377d6a]">선택 돌아보기</p>
         <h1 className="mt-2 text-[24px] font-bold leading-9 text-[var(--color-text)]">
-          예시 활동을 마쳤어요
+          내 선택을 한눈에
         </h1>
-        <p className="mt-3 text-[14px] leading-6 text-[var(--color-text-secondary)]">
-          아래 내용은 점수나 성격 결과가 아니라, 방금 고른 행동과 이유를 그대로 정리한 것입니다.
-        </p>
       </header>
 
-      <section className="py-7" aria-labelledby="response-review-title">
+      <section className="border-t border-[var(--color-border)] py-7" aria-labelledby="response-review-title">
         <h2 id="response-review-title" className="text-[17px] font-bold text-[var(--color-text)]">
           내가 고른 내용
         </h2>
@@ -80,7 +76,7 @@ export default function StudentResultClient() {
               : null;
 
             return (
-              <article key={item.questionId} className="border-l-4 border-[#8db9ad] bg-[#f5faf8] px-4 py-4">
+              <article key={item.questionId} className="rounded-lg border border-[#dce9e5] bg-[#f7fbfa] px-4 py-4">
                 <h3 className="text-[14px] font-bold text-[var(--color-text)]">{scenario.title}</h3>
                 {item.status === 'skipped' ? (
                   <p className="mt-2 text-[13px] text-[var(--color-text-muted)]">이 상황은 건너뛰었습니다.</p>
@@ -108,13 +104,9 @@ export default function StudentResultClient() {
         </ol>
       </section>
 
-      <div className="border-l-4 border-[#f0b429] bg-[#fff9e8] px-4 py-3 text-[12px] leading-5 text-[#5f4b16]" role="note">
-        {STUDENT_PROTOTYPE_NOTICE}
-      </div>
-
       <Link
         href="/"
-        className="mt-7 block w-full bg-[#377d6a] px-6 py-3 text-center text-sm font-bold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#377d6a] focus-visible:ring-offset-2"
+        className="mt-2 block w-full rounded-lg bg-[#28705e] px-6 py-3.5 text-center text-sm font-bold text-white transition-colors hover:bg-[#205c4c] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#377d6a] focus-visible:ring-offset-2"
       >
         처음으로
       </Link>

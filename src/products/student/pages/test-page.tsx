@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  STUDENT_PROTOTYPE_NOTICE,
   clearStudentResponseHandoff,
   createStudentResponseEnvelope,
   studentPrototypeScenarios,
@@ -101,19 +100,12 @@ export default function StudentTestPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-1 flex-col pb-4">
-      <div
-        className="mb-5 border-l-4 border-[#f0b429] bg-[#fff9e8] px-4 py-3 text-[12px] leading-5 text-[#5f4b16]"
-        role="note"
-      >
-        {STUDENT_PROTOTYPE_NOTICE}
-      </div>
-
-      <div className="mb-5 flex items-center justify-between text-[12px] font-semibold text-[var(--color-text-muted)]">
+      <div className="mb-4 flex items-center justify-between text-[12px] font-semibold text-[var(--color-text-muted)]">
         <span>{questionIndex + 1} / {studentPrototypeScenarios.length}</span>
         <span>{step === 'choice' ? '행동 선택' : '이유 선택'}</span>
       </div>
       <div
-        className="mb-7 h-2 overflow-hidden rounded-full bg-[#e5ebf3]"
+        className="mb-8 h-1.5 overflow-hidden rounded-full bg-[#e5ebf3]"
         role="progressbar"
         aria-label="진행률"
         aria-valuemin={1}
@@ -127,21 +119,21 @@ export default function StudentTestPage() {
       </div>
 
       <main className="flex-1">
-        <p className="mb-2 text-[12px] font-bold text-[#377d6a]">{scenario.title}</p>
+        <p className="mb-3 text-[12px] font-bold text-[#377d6a]">{scenario.title}</p>
         <h1
           ref={headingRef}
           tabIndex={-1}
-          className="text-[19px] font-bold leading-8 text-[var(--color-text)] focus:outline-none"
+          className="text-[21px] font-bold leading-8 text-[var(--color-text)] focus:outline-none"
         >
           {step === 'choice' ? scenario.situation : scenario.reasonPrompt}
         </h1>
-        <p className="mt-3 text-[14px] leading-6 text-[var(--color-text-secondary)]">
-          {step === 'choice'
-            ? scenario.prompt
-            : '정답을 찾기보다 지금 생각과 가장 가까운 이유를 골라보세요.'}
-        </p>
+        {step === 'choice' && (
+          <p className="mt-3 text-[14px] leading-6 text-[var(--color-text-secondary)]">
+            {scenario.prompt}
+          </p>
+        )}
         {step === 'reason' && (
-          <div className="mt-4 border-l-4 border-[#8db9ad] bg-[#f5faf8] px-4 py-3 text-[13px] leading-5 text-[var(--color-text-secondary)]">
+          <div className="mt-5 rounded-lg bg-[#eef7f4] px-4 py-3 text-[13px] leading-5 text-[var(--color-text-secondary)]">
             <strong className="mr-2 text-[#205c4c]">내가 고른 행동</strong>
             {scenario.choices.find((choice) => choice.id === selectedChoiceId)?.text}
           </div>
@@ -161,10 +153,10 @@ export default function StudentTestPage() {
                 type="button"
                 onClick={() => step === 'choice' ? handleChoice(option.id) : handleReason(option.id)}
                 aria-pressed={step === 'choice' ? selected : undefined}
-                className={`min-h-[64px] w-full border px-4 py-3 text-left text-[14px] font-semibold leading-6 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#377d6a] focus-visible:ring-offset-2 ${
+                className={`min-h-[64px] w-full rounded-lg border px-4 py-3 text-left text-[14px] font-semibold leading-6 transition-[border-color,background-color,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#377d6a] focus-visible:ring-offset-2 active:scale-[0.99] ${
                   selected
                     ? 'border-[#377d6a] bg-[#e9f5f1] text-[#205c4c]'
-                    : 'border-[var(--color-border)] bg-white text-[var(--color-text)] hover:border-[#8db9ad] hover:bg-[#f5faf8]'
+                    : 'border-[var(--color-border)] bg-white text-[var(--color-text)] shadow-[0_4px_14px_rgba(15,23,42,0.04)] hover:border-[#8db9ad] hover:bg-[#f5faf8]'
                 }`}
               >
                 <span className="mr-3 inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#edf2f7] text-[12px] font-bold text-[var(--color-text-secondary)]">

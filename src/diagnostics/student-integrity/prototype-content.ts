@@ -68,6 +68,3 @@ export const studentPrototypeScenarios = [
     ],
   },
 ] as const satisfies readonly StudentScenario[];
-
-export const STUDENT_PROTOTYPE_NOTICE =
-  '이 문항은 화면과 응답 흐름을 점검하기 위한 검증 전 예시입니다. 점수나 유형을 만들지 않습니다.';

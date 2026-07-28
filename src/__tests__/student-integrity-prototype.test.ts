@@ -151,6 +151,21 @@ describe('student integrity prototype contract', () => {
     expect(studentPages).not.toContain('성장 미션');
   });
 
+  it('keeps the demo label on the home screen without repeating prototype notices', () => {
+    const homePage = fs.readFileSync(
+      path.join(process.cwd(), 'src/products/student/pages/home-page.tsx'),
+      'utf8',
+    );
+    const activityPages = [
+      'src/products/student/pages/test-page.tsx',
+      'src/products/student/pages/StudentResultClient.tsx',
+    ].map((file) => fs.readFileSync(path.join(process.cwd(), file), 'utf8')).join('\n');
+
+    expect(homePage).toContain('DEMO');
+    expect(activityPages).not.toContain('STUDENT_PROTOTYPE_NOTICE');
+    expect(activityPages).not.toContain('검증 전 예시');
+  });
+
   it('uses session storage only as a read-once handoff', () => {
     const values = new Map<string, string>();
     const storage = {
