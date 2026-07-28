@@ -86,9 +86,17 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           const url = process.env.NEXT_PUBLIC_APP_URL;
-          const res = await fetch(url);
-          if (!res.ok) {
-            throw new Error(`clean-style-student smoke HTTP ${res.status}`);
+          let res;
+
+          for (let attempt = 1; attempt <= 10; attempt += 1) {
+            res = await fetch(url);
+            if (res.ok) break;
+            console.log(`clean-style-student smoke attempt ${attempt} got HTTP ${res.status}`);
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+          }
+
+          if (!res?.ok) {
+            throw new Error(`clean-style-student smoke HTTP ${res?.status ?? 'no response'}`);
           }
 
           const chatRes = await fetch(`${url}/api/chat`, {
