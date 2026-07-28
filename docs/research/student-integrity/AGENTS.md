@@ -14,3 +14,7 @@
   aggregation, free text, or real-experience collection.
 - Do not store research raw data, identifiable student information, consent records, or private
   school materials in this folder or in Git.
+- Treat `content/student-integrity/item-bank.json` as the canonical candidate-item source. Regenerate
+  `item-bank-data.js` with `corepack pnpm docs:student-item-bank`; do not edit the generated file.
+- Candidate items remain out of the student app until content, student-language, and safeguarding
+  reviews are all approved and the required student cognitive interviews are documented.

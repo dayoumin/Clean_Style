@@ -1,0 +1,326 @@
+[
+  {
+    "id": "SI-LEARNING-001",
+    "revision": 1,
+    "status": "draft",
+    "domain": "수업·평가",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "standard",
+    "title": "과제와 생성형 AI",
+    "scenario": "수행평가 초안을 만들 시간이 부족합니다. 생성형 AI가 만든 글에는 확인하지 못한 출처도 있지만 문장은 자연스럽습니다.",
+    "decisionPrompt": "나라면 제출 전에 어떻게 할까요?",
+    "choices": [
+      { "id": "submit-directly", "text": "시간이 없으므로 거의 그대로 제출한다" },
+      { "id": "verify-disclose", "text": "내용과 출처를 확인하고 AI 사용 부분을 밝힌다" },
+      { "id": "rewrite-only", "text": "문장만 내 말투로 바꾸고 사용 여부는 쓰지 않는다" },
+      { "id": "ask-standard", "text": "선생님에게 허용 범위와 표시 방법을 확인한다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "authorship", "text": "내가 작성하고 확인한 범위를 분명히 해야 해서" },
+      { "id": "accuracy", "text": "틀린 정보와 확인되지 않은 출처가 들어갈 수 있어서" },
+      { "id": "deadline", "text": "정해진 시간 안에 제출하는 것이 우선이라서" },
+      { "id": "clear-rule", "text": "도구 사용 규칙을 정확히 아는 것이 중요해서" }
+    ],
+    "sourceBasis": { "content": ["P-02", "P-04"], "method": ["M-01"] },
+    "riskNotes": ["학교별 AI 사용 기준 차이를 반영해야 함", "AI 사용 자체를 부정행위로 단정하지 않음"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  },
+  {
+    "id": "SI-LEARNING-002",
+    "revision": 1,
+    "status": "draft",
+    "domain": "수업·평가",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "standard",
+    "title": "친구의 과제 파일",
+    "scenario": "친한 친구가 과제를 끝내지 못했다며 내가 작성한 파일을 보내 달라고 합니다. 참고만 하겠다고 하지만 제출 시간이 얼마 남지 않았습니다.",
+    "decisionPrompt": "나라면 먼저 어떻게 할까요?",
+    "choices": [
+      { "id": "send-file", "text": "친구를 믿고 파일을 보내 준다" },
+      { "id": "explain-only", "text": "풀이 과정이나 자료 찾는 방법만 설명한다" },
+      { "id": "work-together", "text": "남은 시간 동안 각자 작성하도록 함께 정리한다" },
+      { "id": "ask-teacher", "text": "제출이 늦어질 수 있음을 선생님께 함께 알린다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "help-friend", "text": "어려운 친구를 돕는 것이 중요해서" },
+      { "id": "own-work", "text": "각자 한 만큼 평가받아야 해서" },
+      { "id": "learn-process", "text": "답보다 스스로 해보는 과정이 중요해서" },
+      { "id": "honest-context", "text": "늦어진 사정을 솔직하게 설명하는 것이 나아서" }
+    ],
+    "sourceBasis": { "content": ["P-02", "P-04"], "method": ["M-01"] },
+    "riskNotes": ["도움을 주는 행동과 답안 제공을 구분해야 함", "친구 관계를 나쁜 동기로 해석하지 않음"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  },
+  {
+    "id": "SI-PEER-001",
+    "revision": 1,
+    "status": "draft",
+    "domain": "친구 관계",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "help-seeking",
+    "title": "단체 대화방의 사진",
+    "scenario": "친구가 재미있는 사진이라며 다른 학생의 얼굴이 나온 사진을 단체 대화방에 올리려고 합니다. 사진 속 학생은 아직 모릅니다.",
+    "decisionPrompt": "나라면 먼저 어떻게 할까요?",
+    "choices": [
+      { "id": "ask-permission", "text": "사진 속 학생에게 공유해도 되는지 먼저 물어보자고 한다" },
+      { "id": "share-limited", "text": "우리 반 대화방 안에서만 보는 조건으로 올린다" },
+      { "id": "remove-face", "text": "얼굴을 가린 뒤 필요한 부분만 공유한다" },
+      { "id": "seek-help", "text": "친구에게 바로 말하기 어렵다면 믿을 수 있는 어른에게 상황을 알린다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "consent", "text": "사진에 나온 사람이 공개 범위를 정할 수 있어야 해서" },
+      { "id": "group-fun", "text": "친구들과 즐거움을 나누는 것도 중요해서" },
+      { "id": "reduce-harm", "text": "당사자가 불편하거나 피해를 볼 가능성을 줄여야 해서" },
+      { "id": "safe-support", "text": "혼자 나서기 어렵거나 위험할 때 안전하게 도움받는 것이 나아서" }
+    ],
+    "sourceBasis": { "content": ["P-03", "P-04", "E-03"], "method": ["M-02"] },
+    "riskNotes": ["피해 경험을 묻는 문항으로 바뀌지 않게 함", "직접 대항보다 도움 요청 선택을 포함함"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  },
+  {
+    "id": "SI-PEER-002",
+    "revision": 1,
+    "status": "draft",
+    "domain": "친구 관계",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "help-seeking",
+    "title": "확인되지 않은 소문",
+    "scenario": "단체 대화방에서 한 학생에 대한 좋지 않은 이야기가 빠르게 퍼지고 있습니다. 사실인지 확인한 사람은 없지만 친구들은 모두 알고 있다고 말합니다.",
+    "decisionPrompt": "나라면 어떻게 반응할까요?",
+    "choices": [
+      { "id": "stop-forwarding", "text": "확인되지 않은 내용은 더 전달하지 않는다" },
+      { "id": "ask-source", "text": "처음 말한 사람이 누구인지 확인해 본다" },
+      { "id": "tell-adult", "text": "상황이 커지기 전에 믿을 수 있는 어른에게 알린다" },
+      { "id": "watch-only", "text": "공개적으로 나서면 상황이 커질까 걱정되어 반응을 지켜본다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "fact-check", "text": "사실이 아닌 정보가 사람에게 피해를 줄 수 있어서" },
+      { "id": "group-pressure", "text": "공개적으로 말하면 나도 표적이 되거나 관계가 어려워질까 걱정돼서" },
+      { "id": "safe-help", "text": "혼자 해결하기보다 안전하게 도움을 받는 것이 나아서" },
+      { "id": "know-context", "text": "판단 전에 전체 상황을 더 알아야 해서" }
+    ],
+    "sourceBasis": { "content": ["P-03", "E-03", "E-04"], "method": ["M-02"] },
+    "riskNotes": ["실제 괴롭힘 경험을 떠올리게 할 수 있어 중단 안내 필요", "학생에게 단독 해결 책임을 부과하지 않음"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  },
+  {
+    "id": "SI-GROUP-001",
+    "revision": 1,
+    "status": "draft",
+    "domain": "모둠·학생자치",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "standard",
+    "title": "모둠 과제의 이름",
+    "scenario": "모둠 과제 마감 직전입니다. 한 친구가 개인 사정으로 거의 참여하지 못했고, 모둠에서는 그 친구의 이름을 빼자는 의견이 나왔습니다.",
+    "decisionPrompt": "나라면 먼저 어떻게 할까요?",
+    "choices": [
+      { "id": "contact-first", "text": "친구에게 상황을 확인하고 가능한 역할을 다시 정한다" },
+      { "id": "group-decision", "text": "참여한 모둠원끼리 이름을 뺄지 바로 결정한다" },
+      { "id": "teacher-check", "text": "사실관계를 정리해 선생님과 평가 기준을 확인한다" },
+      { "id": "keep-as-is", "text": "갈등을 피하려고 원래대로 모두의 이름을 적는다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "fair-contribution", "text": "실제로 기여한 정도가 공정하게 반영되어야 해서" },
+      { "id": "check-context", "text": "판단 전에 친구의 사정과 가능한 역할을 알아야 해서" },
+      { "id": "shared-standard", "text": "모두가 동의할 수 있는 기준을 확인해야 해서" },
+      { "id": "protect-relationship", "text": "친구 관계와 모둠 분위기도 중요해서" }
+    ],
+    "sourceBasis": { "content": ["P-02", "P-04"], "method": ["M-01"] },
+    "riskNotes": ["개인 사정을 무임승차와 동일시하지 않음", "기여도와 배려를 단일 정답으로 배열하지 않음"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  },
+  {
+    "id": "SI-GROUP-002",
+    "revision": 1,
+    "status": "draft",
+    "domain": "모둠·학생자치",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "standard",
+    "title": "학생회 행사의 물품 선택",
+    "scenario": "학생회 행사 물품 후보를 살펴보던 중 한 임원의 가족이 운영하는 가게가 추천되었습니다. 가격은 조금 비싸지만 준비를 도와줄 수 있다고 합니다.",
+    "decisionPrompt": "나라면 물품을 어떻게 정할까요?",
+    "choices": [
+      { "id": "compare-options", "text": "가격과 조건을 같은 기준으로 비교한 뒤 정한다" },
+      { "id": "choose-senior", "text": "도움을 받을 수 있으므로 그 가게를 추천한다" },
+      { "id": "share-relationship", "text": "관계를 먼저 알리고 다른 학생들과 함께 결정한다" },
+      { "id": "avoid-conflict", "text": "오해를 피하려고 그 가게는 후보에서 제외한다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "same-standard", "text": "누구에게나 같은 기준을 적용해야 해서" },
+      { "id": "practical-help", "text": "행사를 원활하게 준비하는 것이 중요해서" },
+      { "id": "transparency", "text": "관계를 공개하면 함께 판단할 수 있어서" },
+      { "id": "avoid-suspicion", "text": "특혜라는 오해가 생기지 않는 것이 중요해서" }
+    ],
+    "sourceBasis": { "content": ["P-02", "P-04"], "method": ["M-01"] },
+    "riskNotes": ["공공계약의 성인 법률 문항처럼 만들지 않음", "관계가 있다는 이유만으로 부정하다고 단정하지 않음"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  },
+  {
+    "id": "SI-DIGITAL-001",
+    "revision": 1,
+    "status": "draft",
+    "domain": "디지털 생활",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "standard",
+    "title": "공유 문서의 기록",
+    "scenario": "모둠 공유 문서에서 다른 친구가 쓴 부분을 크게 고쳤습니다. 제출 시간이 가까워 친구에게 설명할 시간은 많지 않습니다.",
+    "decisionPrompt": "나라면 수정 내용을 어떻게 처리할까요?",
+    "choices": [
+      { "id": "explain-change", "text": "바꾼 이유와 수정한 부분을 문서에 남긴다" },
+      { "id": "edit-directly", "text": "결과가 더 좋아졌으므로 그대로 제출한다" },
+      { "id": "restore-original", "text": "갈등을 피하려고 친구가 쓴 내용으로 되돌린다" },
+      { "id": "ask-group", "text": "핵심 변경만 모둠원에게 확인받고 제출한다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "shared-ownership", "text": "공동 작업의 변경은 함께 알아야 해서" },
+      { "id": "quality", "text": "과제의 완성도를 높이는 것이 가장 중요해서" },
+      { "id": "respect-work", "text": "친구가 한 일을 함부로 바꾸면 안 된다고 생각해서" },
+      { "id": "deadline", "text": "시간 안에 현실적인 결정을 해야 해서" }
+    ],
+    "sourceBasis": { "content": ["P-04"], "method": ["M-01"] },
+    "riskNotes": ["협업 도구 사용 경험 차이를 확인해야 함", "수정 자체를 옳고 그름으로 단정하지 않음"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  },
+  {
+    "id": "SI-DIGITAL-002",
+    "revision": 1,
+    "status": "draft",
+    "domain": "디지털 생활",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "help-seeking",
+    "title": "친구 계정으로 로그인",
+    "scenario": "학교 온라인 자료를 급히 확인해야 하는데 내 계정에 접속되지 않습니다. 친구가 잠깐 자기 계정을 사용해도 된다고 알려줍니다.",
+    "decisionPrompt": "나라면 어떻게 할까요?",
+    "choices": [
+      { "id": "borrow-account", "text": "친구가 허락했으므로 잠깐 로그인한다" },
+      { "id": "use-together", "text": "친구 기기에서 친구와 함께 필요한 자료만 확인한다" },
+      { "id": "request-help", "text": "담당 선생님이나 학교 온라인 학습 지원 창구에 도움을 요청한다" },
+      { "id": "wait-later", "text": "지금은 포기하고 내 계정이 될 때까지 기다린다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "permission", "text": "계정 주인이 허락하면 괜찮다고 생각해서" },
+      { "id": "account-responsibility", "text": "계정 기록과 책임이 섞이면 안 돼서" },
+      { "id": "urgent-task", "text": "필요한 일을 제때 마치는 것이 중요해서" },
+      { "id": "safe-support", "text": "문제가 생기면 공식 도움을 받는 것이 안전해서" }
+    ],
+    "sourceBasis": { "content": ["P-03", "P-04"], "method": ["M-02"] },
+    "riskNotes": ["실제 비밀번호 입력을 요구하지 않음", "계정 공유 피해 경험을 수집하지 않음"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  },
+  {
+    "id": "SI-RULE-001",
+    "revision": 1,
+    "status": "draft",
+    "domain": "학교 규칙",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "help-seeking",
+    "title": "이유를 알기 어려운 규칙",
+    "scenario": "학급에서 새 규칙이 정해졌지만 왜 필요한지 설명을 듣지 못했습니다. 몇몇 학생에게만 예외가 적용되는 것처럼 보입니다.",
+    "decisionPrompt": "나라면 먼저 어떻게 할까요?",
+    "choices": [
+      { "id": "ask-reason", "text": "규칙의 목적과 예외 기준을 차분히 질문한다" },
+      { "id": "follow-only", "text": "정해진 규칙이므로 이유를 몰라도 따른다" },
+      { "id": "seek-support", "text": "혼자 말하기 어렵다면 믿을 수 있는 어른이나 학생 대표에게 도움을 요청한다" },
+      { "id": "collect-views", "text": "친구들 의견을 정리해 공식적으로 건의한다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "understand-purpose", "text": "목적을 알아야 규칙을 납득할 수 있어서" },
+      { "id": "order", "text": "공동생활에서는 정해진 기준을 따르는 것이 중요해서" },
+      { "id": "fair-application", "text": "같은 상황에는 같은 기준이 적용돼야 해서" },
+      { "id": "safe-voice", "text": "문제를 안전하고 정해진 방식으로 말하는 것이 나아서" }
+    ],
+    "sourceBasis": { "content": ["P-01", "P-04"], "method": ["M-02"] },
+    "riskNotes": ["규칙 비판을 불순응으로 해석하지 않음", "교사에게 직접 맞서는 선택만 요구하지 않음"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  },
+  {
+    "id": "SI-RULE-002",
+    "revision": 1,
+    "status": "draft",
+    "domain": "학교 규칙",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "standard",
+    "title": "공동 물품의 개인 사용",
+    "scenario": "동아리에서 함께 구입한 물품이 주말 동안 비어 있습니다. 개인 활동에 잠깐 쓰고 바로 돌려놓으면 다른 사람은 모를 것 같습니다.",
+    "decisionPrompt": "나라면 어떻게 할까요?",
+    "choices": [
+      { "id": "ask-first", "text": "사용 목적과 기간을 알리고 먼저 허락을 받는다" },
+      { "id": "use-return", "text": "손상되지 않게 사용하고 바로 돌려놓는다" },
+      { "id": "do-not-use", "text": "공동 물품이므로 개인적으로는 사용하지 않는다" },
+      { "id": "make-rule", "text": "이번 기회에 개인 사용 기준을 함께 정하자고 제안한다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "shared-consent", "text": "공동 물품은 함께 정한 범위에서 써야 해서" },
+      { "id": "no-harm", "text": "피해가 없고 제때 돌려놓으면 괜찮다고 생각해서" },
+      { "id": "clear-boundary", "text": "공동 사용과 개인 사용의 경계를 지켜야 해서" },
+      { "id": "future-standard", "text": "다음에도 적용할 수 있는 기준이 필요해서" }
+    ],
+    "sourceBasis": { "content": ["P-02", "P-04"], "method": ["M-01"] },
+    "riskNotes": ["절제를 소유물 사용 금지로 단순화하지 않음", "물품 가치에 따라 판단이 달라지는지 확인 필요"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  },
+  {
+    "id": "SI-COMMUNITY-001",
+    "revision": 1,
+    "status": "draft",
+    "domain": "학교·지역 활동",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "standard",
+    "title": "봉사활동 시간 기록",
+    "scenario": "봉사활동 현장 활동은 예상보다 일찍 끝났고, 정리와 대기 시간이 활동 시간에 포함되는지는 분명하지 않습니다. 확인서에는 예정된 전체 시간이 적혀 있습니다.",
+    "decisionPrompt": "나라면 확인서를 어떻게 할까요?",
+    "choices": [
+      { "id": "submit-given", "text": "담당자가 괜찮다고 했으므로 그대로 제출한다" },
+      { "id": "ask-correction", "text": "실제 활동 시간으로 고쳐 달라고 요청한다" },
+      { "id": "explain-school", "text": "학교에 상황을 설명하고 처리 기준을 확인한다" },
+      { "id": "skip-submission", "text": "문제가 생길 수 있으므로 확인서를 제출하지 않는다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "accurate-record", "text": "기록은 실제 활동과 맞아야 해서" },
+      { "id": "trust-adult", "text": "담당자가 책임지고 괜찮다고 했기 때문에" },
+      { "id": "official-standard", "text": "내가 정하기보다 공식 기준을 확인하는 것이 나아서" },
+      { "id": "avoid-risk", "text": "불확실한 기록으로 문제가 생기는 것을 피하고 싶어서" }
+    ],
+    "sourceBasis": { "content": ["P-02", "P-04"], "method": ["M-01"] },
+    "riskNotes": ["봉사활동 제도 변경 가능성을 확인해야 함", "성인 담당자의 지시와 학생 책임을 균형 있게 다룸"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  },
+  {
+    "id": "SI-COMMUNITY-002",
+    "revision": 1,
+    "status": "draft",
+    "domain": "학교·지역 활동",
+    "gradeBands": ["middle", "high"],
+    "safetyMode": "standard",
+    "title": "축제 수익금 사용",
+    "scenario": "담당교사와 함께 운영한 학급 축제 부스에서 수익금이 예상보다 많이 남았습니다. 사전에 정한 사용 기준이 분명하지 않아 간식을 사자는 의견과 학급 전체를 위해 쓰자는 의견이 나왔습니다.",
+    "decisionPrompt": "나라면 먼저 무엇을 제안할까요?",
+    "choices": [
+      { "id": "workers-snack", "text": "준비한 학생들의 수고를 고려해 간식을 산다" },
+      { "id": "class-use", "text": "학급 전체가 사용할 수 있는 곳에 쓴다" },
+      { "id": "check-agreement", "text": "처음 정한 사용 목적과 참여자 동의를 확인한다" },
+      { "id": "split-use", "text": "일부는 준비한 학생, 일부는 학급을 위해 나눠 쓴다" }
+    ],
+    "reasonPrompt": "그 행동을 고른 이유와 가장 가까운 것은 무엇인가요?",
+    "reasons": [
+      { "id": "reward-effort", "text": "실제로 수고한 사람의 기여를 인정해야 해서" },
+      { "id": "common-benefit", "text": "학급 활동에서 생긴 돈은 모두에게 도움이 돼야 해서" },
+      { "id": "original-purpose", "text": "돈을 모을 때 약속한 목적을 지켜야 해서" },
+      { "id": "balanced-benefit", "text": "기여와 공동 이익을 함께 고려해야 해서" }
+    ],
+    "sourceBasis": { "content": ["P-02", "P-04"], "method": ["M-01"] },
+    "riskNotes": ["특정 선택을 횡령처럼 표현하지 않음", "학급별 실제 회계 규칙 차이를 확인해야 함"],
+    "reviews": { "content": "pending", "studentLanguage": "pending", "safeguarding": "pending" }
+  }
+]

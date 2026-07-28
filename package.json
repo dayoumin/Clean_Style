@@ -9,7 +9,8 @@
     "build": "next build && opennextjs-cloudflare build --skipNextBuild",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run"
+    "test": "vitest run",
+    "docs:student-item-bank": "node scripts/generate-student-item-bank.mjs"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.17.3",
