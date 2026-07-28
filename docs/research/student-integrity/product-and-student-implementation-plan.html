@@ -10,7 +10,7 @@
 <main class="page">
   <div class="topbar">
     <a class="back" href="index.html">&larr; 학생용 연구 허브</a>
-    <span class="status">구현 계획 v1.0</span>
+    <span class="status">구현 계획 v1.3</span>
   </div>
 
   <header class="hero">
@@ -22,8 +22,9 @@
     </p>
     <div class="notice">
       학생 제품은 자동 배포가 중지되었고, 성인 15문항·3축 채점·8개 결과·결과 저장 경로가 차단되었습니다.
-      현재 <code>/test</code>와 <code>/result</code>는 검증 전 예시 3개로 행동 선택·이유 선택·건너뛰기·정적 성찰 흐름만 점검합니다.
-      점수, 유형, 능력 해석과 서버 저장은 제공하지 않습니다.
+      현재 <code>/test</code>는 검증 전 예시 3개로 행동 선택·이유 선택·건너뛰기 흐름을 점검합니다.
+      다음 결과 화면은 공모전용 교육 데모로서 공통 탐색가와 4개 관점 동료, 숫자 없는 6축 관점 지도를 제공하되,
+      연구용 점수·대표 유형·능력 판정·서버 저장과 분리합니다.
     </div>
   </header>
 
@@ -106,9 +107,12 @@
       <tr><td><code>productId</code></td><td><code>clean-style-student</code></td><td>어느 제품에서 실행됐는지 구분</td></tr>
       <tr><td><code>instrumentId</code></td><td><code>student-integrity</code></td><td>성인 청렴·존중·학생 청렴을 분리</td></tr>
       <tr><td><code>instrumentVersion</code></td><td><code>student-integrity-p0</code></td><td>문항 변경 전후의 응답 혼합 방지</td></tr>
-      <tr><td><code>scoringVersion</code></td><td><code>unscored-p0</code></td><td>검증 전 무채점과 검증 후 채점을 구분</td></tr>
-      <tr><td><code>questionId</code></td><td><code>SI-SCHOOL-001</code></td><td>배열 위치가 바뀌어도 응답 의미 유지</td></tr>
-      <tr><td><code>choiceId</code>·<code>reasonId</code></td><td><code>ask-adult</code>·<code>safety</code></td><td>행동 선택과 판단 이유를 분리해 저장</td></tr>
+      <tr><td><code>scoringVersion</code></td><td><code>unscored-p0</code></td><td>연구용 채점이 없음을 명시</td></tr>
+      <tr><td><code>experienceMode</code></td><td><code>contest-demo</code></td><td>공모전 교육 경험을 연구 파일럿과 분리</td></tr>
+      <tr><td><code>contentSetVersion</code></td><td><code>student-demo-content-v1</code></td><td>세 개 데모 장면의 변경 이력을 구분</td></tr>
+      <tr><td><code>feedbackRuleVersion</code></td><td><code>student-demo-feedback-v1</code></td><td>행동×이유 피드백 규칙을 연구용 채점과 분리</td></tr>
+      <tr><td><code>questionId</code></td><td><code>DEMO-GROUP-001</code></td><td>후보 문항 ID와 분리하고 배열 위치가 바뀌어도 응답 의미 유지</td></tr>
+      <tr><td><code>choiceId</code>·<code>reasonId</code></td><td><code>contact-first</code>·<code>check-context</code></td><td>행동×이유 조합을 안정적으로 식별</td></tr>
     </table>
     <p>
       학생용은 초기에는 서버 저장을 사용하지 않습니다. 위 계약은 내부 프로토타입과 테스트에서도 사용해
@@ -132,7 +136,7 @@
         <td>기존 clean-style 결과가 바뀌지 않고 기존 테스트 통과</td>
       </tr>
       <tr>
-        <td>2. 학생 무채점 프로토타입</td>
+        <td>2. 초기 무채점 프로토타입</td>
         <td>학생 전용 경로·문항형·행동 선택+이유 선택·건너뛰기 UI, 이름·공유·AI·서버 저장 제거</td>
         <td>완료: 검증 전 예시 3개와 무채점 선택 돌아보기 화면, 결과 전달 후 삭제와 이동 실패 시 5초 내 삭제 적용</td>
       </tr>
@@ -143,8 +147,8 @@
       </tr>
       <tr>
         <td>4. 피드백 규칙</td>
-        <td>과정별 관점 카드, 혼합 관점·아직 분류하지 않음, 성장 질문과 미션 구현</td>
-        <td>검증 전 대표 스타일·백분위·실제 행동능력 표현이 없음</td>
+        <td>공모전 데모 규칙과 연구 후보 규칙을 분리하고, 행동×이유 패턴·관점 동료·숫자 없는 6축 지도·성장 질문을 구현</td>
+        <td>대표 유형을 자동 판정하지 않고 모든 학생을 관점 탐색가로 표현하며 연구용 산출 규칙과 별도 모듈로 관리</td>
       </tr>
       <tr>
         <td>5. 연구 파일럿</td>
@@ -161,16 +165,19 @@
 
   <section class="section">
     <span class="tag blue">6 · 학생 화면 범위</span>
-    <h2>첫 내부 프로토타입에서 만들 것</h2>
+    <h2>공모전용 학생 데모에서 만들 것</h2>
     <div class="card-grid">
       <div class="card">
         <h3>포함</h3>
         <ul>
-          <li>학생용 시작 안내와 사용 목적</li>
+          <li>작은 <code>DEMO</code> 표식이 있는 학생용 시작 화면</li>
           <li>학교생활 상황과 행동 선택</li>
           <li>선택 이유를 한 번 더 고르는 화면</li>
           <li>이전·건너뛰기·중단</li>
-          <li>과정별 관점 요약과 성장 질문</li>
+          <li>모든 학생에게 공통인 관점 탐색가와 4개 학생 친화적 관점 동료</li>
+          <li>숫자·수준 없이 6개 관점을 보여주는 레이더형 관점 지도와 성장 행동</li>
+          <li>개인 결과가 아닌 활동 초대 링크 공유</li>
+          <li>짧고 움직임 감소 설정을 존중하는 결과 등장 연출</li>
           <li>기기 내 임시 진행상태와 종료 시 삭제</li>
         </ul>
       </div>
@@ -178,9 +185,9 @@
         <h3>제외</h3>
         <ul>
           <li>AI 채팅</li>
-          <li>이름 입력과 결과 공유 링크</li>
-          <li>성인 3축·8스타일·레이더 차트</li>
-          <li>대표 스타일 자동 판정과 석차</li>
+          <li>이름 입력</li>
+          <li>성인 3축·8스타일과 성인용 채점 규칙</li>
+          <li>석차·백분위·능력 수준 판정</li>
           <li>개인 원응답의 서버 저장</li>
           <li>학급 분포와 실제 피해경험 자유서술</li>
         </ul>
@@ -189,7 +196,174 @@
   </section>
 
   <section class="section">
-    <span class="tag yellow">7 · 작업 묶음</span>
+    <span class="tag green">7 · 결과 화면 계획</span>
+    <h2>기존 UI는 활용하고 학생용 의미는 분리한다</h2>
+    <table>
+      <tr><th>영역</th><th>기존 clean-style에서 재사용</th><th>학생용 변경</th></tr>
+      <tr>
+        <td>화면 구조</td>
+        <td>결과 전환, 차트 컨테이너, 다시 하기 같은 저수준 화면 패턴</td>
+        <td>대표 유형 중심 순서는 재사용하지 않고 탐색·성찰·실천 흐름으로 별도 구성</td>
+      </tr>
+      <tr>
+        <td>공통 UI</td>
+        <td>버튼, 탭, 반응형 여백, 임시 알림, 차트 컨테이너</td>
+        <td>학생 제품 색상·글자 크기·터치 영역과 쉬운 표현 적용</td>
+      </tr>
+      <tr>
+        <td>결과 내용</td>
+        <td>짧은 피드백을 전환해 보는 상호작용</td>
+        <td><code>이번에 본 관점</code>, <code>다른 관점</code>, <code>다시 생각하기</code>, <code>다음 행동</code>으로 표현</td>
+      </tr>
+      <tr>
+        <td>공유</td>
+        <td>공유 버튼과 화면을 밀지 않는 완료 알림</td>
+        <td>기본 공유는 활동 초대 링크만 제공하고 개인 결과·축 값·행동·이유는 URL에서 제외</td>
+      </tr>
+      <tr>
+        <td>등장 연출</td>
+        <td>결과 전환과 차트 그리기 방식</td>
+        <td>약 1~2초 안에 캐릭터, 결과명, 차트 순으로 표시하고 과도한 축하 효과는 제외</td>
+      </tr>
+    </table>
+
+    <h3>학생용 결과 계약</h3>
+    <ul>
+      <li><strong>공통 정체성:</strong> 모든 학생은 <code>관점 탐색가</code>이며 4개 관점은 등급이나 성격유형이 아닌 함께 생각해 보는 동료입니다.</li>
+      <li><strong>4개 관점 동료:</strong> 공정 레이더, 밸런스 메이커, 코어 키퍼, 브레이브 무버마다 전용 캐릭터·색상·한 줄 설명을 둡니다.</li>
+      <li><strong>6개 관점 지도:</strong> 공정 감지, 공감 시야, 원칙 판단, 결과 균형, 가치 수호, 용기 실행을 레이더 형태로 그리되 숫자·등급·다른 사람과의 비교를 표시하지 않습니다.</li>
+      <li><strong>통합 패턴:</strong> 행동과 이유를 따로 더하지 않고 장면별 행동×이유 조합으로 관점과 성찰 질문을 정합니다.</li>
+      <li><strong>연구 분리:</strong> 파일명·타입·문항 ID에 <code>demo</code> 또는 <code>DEMO-</code>를 사용하고 연구용 <code>scoringVersion</code>은 계속 <code>unscored-p0</code>로 유지합니다.</li>
+      <li><strong>결과 표현:</strong> “너의 스타일” 대신 “이번 세 장면에서 함께한 관점”이라고 표현하며, 응답이 적거나 조합이 상충해도 낮은 등급처럼 보이는 결과를 만들지 않습니다.</li>
+    </ul>
+
+    <h3>공통 탐색가와 4개 관점 동료</h3>
+    <table>
+      <tr><th>관점</th><th>캐릭터와 색상 방향</th><th>보여주는 관점</th><th>다른 관점 질문</th><th>다음 행동</th></tr>
+      <tr>
+        <td><strong>관점 탐색가</strong><br>“여러 방향을 살펴보고 내 선택을 만들어 가.”</td>
+        <td>방향을 찾는 공통 나침반 캐릭터<br>학생 제품 기본색</td>
+        <td>모든 학생의 공통 주인공이며 결과의 성공·실패와 관계없이 항상 같은 비중으로 표시합니다.</td>
+        <td>이번 선택에서 가장 중요하게 본 이유는 무엇이었나요?</td>
+        <td>한 장면을 골라 다른 이유로 다시 생각해 보세요.</td>
+      </tr>
+      <tr>
+        <td><strong>공정 레이더</strong><br>“누가 놓치고 있는지 먼저 살펴봐.”</td>
+        <td>레이더 렌즈를 든 탐색가<br>청록 <code>#0E7490</code> + 밝은 하늘색</td>
+        <td>누가 이익이나 손해를 보는지, 빠진 사람은 없는지 살펴봅니다.</td>
+        <td>문제를 발견한 뒤 누구의 이야기를 더 들어봐야 할까요?</td>
+        <td>사실 하나를 확인하고 함께 상의할 사람 한 명을 찾아보세요.</td>
+      </tr>
+      <tr>
+        <td><strong>밸런스 메이커</strong><br>“사람도 기준도 함께 봐.”</td>
+        <td>서로 다른 조각을 연결하는 조율가<br>주황 <code>#B45309</code> + 밝은 노랑</td>
+        <td>사람의 사정과 모두에게 필요한 기준, 예상 결과를 함께 비교합니다.</td>
+        <td>여러 기준 중 이번 장면에서 가장 먼저 확인할 것은 무엇일까요?</td>
+        <td>이번 선택에서 꼭 지킬 기준 세 가지를 적어보세요.</td>
+      </tr>
+      <tr>
+        <td><strong>코어 키퍼</strong><br>“중요한 가치를 놓치지 않아.”</td>
+        <td>빛나는 중심을 지키는 수호자<br>보라 <code>#6D28D9</code> + 밝은 라일락</td>
+        <td>관계나 편의 속에서도 정직·책임·약속처럼 중요한 가치를 떠올립니다.</td>
+        <td>그 가치를 지키면서 상대를 공격하지 않는 말은 무엇일까요?</td>
+        <td>지킬 선 한 가지와 함께 제안할 대안 한 가지를 말해보세요.</td>
+      </tr>
+      <tr>
+        <td><strong>브레이브 무버</strong><br>“생각을 안전한 행동으로 옮겨.”</td>
+        <td>안전한 길을 먼저 내딛는 실행가<br>초록 <code>#047857</code> + 밝은 민트</td>
+        <td>생각을 안전한 말, 협의, 기록이나 도움 요청으로 옮깁니다.</td>
+        <td>움직이기 전에 확인할 사실과 안전 조건은 무엇일까요?</td>
+        <td>확인할 사실 하나와 도움받을 사람 한 명을 정해보세요.</td>
+      </tr>
+    </table>
+    <p class="meta">
+      캐릭터는 유아용 마스코트나 직업 고정관념보다 중·고등학생이 부담 없이 받아들일 수 있는
+      성별 중립적 탐색가·조율가·수호자·실행가로 제작합니다. 다섯 캐릭터의 화풍, 비율, 시선과 배경 밀도는 통일하고
+      특정 동료만 화려하거나 우월하게 보이지 않게 합니다.
+    </p>
+
+    <h3>6축과 관점 연결</h3>
+    <table>
+      <tr><th>관점</th><th>주축 1</th><th>주축 2</th><th>설명</th></tr>
+      <tr><td>공정 레이더</td><td>공정 감지</td><td>공감 시야</td><td>누가 어떤 영향을 받는지 발견하는 관점</td></tr>
+      <tr><td>밸런스 메이커</td><td>원칙 판단</td><td>결과 균형</td><td>기준과 예상 결과를 함께 비교하는 관점</td></tr>
+      <tr><td>코어 키퍼</td><td>가치 수호</td><td>원칙 판단</td><td>관계 압력 속에서도 중요한 가치와 기준을 지키는 관점</td></tr>
+      <tr><td>브레이브 무버</td><td>용기 실행</td><td>가치 수호</td><td>판단을 안전한 말·협의·도움 요청으로 옮기는 관점</td></tr>
+    </table>
+    <h3>행동×이유 통합 규칙</h3>
+    <p class="meta">
+      각 장면의 16개 조합을 아래 교차 규칙으로 처리합니다. 행동이 안전하고 건설적인 대응일 때만
+      이유와 결합해 관점 지도와 동료 캐릭터를 강조합니다. 부분 대응·회피 행동은 이유만 좋더라도
+      긍정 결과로 합산하지 않고 해당 장면의 <code>다른 관점 질문</code>으로 연결합니다.
+    </p>
+    <table>
+      <tr><th>장면</th><th>관점 지도에 반영할 행동</th><th>이유와 결합한 관점</th><th>부분 대응·회피</th></tr>
+      <tr>
+        <td>모둠 과제의 이름</td>
+        <td><code>contact-first</code>, <code>teacher-check</code></td>
+        <td>
+          <code>fair-contribution</code> 공정 감지 /
+          <code>check-context</code> 공감 시야 /
+          <code>shared-standard</code> 원칙 판단 /
+          <code>protect-relationship</code> 결과 균형 /
+          두 행동 모두 용기 실행
+        </td>
+        <td><code>group-decision</code>, <code>keep-as-is</code>는 사실 확인·공동 기준·해결 행동을 다시 묻습니다.</td>
+      </tr>
+      <tr>
+        <td>단체 대화방의 사진</td>
+        <td><code>ask-permission</code>, <code>remove-face</code></td>
+        <td>
+          <code>consent</code> 원칙 판단·공감 시야 /
+          <code>reduce-harm</code> 공감 시야·결과 균형 /
+          두 행동 모두 용기 실행 /
+          <code>group-fun</code>, <code>personal-boundary</code>와의 조합은 상충 질문
+        </td>
+        <td><code>share-limited</code>, <code>stay-out</code>는 동의·피해·도움 행동을 다시 묻습니다.</td>
+      </tr>
+      <tr>
+        <td>과제와 생성형 AI</td>
+        <td><code>verify-and-disclose</code>, <code>ask-standard</code></td>
+        <td>
+          <code>authorship</code> 가치 수호 /
+          <code>accuracy</code> 원칙 판단·결과 균형 /
+          <code>deadline</code> 결과 균형 /
+          <code>clear-rule</code> 원칙 판단·가치 수호 /
+          두 행동 모두 용기 실행
+        </td>
+        <td><code>submit-directly</code>, <code>rewrite-only</code>는 출처·작성 책임·허용 범위를 다시 묻습니다.</td>
+      </tr>
+    </table>
+    <ul>
+      <li>건너뛴 장면은 관점 지도에 반영하지 않고 결과에서 선택을 요구하지 않습니다.</li>
+      <li>응답 장면이 하나뿐이어도 대표 유형을 만들지 않으므로 최소 문항 수에 따른 등급 차이는 없습니다.</li>
+      <li>레이더 내부값은 장면별 통합 패턴이 나타난 횟수 <code>0~3</code>만 사용하며 화면에는 숫자·눈금 설명·높고 낮음 표현을 표시하지 않습니다.</li>
+      <li>스크린리더에는 값 대신 “이번 활동에서 함께 살펴본 관점” 목록과 다른 관점 질문을 제공합니다.</li>
+      <li>4개 동료는 모두 결과 화면에 표시하고, 통합 패턴과 연결된 동료만 같은 크기 안에서 색으로 강조합니다.</li>
+    </ul>
+
+    <h3>공유·복원·접근성 계약</h3>
+    <ul>
+      <li>기본 공유는 결과가 아니라 학생용 활동 시작 주소와 짧은 초대 문구입니다.</li>
+      <li>개인 결과·축 내부값·<code>questionId</code>·<code>choiceId</code>·<code>reasonId</code>는 쿼리와 URL fragment 모두에 넣지 않습니다.</li>
+      <li>결과 화면은 완료 응답을 검증하고 관점 지도를 계산한 뒤에만 원응답을 삭제하며, 새로고침 시에는 개인정보 없는 계산 결과를 현재 탭의 <code>sessionStorage</code>에서 복원합니다.</li>
+      <li>공유·탭·다시 하기의 터치 영역은 최소 44px, 완료 알림은 <code>role="status"</code>, 관점 지도에는 동일 내용을 담은 텍스트 요약을 제공합니다.</li>
+      <li><code>prefers-reduced-motion</code>에서는 준비 대기와 캐릭터·차트 애니메이션을 모두 생략합니다.</li>
+    </ul>
+
+    <h3>결과 화면 순서</h3>
+    <ol>
+      <li>마지막 선택 뒤 짧은 결과 준비 연출</li>
+      <li>공통 관점 탐색가와 이번 활동에서 함께한 관점 동료</li>
+      <li>숫자 없는 학생용 6축 관점 지도</li>
+      <li>다른 관점 한 가지 보기와 한 장면 다시 생각하기</li>
+      <li>학생이 고르는 다음 행동</li>
+      <li>접어서 보는 내 선택, 활동 초대 공유, 다시 하기</li>
+    </ol>
+  </section>
+
+  <section class="section">
+    <span class="tag yellow">8 · 작업 묶음</span>
     <h2>실제 개발 순서</h2>
     <ol>
       <li><strong>완료 · 배포 제어:</strong> 학생 자동 배포를 중지하고 수동 실행만 허용.</li>
@@ -197,9 +371,11 @@
       <li><strong>구현 완료 · 학생 골격:</strong> 학생 전용 모듈·경로·검증 전 예시 문항·무채점 선택 돌아보기·저장 차단.</li>
       <li><strong>구현 완료 · 응답 계약:</strong> 배열 위치 대신 <code>productId</code>, <code>instrumentId</code>, <code>questionId</code>, <code>choiceId</code>, <code>reasonId</code>, 단계·완료 상태를 사용하는 버전형 계약.</li>
       <li><strong>진행 중 · 콘텐츠 작업:</strong> 코드와 분리된 <a href="item-bank.html">후보 문항 검토판</a>에 6개 영역 12개 2차 초안을 등록. 측정 목표·가치 갈등·수정 이력과 세 검토 상태를 각각 관리.</li>
-      <li><strong>다음 · 외부 검토:</strong> <a href="item-review-protocol.html">공통 검토 절차</a>로 전문가 평정과 중·고등학생 인지면담을 진행하고, 결과를 반영한 뒤 30~48개로 확장.</li>
-      <li><strong>PR 4 · 검토된 콘텐츠:</strong> 승인된 문항 버전과 이유 선택지, 접근성·모바일 UI 반영.</li>
-      <li><strong>PR 5 · 피드백:</strong> 검증 수준에 맞는 관점 요약·혼합·무분류 결과와 성장 미션.</li>
+      <li><strong>다음 · 데모 결과 계약:</strong> <code>DEMO-</code> 문항 ID, 행동×이유 통합 패턴, 6축 관점 지도, 활동 초대 공유 규칙을 별도 모듈과 테스트로 작성.</li>
+      <li><strong>다음 · 결과 UI:</strong> 공통 UI 기반을 활용해 탐색가·관점 동료·관점 지도·다른 관점·다음 행동·공유·등장 연출을 학생용으로 구현.</li>
+      <li><strong>공모전 전 확인:</strong> 모바일·키보드·움직임 감소·공유 링크·새로고침·잘못된 링크를 집중 점검하고 내부 사용자 검토를 기록.</li>
+      <li><strong>공모전 이후 · 외부 검토:</strong> 필요 시 <a href="item-review-protocol.html">공통 검토 절차</a>로 전문가 평정과 중·고등학생 인지면담을 진행하고 연구 후보를 확장.</li>
+      <li><strong>검토 이후:</strong> 승인된 문항 버전과 검증 수준에 맞는 혼합·무분류 결과, 성장 미션을 연구 기능으로 별도 개발.</li>
       <li><strong>파일럿 이후:</strong> 승인된 경우에만 연구 저장·집계 기능을 별도 기능 플래그로 추가.</li>
     </ol>
     <div class="notice">
@@ -219,7 +395,7 @@
   </section>
 
   <section class="section soft">
-    <span class="tag coral">8 · 연결 문서</span>
+    <span class="tag coral">9 · 연결 문서</span>
     <h2>구현 판단의 기준</h2>
     <ul>
       <li><a href="student-program-plan.html">학생용 전환 기획</a> — 제품·교육 경험</li>
@@ -232,7 +408,7 @@
     </ul>
   </section>
 
-  <p class="footer">최종 갱신: 2026-07-28 · 현재 단계: 학생 무채점 골격 구현 완료, 후보 문항 공동설계 진행 중(12개 2차 초안)</p>
+  <p class="footer">최종 갱신: 2026-07-28 · 현재 단계: 에이전트 큰·작은 관점 검토 반영, 공모전용 교육 결과 v1.3 구현 전</p>
 </main>
 </body>
 </html>

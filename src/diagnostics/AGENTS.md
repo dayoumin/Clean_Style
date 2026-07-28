@@ -10,4 +10,8 @@
   adult history, or AI chat.
 - Student prototypes start with `scoringVersion: unscored-p0`. Do not add representative-style
   classification until the validation gate explicitly permits it.
+- A contest demo may show every student as a shared perspective explorer and visualize
+  action-by-reason reflection patterns with peer characters. This is not a representative-style
+  classification: do not rank the characters, select one as the student's type, or expose numeric
+  scores or levels.
 - Every persisted or shared response contract must carry stable IDs and instrument/scoring versions.
