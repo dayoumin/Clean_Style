@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chatStream } from '@/lib/ai';
-import { styleTypes } from '@/data/questions';
+import { styleTypes } from '@/diagnostics/adult-integrity';
 import { MAX_HISTORY_MESSAGES, MAX_CONTENT_LENGTH, MAX_QUESTION_LENGTH } from '@/lib/constants';
 import {
   QA_SYSTEM_PROMPT,

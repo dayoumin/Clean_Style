@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { Question } from '@/data/questions';
+import type { Question } from '@/diagnostics/adult-integrity';
 import { seededShuffle } from '@/lib/utils';
 import { FluentEmoji } from '@/components/FluentEmoji';
 

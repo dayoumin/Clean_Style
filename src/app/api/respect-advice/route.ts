@@ -12,6 +12,8 @@ import {
   respectAxisLabels,
   respectEntryLabels,
 } from '@/data/workplaceRespectQuestions';
+import { AI_CHAT_ENABLED } from '@/data/appVariant';
+import { RESPECT_FEATURE_ENABLED } from '@/data/workplaceRespectFeature';
 
 const RESPECT_ADVICE_CLIENT_LIMIT = 5;
 const RESPECT_ADVICE_IP_LIMIT = 200;
@@ -111,6 +113,10 @@ function sanitizeAndRedactText(text: string) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!RESPECT_FEATURE_ENABLED || !AI_CHAT_ENABLED) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const rateCheck = checkScopedRateLimit({
     scope: 'respect-advice',
     request,

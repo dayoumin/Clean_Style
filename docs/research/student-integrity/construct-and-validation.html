@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학생용 구성개념과 검증 계획</title>
+  <link rel="stylesheet" href="student-docs.css">
+</head>
+<body>
+<main class="page">
+  <div class="topbar">
+    <a class="back" href="index.html">&larr; 학생용 연구 허브</a>
+    <span class="status">검증 전 구조</span>
+  </div>
+
+  <header class="hero">
+    <p class="eyebrow">Construct & Validation</p>
+    <h1>과정, 가치, 피드백을 혼동하지 않는다</h1>
+    <p class="lead">
+      Rest의 4요소는 도덕 행동의 과정, 청렴 6덕목은 한국 청렴교육의 내용,
+      6개 파워는 잠정 관찰 영역, 4개 스타일은 학생과 대화하기 위한 결과 언어입니다.
+    </p>
+    <div class="notice">
+      Rest의 4요소는 고정 유형이나 반드시 한 방향으로만 진행하는 단계가 아니라 상호작용하는 행위 조건입니다.
+      이 앱이 직접 관찰하는 것은 실제 행동능력이 아니라 상황 선택 의도와 판단 이유의 패턴입니다.
+      근거: <a href="korean-evidence-base.html#t-01">[T-01]</a>~<a href="korean-evidence-base.html#t-04">[T-04]</a>.
+    </div>
+  </header>
+
+  <section class="section">
+    <span class="tag green">1 · 구성개념 지도</span>
+    <h2>네 층의 역할</h2>
+    <table>
+      <tr><th>층</th><th>구성</th><th>용도</th><th>측정 주장</th></tr>
+      <tr><td>행동 과정</td><td>민감성·판단·동기화·품성화</td><td>문항과 수업 흐름의 이론적 골격</td><td>단일 상황의 실행 선택과 지속적 품성화를 동일시하지 않음</td></tr>
+      <tr><td>교육 가치</td><td>공정·책임·약속·절제·정직·배려</td><td>한국 학교생활 사례의 내용 분류</td><td>좋고 나쁨의 단일 총점으로 합치지 않음</td></tr>
+      <tr><td>잠정 파워</td><td>공정 감지·공감 시야·원칙 판단·결과 균형·가치 수호·용기 실행</td><td>문항 청사진과 레이더 시각화 후보</td><td>예비조사 후 통합·분리·명칭 변경 가능</td></tr>
+      <tr><td>피드백 스타일</td><td>공정 레이더·밸런스 메이커·코어 키퍼·브레이브 무버</td><td>강점 설명, 성장 질문과 미션 연결</td><td>성격유형·고정 정체성으로 해석 금지</td></tr>
+    </table>
+  </section>
+
+  <section class="section">
+    <span class="tag blue">2 · 잠정 연결표</span>
+    <h2>4요소와 6개 파워</h2>
+    <table>
+      <tr><th>Rest 과정</th><th>관련 잠정 파워</th><th>관찰 질문</th></tr>
+      <tr><td>도덕적 민감성</td><td>공정 감지력, 공감 시야력</td><td>문제가 무엇이고 누가 어떤 영향을 받는지 알아차리는가?</td></tr>
+      <tr><td>도덕적 판단</td><td>원칙 판단력, 결과 균형력</td><td>기준·권리·관계·결과를 비교해 이유를 설명하는가?</td></tr>
+      <tr><td>도덕적 동기화</td><td>가치 수호력</td><td>친분·편의·이익과 가치가 충돌할 때 무엇을 우선하는가?</td></tr>
+      <tr><td>도덕적 품성화</td><td>용기 실행력 후보</td><td>안전한 거절, 협의, 기록, 도움 요청을 선택하려는가? 지속성과 실제 수행은 별도 확인</td></tr>
+    </table>
+    <div class="notice">
+      이 연결은 이론 기반 가설입니다. 6개 파워가 실제 응답에서 서로 구분된다는 뜻이 아닙니다.
+      특히 원칙 판단과 가치 수호, 공감 시야와 결과 균형은 중첩될 수 있습니다.
+    </div>
+  </section>
+
+  <section class="section">
+    <span class="tag violet">3 · 응답과 채점</span>
+    <h2>선택 의도×이유를 하나의 패턴으로 본다</h2>
+    <ol>
+      <li>문항은 “이 상황에서 내가 선택할 가능성이 가장 높은 행동”으로 지시를 통일합니다.</li>
+      <li>이유 선택지는 가치, 관계 압력, 피해 인식, 도움 요청 필요를 구분합니다.</li>
+      <li>행동 점수와 이유 점수를 독립적으로 더하지 않습니다.</li>
+      <li>전문가가 행동×이유 조합을 독립 평정하고 합의도와 이견을 기록합니다.</li>
+      <li>불일치 패턴은 감점보다 토론 질문으로 사용합니다.</li>
+      <li>서버 저장 시 <code>questionId</code>, <code>choiceId</code>, <code>reasonId</code>, 문항·채점 버전을 함께 기록합니다.</li>
+    </ol>
+    <p class="caption">
+      자기보고 응답을 실제 행동으로 일반화하지 않는 해석 원칙은
+      <a href="korean-evidence-base.html#e-03">[E-03]</a>~<a href="korean-evidence-base.html#e-06">[E-06]</a>의
+      개인·집단·상황 변인 연구를 반영합니다.
+    </p>
+  </section>
+
+  <section class="section">
+    <span class="tag blue">4 · 스타일 산출</span>
+    <h2>검증 전에는 자동 유형 판정을 하지 않는다</h2>
+    <table>
+      <tr><th>스타일 후보</th><th>주요 응답 근거</th><th>필수 보조 확인</th></tr>
+      <tr><td>공정 레이더</td><td>상황·영향·피해자 관점 인식</td><td>공정 감지와 공감 시야가 자료에서 구분되는지 확인</td></tr>
+      <tr><td>밸런스 메이커</td><td>기준·권리·관계·결과 비교</td><td>원칙 판단과 결과 균형의 중복 여부 확인</td></tr>
+      <tr><td>코어 키퍼</td><td>관계·편의보다 가치 우선 이유</td><td>판단과 동기화가 응답에서 구분되는지 확인</td></tr>
+      <tr><td>브레이브 무버</td><td>안전한 표현·협의·도움 요청 선택</td><td>자기주장성, 또래·학급 조건과 실제 행동을 분리</td></tr>
+    </table>
+    <ul>
+      <li>문항풀이 확정 전에는 합산식과 대표 스타일을 만들지 않습니다.</li>
+      <li>예비조사 전 분류 규칙, 동점 처리, 최소 근거 문항 수와 불확실성 기준을 사전 등록합니다.</li>
+      <li>한 스타일의 근거가 부족하거나 차이가 불안정하면 ‘혼합 관점’ 또는 ‘아직 분류하지 않음’을 제공합니다.</li>
+      <li>재검사에서 분류가 쉽게 바뀌거나 교육적 부작용이 발견되면 4스타일 자동 산출을 폐기하고 과정별 피드백만 제공합니다.</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <span class="tag coral">5 · 검증 게이트</span>
+    <h2>출시 전 단계</h2>
+    <table>
+      <tr><th>게이트</th><th>필요 증거</th><th>통과 기준</th></tr>
+      <tr><td>목적</td><td>교육용·저위험 사용정책</td><td>평가·선발·징계 금지와 결과 열람 범위 확정</td></tr>
+      <tr><td>내용</td><td>교사·청렴교육·측정·학생보호 전문가 독립 평정</td><td>내용타당도와 평정자 합의 기준을 자료 수집 전에 확정하고 미달 문항 삭제</td></tr>
+      <tr><td>인지면담</td><td>중학생·고등학생 별도 면담과 수정 이력</td><td>의도한 사고과정, 용어, 선택지 차이를 학생 언어로 설명할 수 있음</td></tr>
+      <tr><td>예비조사</td><td>선택지 분포, 사회적 바람직성, 문항 난이도·변별도</td><td>판정 기준을 사전 등록하고 쏠림·중복 문항 수정 또는 제외</td></tr>
+      <tr><td>구조</td><td>탐색·확인 표본 분리, 대안 모형 비교</td><td>6개 파워가 구분되지 않으면 축을 수정·통합하고 4스타일 산출 재검토</td></tr>
+      <tr><td>안정성</td><td>검사-재검사, 채점자 합의, 스타일 분류 안정성</td><td>사전 기준 미달 시 정밀 점수·대표 스타일 제공 금지</td></tr>
+      <tr><td>공정성</td><td>학교급·성별·언어·장애 접근성별 측정동일성과 문항편향</td><td>비교 근거가 없으면 집단 비교와 규준 해석 금지</td></tr>
+      <tr><td>교육효과</td><td>대체 상황, 지연 추적, 이유의 질과 선택 미션</td><td>같은 문항 기억이 아닌 새로운 상황의 판단 변화로 제한해 해석</td></tr>
+      <tr><td>운영윤리</td><td>동의·고지·삭제·위기응답 절차</td><td>교사와 운영자 대응 역할까지 문서화</td></tr>
+    </table>
+    <p class="caption">
+      국내 도구개발 절차 참고:
+      <a href="korean-evidence-base.html#m-01">[M-01]</a>,
+      <a href="korean-evidence-base.html#m-02">[M-02]</a>.
+    </p>
+  </section>
+
+  <section class="section">
+    <span class="tag yellow">6 · 문항 규모</span>
+    <h2>수업용과 연구용을 분리한다</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h3>수업용 단축형</h3>
+        <p>10~15개 상황으로 참여 부담을 낮춥니다. 정밀 점수보다 스타일 피드백, 토론과 성장 미션을 제공합니다.</p>
+      </div>
+      <div class="card">
+        <h3>연구용 문항풀</h3>
+        <p>초기 30~48개 후보 상황을 준비합니다. 실제 자료로 축 구조와 채점 안정성을 확인한 뒤 단축형을 선정합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section soft">
+    <span class="tag green">7 · 학생 보호 원칙</span>
+    <h2>용기를 개인 책임으로 만들지 않는다</h2>
+    <ul>
+      <li>괴롭힘과 보복 위험에서는 직접 대항보다 안전한 친구·보호자·교사·전문기관 도움 요청을 인정합니다.</li>
+      <li>낮은 실행 점수를 피해 학생의 성격이나 책임 부족으로 해석하지 않습니다.</li>
+      <li>학급 환경과 집단효능감이 행동에 영향을 준다는 국내 연구를 결과 해석에 반영합니다.</li>
+      <li>학생 결과는 교사의 생활평가 자료가 아니며, 개인 결과 공개를 기본값으로 두지 않습니다.</li>
+      <li>개별 응답 건너뛰기와 중단을 허용하고, 소수 집단이 추정될 수 있는 학급 분포는 표시하지 않습니다.</li>
+      <li>학급 집계의 최소 인원, 소수 셀 숨김, 교사의 원응답 접근 범위를 파일럿 전에 확정합니다.</li>
+      <li>괴롭힘·폭력 경험이 드러나면 앱이 판정하지 않고 학교의 피해학생 보호·위기응답 절차로 연결합니다.</li>
+      <li>연구용 수집 전에는 별도 연구계획, 동의 절차, 최소 수집과 삭제정책을 확정합니다.</li>
+    </ul>
+    <p>
+      보수적 기본값과 역할 분담은 <a href="student-safeguarding-operations.html">학생 보호 운영기준</a>에서 관리하며,
+      학교·연구기관 승인 없이 완화하지 않습니다.
+    </p>
+    <p class="caption">
+      보호 근거:
+      <a href="korean-evidence-base.html#o-01">[O-01]</a>,
+      <a href="korean-evidence-base.html#o-02">[O-02]</a>.
+    </p>
+  </section>
+
+  <p class="footer">최종 갱신: 2026-07-28 · 앱 고유 6개 파워는 아직 미검증</p>
+</main>
+</body>
+</html>

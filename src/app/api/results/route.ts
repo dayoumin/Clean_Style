@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { questions, calculateResult, computeSixAxisScores } from '@/data/questions';
+import { questions, calculateResult, computeSixAxisScores } from '@/diagnostics/adult-integrity';
 import { detectDeviceType, normalizeReferrer } from '@/lib/device';
 import { checkScopedRateLimit } from '@/lib/rate-limit';
 import type { D1Database } from '@cloudflare/workers-types';
+import { IS_STUDENT_VARIANT } from '@/data/appVariant';
 
 // 결과 저장은 테스트 완료 시 1회만 호출되므로 넉넉하게 설정
 const RESULTS_CLIENT_LIMIT = 5;
@@ -11,6 +12,10 @@ const RESULTS_IP_LIMIT = 200;
 const RESULTS_WINDOW_MS = 60_000;
 
 export async function POST(request: NextRequest) {
+  if (IS_STUDENT_VARIANT) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const rateCheck = checkScopedRateLimit({
     scope: 'results',
     request,

@@ -1,9 +1,7 @@
 name: Deploy Clean Style Student
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 concurrency:
   group: deploy-clean-style-student
@@ -41,30 +39,14 @@ jobs:
           pnpm add -D --ignore-scripts lightningcss-linux-x64-gnu
           pnpm add -D --ignore-scripts @tailwindcss/oxide-linux-x64-gnu
 
-      - name: Validate required secrets
+      - name: Validate Cloudflare credentials
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
-          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
         run: |
           test -n "$CLOUDFLARE_API_TOKEN" || (echo "CLOUDFLARE_API_TOKEN is missing" && exit 1)
-          test -n "$OPENROUTER_API_KEY" || (echo "OPENROUTER_API_KEY is missing" && exit 1)
-          test -n "$ADMIN_SECRET" || (echo "ADMIN_SECRET is missing" && exit 1)
-          if [ -z "$NVIDIA_API_KEY" ]; then
-            echo "NVIDIA_API_KEY is missing; nvidia: model fallback will be skipped"
-          fi
 
       - name: Build
         run: pnpm run build
-
-      - name: Write Workers secrets file
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
-          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
-        run: |
-          node -e "const fs = require('node:fs'); const required = ['OPENROUTER_API_KEY', 'ADMIN_SECRET']; const optional = ['NVIDIA_API_KEY']; const data = Object.fromEntries(required.map((key) => [key, process.env[key] || ''])); for (const key of optional) { if (process.env[key]) data[key] = process.env[key]; } fs.writeFileSync('.secrets.student.json', JSON.stringify(data));"
 
       - name: Deploy clean-style-student
         env:
@@ -72,15 +54,10 @@ jobs:
         run: |
           npx wrangler deploy \
             --name "$WORKER_NAME" \
-            --secrets-file .secrets.student.json \
             --var NEXT_PUBLIC_APP_URL:"$NEXT_PUBLIC_APP_URL" \
             --var NEXT_PUBLIC_ENABLE_RESPECT_PILOT:"$NEXT_PUBLIC_ENABLE_RESPECT_PILOT" \
             --var NEXT_PUBLIC_ENABLE_AI_CHAT:"$NEXT_PUBLIC_ENABLE_AI_CHAT" \
             --var NEXT_PUBLIC_APP_VARIANT:"$NEXT_PUBLIC_APP_VARIANT"
-
-      - name: Clean Workers secrets file
-        if: always()
-        run: rm -f .secrets.student.json
 
       - name: Smoke test clean-style-student
         run: |
@@ -99,13 +76,30 @@ jobs:
             throw new Error(`clean-style-student smoke HTTP ${res?.status ?? 'no response'}`);
           }
 
-          const chatRes = await fetch(`${url}/api/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({}),
-          });
-          if (chatRes.status !== 404) {
-            throw new Error(`student AI chat should be disabled, got HTTP ${chatRes.status}`);
+          const testRes = await fetch(`${url}/test`);
+          const testHtml = await testRes.text();
+          if (!testRes.ok || !testHtml.includes('학생용 청렴 진단을 준비하고 있어요')) {
+            throw new Error('student preparation screen was not found');
+          }
+
+          const blockedRoutes = [
+            { path: '/api/chat', method: 'POST' },
+            { path: '/api/results', method: 'POST' },
+            { path: '/api/questions', method: 'GET' },
+            { path: '/api/summarize', method: 'POST' },
+            { path: '/api/respect-advice', method: 'POST' },
+            { path: '/api/admin/dashboard', method: 'HEAD' },
+          ];
+
+          for (const route of blockedRoutes) {
+            const blockedRes = await fetch(`${url}${route.path}`, {
+              method: route.method,
+              headers: { 'Content-Type': 'application/json' },
+              body: route.method === 'POST' ? JSON.stringify({}) : undefined,
+            });
+            if (blockedRes.status !== 404) {
+              throw new Error(`${route.path} should be disabled, got HTTP ${blockedRes.status}`);
+            }
           }
 
           console.log(`clean-style-student smoke passed: ${url}`);

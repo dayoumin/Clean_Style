@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chat } from '@/lib/ai';
-import { styleTypes } from '@/data/questions';
+import { styleTypes } from '@/diagnostics/adult-integrity';
 import { MAX_CONTENT_LENGTH } from '@/lib/constants';
 import { SUMMARIZE_SYSTEM_PROMPT } from '@/lib/prompts';
 import { sanitizeHistory, sanitizeUserInput } from '@/lib/sanitize';
 import { checkScopedRateLimit } from '@/lib/rate-limit';
 import { getAiRuntimeEnv } from '@/lib/runtime-env';
+import { AI_CHAT_ENABLED } from '@/data/appVariant';
 
 const SUMMARIZE_CLIENT_LIMIT = 20;
 const SUMMARIZE_IP_LIMIT = 200;
 const SUMMARIZE_WINDOW_MS = 60_000;
 
 export async function POST(request: NextRequest) {
+  if (!AI_CHAT_ENABLED) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const rateCheck = checkScopedRateLimit({
     scope: 'summarize',
     request,

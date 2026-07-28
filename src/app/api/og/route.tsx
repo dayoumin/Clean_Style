@@ -1,17 +1,20 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
-import { styleTypes } from '@/data/questions';
+import { styleTypes } from '@/diagnostics/adult-integrity';
 import { formatNamedResultTitle, normalizeDisplayName } from '@/lib/display-name';
+import { APP_COPY, IS_STUDENT_VARIANT } from '@/data/appVariant';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const styleKey = searchParams.get('style') ?? '';
   const displayName = normalizeDisplayName(searchParams.get('name'));
-  const style = styleTypes[styleKey];
+  const style = IS_STUDENT_VARIANT ? undefined : styleTypes[styleKey];
 
   const emoji = style?.emoji ?? '🧭';
-  const name = style ? formatNamedResultTitle(displayName, style.name) : '청렴 스타일';
-  const description = style?.description ?? '나의 업무 스타일을 알아보세요';
+  const name = style
+    ? formatNamedResultTitle(displayName, style.name)
+    : IS_STUDENT_VARIANT ? APP_COPY.title : '청렴 스타일';
+  const description = style?.description ?? APP_COPY.primaryDiagnosticDescription;
 
   return new ImageResponse(
     (
@@ -43,7 +46,7 @@ export async function GET(request: NextRequest) {
             fontWeight: 600,
           }}
         >
-          청렴 스타일 테스트 결과
+          {IS_STUDENT_VARIANT ? '학생용 청렴 진단' : '청렴 스타일 테스트 결과'}
         </div>
 
         <div style={{ fontSize: 72, marginBottom: 16, display: 'flex' }}>{emoji}</div>

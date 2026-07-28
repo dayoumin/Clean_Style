@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { styleTypes, computeSixAxisScores, type StyleType } from '@/data/questions';
+import { styleTypes, computeSixAxisScores, type StyleType } from '@/diagnostics/adult-integrity';
 import StyleRadarChart from '@/components/StyleRadarChart';
 import { TEST_START_TIME_KEY, TEST_REFERRER_KEY } from '@/lib/constants';
 import { AnalyzingScreen } from '@/components/LoadingFairy';

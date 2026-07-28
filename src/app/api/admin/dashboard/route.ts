@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import type { D1Database } from '@cloudflare/workers-types';
-import { questions } from '@/data/questions';
+import { questions } from '@/diagnostics/adult-integrity';
+import { IS_STUDENT_VARIANT } from '@/data/appVariant';
 
 function checkAdminAuth(request: NextRequest): { ok: true } | { ok: false; status: number; message: string } {
   const secret = process.env.ADMIN_SECRET;
@@ -12,12 +13,20 @@ function checkAdminAuth(request: NextRequest): { ok: true } | { ok: false; statu
 }
 
 export async function HEAD(request: NextRequest) {
+  if (IS_STUDENT_VARIANT) {
+    return new NextResponse(null, { status: 404 });
+  }
+
   const auth = checkAdminAuth(request);
   if (!auth.ok) return new NextResponse(null, { status: auth.status });
   return new NextResponse(null, { status: 200 });
 }
 
 export async function GET(request: NextRequest) {
+  if (IS_STUDENT_VARIANT) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   const auth = checkAdminAuth(request);
   if (!auth.ok) {
     return NextResponse.json({ error: auth.message }, { status: auth.status });

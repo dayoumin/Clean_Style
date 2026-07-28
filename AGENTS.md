@@ -1,5 +1,43 @@
 # Project Operating Notes
 
+## Product And Diagnostic Boundaries
+
+This repository builds three products from one `main` branch. Product identity comes from
+the product definition and build configuration, not from a long-lived product branch.
+
+| Product | Audience | Diagnostics | AI chat |
+| --- | --- | --- | --- |
+| `clean-style` (`default`) | Adults | `adult-integrity` | Enabled |
+| `clean-style-plus` (`plus`) | Adults | `adult-integrity`, `workplace-respect` | Enabled |
+| `clean-style-student` (`student`) | Korean middle/high school students | `student-integrity` only | Disabled |
+
+- `clean-style-plus` is the adult product with the additional workplace-respect diagnostic.
+- `clean-style-student` is a separate instrument, not a student skin for the adult test.
+- Never expose adult questions, adult three-axis scoring, adult eight-style results, AI chat,
+  name entry, or adult result history in the student product.
+- Never reuse adult norms, scoring keys, result tables, or array-position answer contracts for
+  student responses.
+- Shared code may cover session flow, progress, accessibility, layout, errors, and versioned
+  response contracts. Questions, scoring, interpretation, storage policy, safety, and validation
+  evidence remain diagnostic-owned.
+- Keep product composition in `src/products/` and diagnostic-owned code in `src/diagnostics/`.
+  Read the nearest nested `AGENTS.md` before changing those folders.
+- Use short-lived feature branches for changes, then merge reviewed work into `main`. Do not
+  maintain one permanent branch per deployed product.
+- Student development must follow
+  `docs/research/student-integrity/product-and-student-implementation-plan.html`.
+- Student scientific and safety claims must remain consistent with the student research hub.
+  Update the evidence register and literature review log when adding or changing a claim.
+
+## Product Deployment Policy
+
+- The default and plus products may deploy from reviewed `main` according to their workflows.
+- The student product stays manual-deploy only until its content, safeguarding, and validation
+  gates are approved. Do not restore automatic student deployment merely for convenience.
+- Do not deploy any product unless the user explicitly asks for deployment in the current task.
+- A successful build for one product does not prove the other product variants are correct.
+  Run product-matrix checks when changing shared product or diagnostic boundaries.
+
 ## Production Cloudflare Issues
 
 - If the user says an error happened after deployment, in production, on Cloudflare Workers, or on the public `workers.dev` URL, diagnose the deployed Worker first.

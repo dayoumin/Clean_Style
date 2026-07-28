@@ -14,6 +14,14 @@ vi.mock('@/lib/ai', () => ({
   chatStream: mocks.chatStream,
 }));
 
+vi.mock('@/data/appVariant', () => ({
+  AI_CHAT_ENABLED: true,
+}));
+
+vi.mock('@/data/workplaceRespectFeature', () => ({
+  RESPECT_FEATURE_ENABLED: true,
+}));
+
 import { POST } from '@/app/api/respect-advice/route';
 import { CLIENT_ID_HEADER } from '@/lib/constants';
 import { _resetStore } from '@/lib/rate-limit';

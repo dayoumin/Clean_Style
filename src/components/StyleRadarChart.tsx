@@ -14,7 +14,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import { AXIS_MAXIMUMS, type SixAxisScores } from '@/data/questions';
+import { AXIS_MAXIMUMS, type SixAxisScores } from '@/diagnostics/adult-integrity';
 
 interface StyleRadarChartProps {
   sixAxis: SixAxisScores;

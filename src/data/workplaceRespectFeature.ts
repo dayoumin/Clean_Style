@@ -1,1 +1,3 @@
-export const RESPECT_FEATURE_ENABLED = process.env.NEXT_PUBLIC_ENABLE_RESPECT_PILOT !== '0';
+import { RESPECT_PILOT_ENABLED } from './appVariant';
+
+export const RESPECT_FEATURE_ENABLED = RESPECT_PILOT_ENABLED;

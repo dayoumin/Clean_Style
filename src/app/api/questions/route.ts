@@ -1,14 +1,22 @@
 import { NextResponse } from 'next/server';
-import { questions } from '@/data/questions';
-import type { Question } from '@/data/questions';
+import { questions, type Question } from '@/diagnostics/adult-integrity';
+import { IS_STUDENT_VARIANT } from '@/data/appVariant';
 import fs from 'fs';
 import path from 'path';
 
 export async function GET() {
+  if (IS_STUDENT_VARIANT) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   return NextResponse.json(questions);
 }
 
 export async function PUT(request: Request) {
+  if (IS_STUDENT_VARIANT) {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
   if (process.env.NODE_ENV === 'production') {
     return NextResponse.json({ error: '프로덕션에서는 수정할 수 없습니다' }, { status: 403 });
   }
