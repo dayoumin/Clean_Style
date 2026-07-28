@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clean Style - 진단 설계 이론 정리</title>
+<style>
+  :root {
+    --bg: #f7f8fb; --surface: #ffffff; --surface2: #f0f3f8;
+    --border: #dfe4ee; --text: #1d2433; --text-dim: #667085;
+    --accent: #3559d8; --accent-soft: rgba(53,89,216,0.09);
+    --green: #138a54; --green-soft: rgba(19,138,84,0.09);
+    --orange: #c5571a; --orange-soft: rgba(197,87,26,0.1);
+    --red: #c93434; --red-soft: rgba(201,52,52,0.09);
+    --purple: #7443c9; --purple-soft: rgba(116,67,201,0.09);
+    --yellow: #9a6a00; --yellow-soft: rgba(154,106,0,0.11);
+    --teal: #087d7a; --teal-soft: rgba(8,125,122,0.09);
+    --shadow: 0 18px 48px rgba(24,36,64,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.72; padding: 2rem; max-width: 1180px; margin: 0 auto;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .back-link { display: inline-block; margin-bottom: 1.5rem; font-size: 0.85rem; }
+  header { margin-bottom: 2rem; padding-bottom: 1.4rem; border-bottom: 1px solid var(--border); }
+  h1 { font-size: 1.85rem; font-weight: 800; margin-bottom: 0.35rem; line-height: 1.35; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.9rem; max-width: 760px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.9rem; }
+  .tag {
+    display: inline-block; font-size: 0.72rem; padding: 0.15rem 0.5rem;
+    border-radius: 4px; font-weight: 700; white-space: nowrap;
+  }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+  .tag-orange { background: var(--orange-soft); color: var(--orange); }
+  .tag-purple { background: var(--purple-soft); color: var(--purple); }
+  .tag-yellow { background: var(--yellow-soft); color: var(--yellow); }
+  .tag-teal { background: var(--teal-soft); color: var(--teal); }
+  .toc {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.1rem 1.25rem; margin-bottom: 2.2rem;
+    box-shadow: 0 8px 24px rgba(24,36,64,0.06);
+  }
+  .toc-title {
+    color: var(--text-dim); font-size: 0.75rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;
+  }
+  .toc a { display: block; font-size: 0.86rem; padding: 0.18rem 0; }
+  h2 {
+    font-size: 1.16rem; font-weight: 750; margin: 2.5rem 0 1rem;
+    padding-bottom: 0.55rem; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  h2 .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.75rem; height: 1.75rem; border-radius: 7px;
+    background: var(--accent-soft); color: var(--accent); font-size: 0.82rem;
+    flex-shrink: 0;
+  }
+  h3 { font-size: 0.98rem; font-weight: 700; margin: 1.4rem 0 0.55rem; color: var(--accent); }
+  p { font-size: 0.9rem; margin: 0.55rem 0; }
+  ul, ol { margin: 0.55rem 0 0.55rem 1.15rem; font-size: 0.88rem; }
+  li { margin-bottom: 0.35rem; }
+  strong { color: var(--text); }
+  code {
+    background: var(--surface2); padding: 0.1rem 0.38rem; border-radius: 4px;
+    font-size: 0.82rem; font-family: 'JetBrains Mono', Consolas, monospace;
+  }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.15rem 1.25rem; margin-bottom: 1rem;
+    box-shadow: 0 8px 24px rgba(24,36,64,0.05);
+  }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+  .note {
+    background: var(--surface2); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: 0.8rem 1rem;
+    color: var(--text-dim); font-size: 0.84rem; margin: 1rem 0;
+  }
+  .note.warn { border-left-color: var(--orange); }
+  .note.danger { border-left-color: var(--red); }
+  .note.good { border-left-color: var(--green); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; margin: 0.75rem 0; }
+  th, td { padding: 0.62rem 0.75rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+  th {
+    color: var(--text-dim); font-weight: 700; font-size: 0.74rem;
+    text-transform: uppercase; letter-spacing: 0.035em;
+  }
+  .model-flow {
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem;
+    margin: 1rem 0;
+  }
+  .flow-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0.95rem;
+  }
+  .flow-item .kicker { color: var(--text-dim); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+  .flow-item .title { font-size: 0.92rem; font-weight: 750; margin: 0.25rem 0; }
+  .flow-item .desc { color: var(--text-dim); font-size: 0.8rem; line-height: 1.55; }
+  .risk {
+    background: var(--red-soft); border: 1px solid rgba(248,113,113,0.3);
+    border-radius: 10px; padding: 1rem 1.1rem; margin-bottom: 0.75rem;
+  }
+  .risk .label { color: var(--red); font-size: 0.74rem; font-weight: 800; margin-bottom: 0.25rem; }
+  .risk .body { color: var(--text-dim); font-size: 0.84rem; }
+  .updated { color: var(--text-dim); font-size: 0.75rem; text-align: center; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  .theory-figure-wrap { margin: 2rem 0 2.2rem; }
+  .figure-title-row {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 1rem; margin-bottom: 0.75rem;
+  }
+  .figure-title-row h2 {
+    margin: 0; border-bottom: 0; padding-bottom: 0; display: block;
+    font-size: 1.12rem;
+  }
+  .figure-caption { color: var(--text-dim); font-size: 0.78rem; }
+  .theory-figure {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.94), rgba(247,248,251,0.94)),
+      radial-gradient(circle at 20% 18%, rgba(53,89,216,0.12), transparent 28%),
+      radial-gradient(circle at 82% 22%, rgba(8,125,122,0.12), transparent 26%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    padding: 3.2%;
+  }
+  .figure-kicker {
+    font-size: clamp(0.62rem, 1.2vw, 0.86rem);
+    color: var(--accent);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .figure-heading {
+    font-size: clamp(1.25rem, 2.9vw, 2.35rem);
+    font-weight: 850;
+    letter-spacing: 0;
+    line-height: 1.18;
+    max-width: 58%;
+    margin-top: 0.35rem;
+  }
+  .figure-sub {
+    color: var(--text-dim);
+    font-size: clamp(0.7rem, 1.25vw, 0.95rem);
+    max-width: 50%;
+    line-height: 1.5;
+    margin-top: 0.55rem;
+  }
+  .theory-stage-grid {
+    position: absolute;
+    left: 3.2%; right: 3.2%; bottom: 4.1%;
+    display: grid;
+    grid-template-columns: 1.03fr 1.12fr 1.03fr 1.12fr;
+    gap: 1.1%;
+    align-items: stretch;
+  }
+  .stage-card {
+    background: rgba(255,255,255,0.88);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: clamp(0.62rem, 1.15vw, 1rem);
+    min-height: 9.5rem;
+  }
+  .stage-card .stage-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.5rem; height: 1.5rem; border-radius: 50%;
+    background: var(--surface2); color: var(--accent);
+    font-size: 0.72rem; font-weight: 800; margin-bottom: 0.45rem;
+  }
+  .stage-card h3 {
+    margin: 0 0 0.35rem; color: var(--text);
+    font-size: clamp(0.78rem, 1.25vw, 1rem);
+    line-height: 1.25;
+  }
+  .stage-card p {
+    color: var(--text-dim);
+    font-size: clamp(0.62rem, 0.95vw, 0.78rem);
+    line-height: 1.45;
+    margin: 0;
+  }
+  .stage-card ul {
+    margin: 0.45rem 0 0 0;
+    list-style: none;
+    font-size: clamp(0.58rem, 0.9vw, 0.74rem);
+    color: var(--text-dim);
+  }
+  .stage-card li { margin-bottom: 0.18rem; }
+  .stage-blue { border-top: 4px solid var(--accent); }
+  .stage-green { border-top: 4px solid var(--green); }
+  .stage-orange { border-top: 4px solid var(--orange); }
+  .stage-purple { border-top: 4px solid var(--purple); }
+  .axis-panel {
+    position: absolute;
+    right: 3.4%; top: 8%;
+    width: 34%;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.2%;
+    box-shadow: 0 12px 30px rgba(24,36,64,0.1);
+  }
+  .axis-panel-title {
+    font-size: clamp(0.66rem, 1.1vw, 0.82rem);
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 0.55rem;
+  }
+  .axis-line {
+    display: grid;
+    grid-template-columns: 3.2rem 1fr 3.2rem;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.5rem;
+  }
+  .axis-pole {
+    font-size: clamp(0.58rem, 0.95vw, 0.75rem);
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    white-space: nowrap;
+  }
+  .axis-bar {
+    height: 0.48rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--green), var(--accent), var(--orange));
+    opacity: 0.82;
+  }
+  .boundary-ribbon {
+    position: absolute;
+    left: 3.2%; right: 3.2%; top: 49%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .boundary-item {
+    border: 1px solid var(--border);
+    background: rgba(240,243,248,0.86);
+    border-radius: 9px;
+    padding: 0.55rem 0.65rem;
+    font-size: clamp(0.58rem, 0.9vw, 0.74rem);
+    color: var(--text-dim);
+    line-height: 1.35;
+  }
+  .boundary-item strong {
+    display: block;
+    color: var(--text);
+    font-size: clamp(0.62rem, 0.95vw, 0.78rem);
+    margin-bottom: 0.15rem;
+  }
+  @media (max-width: 820px) {
+    body { padding: 1.2rem; }
+    .grid-2, .grid-3, .model-flow { grid-template-columns: 1fr; }
+    .theory-figure { aspect-ratio: auto; min-height: 860px; padding: 1.1rem; }
+    .figure-heading, .figure-sub { max-width: 100%; }
+    .axis-panel, .theory-stage-grid, .boundary-ribbon {
+      position: static;
+      width: auto;
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    .stage-card { min-height: auto; }
+    table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    th, td { min-width: 9rem; }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Docs Index</a>
+
+<header>
+  <h1><span>진단 설계 이론</span> 정리</h1>
+  <p class="subtitle">
+    Clean Style의 3축 청렴 스타일 테스트를 어떤 종류의 도구로 봐야 하는지,
+    무엇을 검증해야 하는지, 어디까지 말할 수 있는지를 정리한 설계 기준 문서.
+  </p>
+  <div class="tags">
+    <span class="tag tag-blue">Construct</span>
+    <span class="tag tag-green">Validity</span>
+    <span class="tag tag-purple">Heuristic Tool</span>
+    <span class="tag tag-orange">Scenario Judgment</span>
+    <span class="tag tag-teal">Self-Discovery</span>
+    <span class="tag tag-yellow">Ethical Decision-Making</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-title">목차</div>
+  <a href="#theory-map">0. 이론적 배경 16:9 요약 그림</a>
+  <a href="#position">1. 이 앱은 어떤 종류의 진단인가</a>
+  <a href="#construct">2. 구성개념에서 문항까지</a>
+  <a href="#validity">3. 타당도 논리</a>
+  <a href="#scoring">4. 점수와 유형화</a>
+  <a href="#interpretation">5. 결과 해석의 경계</a>
+  <a href="#review">6. 설계 점검 기준</a>
+  <a href="#references">7. 관련 문서와 참고 이론</a>
+</nav>
+
+<section id="theory-map" class="theory-figure-wrap">
+  <div class="figure-title-row">
+    <h2>이론적 배경 한 장 요약</h2>
+    <div class="figure-caption">16:9 overview · white version</div>
+  </div>
+
+  <div class="theory-figure" role="img" aria-label="Clean Style 진단 설계 이론적 배경을 16대9 비율로 요약한 그림">
+    <div class="figure-kicker">Clean Style Diagnostic Design</div>
+    <div class="figure-heading">청렴 의사결정 성향을 평가가 아닌 자기발견으로 해석한다</div>
+    <div class="figure-sub">
+      심리측정의 타당도 논리, 윤리적 의사결정 이론, 공공기관 업무 시나리오를 연결해
+      3축 성향 프로파일과 안전한 해석 경계를 만든다.
+    </div>
+
+    <div class="axis-panel">
+      <div class="axis-panel-title">3축 구성개념</div>
+      <div class="axis-line">
+        <div class="axis-pole">원칙</div>
+        <div class="axis-bar"></div>
+        <div class="axis-pole">유연</div>
+      </div>
+      <div class="axis-line">
+        <div class="axis-pole">투명</div>
+        <div class="axis-bar"></div>
+        <div class="axis-pole">신중</div>
+      </div>
+      <div class="axis-line">
+        <div class="axis-pole">독립</div>
+        <div class="axis-bar"></div>
+        <div class="axis-pole">협력</div>
+      </div>
+    </div>
+
+    <div class="boundary-ribbon">
+      <div class="boundary-item">
+        <strong>사용 목적</strong>
+        교육·자기성찰·대화의 출발점
+      </div>
+      <div class="boundary-item">
+        <strong>해석 금지선</strong>
+        인사평가, 위험예측, 역량 인증 아님
+      </div>
+      <div class="boundary-item">
+        <strong>검증 과제</strong>
+        파일럿, 신뢰도, 구성·준거 타당도
+      </div>
+    </div>
+
+    <div class="theory-stage-grid">
+      <div class="stage-card stage-blue">
+        <div class="stage-num">1</div>
+        <h3>이론 근거</h3>
+        <p>성격심리, 도덕심리, 조직행동, 공공행정 이론에서 판단 축을 도출한다.</p>
+        <ul>
+          <li>HEXACO · Schwartz</li>
+          <li>Rest · Forsyth · EDM</li>
+          <li>윤리풍토 · 적극행정</li>
+        </ul>
+      </div>
+      <div class="stage-card stage-green">
+        <div class="stage-num">2</div>
+        <h3>업무 시나리오</h3>
+        <p>연구/데이터, 행정/계약, 관계/소통 장면에서 실제 선택 패턴을 관찰한다.</p>
+        <ul>
+          <li>정답 없는 4지선다</li>
+          <li>사회적 바람직성 완화</li>
+          <li>강제선택 구조 주의</li>
+        </ul>
+      </div>
+      <div class="stage-card stage-orange">
+        <div class="stage-num">3</div>
+        <h3>점수와 유형</h3>
+        <p>3축 순점수로 8유형을 판정하고, 6축 레이더는 자기발견용 표시로 보정한다.</p>
+        <ul>
+          <li>원시 점수는 내부 판정</li>
+          <li>제곱근 보정은 UI 표현</li>
+          <li>기관 간 비교 금지</li>
+        </ul>
+      </div>
+      <div class="stage-card stage-purple">
+        <div class="stage-num">4</div>
+        <h3>안전한 해석</h3>
+        <p>결과는 성격 단정이나 청렴도 평가가 아니라 강점과 주의점 중심의 행동 팁이다.</p>
+        <ul>
+          <li>공식 검사 아님</li>
+          <li>행동 예측 아님</li>
+          <li>검증 상태 명시</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="position">
+  <h2><span class="num">1</span> 이 앱은 어떤 종류의 진단인가</h2>
+
+  <div class="note good">
+    <strong>결론:</strong> Clean Style은 임상적 진단, 인사평가, 역량 인증 도구가 아니라
+    공공 연구기관 업무 맥락에서 청렴 의사결정 성향을 돌아보게 하는
+    <strong>시나리오 기반 자기발견형 휴리스틱 도구</strong>로 설계되어야 한다.
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <h3>진단이 아닌 것</h3>
+      <ul>
+        <li>정신건강 또는 성격장애 진단</li>
+        <li>채용, 승진, 징계, 성과평가 자료</li>
+        <li>부패 가능성 예측 점수</li>
+        <li>기관 청렴도 공식 측정</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>진단에 가까운 것</h3>
+      <ul>
+        <li>윤리적 딜레마에서 반복되는 판단 경향</li>
+        <li>정보 공개, 기준 적용, 협업 방식의 선호</li>
+        <li>자기이해와 교육 대화의 시작점</li>
+        <li>문항 응답 패턴 기반 맞춤 조언</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>사용자에게 말할 수 있는 것</h3>
+      <ul>
+        <li>"당신은 이런 방식으로 판단하는 경향이 있습니다"</li>
+        <li>"이 성향은 이런 장점과 주의점이 있습니다"</li>
+        <li>"업무 상황에서는 이렇게 보완해볼 수 있습니다"</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>
+    심리측정 관점에서 검사는 항상 특정 목적과 해석 맥락에 묶인다.
+    같은 문항이라도 교육용 자기성찰 도구로 쓰는 것과 인사평가 도구로 쓰는 것은
+    요구되는 타당도, 신뢰도, 설명 책임이 다르다. 이 프로젝트의 현재 증거 수준은
+    "공식 검사"보다 "근거 기반 자기발견 콘텐츠"에 맞다.
+  </p>
+</section>
+
+<section id="construct">
+  <h2><span class="num">2</span> 구성개념에서 문항까지</h2>
+
+  <p>
+    좋은 진단 설계는 먼저 측정하려는 구성개념을 좁히고, 그 구성개념이 실제 업무 장면에서
+    어떤 행동 선택으로 드러나는지 연결한다. Clean Style의 설계 단위는 사람의 도덕성 전체가 아니라
+    <strong>청렴 딜레마에서 드러나는 의사결정 스타일</strong>이다.
+  </p>
+
+  <div class="model-flow">
+    <div class="flow-item">
+      <div class="kicker">Step 1</div>
+      <div class="title">구성개념</div>
+      <div class="desc">청렴 의사결정 성향. 도덕성 전체가 아니라 판단 방식의 프로파일.</div>
+    </div>
+    <div class="flow-item">
+      <div class="kicker">Step 2</div>
+      <div class="title">축 정의</div>
+      <div class="desc">원칙-유연, 투명-신중, 독립-협력의 3개 판단 축.</div>
+    </div>
+    <div class="flow-item">
+      <div class="kicker">Step 3</div>
+      <div class="title">시나리오</div>
+      <div class="desc">연구/데이터, 행정/계약, 관계/소통의 실제 업무 딜레마.</div>
+    </div>
+    <div class="flow-item">
+      <div class="kicker">Step 4</div>
+      <div class="title">선택지 매핑</div>
+      <div class="desc">각 선택지가 어떤 축의 어떤 극을 반영하는지 점수화.</div>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>축</th><th>측정하려는 질문</th><th>문항화 기준</th><th>오해 방지</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>원칙 ↔ 유연</strong></td>
+        <td>기준과 절차를 우선하는가, 상황과 맥락 조정을 우선하는가</td>
+        <td>규정 준수, 예외 판단, 효율, 관행, 재량 상황</td>
+        <td>원칙=좋음, 유연=편법으로 만들지 않는다</td>
+      </tr>
+      <tr>
+        <td><strong>투명 ↔ 신중</strong></td>
+        <td>즉시 공유/보고하는가, 확인 후 제한적으로 공유하는가</td>
+        <td>보고 시점, 정보 공개 범위, 사실 확인, 문서화</td>
+        <td>신중=숨김, 투명=무조건 공개로 만들지 않는다</td>
+      </tr>
+      <tr>
+        <td><strong>독립 ↔ 협력</strong></td>
+        <td>개인 판단으로 실행하는가, 타인과 합의해 움직이는가</td>
+        <td>상급자 보고, 동료 상의, 단독 결정, 공동 책임</td>
+        <td>독립=독단, 협력=소극성으로 만들지 않는다</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note warn">
+    <strong>중요한 설계 경계:</strong> 세 축은 이론적으로 구분되지만, 현재 앱 문항에서 경험적으로 독립임이
+    증명된 것은 아니다. 따라서 문서와 UI는 "3축으로 분석합니다"라고 말할 수 있지만
+    "검증된 3요인 검사입니다"라고 말하면 안 된다.
+  </div>
+</section>
+
+<section id="validity">
+  <h2><span class="num">3</span> 타당도 논리</h2>
+
+  <p>
+    현대 심리측정에서 타당도는 단일 수치가 아니라, 특정 해석과 사용을 정당화하는 증거의 누적이다.
+    이 앱의 타당도 논리는 "사용자가 자기 성향을 이해하는 데 충분한가"와
+    "검사처럼 오해되지 않도록 경계를 분명히 했는가"를 함께 봐야 한다.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>증거 종류</th><th>현재 상태</th><th>필요한 증거</th><th>사용상 결론</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>내용 타당도</strong></td>
+        <td><span class="tag tag-yellow">부분 확보</span></td>
+        <td>축별 문항 매핑표, 전문가 문항 리뷰, 사회적 바람직성 검토</td>
+        <td>교육용 자기발견 도구로는 설명 가능</td>
+      </tr>
+      <tr>
+        <td><strong>구성 타당도</strong></td>
+        <td><span class="tag tag-red">미검증</span></td>
+        <td>EFA/CFA, 축 간 상관, 측정 동치성, 문항 반응 패턴 분석</td>
+        <td>검증된 심리검사라고 부르면 안 됨</td>
+      </tr>
+      <tr>
+        <td><strong>준거 타당도</strong></td>
+        <td><span class="tag tag-red">미검증</span></td>
+        <td>신고 의향, 적극행정 의향, 조직 청렴도 인식 등 외부 준거와의 관계</td>
+        <td>행동 예측이나 위험 판정 금지</td>
+      </tr>
+      <tr>
+        <td><strong>신뢰도</strong></td>
+        <td><span class="tag tag-red">미검증</span></td>
+        <td>내적 일관성, 재검사 신뢰도, 문항별 변별도</td>
+        <td>개별 점수의 정밀한 비교 금지</td>
+      </tr>
+      <tr>
+        <td><strong>결과 영향</strong></td>
+        <td><span class="tag tag-orange">관리 필요</span></td>
+        <td>사용자 오해, 낙인, 조직 내 오용 가능성 점검</td>
+        <td>평가/선발/징계 금지 문구 유지</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>현재 단계의 정직한 표현:</strong>
+    "학술 이론과 업무 시나리오를 바탕으로 만든 자기발견형 테스트이며,
+    현재는 공식 심리검사나 인사평가 도구가 아닙니다."
+  </div>
+
+  <div class="note warn">
+    <strong>분석상 주의:</strong> 이 앱은 리커트형 척도가 아니라 강제선택 시나리오 문항에 가깝다.
+    따라서 일반적인 Cronbach alpha, EFA, CFA를 그대로 적용하면 축 간 음의 의존성이나 선택지 구조가
+    결과를 왜곡할 수 있다. 파일럿 분석에서는 원시 선택지 빈도, 축별 점수 분포, 테스트-재테스트,
+    분할 신뢰도, 강제선택 자료에 맞는 모형 기반 분석 가능성을 함께 검토해야 한다.
+  </div>
+</section>
+
+<section id="scoring">
+  <h2><span class="num">4</span> 점수와 유형화</h2>
+
+  <p>
+    Clean Style은 원시 점수로 3개 양극축의 방향을 판정하고, 사용자에게는 6개 단극 지표와
+    8가지 유형을 보여준다. 이 구조는 이해하기 쉽지만, 해석을 과장하기 쉬운 지점이 있다.
+  </p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>내부 계산</h3>
+      <ul>
+        <li>선택지는 1개 이상의 축에 점수를 준다</li>
+        <li>양수/음수 방향으로 3축 순점수를 계산한다</li>
+        <li>부호 조합으로 8가지 유형을 판정한다</li>
+        <li>시뮬레이션으로 유형 분포와 축 균형을 확인한다</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>사용자 표시</h3>
+      <ul>
+        <li>원칙, 유연, 투명, 신중, 독립, 협력 6축으로 표시한다</li>
+        <li>제곱근 보정으로 낮은 점수 낙인감을 줄인다</li>
+        <li>유형명은 강점 중심으로 붙인다</li>
+        <li>AI 해석은 판단이 아니라 보완 팁을 제공한다</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note warn">
+    <strong>제곱근 보정의 이론적 위치:</strong> 이는 심리측정학적 점수 표준화가 아니라
+    자기발견형 UI를 위한 표시 보정이다. 따라서 원시 점수 비교, 기관 간 비교, 전후 변화 검정에는
+    보정 점수를 쓰면 안 된다.
+  </div>
+</section>
+
+<section id="interpretation">
+  <h2><span class="num">5</span> 결과 해석의 경계</h2>
+
+  <table>
+    <thead>
+      <tr><th>좋은 표현</th><th>피해야 할 표현</th><th>이유</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>"이 응답에서는 원칙 중심 판단이 두드러집니다"</td>
+        <td>"당신은 원칙적인 사람입니다"</td>
+        <td>상황 응답을 성격 전체로 일반화하지 않기 위해</td>
+      </tr>
+      <tr>
+        <td>"투명성을 선호하지만 확인 절차를 보완하면 좋습니다"</td>
+        <td>"신중성이 부족합니다"</td>
+        <td>부족/결함 프레이밍을 피하고 행동 팁으로 연결하기 위해</td>
+      </tr>
+      <tr>
+        <td>"공식 평가와 무관한 자기발견 결과입니다"</td>
+        <td>"청렴 역량 진단 결과입니다"</td>
+        <td>검증 수준과 사용 목적을 넘지 않기 위해</td>
+      </tr>
+      <tr>
+        <td>"팀 논의에서 강점이 잘 드러날 수 있습니다"</td>
+        <td>"이 유형은 조직에 적합합니다"</td>
+        <td>선발/배치/평가로 오용될 가능성을 막기 위해</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="risk">
+    <div class="label">오용 위험</div>
+    <div class="body">
+      청렴이라는 주제는 규범성이 강해서 결과가 쉽게 평가처럼 읽힌다.
+      따라서 앱 화면, 문서, AI 프롬프트 모두 "정답 없음", "공식 평가 아님",
+      "행동 예측 아님", "강점과 주의점"의 프레임을 유지해야 한다.
+    </div>
+  </div>
+</section>
+
+<section id="review">
+  <h2><span class="num">6</span> 설계 점검 기준</h2>
+
+  <div class="card">
+    <h3>출시 전 최소 점검</h3>
+    <ol>
+      <li>각 문항 선택지가 어떤 축을 반영하는지 설명 가능한가</li>
+      <li>각 축쌍의 양방향 점수 기회가 과도하게 불균형하지 않은가</li>
+      <li>사회적으로 바람직한 선택지가 특정 축에 몰려 있지 않은가</li>
+      <li>6축 레이더 차트에서 축쌍 양쪽이 모두 바닥으로 꺼지는 조합이 없는가</li>
+      <li>결과 문구가 평가, 낙인, 예측, 처방으로 읽히지 않는가</li>
+      <li>AI 조언이 공식 절차나 전문가 판단을 대체한다고 말하지 않는가</li>
+      <li>문서가 현재 검증 상태와 미검증 상태를 분명히 나누는가</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3>실증 검증 로드맵</h3>
+    <table>
+      <thead>
+        <tr><th>단계</th><th>목표</th><th>증거</th><th>결정</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>파일럿</td>
+          <td>문항 이해도와 응답 분포 확인</td>
+          <td>응답 시간, 선택지 쏠림, 자유 피드백, 축별 원시 분포</td>
+          <td>문항 수정</td>
+        </tr>
+        <tr>
+          <td>EFA</td>
+          <td>예상한 축 구조가 나타나는지 탐색</td>
+          <td>요인 수, 문항 적재량, 축 간 상관, 강제선택 구조의 영향</td>
+          <td>축/문항 재설계</td>
+        </tr>
+        <tr>
+          <td>CFA</td>
+          <td>3축 모형 적합도 검증</td>
+          <td>CFI, TLI, RMSEA, SRMR 등. 단, 자료 구조에 맞는 추정법 전제</td>
+          <td>구성 타당도 판단</td>
+        </tr>
+        <tr>
+          <td>준거 검증</td>
+          <td>외부 변수와의 관계 확인</td>
+          <td>신고 의향, 적극행정 의향, 조직문화 인식</td>
+          <td>해석 범위 확대 여부 결정</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="references">
+  <h2><span class="num">7</span> 관련 문서와 참고 이론</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>프로젝트 문서</h3>
+      <ul>
+        <li><a href="scoring-and-validity.html">Scoring &amp; Validity</a> - 점수 체계와 검증 상태</li>
+        <li><a href="test-design-playbook.html">테스트 설계 플레이북</a> - 문항/점수/UI 구현 체크리스트</li>
+        <li><a href="research/three-axis-validity.html">3축 이론적 근거</a> - 축별 학술 근거와 타당화 설계</li>
+        <li><a href="research/integrity-survey-tools.html">청렴 설문도구 정리</a> - 기존 EDM/도덕 판단 도구 비교</li>
+        <li><a href="question-review-prompt.html">Question Review Prompt</a> - 문항 리뷰 기준</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>참고 이론</h3>
+      <ul>
+        <li>Messick의 통합적 타당도 관점: 타당도는 해석과 사용을 정당화하는 증거의 누적</li>
+        <li>Cronbach &amp; Meehl의 구성개념 타당도: 이론적 구성개념과 관찰 지표의 연결</li>
+        <li>AERA/APA/NCME 검사 기준: 검사 사용 목적, 증거, 결과 영향의 명시</li>
+        <li>Rest의 윤리적 의사결정 모델: 민감성, 판단, 동기, 실행의 구분</li>
+        <li>시나리오 기반 판단 검사: 실제 맥락에서의 선택 패턴을 통해 성향을 관찰</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<p class="updated">작성: 2026-06-29 · 상태: 자기발견형 진단 설계 기준 문서</p>
+
+</body>
+</html>

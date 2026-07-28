@@ -39,6 +39,11 @@
   --shadow-lg: 0 8px 24px rgba(26, 26, 46, 0.10);
 }
 
+html,
+body {
+  overflow-x: hidden;
+}
+
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
@@ -46,6 +51,32 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scrollbar-gutter: stable;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(90, 96, 128, 0.36) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(90, 96, 128, 0.28);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  border-radius: var(--radius-full);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(90, 96, 128, 0.42);
+  background-clip: padding-box;
 }
 
 /* ═══ Animations ═══ */

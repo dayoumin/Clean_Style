@@ -12,6 +12,7 @@ import { sanitizeUserInput, sanitizeHistory, isValidScores, describeScores, scan
 import { checkScopedRateLimit } from '@/lib/rate-limit';
 import { getAiRuntimeEnv } from '@/lib/runtime-env';
 import { getChatResponseMode } from '@/lib/chat-intent';
+import { AI_CHAT_ENABLED } from '@/data/appVariant';
 
 const CHAT_CLIENT_LIMIT = 5;
 const CHAT_IP_LIMIT = 200;
@@ -55,6 +56,10 @@ function concatStreams(a: ReadableStream<Uint8Array>, b: ReadableStream<Uint8Arr
 }
 
 export async function POST(request: NextRequest) {
+  if (!AI_CHAT_ENABLED) {
+    return NextResponse.json({ error: 'AI chat is disabled for this deployment' }, { status: 404 });
+  }
+
   const rateCheck = checkScopedRateLimit({
     scope: 'chat',
     request,
@@ -160,7 +165,7 @@ export async function POST(request: NextRequest) {
     const stream = chatStream({
       messages,
       temperature: 0.4,
-      maxTokens: 1200,
+      maxTokens: 900,
       apiKey: aiEnv.OPENROUTER_API_KEY,
       nvidiaApiKey: aiEnv.NVIDIA_API_KEY,
       appUrl: aiEnv.NEXT_PUBLIC_APP_URL,

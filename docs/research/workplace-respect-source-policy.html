@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>일터 존중·안전 자료 사용 및 문항 관리 기준</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #232733;
+    --border: #2e3345; --text: #e1e4ed; --text-dim: #9aa1b5;
+    --accent: #6c8aff; --accent-soft: rgba(108,138,255,0.12);
+    --green: #4ade80; --green-soft: rgba(74,222,128,0.12);
+    --orange: #fb923c; --orange-soft: rgba(251,146,60,0.12);
+    --red: #f87171; --red-soft: rgba(248,113,113,0.12);
+    --yellow: #facc15; --yellow-soft: rgba(250,204,21,0.12);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.72;
+    padding: 2rem;
+    max-width: 1160px;
+    margin: 0 auto;
+  }
+  a.back { color: var(--accent); text-decoration: none; font-size: 0.82rem; display: inline-block; margin-bottom: 1.5rem; }
+  a.back:hover { text-decoration: underline; }
+  a { color: var(--accent); }
+  h1 { font-size: 1.85rem; font-weight: 800; margin-bottom: 0.35rem; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 2rem; }
+  h2 {
+    font-size: 1.15rem; font-weight: 750;
+    margin: 2.25rem 0 1rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 0.96rem; font-weight: 700; margin: 1.35rem 0 0.5rem; color: var(--accent); }
+  p { font-size: 0.9rem; color: var(--text); margin: 0.45rem 0; }
+  ul, ol { margin: 0.55rem 0 0.55rem 1.15rem; font-size: 0.88rem; color: var(--text); }
+  li { margin-bottom: 0.35rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin: 0.75rem 0; }
+  th, td { padding: 0.62rem 0.75rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); }
+  th { color: var(--text-dim); font-weight: 700; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  code {
+    background: var(--surface2);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.82rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.15rem 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .note {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 0.8rem 1rem;
+    font-size: 0.84rem;
+    margin: 0.8rem 0;
+  }
+  .note.warn { background: var(--orange-soft); border-left-color: var(--orange); }
+  .note.danger { background: var(--red-soft); border-left-color: var(--red); }
+  .tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 4px;
+    font-weight: 700;
+    margin-right: 0.25rem;
+    white-space: nowrap;
+  }
+  .tag-blue { background: var(--accent-soft); color: var(--accent); }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+  .tag-orange { background: var(--orange-soft); color: var(--orange); }
+  .tag-red { background: var(--red-soft); color: var(--red); }
+  .tag-yellow { background: var(--yellow-soft); color: var(--yellow); }
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.15rem 1.35rem;
+    margin-bottom: 2rem;
+  }
+  .toc-title { color: var(--text-dim); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.45rem; }
+  .toc a { display: block; text-decoration: none; font-size: 0.85rem; padding: 0.16rem 0; }
+  .updated { color: var(--text-dim); font-size: 0.75rem; text-align: center; margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+  @media (max-width: 760px) {
+    body { padding: 1.25rem; }
+    table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      font-size: 0.78rem;
+    }
+    th, td { min-width: 9rem; }
+  }
+</style>
+</head>
+<body>
+
+<a class="back" href="index.html" target="_parent">&larr; 검토 문서 목록으로 돌아가기</a>
+<h1><span>일터 존중·안전</span> 자료 사용 및 문항 관리 기준</h1>
+<p class="subtitle">공식 자료를 직접 복제하지 않고 기준으로 활용하기 위한 사용 정책, 문항 출처 관리, 검토 절차</p>
+
+<div class="toc">
+  <div class="toc-title">목차</div>
+  <a href="#decision">1. 고정 결정</a>
+  <a href="#source-use">2. 자료별 사용 정책</a>
+  <a href="#content-rules">3. 문항화 규칙</a>
+  <a href="#metadata">4. 문항 관리 필드</a>
+  <a href="#lifecycle">5. 문항 생애주기</a>
+  <a href="#examples">6. 문항 매핑 예시</a>
+  <a href="#gates">7. 구현 전 게이트</a>
+</div>
+
+<div class="note">
+  기관 내부 설명, 운영 승인 체크리스트, 잔여 리스크 관리는 <a href="workplace-respect-reliability-ops.html">신뢰성 및 운영 승인 기준</a>에서 별도로 관리한다.
+</div>
+
+<h2 id="decision">1. 고정 결정</h2>
+
+<div class="card">
+  <ul>
+    <li>앱은 공식 자가검진 도구, 공식 체크리스트, 연구척도를 그대로 탑재하지 않는다.</li>
+    <li>공식 자료는 <strong>판단 기준, 유형 분류, 처리 절차, 도움 연결 경로</strong>를 정리하는 근거로 사용한다.</li>
+    <li>앱 문항은 공식 기준을 바탕으로 자체 설계하고, 내부 매핑표에서 어떤 기준을 근거로 만들었는지 추적한다.</li>
+    <li>공식 문구를 사용자 화면에 길게 인용하지 않는다. 필요한 경우 짧은 출처 링크와 문서명을 제공한다.</li>
+    <li>사용자 화면이 import하는 문항 데이터에는 내부 출처·검토 메타데이터를 포함하지 않는다. 출처 관리는 별도 내부 파일과 문서에서 유지한다.</li>
+    <li>정신건강은 진단·점수화가 아니라 도움 연결이 필요한 신호를 확인하는 안전 장치로만 둔다.</li>
+    <li>사용자에게 이름, 소속기관, 부서, 직위, 연락처를 묻지 않는다.</li>
+  </ul>
+</div>
+
+<h2 id="source-use">2. 자료별 사용 정책</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>자료</th>
+      <th>역할</th>
+      <th>허용 방식</th>
+      <th>금지·보류 방식</th>
+      <th>결정</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://www.korea.kr/archive/expDocView.do?docId=38412">공공분야 갑질 근절 가이드라인</a></td>
+      <td>공공기관 맥락의 갑질 유형, 판단 기준, 피해자 보호, 발생 위험진단 참고</td>
+      <td>유형과 절차를 요약해 내부 기준으로 사용. 문항은 자체 작성. 사용자 화면에는 문서명과 링크만 제공 가능.</td>
+      <td>위험진단 체크리스트를 그대로 복사하거나 일부 표현만 바꿔 앱 문항으로 탑재하는 방식은 이용조건 확인 전 보류.</td>
+      <td><span class="tag tag-orange">기준 참고</span><span class="tag tag-yellow">직접 사용 보류</span></td>
+    </tr>
+    <tr>
+      <td><a href="https://www.moel.go.kr/policy/policydata/view.do?bbs_seq=20230500514">직장 내 괴롭힘 판단 및 예방·대응 매뉴얼</a></td>
+      <td>지위·관계의 우위, 업무상 적정범위 초과, 신체적·정신적 고통 또는 근무환경 악화 여부 판단</td>
+      <td>판단 축을 앱 로직과 결과 설명의 근거로 사용. 공식 기준을 쉬운 질문으로 재구성.</td>
+      <td>사례, 문항, 체크리스트, 매뉴얼 본문을 긴 문장 그대로 앱에 재게시하는 방식은 보류.</td>
+      <td><span class="tag tag-green">판단 기준 사용</span><span class="tag tag-blue">자체 문항화</span></td>
+    </tr>
+    <tr>
+      <td><a href="https://www.mentalhealth.go.kr/portal/intro1/introInfo.do">국가정신건강정보포털 콘텐츠 이용안내</a></td>
+      <td>마음건강 자가검진의 공식 출처와 콘텐츠 이용조건 확인</td>
+      <td>자가검진 도구는 앱에 넣지 않고 공식 페이지로 링크아웃. 앱 내부에는 별도 설계한 도움 필요 신호만 사용.</td>
+      <td>자가검진 문항, 결과 해석, 점수 체계를 앱에 직접 탑재하거나 변형해 사용하는 방식은 금지.</td>
+      <td><span class="tag tag-red">직접 탑재 금지</span><span class="tag tag-green">링크아웃</span></td>
+    </tr>
+    <tr>
+      <td><a href="https://www.129.go.kr/109">109 자살예방상담전화</a>, 112, 119, 정신건강복지센터</td>
+      <td>긴급 위험과 비긴급 상담 연결</td>
+      <td>전화번호, 기관명, 공식 링크처럼 사실 정보는 사용자 안내에 사용. 위기 표현이 있으면 일반 조언보다 먼저 표시.</td>
+      <td>AI가 위기 수준을 확정 판정하거나, 전문기관 연결 대신 자체 상담으로 대체하는 방식은 금지.</td>
+      <td><span class="tag tag-green">도움 연결</span></td>
+    </tr>
+    <tr>
+      <td>NAQ-R, COPSOQ, PHQ-9, GAD-7 등 연구·선별 도구</td>
+      <td>문항 설계 방식, 빈도 질문 방식, 위험영역 분류 참고</td>
+      <td>도구의 구조적 아이디어만 참고. 사용 허가와 번역판 조건이 확인된 경우에만 직접 사용 검토.</td>
+      <td>문항을 그대로 번역하거나 일부만 바꿔 사용하는 방식은 금지.</td>
+      <td><span class="tag tag-orange">연구 참고</span><span class="tag tag-red">직접 사용 금지</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="note warn">
+  “공식 자료 기반”은 공식 문항을 복사한다는 뜻이 아니다. 이 프로젝트에서는 공식 기준을 근거로 자체 문항을 만들고, 원문·문항·체크리스트를 직접 쓰려면 별도 이용조건 확인 또는 허가가 필요하다.
+</div>
+
+<h2 id="content-rules">3. 문항화 규칙</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>규칙</th>
+      <th>적용 방식</th>
+      <th>예시</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>기준 기반 자체 문항</td>
+      <td>공식 기준을 사용자 언어로 바꾸되 원문 표현을 그대로 복사하지 않는다.</td>
+      <td>“상대가 거절하기 어려운 위치에 있었나요?”</td>
+    </tr>
+    <tr>
+      <td>판정 단정 금지</td>
+      <td>“갑질입니다”, “우울증입니다”처럼 단정하지 않고 가능성, 기록, 상담, 도움 연결로 표현한다.</td>
+      <td>“직장 내 괴롭힘 판단 요소에 가까울 수 있습니다.”</td>
+    </tr>
+    <tr>
+      <td>두 입구 분리</td>
+      <td>내 행동 점검은 예방 행동, 일터 존중 점검은 보호와 도움 연결 중심으로 결과를 낸다.</td>
+      <td>“표현을 바꿔 다시 지시하세요” / “기록 후 상담창구에 문의하세요”</td>
+    </tr>
+    <tr>
+      <td>개인정보 최소화</td>
+      <td>이름, 기관명, 부서, 실명, 연락처를 묻지 않는다. 자유입력에는 식별정보를 쓰지 말라고 안내한다.</td>
+      <td>“실명이나 기관명은 쓰지 말고 상황만 적어주세요.”</td>
+    </tr>
+    <tr>
+      <td>마음건강 별도 안전장치</td>
+      <td>갑질 점수와 섞지 않고 도움 연결 필요 여부만 확인한다.</td>
+      <td>“지금 혼자 있기에 위험하다고 느끼면 109, 112, 119에 바로 연락하세요.”</td>
+    </tr>
+    <tr>
+      <td>근거 추적 필수</td>
+      <td>문항마다 공식 근거, 이용조건, 자체 문항 여부, 검토상태를 기록한다.</td>
+      <td><code>derived_or_direct = 기준 기반 자체 문항</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="metadata">4. 문항 관리 필드</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>필드</th>
+      <th>필수</th>
+      <th>설명</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>question_id</td><td>필수</td><td>문항 고유 ID. 예: <code>respect_action_001</code></td></tr>
+    <tr><td>version</td><td>필수</td><td>문항 버전. 문구·점수·근거 변경 시 증가.</td></tr>
+    <tr><td>entry</td><td>필수</td><td><code>내 행동 점검</code>, <code>일터 존중 점검</code>, <code>공통</code></td></tr>
+    <tr><td>domain</td><td>필수</td><td>갑질 유형, 괴롭힘 판단, 마음위기 신호, 도움 연결 등</td></tr>
+    <tr><td>question_text</td><td>필수</td><td>사용자에게 보이는 자체 작성 문항</td></tr>
+    <tr><td>answer_options</td><td>필수</td><td>예/아니오, 빈도, 강도, 해당 없음 등 응답 체계</td></tr>
+    <tr><td>source_title</td><td>필수</td><td>근거 문서명</td></tr>
+    <tr><td>source_url</td><td>필수</td><td>공식 게시 페이지 또는 PDF URL</td></tr>
+    <tr><td>additional_source_urls</td><td>필요 시 필수</td><td>한 문항이 여러 공식 도움 경로를 참조할 때 추가 URL 목록. 예: 112, 119</td></tr>
+    <tr><td>published_date</td><td>필수</td><td>근거 문서 발행일 또는 게시일</td></tr>
+    <tr><td>retrieved_at</td><td>필수</td><td>자료 확인일</td></tr>
+    <tr><td>section_or_page</td><td>필수</td><td>근거가 되는 장, 절, 페이지, 표 이름</td></tr>
+    <tr><td>source_locator_status</td><td>필수</td><td>보완필요 또는 확정. 운영중 전환 전에는 정확한 장·절·쪽수·표 위치가 확정되어야 한다.</td></tr>
+    <tr><td>basis</td><td>필수</td><td>문항이 반영한 판단 기준</td></tr>
+    <tr><td>source_text_summary</td><td>필수</td><td>원문 복사가 아닌 내부 요지</td></tr>
+    <tr><td>use_condition</td><td>필수</td><td>기준 참고, 링크아웃, 직접 사용 금지, 허가 필요 등</td></tr>
+    <tr><td>derived_or_direct</td><td>필수</td><td>기준 기반 자체 문항, 직접 인용, 링크아웃 중 하나</td></tr>
+    <tr><td>risk_flags</td><td>필수</td><td>법률오인, 의료오인, 개인정보, 위기표현 등 위험 표시</td></tr>
+    <tr><td>result_mapping</td><td>필수</td><td>응답이 어떤 결과 등급과 안내문에 연결되는지</td></tr>
+    <tr><td>expert_reviewer</td><td>운영 전 필수</td><td>노무, 인권, 정신건강 등 검토자</td></tr>
+    <tr><td>reviewer_role</td><td>운영 전 필수</td><td>검토자의 역할. 예: 법무, 노무, 인권, 정신건강, 개인정보, 서비스 운영</td></tr>
+    <tr><td>review_date</td><td>운영 전 필수</td><td>마지막 검토일</td></tr>
+    <tr><td>approval_decision</td><td>운영 전 필수</td><td>미검토, 보완필요, 승인, 폐기 중 하나</td></tr>
+    <tr><td>approval_scope</td><td>운영 전 필수</td><td>승인 범위. 예: 문항 문구, 점수 임계값, 결과 문구, AI 프롬프트, 개인정보 안내</td></tr>
+    <tr><td>approval_artifact</td><td>운영 전 필수</td><td>검토 메모, 회의록, 결재문서, 이슈 번호 등 승인 기록 위치</td></tr>
+    <tr><td>review_status</td><td>필수</td><td>초안, 내부검토, 전문가검토, 운영중, 폐기</td></tr>
+  </tbody>
+</table>
+
+<h2 id="lifecycle">5. 문항 생애주기</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>상태</th>
+      <th>조건</th>
+      <th>다음 단계</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>초안</td>
+      <td>공식 기준을 바탕으로 자체 문항을 작성한 상태</td>
+      <td>근거 문서와 이용조건 입력</td>
+    </tr>
+    <tr>
+      <td>출처매핑 완료</td>
+      <td>source_url, section_or_page, basis, use_condition이 채워진 상태</td>
+      <td>내부 리뷰</td>
+    </tr>
+    <tr>
+      <td>내부검토</td>
+      <td>문항이 단정적이지 않고 개인정보를 묻지 않으며 두 입구 중 하나에 맞는지 확인</td>
+      <td>전문가 검토 또는 폐기</td>
+    </tr>
+    <tr>
+      <td>전문가검토</td>
+      <td>법·노무, 인권, 정신건강 영역별로 표현과 도움 연결 기준을 확인</td>
+      <td>승인 범위와 승인 기록이 남은 경우에만 제한적 시범 운영</td>
+    </tr>
+    <tr>
+      <td>시범 운영</td>
+      <td>사용자 혼동, 과잉 판정, 도움 연결 누락, 모바일 UI 문제를 확인</td>
+      <td>최종 승인 요건 충족 시 운영중, 아니면 수정</td>
+    </tr>
+    <tr>
+      <td>운영중</td>
+      <td>문항, 결과, 프롬프트, 도움 안내가 검토 완료되고 출처 위치와 승인 증빙이 확정된 상태</td>
+      <td>자료 개정 시 재검토</td>
+    </tr>
+    <tr>
+      <td>폐기</td>
+      <td>근거가 약하거나 오인 위험이 크거나 공식 자료 개정으로 부적합해진 상태</td>
+      <td>결과 로직에서 제거</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="examples">6. 문항 매핑 예시</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>근거 기준</th>
+      <th>앱 문항 예시</th>
+      <th>주의점</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>지위 또는 관계의 우위</td>
+      <td>상대가 내 요청을 거절하기 어려운 위치에 있었나요?</td>
+      <td>상급자만 전제하지 않고 선임자, 담당자, 민원 관계 등 관계상 우위를 포함한다.</td>
+    </tr>
+    <tr>
+      <td>업무상 적정범위 초과</td>
+      <td>그 요구가 담당 업무나 공식 역할과 직접 관련이 있었나요?</td>
+      <td>업무상 필요성과 방식의 적정성을 나눠 후속 문항에서 확인한다.</td>
+    </tr>
+    <tr>
+      <td>신체적·정신적 고통 또는 근무환경 악화</td>
+      <td>그 일 이후 출근, 업무 수행, 수면, 불안에 영향이 있었나요?</td>
+      <td>정신건강 진단으로 해석되지 않도록 도움 연결 기준으로만 사용한다.</td>
+    </tr>
+    <tr>
+      <td>사적 지시 또는 사적 이익 요구</td>
+      <td>업무와 무관한 개인적 부탁이나 심부름이 포함되어 있었나요?</td>
+      <td>공공분야 갑질 유형을 참고하되 체크리스트 문구를 그대로 쓰지 않는다.</td>
+    </tr>
+    <tr>
+      <td>긴급 위기 신호</td>
+      <td>지금 혼자 있기에 위험하다고 느끼거나 스스로를 해칠 생각이 있나요?</td>
+      <td>점수화하지 않고 즉시 109, 112, 119 또는 가까운 사람에게 연결하도록 안내한다.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="gates">7. 구현 전 게이트</h2>
+
+<div class="card">
+  <ul>
+    <li><span class="tag tag-blue">자료 게이트</span> 각 공식 문서의 이용조건, 직접 사용 여부, 링크아웃 여부가 문서화되어야 한다.</li>
+    <li><span class="tag tag-green">문항 게이트</span> 모든 문항은 필수 관리 필드가 채워져야 하고, <code>derived_or_direct</code>가 “기준 기반 자체 문항”이어야 한다.</li>
+    <li><span class="tag tag-orange">표현 게이트</span> 갑질·괴롭힘·정신건강을 단정하지 않고 가능성, 기록, 상담, 도움 연결 중심으로 표현해야 한다.</li>
+    <li><span class="tag tag-yellow">개인정보 게이트</span> 이름, 소속, 연락처를 묻지 않고 AI 조언 입력 원문 저장을 기본값으로 하지 않아야 한다. AI 제공자 전송 범위와 보관 정책은 별도 승인한다.</li>
+    <li><span class="tag tag-orange">파일럿 게이트</span> 초안·내부검토·전문가검토 단계는 공개 운영으로 보지 않는다. 제한적 파일럿은 승인 범위와 담당자가 정해진 경우에만 진행한다.</li>
+    <li><span class="tag tag-green">공개 운영 게이트</span> 공개 운영은 <code>source_locator_status</code>가 확정이고, 전문가 검토자·검토자 역할·검토일·승인 결정·승인 범위·승인 기록 위치가 채워진 문항과 결과 문구만 대상으로 한다.</li>
+    <li><span class="tag tag-red">위기 게이트</span> 자해·자살·폭력·즉각적 안전위험 표현은 일반 결과보다 도움 연결을 우선해야 한다.</li>
+  </ul>
+</div>
+
+<div class="updated">작성·확인: 2026-05-22 · 상태: 내부 파일럿 문항 출처 관리 기준</div>
+
+</body>
+</html>

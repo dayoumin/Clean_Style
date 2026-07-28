@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
+import { APP_COPY } from "@/data/appVariant";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "청렴 스타일 테스트",
-    short_name: "청렴스타일",
-    description:
-      "재미로 알아보는 청렴 스타일 자기발견 테스트. 15개 상황, 3분이면 나의 업무 스타일을 알 수 있어요.",
+    name: APP_COPY.title,
+    short_name: APP_COPY.shortTitle,
+    description: APP_COPY.description,
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

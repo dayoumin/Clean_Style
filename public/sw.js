@@ -1,7 +1,6 @@
-const CACHE_NAME = "clean-style-v4";
-const IS_LOCAL_DEV = ["localhost", "127.0.0.1", "::1"].includes(
-  self.location.hostname
-);
+const CACHE_NAME = "clean-style-v5";
+const LOCAL_HOSTS = ["localhost", "127.0.0.1", "::1"];
+const IS_LOCAL_DEV = LOCAL_HOSTS.includes(self.location.hostname);
 
 const PRECACHE_URLS = [
   "/offline.html",
@@ -26,13 +25,23 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
+  if (IS_LOCAL_DEV) {
+    event.waitUntil(
+      caches
+        .keys()
+        .then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+        .then(() => self.registration.unregister())
+    );
+    return;
+  }
+
   event.waitUntil(
     caches
       .keys()
       .then((keys) =>
         Promise.all(
           keys
-            .filter((key) => IS_LOCAL_DEV || key !== CACHE_NAME)
+            .filter((key) => key.startsWith("clean-style-") && key !== CACHE_NAME)
             .map((key) => caches.delete(key))
         )
       )
@@ -47,10 +56,8 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(event.request.url);
 
-  // Skip API routes
   if (url.pathname.startsWith("/api/")) return;
 
-  // _next/static/ assets are content-hashed and immutable — cache-first
   if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) =>
@@ -67,10 +74,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Skip other _next paths (data, image optimization, etc.)
   if (url.pathname.startsWith("/_next/")) return;
 
-  // Navigation requests — network-first, cache by pathname only (ignore query)
   if (event.request.mode === "navigate") {
     const cacheKey = url.origin + url.pathname;
     event.respondWith(
@@ -90,7 +95,6 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Other static assets (icons, images, fonts) — network-first with cache
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) =>
       fetch(event.request)

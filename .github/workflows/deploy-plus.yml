@@ -1,0 +1,94 @@
+name: Deploy Clean Style Plus
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: deploy-clean-style-plus
+  cancel-in-progress: true
+
+jobs:
+  deploy-plus:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      WORKER_NAME: clean-style-plus
+      NEXT_PUBLIC_APP_URL: https://clean-style-plus.ecomarin.workers.dev
+      NEXT_PUBLIC_ENABLE_RESPECT_PILOT: "1"
+      NEXT_PUBLIC_ENABLE_AI_CHAT: "1"
+      NEXT_PUBLIC_APP_VARIANT: plus
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Linux-specific binaries
+        run: |
+          pnpm add -D --ignore-scripts lightningcss-linux-x64-gnu
+          pnpm add -D --ignore-scripts @tailwindcss/oxide-linux-x64-gnu
+
+      - name: Validate required secrets
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+        run: |
+          test -n "$CLOUDFLARE_API_TOKEN" || (echo "CLOUDFLARE_API_TOKEN is missing" && exit 1)
+          test -n "$OPENROUTER_API_KEY" || (echo "OPENROUTER_API_KEY is missing" && exit 1)
+          test -n "$ADMIN_SECRET" || (echo "ADMIN_SECRET is missing" && exit 1)
+          if [ -z "$NVIDIA_API_KEY" ]; then
+            echo "NVIDIA_API_KEY is missing; nvidia: model fallback will be skipped"
+          fi
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Write Workers secrets file
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+        run: |
+          node -e "const fs = require('node:fs'); const required = ['OPENROUTER_API_KEY', 'ADMIN_SECRET']; const optional = ['NVIDIA_API_KEY']; const data = Object.fromEntries(required.map((key) => [key, process.env[key] || ''])); for (const key of optional) { if (process.env[key]) data[key] = process.env[key]; } fs.writeFileSync('.secrets.plus.json', JSON.stringify(data));"
+
+      - name: Deploy clean-style-plus
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          npx wrangler deploy \
+            --name "$WORKER_NAME" \
+            --secrets-file .secrets.plus.json \
+            --var NEXT_PUBLIC_APP_URL:"$NEXT_PUBLIC_APP_URL" \
+            --var NEXT_PUBLIC_ENABLE_RESPECT_PILOT:"$NEXT_PUBLIC_ENABLE_RESPECT_PILOT" \
+            --var NEXT_PUBLIC_ENABLE_AI_CHAT:"$NEXT_PUBLIC_ENABLE_AI_CHAT" \
+            --var NEXT_PUBLIC_APP_VARIANT:"$NEXT_PUBLIC_APP_VARIANT"
+
+      - name: Clean Workers secrets file
+        if: always()
+        run: rm -f .secrets.plus.json
+
+      - name: Smoke test clean-style-plus
+        run: |
+          node --input-type=module <<'NODE'
+          const url = process.env.NEXT_PUBLIC_APP_URL;
+          const res = await fetch(url);
+          if (!res.ok) {
+            throw new Error(`clean-style-plus smoke HTTP ${res.status}`);
+          }
+          console.log(`clean-style-plus smoke passed: ${url}`);
+          NODE

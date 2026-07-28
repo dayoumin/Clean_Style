@@ -1,16 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import "../styles/globals.css";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
+import { APP_COPY } from "@/data/appVariant";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL || "https://clean-style.ecomarin.workers.dev"
   ),
-  title: "나의 청렴 스타일은? | 공공 연구기관 청렴 스타일 테스트",
-  description: "재미로 알아보는 청렴 스타일 자기발견 테스트. 15개 상황, 3분이면 나의 업무 스타일을 알 수 있어요.",
+  title: `${APP_COPY.title} | 공공 연구기관`,
+  description: APP_COPY.description,
   openGraph: {
-    title: "나의 청렴 스타일은?",
-    description: "재미로 알아보는 청렴 스타일 자기발견 테스트",
+    title: APP_COPY.title,
+    description: APP_COPY.description,
     type: "website",
     locale: "ko_KR",
   },
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "청렴스타일",
+    title: APP_COPY.shortTitle,
   },
 };
 
@@ -35,9 +36,38 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const shouldResetLocalServiceWorker = process.env.NODE_ENV !== "production";
+
   return (
     <html lang="ko">
       <body className="min-h-screen">
+        {shouldResetLocalServiceWorker && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+(() => {
+  const localHosts = ["localhost", "127.0.0.1", "::1"];
+  if (!localHosts.includes(location.hostname)) return;
+  if (!("serviceWorker" in navigator)) return;
+  const resetKey = "clean-style-local-sw-reset-v2";
+  if (sessionStorage.getItem(resetKey) === "done") return;
+
+  Promise.all([
+    navigator.serviceWorker.getRegistrations().then((registrations) =>
+      Promise.all(registrations.map((registration) => registration.unregister()))
+    ),
+    "caches" in window
+      ? caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+      : Promise.resolve([])
+  ]).then(() => {
+    sessionStorage.setItem(resetKey, "done");
+    location.reload();
+  }).catch(() => undefined);
+})();
+              `.trim(),
+            }}
+          />
+        )}
         {children}
         <ServiceWorkerRegistrar />
       </body>
