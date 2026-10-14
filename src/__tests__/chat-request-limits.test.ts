@@ -210,3 +210,21 @@ describe('/api/chat·/api/summarize 요청 상한과 기록 마스킹', () => {
     },
   );
 });
+
+describe('긴 입력의 개인정보 검사 시간', () => {
+  it('64KB 가까운 기록·요약도 한도 근처까지만 검사해 빠르게 끝난다', async () => {
+    const { sanitizeHistory, sanitizeSummary } = await import('@/lib/sanitize');
+    const longRun = 'a.'.repeat(32_000);
+    const started = performance.now();
+    sanitizeHistory([{ role: 'user', content: longRun }]);
+    sanitizeSummary(longRun);
+    expect(performance.now() - started).toBeLessThan(500);
+  });
+
+  it('잘리는 경계에 걸친 이메일도 가린다', async () => {
+    const { sanitizeHistory } = await import('@/lib/sanitize');
+    const content = '가'.repeat(1990) + ' kim.lee@example.com ' + '나'.repeat(5000);
+    const [message] = sanitizeHistory([{ role: 'user', content }]);
+    expect(message.content).not.toContain('kim.lee');
+  });
+});

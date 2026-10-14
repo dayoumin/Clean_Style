@@ -117,6 +117,16 @@ export default function AiAdviceSheet({
     (previousControl ?? inputRef.current)?.focus();
   }, [confirmAction, inputRef]);
 
+  // 답변이 끝나면(성공·오류·중단) 버튼 교체로 잃은 포커스를 입력창으로 돌려준다.
+  const wasLoadingRef = useRef(loading);
+  useEffect(() => {
+    const finished = wasLoadingRef.current && !loading;
+    wasLoadingRef.current = loading;
+    if (!finished || limitReached) return;
+    const active = document.activeElement;
+    if (!active || active === document.body) inputRef.current?.focus();
+  }, [loading, limitReached, inputRef]);
+
   useEffect(() => {
     if (!limitReached) return;
     const active = document.activeElement;
@@ -176,7 +186,8 @@ export default function AiAdviceSheet({
                   value={inputValue}
                   onChange={(e) => onInputChange(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                    // Safari는 조합이 끝난 직후 Enter를 keyCode 229로 한 번 더 보낸다.
+                    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) {
                       e.preventDefault();
                       if (canSubmit) {
                         setConfirmAction(null);
@@ -192,13 +203,14 @@ export default function AiAdviceSheet({
                   rows={rows}
                 />
                 {loading ? (
-                  <button type="button" onClick={onAbort} className="min-h-11 shrink-0 rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-card)]">중단</button>
+                  // key로 전송 버튼과 다른 요소임을 알려, 누르는 도중 전송 버튼으로 바뀌어 폼이 다시 제출되지 않게 한다.
+                  <button key="stop" type="button" onClick={(event) => { event.preventDefault(); onAbort(); }} className="min-h-11 shrink-0 rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-card)]">중단</button>
                 ) : (
-                  <button type="submit" disabled={!canSubmit} className="min-h-11 shrink-0 rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:bg-[var(--color-card)] disabled:text-[var(--color-text-secondary)]">{submitLabel}</button>
+                  <button key="submit" type="submit" disabled={!canSubmit} className="min-h-11 shrink-0 rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:bg-[var(--color-card)] disabled:text-[var(--color-text-secondary)]">{submitLabel}</button>
                 )}
               </form>
               {piiWarning && piiWarning.length > 0 && (
-                <p className="text-[12px] leading-relaxed text-amber-800">
+                <p role="status" className="text-[12px] leading-relaxed text-amber-800">
                   개인정보({piiWarning.join(', ')})가 감지되어 자동으로 가렸습니다.
                 </p>
               )}

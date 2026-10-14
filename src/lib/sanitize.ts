@@ -28,6 +28,14 @@ export function sanitizeUserInput(input: string): string {
   return cleaned;
 }
 
+// 정규식 마스킹은 긴 입력에서 느려질 수 있어(이메일 패턴은 길이의 제곱), 먼저 한도보다 약간 길게 자른다.
+// 여유분은 경계에 걸친 개인정보가 패턴에 온전히 잡히도록 둔다.
+const PII_SCAN_MARGIN = 256;
+
+function clipForPiiScan(input: string): string {
+  return input.slice(0, MAX_CONTENT_LENGTH + PII_SCAN_MARGIN);
+}
+
 /** history 배열에서 user/assistant 역할만 허용, content 길이 제한 */
 export function sanitizeHistory(
   history: unknown,
@@ -47,7 +55,7 @@ export function sanitizeHistory(
     .map((msg) => ({
       role: msg.role,
       // 경계에 걸린 개인정보 일부가 남지 않도록 자르기 전에 가린다.
-      content: redactPiiText(msg.content).slice(0, MAX_CONTENT_LENGTH),
+      content: redactPiiText(clipForPiiScan(msg.content)).slice(0, MAX_CONTENT_LENGTH),
     }));
 }
 
@@ -201,5 +209,5 @@ export function redactHistoryPii<T extends { content: string }>(history: T[]): T
 /** 요약 원문의 인젝션 패턴을 지운 뒤 개인정보를 가리고 마지막에 길이를 자른다. */
 export function sanitizeSummary(input: string): string {
   // 패턴 제거로 쪼개 둔 번호가 다시 붙을 수 있어 마스킹은 제거 뒤에 한다.
-  return scanAndRedactPii(sanitizeUserInput(input)).redacted.slice(0, MAX_CONTENT_LENGTH);
+  return scanAndRedactPii(sanitizeUserInput(clipForPiiScan(input))).redacted.slice(0, MAX_CONTENT_LENGTH);
 }

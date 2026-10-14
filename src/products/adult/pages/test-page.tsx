@@ -188,7 +188,8 @@ export default function TestPage() {
           <input
             id="share-name"
             value={shareName}
-            onChange={(event) => setShareName(normalizeDisplayName(event.target.value))}
+            // 입력 중에는 그대로 두고(띄어쓰기 유지), 결과로 넘길 때 정리한다.
+            onChange={(event) => setShareName(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
                 event.preventDefault();
