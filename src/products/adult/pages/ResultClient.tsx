@@ -259,7 +259,7 @@ export default function ResultContent() {
               >
                 AI 조언
                 {chat.chatHistory.length > 0 && (
-                  <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white/25 text-[11px] text-white">
+                  <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-primary-accent)] px-1 text-[11px] text-white">
                     {Math.floor(chat.chatHistory.length / 2)}
                   </span>
                 )}

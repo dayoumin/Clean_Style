@@ -11,7 +11,7 @@ import { RESPECT_FEATURE_ENABLED } from '@/data/workplaceRespectFeature';
 
 const infoChips = [
   { emoji: '📋', title: '15개 상황', desc: '약 3분', detail: '업무 중 겪을 수 있는 15가지 상황에 대해 답해보는 테스트입니다.' },
-  { emoji: '🎯', title: '오답 없음', desc: '다 맞는 답', detail: '정답·오답이 없는 테스트입니다. 생각대로 편하게 선택하세요.' },
+  { emoji: '🎯', title: '정답 없음', desc: '편하게 고르기', detail: '정답·오답이 없는 테스트입니다. 생각대로 편하게 선택하세요.' },
   { emoji: '✨', title: 'AI 분석', desc: '맞춤 팁', detail: 'AI가 응답 패턴을 분석해 나만의 청렴 스타일과 실천 팁을 알려드립니다.' },
 ];
 
