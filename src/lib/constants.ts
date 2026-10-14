@@ -13,6 +13,11 @@ export const MAX_CONTENT_LENGTH = 2000;
 // 사용자 질문 입력 최대 글자 수
 export const MAX_QUESTION_LENGTH = 500;
 
+// 간단한 상담 채팅 기준 요청 상한. 대화 기록은 최근 메시지부터 이 글자 수까지만 보낸다.
+export const MAX_CHAT_HISTORY_CHARS = 12_000;
+// 요청 본문 상한 (기록 12,000자 + 요약 + 질문을 한글 UTF-8로 담고도 남는 크기)
+export const MAX_CHAT_REQUEST_BYTES = 64 * 1024;
+
 // 익명 브라우저 식별자 — rate limit 분산용 가명 운영 식별자
 export const CLIENT_ID_STORAGE_KEY = 'integrity-client-id';
 export const CLIENT_ID_HEADER = 'x-clean-style-client-id';

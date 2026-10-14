@@ -1,4 +1,4 @@
-import { MAX_CONTENT_LENGTH } from '@/lib/constants';
+import { MAX_CONTENT_LENGTH, MAX_HISTORY_MESSAGES, MAX_CHAT_HISTORY_CHARS } from '@/lib/constants';
 
 /** userContext에서 프롬프트 인젝션 패턴을 제거 */
 export function sanitizeUserInput(input: string): string {
@@ -43,6 +43,22 @@ export function sanitizeHistory(
       role: msg.role,
       content: msg.content.slice(0, MAX_CONTENT_LENGTH),
     }));
+}
+
+/** 최근 메시지부터 개수·총 글자 수 한도 안에 드는 것만 남긴다 (오래된 메시지를 버림). */
+export function trimHistoryToLimit<T extends { content: string }>(
+  history: T[],
+  maxMessages = MAX_HISTORY_MESSAGES,
+  maxChars = MAX_CHAT_HISTORY_CHARS,
+): T[] {
+  const kept: T[] = [];
+  let total = 0;
+  for (let i = history.length - 1; i >= 0 && kept.length < maxMessages; i--) {
+    total += history[i].content.length;
+    if (total > maxChars) break;
+    kept.push(history[i]);
+  }
+  return kept.reverse();
 }
 
 /** scores 객체 검증 — 3개 축이 모두 숫자이고 합리적 범위 내인지 */
@@ -160,4 +176,9 @@ export function scanAndRedactPii(input: string): PiiScanResult {
     detected: [...detected],
     redacted,
   };
+}
+
+/** 대화 기록의 각 메시지에서 고위험 PII를 마스킹한다. */
+export function redactHistoryPii<T extends { content: string }>(history: T[]): T[] {
+  return history.map((message) => ({ ...message, content: scanAndRedactPii(message.content).redacted }));
 }

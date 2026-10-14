@@ -8,12 +8,7 @@ import {
   Radar,
   RadarChart,
 } from 'recharts';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from '@/components/ui/chart';
+import { ChartContainer, type ChartConfig } from '@/components/ui/chart';
 import { AXIS_MAXIMUMS, type SixAxisScores } from '@/diagnostics/adult-integrity';
 
 interface StyleRadarChartProps {
@@ -64,16 +59,6 @@ function getTextAnchor(index: number, total: number): 'start' | 'middle' | 'end'
   return angle < 180 ? 'start' : 'end';
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function formatTooltip(_value: any, _name: any, item: any) {
-  const { label, score } = item.payload as ChartDataItem;
-  return (
-    <span>
-      {label}: {score} / {DISPLAY_MAX}
-    </span>
-  );
-}
-
 export default function StyleRadarChart({ sixAxis }: StyleRadarChartProps) {
   const id = useId();
   const gradientId = `radarGradient-${id}`;
@@ -87,11 +72,14 @@ export default function StyleRadarChart({ sixAxis }: StyleRadarChartProps) {
   });
 
   return (
+    // 축 라벨에 점수가 이미 보이므로 툴팁·키보드 포커스 레이어 없이 한 장의 그림으로 읽힌다.
+    <div role="img" aria-label={`나의 성향: ${data.map(item => `${item.label} ${item.score}점`).join(', ')} (5점 만점)`}>
     <ChartContainer
       config={chartConfig}
       className="mx-auto max-h-[240px] w-full"
+      aria-hidden="true"
     >
-      <RadarChart data={data} cx="50%" cy="50%" outerRadius="75%">
+      <RadarChart data={data} cx="50%" cy="50%" outerRadius="75%" accessibilityLayer={false}>
         <defs>
           <radialGradient id={gradientId} cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="var(--color-primary-accent)" stopOpacity={0.7} />
@@ -153,14 +141,6 @@ export default function StyleRadarChart({ sixAxis }: StyleRadarChartProps) {
             );
           }}
         />
-        <ChartTooltip
-          content={
-            <ChartTooltipContent
-              hideLabel
-              formatter={formatTooltip}
-            />
-          }
-        />
         <Radar
           dataKey="score"
           fill={`url(#${gradientId})`}
@@ -178,5 +158,6 @@ export default function StyleRadarChart({ sixAxis }: StyleRadarChartProps) {
         />
       </RadarChart>
     </ChartContainer>
+    </div>
   );
 }

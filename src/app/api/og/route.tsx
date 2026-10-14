@@ -1,11 +1,26 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
 import { Buffer } from 'node:buffer';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { getAdultResultArtwork } from '@/diagnostics/adult-integrity/artwork';
 import { ADULT_THEME_COLOR } from '@/products/adult/theme';
 import { styleTypes } from '@/diagnostics/adult-integrity';
 import { formatNamedResultTitle, normalizeDisplayName } from '@/lib/display-name';
 import { APP_COPY, IS_STUDENT_VARIANT } from '@/data/appVariant';
+
+type AssetsBinding = { fetch: (request: Request) => Promise<Response> };
+
+// Worker가 자기 workers.dev 주소를 다시 fetch하면 Cloudflare가 막을 수 있어(1042), 정적 자산 바인딩으로 직접 읽는다.
+async function fetchStaticAsset(url: URL): Promise<Response> {
+  try {
+    const { env } = await getCloudflareContext({ async: true });
+    const assets = (env as { ASSETS?: AssetsBinding }).ASSETS;
+    if (assets) return await assets.fetch(new Request(url));
+  } catch {
+    // next dev·테스트처럼 Cloudflare 컨텍스트가 없는 환경은 일반 fetch로 읽는다.
+  }
+  return fetch(url, { signal: AbortSignal.timeout(3000) });
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -25,7 +40,7 @@ export async function GET(request: NextRequest) {
     let artworkData: string | undefined;
     if (artworkPath) {
       try {
-        const image = await fetch(new URL(artworkPath.replace('.webp', '.png'), request.url), { signal: AbortSignal.timeout(3000) });
+        const image = await fetchStaticAsset(new URL(artworkPath.replace('.webp', '.png'), request.url));
         if (image.ok) artworkData = 'data:image/png;base64,' + Buffer.from(await image.arrayBuffer()).toString('base64');
       } catch {
         // Result title and existing symbol remain available if the illustration cannot load.
