@@ -3,12 +3,12 @@ import { DIAGNOSTIC_REGISTRY } from '@/diagnostics';
 import { PRODUCTS_BY_VARIANT, resolveProduct } from '@/products';
 
 describe('product definitions', () => {
-  it('keeps the three product compositions distinct', () => {
-    expect(PRODUCTS_BY_VARIANT.default.diagnostics).toEqual(['adult-integrity']);
-    expect(PRODUCTS_BY_VARIANT.plus.diagnostics).toEqual([
+  it('keeps the adult and student product compositions distinct', () => {
+    expect(PRODUCTS_BY_VARIANT.default.diagnostics).toEqual([
       'adult-integrity',
       'workplace-respect',
     ]);
+    expect(PRODUCTS_BY_VARIANT.default.features.workplaceRespect).toBe(true);
     expect(PRODUCTS_BY_VARIANT.student.diagnostics).toEqual(['student-integrity']);
   });
 
@@ -30,6 +30,8 @@ describe('product definitions', () => {
 
   it('fails closed for unknown product variants', () => {
     expect(() => resolveProduct('studnet')).toThrow('Unknown NEXT_PUBLIC_APP_VARIANT');
+    // plus 제품은 기본 제품에 합쳐져 더 이상 따로 빌드하지 않는다.
+    expect(() => resolveProduct('plus')).toThrow('Unknown NEXT_PUBLIC_APP_VARIANT');
   });
 
   it('registers every diagnostic selected by a product', () => {

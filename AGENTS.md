@@ -2,16 +2,16 @@
 
 ## Product And Diagnostic Boundaries
 
-This repository builds three products from one `main` branch. Product identity comes from
+This repository builds two products from one `main` branch. Product identity comes from
 the product definition and build configuration, not from a long-lived product branch.
 
 | Product | Audience | Diagnostics | AI chat |
 | --- | --- | --- | --- |
-| `clean-style` (`default`) | Adults | `adult-integrity` | Enabled |
-| `clean-style-plus` (`plus`) | Adults | `adult-integrity`, `workplace-respect` | Enabled |
+| `clean-style` (`default`) | Adults | `adult-integrity`, `workplace-respect` | Enabled |
 | `clean-style-student` (`student`) | Korean middle/high school students | `student-integrity` only | Disabled |
 
-- `clean-style-plus` is the adult product with the additional workplace-respect diagnostic.
+- `clean-style` includes the workplace-respect diagnostic as a private, browser-only check reached
+  from the home screen's top-right icons. The former `clean-style-plus` product was merged into it.
 - `clean-style-student` is a separate instrument, not a student skin for the adult test.
 - Never expose adult questions, adult three-axis scoring, adult eight-style results, AI chat,
   name entry, or adult result history in the student product.
@@ -31,7 +31,7 @@ the product definition and build configuration, not from a long-lived product br
 
 ## Product Deployment Policy
 
-- The default and plus products may deploy from reviewed `main` according to their workflows.
+- The default product may deploy from reviewed `main` according to its workflow.
 - The student product stays manual-deploy only until its content, safeguarding, and validation
   gates are approved. Do not restore automatic student deployment merely for convenience.
 - Do not deploy any product unless the user explicitly asks for deployment in the current task.

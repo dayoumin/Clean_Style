@@ -1,7 +1,7 @@
 import type { DiagnosticId } from '../diagnostics/core/types';
 
-export type AppVariant = 'default' | 'plus' | 'student';
-export type ProductId = 'clean-style' | 'clean-style-plus' | 'clean-style-student';
+export type AppVariant = 'default' | 'student';
+export type ProductId = 'clean-style' | 'clean-style-student';
 
 export interface ProductCopy {
   title: string;

@@ -16,7 +16,7 @@ jobs:
       contents: read
     env:
       NEXT_PUBLIC_APP_URL: https://clean-style.ecomarin.workers.dev
-      NEXT_PUBLIC_ENABLE_RESPECT_PILOT: "0"
+      NEXT_PUBLIC_ENABLE_RESPECT_PILOT: "1"
       NEXT_PUBLIC_ENABLE_AI_CHAT: "1"
       NEXT_PUBLIC_APP_VARIANT: default
     steps:
@@ -150,4 +150,19 @@ jobs:
           }
 
           throw new Error(`AI smoke failed: ${errors.join(', ') || 'no token returned'}`);
+          NODE
+
+      - name: Smoke test workplace-respect entry
+        run: |
+          node --input-type=module <<'NODE'
+          const base = process.env.NEXT_PUBLIC_APP_URL;
+          const home = await (await fetch(base)).text();
+          for (const entry of ['action', 'experience']) {
+            if (!home.includes(`/respect/check?entry=${entry}`)) {
+              throw new Error(`home is missing the ${entry} workplace-respect icon`);
+            }
+            const res = await fetch(`${base}/respect/check?entry=${entry}`);
+            if (!res.ok) throw new Error(`/respect/check?entry=${entry} HTTP ${res.status}`);
+          }
+          console.log('workplace-respect smoke passed');
           NODE

@@ -4,11 +4,12 @@ export const defaultProduct: ProductDefinition = {
   id: 'clean-style',
   variant: 'default',
   audience: 'adult',
-  diagnostics: ['adult-integrity'],
+  // 일터 존중 점검은 홈 오른쪽 위 아이콘으로 들어가는 개인용 점검이다(결과는 브라우저에만 저장).
+  diagnostics: ['adult-integrity', 'workplace-respect'],
   primaryDiagnosticId: 'adult-integrity',
   features: {
     aiChat: true,
-    workplaceRespect: false,
+    workplaceRespect: true,
     adultResultHistory: true,
   },
   copy: {

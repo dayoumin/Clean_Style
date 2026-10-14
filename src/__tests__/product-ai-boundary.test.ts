@@ -12,7 +12,7 @@ describe('product matrix AI route boundary', () => {
   beforeEach(() => { vi.resetModules(); vi.clearAllMocks(); });
   afterEach(() => vi.unstubAllEnvs());
 
-  it.each(['default', 'plus', 'student'])('%s gates chat and summarize before any AI call', async variant => {
+  it.each(['default', 'student'])('%s gates chat and summarize before any AI call', async variant => {
     vi.stubEnv('NEXT_PUBLIC_APP_VARIANT', variant);
     vi.stubEnv('NEXT_PUBLIC_ENABLE_AI_CHAT', '1');
     const { POST: chat } = await import('@/app/api/chat/route');
@@ -32,7 +32,7 @@ describe('product matrix AI route boundary', () => {
     expect(ai.chatStream.mock.calls.length).toBe(variant === 'student' ? 0 : 1);
   });
 
-  it.each(['default', 'plus', 'student'])('%s gates workplace advice before decoding or AI calls', async variant => {
+  it.each(['default', 'student'])('%s gates workplace advice before decoding or AI calls', async variant => {
     vi.stubEnv('NEXT_PUBLIC_APP_VARIANT', variant);
     vi.stubEnv('NEXT_PUBLIC_ENABLE_AI_CHAT', '1');
     vi.stubEnv('NEXT_PUBLIC_ENABLE_RESPECT_PILOT', '1');
@@ -43,8 +43,8 @@ describe('product matrix AI route boundary', () => {
     const res = await POST(new NextRequest('http://localhost/api/respect-advice', {
       method: 'POST', body: JSON.stringify({ entry: 'action', response, question: '내 행동을 어떻게 바꿀까요?' }),
     }));
-    expect(res.status).toBe(variant === 'plus' ? 200 : 404);
+    expect(res.status).toBe(variant === 'default' ? 200 : 404);
     await res.text();
-    expect(ai.chatStream.mock.calls.length).toBe(variant === 'plus' ? 1 : 0);
+    expect(ai.chatStream.mock.calls.length).toBe(variant === 'default' ? 1 : 0);
   });
 });

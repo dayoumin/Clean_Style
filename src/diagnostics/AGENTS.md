@@ -5,7 +5,7 @@
 - Shared contracts belong in `src/diagnostics/core/`; shared contracts must not assume the adult
   three-axis score shape.
 - `adult-integrity` may adapt the existing `src/data/questions.ts` implementation during migration.
-- `workplace-respect` remains separate from adult integrity even when both appear in the plus product.
+- `workplace-respect` remains separate from adult integrity even though both appear in the default product.
 - `student-integrity` must not import adult questions, adult style types, adult score utilities,
   adult history, or AI chat.
 - Student prototypes start with `scoringVersion: unscored-p0`. Do not add representative-style
