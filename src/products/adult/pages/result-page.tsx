@@ -4,6 +4,8 @@ import { styleTypes } from '@/diagnostics/adult-integrity';
 import { LoadingFairy } from '@/components/LoadingFairy';
 import { formatNamedResultTitle, normalizeDisplayName } from '@/lib/display-name';
 import ResultContent from './ResultClient';
+import { adultCommonArtwork } from '@/diagnostics/adult-integrity/artwork';
+import AdultArtwork from '../components/AdultArtwork';
 
 const DEFAULT_TITLE = '나의 청렴 스타일은?';
 const DEFAULT_DESC = '재미로 알아보는 청렴 스타일 자기발견 테스트';
@@ -16,7 +18,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const params = await searchParams;
   const styleKey = typeof params.style === 'string' ? params.style : '';
   const displayName = normalizeDisplayName(typeof params.name === 'string' ? params.name : '');
-  const style = styleTypes[styleKey];
+  const style = Object.prototype.hasOwnProperty.call(styleTypes, styleKey) ? styleTypes[styleKey] : undefined;
 
   const resultTitle = style ? formatNamedResultTitle(displayName, style.name) : '';
   const title = style ? `${style.emoji} ${resultTitle} — 나의 청렴 스타일` : DEFAULT_TITLE;
@@ -40,7 +42,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 function SuspenseSpinner() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
-      <LoadingFairy message="불러오는 중..." />
+      <LoadingFairy message="불러오는 중..." artwork={<AdultArtwork src={adultCommonArtwork.pause} className="adult-neutral-art" eager />} />
     </div>
   );
 }

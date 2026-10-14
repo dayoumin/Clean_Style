@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chat } from '@/lib/ai';
 import { styleTypes } from '@/diagnostics/adult-integrity';
-import { MAX_CONTENT_LENGTH } from '@/lib/constants';
+import { MAX_CHAT_REQUEST_BYTES } from '@/lib/constants';
 import { SUMMARIZE_SYSTEM_PROMPT } from '@/lib/prompts';
-import { sanitizeHistory, sanitizeUserInput } from '@/lib/sanitize';
+import { sanitizeHistory, sanitizeSummary, trimHistoryToLimit } from '@/lib/sanitize';
+import { readJsonBodyWithLimit } from '@/lib/request-body';
 import { checkScopedRateLimit } from '@/lib/rate-limit';
 import { getAiRuntimeEnv } from '@/lib/runtime-env';
 import { AI_CHAT_ENABLED } from '@/data/appVariant';
@@ -32,7 +33,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const parsed = await readJsonBodyWithLimit(request, MAX_CHAT_REQUEST_BYTES);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.body as Record<string, unknown> | null;
     if (typeof body !== 'object' || body === null) {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
@@ -45,12 +48,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid styleKey' }, { status: 400 });
     }
 
-    const safeHistory = sanitizeHistory(history);
+    const safeHistory = trimHistoryToLimit(sanitizeHistory(history));
     if (safeHistory.length === 0) {
       return NextResponse.json({ error: 'history is required' }, { status: 400 });
     }
 
-    const safeSummary = typeof summary === 'string' ? sanitizeUserInput(summary.slice(0, MAX_CONTENT_LENGTH)) : '';
+    const safeSummary = typeof summary === 'string'
+      ? sanitizeSummary(summary)
+      : '';
     const conversation = safeHistory
       .map(m => `${m.role === 'user' ? '사용자' : 'AI'}: ${m.content}`)
       .join('\n');
@@ -64,14 +69,11 @@ export async function POST(request: NextRequest) {
         { role: 'system', content: SUMMARIZE_SYSTEM_PROMPT },
         { role: 'user', content: userContent },
       ],
-      temperature: 0.3,
       maxTokens: 300,
-      apiKey: aiEnv.OPENROUTER_API_KEY,
-      nvidiaApiKey: aiEnv.NVIDIA_API_KEY,
-      appUrl: aiEnv.NEXT_PUBLIC_APP_URL,
+      apiKey: aiEnv.OPENAI_API_KEY,
     });
 
-    return NextResponse.json({ summary: response.content });
+    return NextResponse.json({ summary: sanitizeSummary(response.content) });
   } catch (error) {
     console.error('Summarize API error:', error);
     return NextResponse.json({ error: 'summarization failed' }, { status: 500 });

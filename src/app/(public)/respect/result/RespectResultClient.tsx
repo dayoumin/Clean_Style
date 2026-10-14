@@ -6,17 +6,23 @@ import AiAdviceSheet from '@/components/AiAdviceSheet';
 import { LeafLineArt } from '@/components/LeafLineArt';
 import { getClientIdHeader } from '@/lib/client-id';
 import { RESPECT_MAX_HISTORY_MESSAGES } from '@/lib/constants';
+import { trimHistoryToLimit } from '@/lib/sanitize';
+import { AI_CHAT_ENABLED } from '@/data/appVariant';
 import {
   calculateRespectResult,
   getRespectQuestions,
   getRespectResultStorageKey,
-  RESPECT_QUESTION_VERSION,
   RESPECT_RESULT_TTL_MS,
   type RespectEntry,
   type RespectRiskLevel,
   respectAxisLabels,
   respectEntryLabels,
 } from '@/data/workplaceRespectQuestions';
+import { decodeRespectResponse, type DecodedRespectResponse } from '@/diagnostics/workplace-respect/response';
+
+function removeStoredResult(key: string) {
+  try { sessionStorage.removeItem(key); } catch { /* 저장소 사용 불가 */ }
+}
 
 const levelStyle: Record<RespectRiskLevel, { label: string; className: string }> = {
   low: {
@@ -40,7 +46,10 @@ const levelStyle: Record<RespectRiskLevel, { label: string; className: string }>
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-accent)] focus-visible:ring-offset-2';
 const dangerFocusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#be123c] focus-visible:ring-offset-2';
 const urgentCallLinks: Record<RespectEntry, Array<{ href: string; label: string; subLabel: string; ariaLabel: string }>> = {
-  action: [],
+  action: [
+    { href: 'tel:112', label: '112', subLabel: '긴급신고', ariaLabel: '112 긴급신고' },
+    { href: 'tel:119', label: '119', subLabel: '구조·응급', ariaLabel: '119 구조·응급' },
+  ],
   experience: [
     { href: 'tel:109', label: '109', subLabel: '자살예방상담', ariaLabel: '109 자살예방상담전화' },
     { href: 'tel:112', label: '112', subLabel: '긴급신고', ariaLabel: '112 긴급신고' },
@@ -48,12 +57,7 @@ const urgentCallLinks: Record<RespectEntry, Array<{ href: string; label: string;
   ],
 };
 
-interface StoredRespectResult {
-  entry: RespectEntry;
-  answers: number[];
-  createdAt: number;
-  version: string;
-}
+type StoredRespectResult = DecodedRespectResponse;
 
 interface RespectChatMessage {
   role: 'user' | 'assistant';
@@ -72,7 +76,6 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
   const [chatLoading, setChatLoading] = useState(false);
   const [chatErrorType, setChatErrorType] = useState<RespectChatErrorType | null>(null);
   const [piiWarning, setPiiWarning] = useState<string[] | null>(null);
-  const [showChatComposer, setShowChatComposer] = useState(false);
   const chatAbortRef = useRef<AbortController | null>(null);
   const chatScrollAnchorRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -86,42 +89,36 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
         return;
       }
 
-      const parsed = JSON.parse(raw) as Partial<StoredRespectResult>;
-      if (parsed.entry !== entry || !Array.isArray(parsed.answers)) {
-        sessionStorage.removeItem(storageKey);
+      const decoded = decodeRespectResponse(JSON.parse(raw), entry);
+      if (!decoded) {
+        removeStoredResult(storageKey);
         setStored(null);
         return;
       }
 
-      const createdAt = typeof parsed.createdAt === 'number' ? parsed.createdAt : 0;
-      const expired = !createdAt || Date.now() - createdAt > RESPECT_RESULT_TTL_MS;
-      const questions = getRespectQuestions(entry);
-      const answers = parsed.answers;
-      const complete = answers.length === questions.length;
-      const validAnswers = answers.every((answer, index) => (
-        Number.isInteger(answer)
-        && answer >= 0
-        && answer < (questions[index]?.choices.length ?? 0)
-      ));
-      const versionMatches = parsed.version === RESPECT_QUESTION_VERSION;
-
-      if (expired || !complete || !validAnswers || !versionMatches) {
-        sessionStorage.removeItem(storageKey);
-        setStored(null);
-        return;
-      }
-
-      setStored({
-        entry,
-        answers,
-        createdAt,
-        version: RESPECT_QUESTION_VERSION,
-      });
+      setStored(decoded);
     } catch {
-      sessionStorage.removeItem(storageKey);
+      removeStoredResult(storageKey);
       setStored(null);
     }
   }, [entry, storageKey]);
+
+  useEffect(() => {
+    if (!stored) return;
+    const expiresAt = stored.response.createdAt + RESPECT_RESULT_TTL_MS;
+    const expire = () => {
+      if (Date.now() < expiresAt) return;
+      chatAbortRef.current?.abort();
+      removeStoredResult(storageKey);
+      setChatMessages([]);
+      setStreamingAnswer('');
+      setShowAiChat(false);
+      setStored(null);
+    };
+    const timer = setTimeout(expire, Math.max(0, expiresAt - Date.now()));
+    document.addEventListener('visibilitychange', expire);
+    return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', expire); };
+  }, [stored, storageKey]);
 
   useEffect(() => {
     return () => chatAbortRef.current?.abort();
@@ -147,7 +144,7 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
     return calculateRespectResult(entry, stored.answers);
   }, [entry, stored]);
   const clearStoredResult = useCallback(() => {
-    sessionStorage.removeItem(storageKey);
+    removeStoredResult(storageKey);
     setStored(null);
   }, [storageKey]);
   const clearAndGo = useCallback((href: string) => {
@@ -156,11 +153,10 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
   }, [clearStoredResult, router]);
   const openAiChat = useCallback(() => {
     setShowAiChat(true);
-    setShowChatComposer(chatMessages.length === 0);
     setTimeout(() => {
-      if (chatMessages.length === 0) textareaRef.current?.focus();
+      textareaRef.current?.focus();
     }, 200);
-  }, [chatMessages.length]);
+  }, []);
   const fetchAiChat = useCallback(async () => {
     const question = chatInput.trim();
     if (!stored || !question) return;
@@ -181,9 +177,10 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
         headers: { 'Content-Type': 'application/json', ...getClientIdHeader() },
         body: JSON.stringify({
           entry,
-          answers: stored.answers,
+          response: stored.response,
           question,
-          history: chatMessages.length > 0 ? chatMessages : undefined,
+          // 서버 본문 한도(64KB) 안에 들도록 최근 대화부터 글자 수 한도까지만 보낸다.
+          history: chatMessages.length > 0 ? trimHistoryToLimit(chatMessages, RESPECT_MAX_HISTORY_MESSAGES) : undefined,
         }),
         signal: controller.signal,
       });
@@ -203,6 +200,7 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
       const decoder = new TextDecoder();
       let buffer = '';
       let lastRenderTime = 0;
+      let completed = false;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -216,7 +214,10 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
           const trimmed = line.trim();
           if (!trimmed.startsWith('data: ')) continue;
           const payload = trimmed.slice(6);
-          if (payload === '[DONE]') continue;
+          if (payload === '[DONE]') {
+            completed = true;
+            continue;
+          }
 
           let parsed: { token?: string; error?: string; pii_warning?: string[] };
           try { parsed = JSON.parse(payload); } catch { continue; }
@@ -239,13 +240,13 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
         }
       }
 
-      if (!fullAnswer.trim()) {
+      // 종료 신호 없이 끊긴 부분 답변은 대화에 저장하지 않는다.
+      if (!fullAnswer.trim() || !completed) {
         setChatErrorType('server');
         return;
       }
 
       setStreamingAnswer(fullAnswer);
-      setShowChatComposer(false);
       setChatMessages((prev) => {
         const next: RespectChatMessage[] = [
           ...prev,
@@ -281,12 +282,12 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
   const isActionResult = entry === 'action';
   const isExperienceCrisis = !isActionResult && result.crisis;
   const isCompactResult = true;
-  const levelLabel = isActionResult && result.level === 'urgent' ? '즉시 확인' : level.label;
-  const complete = stored.answers.length >= questions.length;
+  const levelLabel = level.label;
+  const complete = result.answeredCount === questions.length;
   const activeSignals = result.axisSummary.activeAxes
     .map((axis) => respectAxisLabels[axis])
     .slice(0, 4);
-  const callLinks = urgentCallLinks[entry];
+  const callLinks = urgentCallLinks[entry].filter((link) => link.href !== 'tel:109' || result.crisisKinds.includes('selfHarm'));
   const urgentCallGridClass = callLinks.length === 2 ? 'grid-cols-2' : 'grid-cols-3';
   const noticeText = isActionResult
     ? '이 결과는 공식 판정이 아니라 행동을 돌아보기 위한 것입니다.'
@@ -330,7 +331,9 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
   const crisisNoticeClassName = isCompactResult
     ? 'mt-3 rounded-[var(--radius-md)] bg-white/10 px-3 py-2 text-[12px] leading-relaxed text-white/75'
     : 'mt-3 rounded-[var(--radius-md)] bg-white/70 px-3 py-2 text-[12px] leading-relaxed text-[#be123c]';
-  const buttonGroupClassName = isCompactResult ? 'grid grid-cols-2 gap-2' : 'mt-5 grid grid-cols-2 gap-2';
+  // AI가 꺼진 배포에서는 'AI 조언' 버튼을 숨기고 '처음으로' 한 칸만 둔다.
+  const buttonGridCols = AI_CHAT_ENABLED ? 'grid-cols-2' : 'grid-cols-1';
+  const buttonGroupClassName = isCompactResult ? `grid ${buttonGridCols} gap-2` : `mt-5 grid ${buttonGridCols} gap-2`;
   const aiQuestionPlaceholder = isExperienceCrisis
     ? '도움을 요청할 문장이나 지금 할 일을 짧게 물어보세요'
     : '결과를 바탕으로 더 궁금한 점을 질문하세요';
@@ -347,7 +350,6 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
       onClose={() => {
         if (!chatLoading) {
           setShowAiChat(false);
-          setShowChatComposer(false);
         }
       }}
       onDeleteConversation={() => {
@@ -356,14 +358,8 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
         setChatInput('');
         setChatErrorType(null);
         setPiiWarning(null);
-        setShowChatComposer(true);
-      }}
-      showComposer={showChatComposer}
-      onShowComposer={() => {
-        setShowChatComposer(true);
         setTimeout(() => textareaRef.current?.focus(), 100);
       }}
-      onHideComposer={() => setShowChatComposer(false)}
       inputRef={textareaRef}
       scrollAnchorRef={chatScrollAnchorRef}
       placeholder={aiQuestionPlaceholder}
@@ -372,7 +368,7 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
     />
   ) : null;
 
-  if (isExperienceCrisis) {
+  if (result.crisis) {
     return (
       <>
       <div className={resultContainerClassName}>
@@ -444,13 +440,15 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
           >
             처음으로
           </button>
-          <button
-            type="button"
-            onClick={openAiChat}
-            className={`rounded-[var(--radius-md)] bg-[var(--color-primary)] px-2 py-3 text-center text-[14px] font-semibold text-white hover:bg-[var(--color-primary-accent)] ${focusRing}`}
-          >
-            AI 조언
-          </button>
+          {AI_CHAT_ENABLED && (
+            <button
+              type="button"
+              onClick={openAiChat}
+              className={`rounded-[var(--radius-md)] bg-[var(--color-primary)] px-2 py-3 text-center text-[14px] font-semibold text-white hover:bg-[var(--color-primary-accent)] ${focusRing}`}
+            >
+              AI 조언
+            </button>
+          )}
         </div>
       </div>
       {aiChatSheet}
@@ -580,13 +578,15 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
         >
           처음으로
         </button>
-        <button
-          type="button"
-          onClick={openAiChat}
-          className={`rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-center text-[14px] font-semibold text-white hover:bg-[var(--color-primary-accent)] disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
-        >
-          AI 조언
-        </button>
+        {AI_CHAT_ENABLED && (
+          <button
+            type="button"
+            onClick={openAiChat}
+            className={`rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-center text-[14px] font-semibold text-white hover:bg-[var(--color-primary-accent)] disabled:cursor-not-allowed disabled:opacity-50 ${focusRing}`}
+          >
+            AI 조언
+          </button>
+        )}
       </div>
       </div>
     </div>

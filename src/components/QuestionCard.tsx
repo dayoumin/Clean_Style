@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, type ReactNode, type Ref } from 'react';
 import type { Question } from '@/diagnostics/adult-integrity';
 import { seededShuffle } from '@/lib/utils';
 import { FluentEmoji } from '@/components/FluentEmoji';
@@ -10,6 +10,9 @@ interface QuestionCardProps {
   questionIndex: number;
   shuffleSeed: number;
   onSelect: (choiceIndex: number) => void;
+  categoryIcon?: ReactNode;
+  headerArtwork?: ReactNode;
+  headingRef?: Ref<HTMLHeadingElement>;
 }
 
 const categoryInfo: Record<string, { label: string; emoji: string }> = {
@@ -21,7 +24,7 @@ const categoryInfo: Record<string, { label: string; emoji: string }> = {
 const choiceLabels = ['A', 'B', 'C', 'D'];
 
 
-export default function QuestionCard({ question, questionIndex, shuffleSeed, onSelect }: QuestionCardProps) {
+export default function QuestionCard({ question, questionIndex, shuffleSeed, onSelect, categoryIcon, headerArtwork, headingRef }: QuestionCardProps) {
   const cat = categoryInfo[question.category];
 
   const shuffledChoices = useMemo(() => {
@@ -30,20 +33,23 @@ export default function QuestionCard({ question, questionIndex, shuffleSeed, onS
   }, [question.id, question.choices, shuffleSeed]);
 
   return (
-    <div className="animate-fade-in">
+    <div>
+      <div className="mb-3 flex items-center gap-3">
+        <div className="question-number shrink-0 text-5xl font-extrabold leading-none tracking-tighter text-[var(--color-primary-muted)]">
+          {String(questionIndex + 1).padStart(2, '0')}
+        </div>
       {/* 카테고리 */}
-      <div className="mb-3.5 inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide text-[var(--color-primary-accent)]">
-        {cat && <FluentEmoji emoji={cat.emoji} size={16} />}
+      <div className="inline-flex items-center gap-1 text-[12px] font-bold tracking-wide text-[var(--color-primary-accent)]">
+        {categoryIcon ?? (cat && <FluentEmoji emoji={cat.emoji} size={16} />)}
         <span>{cat?.label}</span>
       </div>
 
-      {/* 문항 번호 */}
-      <div className="mb-3 text-5xl font-extrabold leading-none tracking-tighter text-[var(--color-primary-muted)]">
-        {String(questionIndex + 1).padStart(2, '0')}
+        {headerArtwork && <div className="ml-auto shrink-0">{headerArtwork}</div>}
       </div>
 
+      <div className="animate-fade-in">
       {/* 상황 설명 */}
-      <h2 className="mb-8 text-[18px] font-semibold leading-[1.65] tracking-tight text-[var(--color-text)]">
+      <h2 ref={headingRef} tabIndex={-1} className="mb-8 text-[18px] font-semibold leading-[1.65] tracking-tight text-[var(--color-text)] focus:outline-none">
         {question.situation}
       </h2>
 
@@ -61,6 +67,7 @@ export default function QuestionCard({ question, questionIndex, shuffleSeed, onS
             {choice.text}
           </button>
         ))}
+      </div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 /**
  * 보안 sanitize + 요약 + 모달 UX 로직 시뮬레이션 테스트
+ * 메시지 수 기반의 이전 요약 모델 참고용. 현재 길이 조건은 chat-summary-policy.test.ts와 실제 UI 검증에서 확인.
  * 실행: npx tsx tests/security-and-summarize-simulation.ts
  */
 
@@ -125,7 +126,7 @@ assert(sanitizeHistory(42).length === 0, '숫자 → 빈 배열');
 // =============================================
 
 console.log('\n[Test 10] 상수 정합성');
-assert(MAX_HISTORY_MESSAGES === 20, 'MAX_HISTORY_MESSAGES === 20');
+assert(MAX_HISTORY_MESSAGES === 40, 'MAX_HISTORY_MESSAGES === 40');
 assert(SUMMARIZE_AT_MESSAGES === 8, 'SUMMARIZE_AT_MESSAGES === 8');
 assert(MAX_CONTENT_LENGTH === 2000, 'MAX_CONTENT_LENGTH === 2000');
 assert(SUMMARIZE_AT_MESSAGES < MAX_HISTORY_MESSAGES, 'SUMMARIZE_AT < MAX_HISTORY');
@@ -242,28 +243,28 @@ console.log('\n[Test 16] historyToSend — 요약 있고 8턴이면 최근 4개�
 // 6. 턴 제한 UI 로직 시뮬레이션
 // =============================================
 
-console.log('\n[Test 17] chatMaxReached / chatLastTurn (MAX=20, 10턴)');
+console.log('\n[Test 17] chatMaxReached / chatLastTurn (MAX=40, 20턴)');
 {
-  // 9턴 = 18개
-  const chatHistory18 = Array(18).fill(null);
+  // 19턴 = 38개
+  const chatHistory18 = Array(38).fill(null);
   const maxReached18 = chatHistory18.length >= MAX_HISTORY_MESSAGES;
   const lastTurn18 = chatHistory18.length >= MAX_HISTORY_MESSAGES - 2 && !maxReached18;
-  assert(!maxReached18, '9턴 → maxReached=false');
-  assert(lastTurn18, '9턴 → lastTurn=true (마지막 1턴 남음)');
+  assert(!maxReached18, '19턴 → maxReached=false');
+  assert(lastTurn18, '19턴 → lastTurn=true (마지막 1턴 남음)');
 
-  // 10턴 = 20개
-  const chatHistory20 = Array(20).fill(null);
+  // 20턴 = 40개
+  const chatHistory20 = Array(40).fill(null);
   const maxReached20 = chatHistory20.length >= MAX_HISTORY_MESSAGES;
   const lastTurn20 = chatHistory20.length >= MAX_HISTORY_MESSAGES - 2 && !maxReached20;
-  assert(maxReached20, '10턴 → maxReached=true');
-  assert(!lastTurn20, '10턴 → lastTurn=false');
+  assert(maxReached20, '20턴 → maxReached=true');
+  assert(!lastTurn20, '20턴 → lastTurn=false');
 
-  // 8턴 = 16개 (MAX=20이므로 중간)
-  const chatHistory16 = Array(16).fill(null);
+  // 기존 10턴 = 20개 (추가 10턴 가능)
+  const chatHistory16 = Array(20).fill(null);
   const maxReached16 = chatHistory16.length >= MAX_HISTORY_MESSAGES;
   const lastTurn16 = chatHistory16.length >= MAX_HISTORY_MESSAGES - 2 && !maxReached16;
-  assert(!maxReached16, '8턴 → maxReached=false (MAX=20)');
-  assert(!lastTurn16, '8턴 → lastTurn=false (아직 2턴 여유)');
+  assert(!maxReached16, '10턴 → maxReached=false (MAX=40)');
+  assert(!lastTurn16, '10턴 → lastTurn=false (추가 10턴 가능)');
 }
 
 // =============================================

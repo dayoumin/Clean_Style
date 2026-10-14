@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>성인용 B 디자인 · 출시 전 확인</title>
+<style>body{max-width:980px;margin:40px auto;padding:0 24px;font:15px/1.7 "Segoe UI","Malgun Gothic",sans-serif;color:#263e36;background:#fafcf9}h1{font-size:28px}h2{margin-top:36px;font-size:20px}table{width:100%;border-collapse:collapse;background:white}th,td{padding:12px;border-bottom:1px solid #dce6e0;text-align:left;vertical-align:top}th{width:150px}code{overflow-wrap:anywhere}a{color:#26735f}small{color:#53675f}</style></head><body>
+<a href="index.html">문서 목록</a><h1>성인용 B 디자인 · 출시 전 확인</h1>
+<p>2026-10-13 · 에이전트 검토에서 확인한 외부 환경 항목. 현재 작업은 로컬 구현이며 배포는 요청되지 않았습니다. 아래 항목은 로컬 검사만으로 완료 처리하지 않습니다.</p>
+<h2 id="worker-og">공유 미리보기의 Worker 이미지 접근</h2><table>
+<tr><th>상태</th><td><code>pending</code></td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-13 / 2026-10-14 — 운영 기본형의 기존 URL은 HTTP 200 PNG지만 로켓 이모지가 보였고, 새 쿼리 <code>review=20261014</code>로 요청한 같은 유형은 HTTP 200 PNG 및 로켓 일러스트가 정상 표시됨. 정적 PNG도 HTTP 200, 58,039바이트로 확인. 캐시 영향으로 추정하며 운영 렌더 실패로 단정하지 않음. 증거: <code>artifacts/review-321631f/production-og.png</code>, <code>production-og-fresh.png</code>. 로컬 변경은 ASSETS 직접 접근, 바인딩 오류 시 재호출 금지, 그림 실패 응답 캐시 60초로 보완. 전체 8유형·Plus·학생 배포 후보 검증은 미완료.</td></tr>
+<tr><th>영향 범위</th><td><code>src/app/api/og/route.tsx</code>, 성인 8유형 공유 미리보기, <code>/images/adult-integrity/*.png</code></td></tr>
+<tr><th>출시 전 검사</th><td>별도로 승인된 배포 후보 Worker에서 ASSETS 접근·PNG 디코딩과 새 쿼리/기존 URL의 캐시 갱신을 실제 응답으로 확인합니다. 일시적인 그림 실패는 60초 캐시, 정상 그림은 기존 24시간 캐시임을 확인합니다.</td></tr>
+<tr><th>기대 증거</th><td>성인 8유형의 <code>/api/og?style=…&amp;name=…</code> 200 PNG 응답 및 렌더 캡처. 그림 접근 실패 시 상징 대체 응답. 학생 제품 OG의 별도 캡처.</td></tr>
+<tr><th>종료 조건</th><td>8유형별 올바른 그림·공유 이름 출력, 그림 접근 실패 시 200 이미지와 기존 상징 반환, 학생 OG에는 성인 그림·이름 해석 없음. 증거를 이 항목에 연결한 뒤 <code>verified</code>로 변경합니다.</td></tr></table>
+<h2 id="installed-app">기존 설치 앱의 캐시·아이콘 갱신</h2><table>
+<tr><th>상태</th><td><code>pending</code></td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-13 / 2026-10-13 — manifest·정적 아이콘·SW 연결을 로컬에서 확인. 실제 설치 기기의 업데이트 미확인.</td></tr>
+<tr><th>영향 범위</th><td><code>public/sw.js</code>의 v5→v6, <code>/icons/adult/</code> 4개 파일, 성인 manifest·동적 아이콘·브라우저 테마. 기존 학생 아이콘 경로 유지.</td></tr>
+<tr><th>출시 전 검사</th><td>기존 v5가 설치된 실제 앱에서 새 빌드 접속 후 v6 활성화, 성인 아이콘 갱신, 재접속 및 오프라인 진입을 확인합니다.</td></tr>
+<tr><th>기대 증거</th><td>SW 활성화·사전 저장 목록 캡처, 새 경로 4개 HTTP 200, 설치 앱의 아이콘/테마 캡처, 재접속·오프라인 동작 및 학생 아이콘 유지 캡처.</td></tr>
+<tr><th>종료 조건</th><td>v6 설치 완료, 새 성인 아이콘 경로 모두 정상, 기존 설치 앱 재접속·오프라인 진입 성공, 학생 경로·표시 유지. 증거 연결 후 <code>verified</code>로 변경합니다.</td></tr></table>
+<h2 id="luna-production">GPT-6 Luna의 배포 환경 접근</h2><table>
+<tr><th>상태</th><td><code>pending</code> — 로컬 Luna 호출 확인, 최신 운영 배포는 기존 제공사 코드. 배포 반영 작업을 TODO에 기록.</td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-14 / 2026-10-14 — 사용자 승인으로 BioHub 기존 키를 로컬 <code>OPENAI_API_KEY</code>에 연결. OpenAI 직접 <code>gpt-6-luna</code> 일반·스트리밍 호출 모두 HTTP 200, 모델 식별값 일치, 스트리밍 32개 본문 이벤트 및 완료 확인. 로컬 <code>/api/chat</code> HTTP 200, 57개 본문 이벤트 및 완료 확인. 관련 테스트 19개와 타입 검사 통과.</td></tr>
+<tr><th>영향 범위</th><td><code>src/lib/ai.ts</code>, 성인 기본·plus AI 조언·요약·일터 존중 조언. OpenAI Luna 직접 호출만 사용하고 제공사 대체 호출 제거. 학생 AI 비활성 경계 유지.</td></tr>
+<tr><th>출시 전 검사</th><td>배포가 승인된 작업에서 GitHub Secrets 및 Worker의 <code>OPENAI_API_KEY</code> 존재와 Luna 사용 권한을 확인합니다. 기본·Plus <code>/api/chat</code>와 Plus <code>/api/respect-advice</code>의 실제 본문·정상 완료를 확인합니다. Plus의 현재 자동 검사는 홈 HTTP 성공만 확인하므로 AI 검사 보완을 TODO에 등록했습니다. 로컬 키 성공을 Worker 성공으로 간주하지 않습니다.</td></tr>
+<tr><th>기대 증거</th><td>기본·plus 배포 후보의 한국어 조언 본문 및 정상 완료, Luna 호출 기록, 학생 AI 경로 차단 확인. 키나 개인정보는 기록하지 않습니다. 로컬 증거: <code>artifacts/ai-openai-smoke.json</code>, <code>artifacts/ai-local-route-check.json</code>.</td></tr>
+<tr><th>운영 확인 · 2026-10-14</th><td>기본·Plus 최신 성공 Actions는 커밋 <code>a1b24171d6fe9a7f61c041d995aa9f713ace2725</code>. 해당 커밋의 <code>src/lib/ai.ts</code>는 Gemini(OpenRouter), DeepSeek(NVIDIA), Grok(OpenRouter) 순이며 Luna 직접 호출이 없음. 기본 Worker 배포 목록의 최신 항목은 14:05 KST, 트래픽 100% 버전 <code>dd34c58f-24de-4a01-a394-486a05b97d2c</code>로 Actions 배포 시간과 일치. 기본 운영 <code>/api/chat</code> 실제 요청은 HTTP 200, 본문 이벤트 3개, 오류 없음, 정상 완료. 이 응답에는 모델 식별값이 없어 응답 성공만으로 Luna 사용을 입증하지 않음. <a href="https://github.com/dayoumin/Clean_Style/actions/runs/38514609656">기본 배포</a>, <a href="https://github.com/dayoumin/Clean_Style/actions/runs/38514609517">Plus 배포</a>. 배포·비밀값 변경은 수행하지 않음.</td></tr>
+<tr><th>종료 조건</th><td>Worker에서 Luna가 실제 선택되어 본문 응답을 완료하고 학생 AI 경로가 차단됨을 확인한 뒤 증거를 연결하고 <code>verified</code>로 변경합니다.</td></tr></table>
+<p>2026-10-14 추가 확인: Plus Worker 최신 활성 배포도 14:05 KST이며 트래픽 100% 버전 <code>b34f6029-8ec1-4a49-98e3-684fbe6ccf8d</code>로 위 Plus Actions 배포 시간과 일치합니다.</p>
+<h2 id="student-secret-contract">학생 수동 배포의 공통 비밀값 선언</h2><table>
+<tr><th>상태</th><td><code>pending</code> — 공통 선언과 학생 설정의 적용 범위 확인 필요</td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-14 / 2026-10-14 — 공통 <code>wrangler.toml</code>은 <code>OPENAI_API_KEY</code>·<code>ADMIN_SECRET</code>을 required로 선언하지만 학생 워크플로는 전달하지 않습니다. 기존에도 성인 키 선언을 공유했습니다. 설치된 Wrangler 스키마는 해당 선언을 타입 생성 및 로컬 누락 경고에 사용한다고 설명하며, 실제 학생 배포 실패를 관찰하지 않았습니다.</td></tr>
+<tr><th>영향 범위</th><td>학생 제품의 수동 배포 구성. 학생 API는 제공사 키를 읽기 전에 AI 접근을 차단합니다.</td></tr>
+<tr><th>출시 전 검사</th><td>승인된 학생 출시 작업에서 학생 빌드의 비밀값 타입·로컬 경고·배포 구성을 확인합니다. 학생에게 성인 AI 키를 추가하는 것으로 해결하지 않습니다.</td></tr>
+<tr><th>기대 증거</th><td>학생 배포가 성인 비밀값 없이 동작하고 성인 AI API가 차단되는 기록. 비밀값은 기록하지 않습니다.</td></tr>
+<tr><th>종료 조건</th><td>성인 비밀값이 학생 빌드에 요구되지 않음을 확인하면 <code>verified</code>. 제품별 설정 분리가 필요한 결함으로 확인되면 TODO/이슈로 승격하고 <code>promoted</code>.</td></tr></table>
+<h2 id="ai-law-context">AI 법률 안내의 적용 대상과 기관 내부 기준</h2><table>
+<tr><th>상태</th><td><code>pending</code> — 공개 기준의 오류는 TODO로 승격, 대상별 운영 기준 확인 필요</td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-14 / 2026-10-14 — 권익위 외부강의 안내 및 법제처 금품 수수 설명 대조. 국가법령정보센터 <a href="https://law.go.kr/LSW/lsRvsDocListP.do?chrClsCd=010102&amp;lsId=012661">2026-06-30 시행 개정문</a>에서 해당 과학기술분야 출연연의 별표 2 적용 대상과 개정 이후 외부강의 적용도 추가 확인했습니다. 프롬프트의 학교·언론 총액 제한 오류, 출연연 대상 누락, 처벌 조건 단순화는 수정할 실제 항목으로 TODO에 등록했습니다. 전체 법률과 기관별 내부 규정을 검증한 것은 아닙니다.</td></tr>
+<tr><th>영향 범위</th><td>기본·Plus 성인 청렴 AI 조언. 공개 법령의 적용 대상과 사용 기관의 더 엄격한 내부 규정은 서로 다를 수 있으며 이번 로컬 검토로 기관 내부 규정은 확정하지 않았습니다.</td></tr>
+<tr><th>출시 전 검사</th><td>프롬프트의 공식 출처·확인일을 유지하고 적용 대상이 불명확한 질문은 임의로 한도를 단정하지 않는지 확인합니다. 실제 사용 기관의 담당자가 별도 내부 기준의 유무와 안내 표현을 확인합니다.</td></tr>
+<tr><th>기대 증거</th><td>공무원·학교/언론·해당 과학기술분야 출연연·기관 유형 미상 질문의 응답 예시 및 공식 근거 대조, 운영자의 내부 규정 확인 기록. 개인 이름·비밀값은 남기지 않습니다.</td></tr>
+<tr><th>종료 조건</th><td>TODO의 법률 오류 정정 완료, 적용 대상·예외·내부 기준을 구분한 응답 확인과 운영자 확인 후 증거를 연결하고 <code>verified</code>.</td></tr></table>
+<h2 id="law-api-runtime">제안된 공식 법령 API의 운영 연결</h2><table>
+<tr><th>상태</th><td><code>deferred</code> — 2026-10-14 사용자 결정으로 법령 조회·캐시 구현 보류. 재개 시 아래 운영 검증 필요</td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-14 / 2026-10-14 — <a href="https://open.law.go.kr/LSO/openApi/openApiManual.do">공동활용 API 활용방법</a>, <a href="https://open.law.go.kr/LSO/usrJoin.do">신청 양식</a>, <a href="https://open.law.go.kr/LSO/information/guide.do">이용 절차</a> 확인. 회원가입·활용 신청·OC 인증값과 시스템 도메인/IP 입력란이 존재합니다. 실제 등록 상태 및 Clean Style Worker에서의 조회는 확인하지 않았습니다.</td></tr>
+<tr><th>영향 범위</th><td>향후 기본·Plus 청렴 AI의 법률 질문에 추가할 조회 단계. 현재 제품은 이 API를 호출하지 않습니다.</td></tr>
+<tr><th>출시 전 검사</th><td>사용자가 신청한 OC의 승인 및 서비스 범위를 확인하고, 승인된 배포 환경에서 HTTPS 목록·본문·별표 조회와 필요한 도메인/IP 조건을 검증합니다. 기존 scientific-name-validator 구현은 참고할 수 있지만 해당 프로젝트의 실제 승인·운영 성공·키를 이번 계획에서 검증하지 않았습니다. 두 에이전트 검토를 반영한 <a href="ai-legal-grounding-plan-v2.html">최신 계획서</a>에 따라 공유 저장소, 버전/원문 캐시의 유효기간·적중률·호출량·비용·시행일 경계·실패 상태 및 근거 표시를 확인합니다.</td></tr>
+<tr><th>기대 증거</th><td>관련 법령의 식별값·시행일·조회 시각·본문 및 별표 정상 조회, Worker에서의 호출 성공, 조회 실패 시 숫자나 허용 여부를 추정하지 않는 응답. OC 원문 및 사용자 대화의 개인정보는 기록하지 않습니다.</td></tr>
+<tr><th>종료 조건</th><td>승인된 OC와 실제 Worker 조회 확인, 날짜·근거·오류 처리 시나리오 통과 후 증거 연결 및 <code>verified</code>. 신청 안내의 자동 승인 표시와 일반 절차 안내의 심의 표시가 달라 소요 시간을 단정하지 않고 실제 승인 상태로 확인합니다.</td></tr></table>
+<h2 id="product-data-policy">기본형·Plus의 공통 통계 정책</h2><table>
+<tr><th>상태</th><td><code>pending</code> — 현재 공통 설정 확인, 운영 의도 미확인</td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-14 / 2026-10-14 — 에이전트가 <code>wrangler.toml</code>, 성인 결과 저장과 관리자 집계를 소스 점검.</td></tr>
+<tr><th>영향 범위</th><td>기본형·Plus 성인 청렴 결과의 저장 및 관리자 통계. 같은 D1 바인딩이며 저장 행에 제품 식별값·집계 제품 필터가 없습니다. 학생 서버 결과 저장은 차단되어 있습니다.</td></tr>
+<tr><th>출시 전 검사</th><td>제품별 통계를 안내하거나 별도 데이터 저장소라고 설명하기 전에 운영자가 공통 집계 유지 또는 제품별 구분 의도를 확인합니다. 실제 배포 바인딩은 이번 점검에서 조회하지 않았습니다.</td></tr>
+<tr><th>기대 증거</th><td>승인된 통계 정책 및 배포 후보의 D1 바인딩 확인. 개별 사용자 데이터나 비밀값은 기록하지 않습니다.</td></tr>
+<tr><th>종료 조건</th><td>공통 통계가 의도라면 그 범위를 문서화하고 <code>verified</code>로 변경. 제품별 구분이 필요하면 데이터 변경 작업을 TODO/이슈로 승격하고 <code>promoted</code>로 변경합니다.</td></tr></table>
+<h2 id="chat-mobile-keyboard">상시 입력 채팅의 실제 휴대폰 키보드</h2><table>
+<tr><th>상태</th><td><code>pending</code> — 브라우저 화면·동작 확인 완료, 실제 휴대폰 키보드 확인 필요</td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-14 / 2026-10-14 — 사용자 승인으로 두 줄 입력칸과 전송을 상시 표시. 로컬 Edge에서 390px·320px·PC 화면, 한글 조합 Enter, Shift+Enter, 답변 후 입력 초기화, 오류 후 질문 유지, 대화 재열기·삭제 확인, 성인 20턴 제한·새 대화 시작을 확인했습니다. 독립 에이전트 2명의 흐름·구현 검토에서 확인된 새 결함 없음. 성인·Plus 일터 존중 채팅에 로컬 가짜 스트리밍 응답을 사용한 추가 시뮬레이션 18개 통과: 중단 직후 재전송, 요청 제한·서버·네트워크·빈 답변·스트리밍 중 오류, 삭제 확인·취소 후 Tab/Shift+Tab, 삭제 확인 중 전송 시 대화 보존. 외부 AI 호출 및 실제 휴대폰 키보드 검사는 하지 않았습니다. 증거: <code>artifacts/chat-direct/result.json</code>, <code>review-simulation.json</code>, <code>review-focus.json</code> 및 같은 디렉터리의 캡처.</td></tr>
+<tr><th>영향 범위</th><td><code>AiAdviceSheet</code>를 사용하는 성인 청렴 조언과 Plus 일터 존중 조언.</td></tr>
+<tr><th>출시 전 검사</th><td>iOS Safari와 Android Chrome에서 키보드를 연 채 입력칸·전송·중단이 보이고 긴 대화만 스크롤되는지 확인합니다. 브라우저 창 크기 조절을 실제 키보드 검사로 간주하지 않습니다.</td></tr>
+<tr><th>기대 증거</th><td>각 기기의 키보드 열린 화면과 한글 입력·전송·답변 후 연속 질문 동작 기록.</td></tr>
+<tr><th>종료 조건</th><td>두 기기에서 입력칸·전송·중단을 키보드와 함께 사용할 수 있고 닫기·재열기 후 대화가 유지됨을 확인한 뒤 증거 연결 및 <code>verified</code>로 변경합니다.</td></tr></table>
+<h2 id="decisions-runtime">상담 범위 실험의 Decisions API 접근·운영 검증</h2><table>
+<tr><th>상태</th><td><code>pending</code> — 로컬 계정의 실제 Decisions 호출 확인. 제품 통합·Worker 운영 검증은 미완료. 확인된 실험 오류는 TODO로 승격.</td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-14 / 2026-10-14 — <a href="https://developers.openai.com/api/docs/guides/decisions">공식 Decisions 안내</a>와 <a href="https://developers.openai.com/api/reference/resources/decisions/methods/create">명세</a> 확인. 첫 실험의 로컬 API 접근과 50질문/4흐름 증거를 보존. 후속 사용자 요청의 보완에서는 중간 새 50개 실패를 조정 자료로 쓰고 다시 새 40개에서 40/40 기대 일치를 확인했다. 확인 항목 14/14와 단일 사실 문구, 용도→승인→확인 종료의 실제 후속 분류 흐름 확인. 추가 새 후속 8개는 7/8개 일치이며 U07 조기 종료는 TODO에 남김. 결과: <a href="ai-chat-scope-pilot-refined-results.html">최종 보완 보고서</a>. 웹앱·Worker·실제 사용자 대화 검증이나 배포는 수행하지 않았다.</td></tr>
+<tr><th>영향 범위</th><td>기본·Plus 성인 청렴 채팅의 실험 경로. 학생·별도 일터 존중 AI는 변경 대상 아님. 법령 조회·공유 캐시는 계속 보류.</td></tr>
+<tr><th>출시 전 검사</th><td><a href="ai-chat-scope-pilot-plan.html">상담 범위 실험 계획</a>에 따른 실제 계정 접근, 응답 스키마, 실패·시간 제한·취소, 추가 지연·토큰 비용, 기본 비활성 및 학생 API 차단을 확인. 로컬 성공을 배포 Worker 성공으로 간주하지 않음.</td></tr>
+<tr><th>기대 증거</th><td>합성 질문의 판정과 기대 행동, 실제 응답 형태, 호출 수·토큰 사용량·추가 지연, 실패·취소·복원·한도 경계 기록 및 별도 승인된 배포 시 Worker 검사. 키·실제 사용자 원문은 기록하지 않음.</td></tr>
+<tr><th>종료 조건</th><td>실험 계획의 기준 및 실제 운영 검사를 통과하고 증거를 연결하면 <code>verified</code>. 미지원·제품 결함이 확인되면 TODO/이슈로 구체화. 문서 검토 통과만으로 완료 처리하지 않음.</td></tr></table>
+<h2 id="diagnostic-advice-prompts">세 진단별 AI 프롬프트의 배포 환경 확인</h2><table>
+<tr><th>상태</th><td><code>pending</code> — 로컬 구현·합성 질문 검사 완료. 이 변경은 아직 배포하지 않았습니다.</td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-14 / 2026-10-14 — 청렴·내 행동·일터 존중의 역할을 분리하고 표현·안전 원칙만 공유했습니다. <code>corepack pnpm exec vitest run</code> 집중 검사 19개 및 실제 소스 범위의 <code>corepack pnpm exec tsc --noEmit</code> 통과. 사용자가 승인한 기존 키로 <code>gpt-6-luna</code>에 합성 질문 12개를 2회 실행했습니다. 최초 응답에서 기존 낮은 점검 결과로 현재 경험을 축소할 소지를 발견해 현재 질문 우선 규칙을 보완했고, 수정 후 12개를 독립 에이전트가 의미상 통과로 확인했습니다. 각 최종 사례는 한 번의 생성이며 일반적인 안전성이나 최신 법령 정확성을 입증하지 않습니다.</td></tr>
+<tr><th>영향 범위</th><td>청렴 조언 및 Plus의 내 행동·일터 존중 조언. 학생·점수 계산·법령 자료 블록·AI 제공사 설정·디자인 구현은 이번 변경 대상이 아닙니다.</td></tr>
+<tr><th>출시 전 검사</th><td>별도로 승인된 배포 후보에서 세 진단의 실제 요청·대화 이어하기·관점 전환·긴급 도움을 확인합니다. 청렴 유형과 점수가 다른 두 진단의 입력으로 전달되지 않고, 낮은 이전 결과가 현재 호소를 부정하지 않는지 확인합니다. 실제 적용할 법령 근거와 연락처는 별도 최신 근거 확인 없이 완료 처리하지 않습니다.</td></tr>
+<tr><th>기대 증거</th><td>로컬 증거: <code>artifacts/diagnostic-advice-simulation/responses-initial.json</code>, <code>responses-refined.json</code>, <code>review-summary.json</code>. 배포 후보의 진단별 요청과 응답 기록, 근거·연락처 확인 기록. 실제 개인정보와 키는 증거에 포함하지 않습니다.</td></tr>
+<tr><th>종료 조건</th><td>배포 후보에서 진단별 역할·정보 경계·현재 질문 우선·긴급 도움 안내를 확인하고, 적용 근거와 연락처의 별도 확인 증거를 연결하면 <code>verified</code>로 변경합니다. 새로운 결함은 TODO/이슈로 승격합니다.</td></tr></table>
+<h2 id="adult-home-secondary-zoom">Plus 홈 보조 버튼의 실제 브라우저 확대</h2><table>
+<tr><th>상태</th><td><code>pending</code> — PC·390px·320px 화면과 낮은 640×480 화면은 확인. 실제 200% 브라우저 확대는 미확인.</td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-14 / 2026-10-14 — 에이전트 소스 검토에서 확정 결함 없음. 로컬 Plus에서 두 점검·청렴 시작 진입, 기존 안내창, 제목과 보조 버튼 비겹침, 중앙 배치, 짧은 화면의 스크롤 접근을 확인했습니다. 기본형에는 보조 링크가 없으며 기존 청렴 홈과 조건부 이력이 유지됩니다. 자동 기능 경계 검사 9개 및 실제 소스 타입 검사 통과. 인앱 브라우저의 확대 단축키는 화면 너비와 devicePixelRatio를 바꾸지 않아 확대 성공으로 간주하지 않았습니다.</td></tr>
+<tr><th>영향 범위</th><td><code>src/products/adult/pages/home-page.tsx</code>, <code>styles.css</code>, <code>components/AdultIcon.tsx</code>. Plus 보조 링크 및 성인 홈 중앙 배치. 학생·질문·점수·AI 프롬프트는 이 UI 변경과 별개입니다.</td></tr>
+<tr><th>출시 전 검사</th><td>실제 브라우저 메뉴에서 확대를 200%로 설정하고 제목·보조 버튼·시작·이력의 겹침과 스크롤 접근을 확인합니다. 창 너비 조절을 확대 검사로 대체하지 않습니다.</td></tr>
+<tr><th>기대 증거</th><td>확대율 200%가 보이는 브라우저 화면, 제목과 보조 버튼 비겹침, 모든 버튼의 키보드·스크롤 접근 캡처. 로컬 확인 증거는 <code>artifacts/home-secondary-review/verification.json</code>과 해당 폴더의 이미지입니다.</td></tr>
+<tr><th>종료 조건</th><td>실제 200% 확대에서 가로 잘림·제목 겹침 없이 필요한 컨트롤에 접근하는 증거를 연결한 뒤 <code>verified</code>로 변경합니다. 결함이 확인되면 TODO/이슈로 승격합니다.</td></tr></table>
+<p><small>확인 결과 실제 결함이나 예정 작업이 되면 이 항목에만 남기지 않고 TODO/이슈로 승격합니다. 동일 항목은 새 행을 만들지 않고 업데이트합니다.</small></p>
+</body></html>

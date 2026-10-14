@@ -1,14 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chatStream } from '@/lib/ai';
 import { styleTypes } from '@/diagnostics/adult-integrity';
-import { MAX_HISTORY_MESSAGES, MAX_CONTENT_LENGTH, MAX_QUESTION_LENGTH } from '@/lib/constants';
+import { MAX_QUESTION_LENGTH, MAX_CHAT_REQUEST_BYTES } from '@/lib/constants';
 import {
   QA_SYSTEM_PROMPT,
   QA_SYSTEM_PROMPT_CONTINUE,
   QA_SYSTEM_PROMPT_NEUTRAL,
   QA_SYSTEM_PROMPT_STYLE_INFO,
 } from '@/lib/prompts';
-import { sanitizeUserInput, sanitizeHistory, isValidScores, describeScores, scanAndRedactPii } from '@/lib/sanitize';
+import {
+  sanitizeUserInput,
+  sanitizeHistory,
+  trimHistoryToLimit,
+  sanitizeSummary,
+  isValidScores,
+  describeScores,
+  scanAndRedactPii,
+} from '@/lib/sanitize';
+import { readJsonBodyWithLimit } from '@/lib/request-body';
 import { checkScopedRateLimit } from '@/lib/rate-limit';
 import { getAiRuntimeEnv } from '@/lib/runtime-env';
 import { getChatResponseMode } from '@/lib/chat-intent';
@@ -83,7 +92,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const parsed = await readJsonBodyWithLimit(request, MAX_CHAT_REQUEST_BYTES);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.body as Record<string, unknown> | null;
     if (typeof body !== 'object' || body === null) {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
@@ -111,9 +122,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `question must be under ${MAX_QUESTION_LENGTH} chars` }, { status: 400 });
     }
 
-    const safeHistory = sanitizeHistory(history);
+    // 기록과 요약도 현재 질문과 같은 기준으로 PII를 가린 뒤 전송한다.
+    const safeHistory = trimHistoryToLimit(sanitizeHistory(history));
     const hasHistory = safeHistory.length > 0;
-    const safeSummary = typeof summary === 'string' ? sanitizeUserInput(summary.slice(0, MAX_CONTENT_LENGTH)) : '';
+    const safeSummary = typeof summary === 'string'
+      ? sanitizeSummary(summary)
+      : '';
     const validScores = isValidScores(scores) ? scores : null;
     const isFirstTurn = !hasHistory && !safeSummary;
     const cleanedQuestion = sanitizeUserInput(userContext);
@@ -157,18 +171,15 @@ export async function POST(request: NextRequest) {
 
     const messages: { role: 'system' | 'user' | 'assistant'; content: string }[] = [
       { role: 'system', content: systemPrompt },
-      ...(isAdviceMode && hasHistory ? safeHistory.slice(-MAX_HISTORY_MESSAGES) : []),
+      ...(isAdviceMode && hasHistory ? safeHistory : []),
       { role: 'user', content: userMessage },
     ];
 
     const aiEnv = await getAiRuntimeEnv();
     const stream = chatStream({
       messages,
-      temperature: 0.4,
       maxTokens: 900,
-      apiKey: aiEnv.OPENROUTER_API_KEY,
-      nvidiaApiKey: aiEnv.NVIDIA_API_KEY,
-      appUrl: aiEnv.NEXT_PUBLIC_APP_URL,
+      apiKey: aiEnv.OPENAI_API_KEY,
     });
 
     // PII 감지 시 경고 이벤트를 스트림 앞에 삽입

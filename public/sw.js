@@ -1,4 +1,4 @@
-const CACHE_NAME = "clean-style-v5";
+const CACHE_NAME = "clean-style-v6";
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "::1"];
 const IS_LOCAL_DEV = LOCAL_HOSTS.includes(self.location.hostname);
 
@@ -8,6 +8,10 @@ const PRECACHE_URLS = [
   "/icons/icon-512x512.png",
   "/icons/icon-192-maskable.png",
   "/icons/icon-512-maskable.png",
+  "/icons/adult/icon-192x192.png",
+  "/icons/adult/icon-512x512.png",
+  "/icons/adult/icon-192-maskable.png",
+  "/icons/adult/icon-512-maskable.png",
 ];
 
 self.addEventListener("install", (event) => {

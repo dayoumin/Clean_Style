@@ -1,6 +1,6 @@
 'use client';
 
-import { type RefObject } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import BottomSheet from '@/components/BottomSheet';
 import { MAX_QUESTION_LENGTH } from '@/lib/constants';
 
@@ -50,9 +50,8 @@ interface AiAdviceSheetProps {
   onAbort: () => void;
   onClose: () => void;
   onDeleteConversation?: () => void;
-  showComposer: boolean;
-  onShowComposer: () => void;
-  onHideComposer: () => void;
+  onStartNewConversation?: () => void;
+  maxTurns?: number;
   inputRef: RefObject<HTMLTextAreaElement | null>;
   scrollAnchorRef: RefObject<HTMLDivElement | null>;
   placeholder: string;
@@ -77,33 +76,64 @@ export default function AiAdviceSheet({
   onAbort,
   onClose,
   onDeleteConversation,
-  showComposer,
-  onShowComposer,
-  onHideComposer,
+  onStartNewConversation,
+  maxTurns,
   inputRef,
   scrollAnchorRef,
   placeholder,
   notice,
   errorType = null,
   piiWarning = null,
-  rows = 6,
+  rows = 2,
   maxLength = MAX_QUESTION_LENGTH,
   closeLabel = '닫기',
-  submitLabel = '질문하기',
+  submitLabel = '전송',
 }: AiAdviceSheetProps) {
   const hasMessages = messages.length > 0;
-  const canSubmit = inputValue.trim().length > 0;
+  const limitReached = maxTurns !== undefined && messages.length >= maxTurns * 2;
+  const lastTurn = maxTurns !== undefined && !limitReached && messages.length >= (maxTurns - 1) * 2;
+  const canSubmit = !loading && !limitReached && inputValue.trim().length > 0;
+  // 'delete' = 대화 지우기, 'restart' = 한도 도달 후 새 대화 시작. 둘 다 저장된 대화를 지운다.
+  const [confirmAction, setConfirmAction] = useState<'delete' | 'restart' | null>(null);
+  const lastConfirmRef = useRef<'delete' | 'restart' | null>(null);
+  const confirmCancelRef = useRef<HTMLButtonElement>(null);
+  const deleteButtonRef = useRef<HTMLButtonElement>(null);
+  const newConversationRef = useRef<HTMLButtonElement>(null);
+  const limitNotice = limitReached
+    ? `한 대화에서 ${maxTurns}번의 질문을 마쳤어요. 새 대화를 시작해 주세요.`
+    : lastTurn ? '이어서 질문은 1번 더 가능해요.' : null;
+
+  // 포커스된 컨트롤이 다른 컨트롤로 바뀌면 포커스가 body로 빠지므로 새 컨트롤로 옮긴다.
+  useEffect(() => {
+    if (confirmAction) {
+      lastConfirmRef.current = confirmAction;
+      confirmCancelRef.current?.focus();
+      return;
+    }
+    const last = lastConfirmRef.current;
+    lastConfirmRef.current = null;
+    if (!last || document.activeElement !== document.body) return;
+    const previousControl = last === 'restart' ? newConversationRef.current : deleteButtonRef.current;
+    (previousControl ?? inputRef.current)?.focus();
+  }, [confirmAction, inputRef]);
+
+  useEffect(() => {
+    if (!limitReached) return;
+    const active = document.activeElement;
+    if (!active || active === document.body || active.getAttribute('role') === 'dialog') {
+      newConversationRef.current?.focus();
+    }
+  }, [limitReached]);
 
   return (
     <BottomSheet title={title} onClose={onClose} hideHeader>
-      {loading ? (
-        <>
-          <div className={SCROLL_AREA}>
+      {(hasMessages || loading) && (
+          <div className={SCROLL_AREA} role="log" aria-label="대화 내용" aria-live={loading ? 'off' : 'polite'}>
             <ChatBubbles messages={messages} />
-            {currentUserMessage && (
+            {loading && currentUserMessage && (
               <ChatBubbles messages={[{ role: 'user', content: currentUserMessage }]} />
             )}
-            {streamingAnswer ? (
+            {loading && (streamingAnswer ? (
               <div className="flex justify-start">
                 <div className="max-w-[85%] rounded-[var(--radius-md)] rounded-bl-sm border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-3.5 py-2.5">
                   <p className="whitespace-pre-line text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
@@ -117,125 +147,114 @@ export default function AiAdviceSheet({
                 <span className="mb-3 inline-block h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-primary-accent)] border-t-transparent" />
                 <p className="text-[14px] font-semibold text-[var(--color-primary-accent)]">답변을 작성하고 있어요...</p>
               </div>
-            )}
+            ))}
             <div ref={scrollAnchorRef} />
           </div>
-          <div className="shrink-0 border-t border-[var(--color-border)] px-5 py-3">
-            <button
-              type="button"
-              onClick={onAbort}
-              className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] py-2.5 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
-            >
-              중단
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          {hasMessages && (
-            <div className={SCROLL_AREA}>
-              <ChatBubbles messages={messages} />
-              <div ref={scrollAnchorRef} />
-            </div>
+      )}
+          {limitNotice && (
+            <p role="status" className="shrink-0 px-5 py-2 text-center text-[12px] leading-relaxed text-[var(--color-text-secondary)]">{limitNotice}</p>
           )}
-          {showComposer ? (
+          {!limitReached ? (
             <div className={`shrink-0 space-y-3 px-5 pb-3 ${hasMessages ? 'border-t border-[var(--color-border)] pt-3' : 'pt-5'}`}>
               {notice && (
                 <p className="rounded-[var(--radius-md)] bg-[var(--color-primary-soft)] px-3 py-2 text-[12px] leading-relaxed text-[var(--color-text-secondary)]">
                   {notice}
                 </p>
               )}
-              <div className="relative">
+              <form
+                className="flex items-stretch gap-2"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (canSubmit) {
+                    setConfirmAction(null);
+                    onSubmit();
+                  }
+                }}
+              >
                 <textarea
                   ref={inputRef}
                   value={inputValue}
                   onChange={(e) => onInputChange(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
+                    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                       e.preventDefault();
-                      if (canSubmit) onSubmit();
+                      if (canSubmit) {
+                        setConfirmAction(null);
+                        onSubmit();
+                      }
                     }
                   }}
                   maxLength={maxLength}
+                  readOnly={loading}
                   placeholder={placeholder}
-                  className="w-full resize-none rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 pr-14 text-[14px] text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-accent)]"
+                  aria-label="AI에게 질문할 내용"
+                  className="min-w-0 flex-1 resize-none rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-3 text-[16px] leading-normal text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-primary-accent)] focus:outline-none focus:ring-1 focus:ring-[var(--color-primary-accent)] read-only:opacity-60"
                   rows={rows}
                 />
-                <span className="absolute bottom-2 right-3 text-[11px] text-[var(--color-text-muted)]">
-                  {inputValue.length}/{maxLength}
-                </span>
-              </div>
+                {loading ? (
+                  <button type="button" onClick={onAbort} className="min-h-11 shrink-0 rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-card)]">중단</button>
+                ) : (
+                  <button type="submit" disabled={!canSubmit} className="min-h-11 shrink-0 rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:bg-[var(--color-card)] disabled:text-[var(--color-text-secondary)]">{submitLabel}</button>
+                )}
+              </form>
               {piiWarning && piiWarning.length > 0 && (
-                <p className="text-[12px] leading-relaxed text-amber-600">
+                <p className="text-[12px] leading-relaxed text-amber-800">
                   개인정보({piiWarning.join(', ')})가 감지되어 자동으로 가렸습니다.
                 </p>
               )}
               {errorType && (
-                <p className="text-[13px] text-red-500">
+                <p role="alert" className="text-[13px] text-red-700">
                   {errorType === 'network' && '인터넷 연결을 확인해주세요.'}
                   {errorType === 'rate-limit' && 'AI 질문은 1분에 5번까지 가능해요. 잠시 후 다시 시도해주세요.'}
                   {errorType === 'shared-rate-limit' && '같은 네트워크에서 AI 요청이 많아요. 잠시 후 다시 시도해주세요.'}
-                  {errorType === 'server' && 'AI 서비스에 일시적인 문제가 생겼어요.'}
+                  {errorType === 'server' && 'AI 서비스에 일시적인 문제가 생겼어요. 잠시 후 다시 전송해 주세요.'}
                 </p>
-              )}
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={hasMessages ? onHideComposer : onClose}
-                  className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-3 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
-                >
-                  {closeLabel}
-                </button>
-                <button
-                  type="button"
-                  onClick={onSubmit}
-                  disabled={!canSubmit}
-                  className="flex-[2] rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  {submitLabel}
-                </button>
-              </div>
-              {hasMessages && onDeleteConversation && (
-                <button
-                  type="button"
-                  onClick={onDeleteConversation}
-                  className="w-full py-2 text-[12px] text-[var(--color-text-muted)] hover:text-red-500"
-                >
-                  대화 지우기
-                </button>
               )}
             </div>
           ) : (
             <div className="shrink-0 space-y-2 border-t border-[var(--color-border)] px-5 py-3">
-              <div className="flex gap-2">
                 <button
+                  ref={newConversationRef}
                   type="button"
-                  onClick={onClose}
-                  className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] py-3 text-[13px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)]"
+                  onClick={() => setConfirmAction('restart')}
+                  disabled={!onStartNewConversation || confirmAction !== null}
+                  className="w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-40"
                 >
-                  {closeLabel}
+                  새 대화 시작
                 </button>
-                <button
-                  type="button"
-                  onClick={onShowComposer}
-                  className="flex-[2] rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)]"
-                >
-                  {submitLabel}
-                </button>
-              </div>
-              {hasMessages && onDeleteConversation && (
-                <button
-                  type="button"
-                  onClick={onDeleteConversation}
-                  className="w-full py-2 text-[12px] text-[var(--color-text-muted)] hover:text-red-500"
-                >
-                  대화 지우기
-                </button>
-              )}
             </div>
           )}
-        </>
-      )}
+      {!loading && <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 px-5 pb-2">
+        {confirmAction ? (
+          <>
+            <p role="status" className="text-[13px] text-[var(--color-text-secondary)]">
+              {confirmAction === 'restart' ? '지금 대화를 지우고 새로 시작할까요?' : '대화를 지울까요?'}
+            </p>
+            <div className="flex gap-4">
+              <button ref={confirmCancelRef} type="button" onClick={() => setConfirmAction(null)} className="min-h-11 text-[13px] text-[var(--color-text-secondary)]">취소</button>
+              <button
+                type="button"
+                onClick={() => {
+                  const action = confirmAction;
+                  setConfirmAction(null);
+                  if (action === 'restart') onStartNewConversation?.();
+                  else onDeleteConversation?.();
+                }}
+                className="min-h-11 text-[13px] text-[var(--color-text-secondary)]"
+              >
+                {confirmAction === 'restart' ? '새로 시작' : '지우기'}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <button type="button" onClick={onClose} disabled={loading} className="min-h-11 text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] disabled:opacity-40">{closeLabel}</button>
+            {hasMessages && !limitReached && onDeleteConversation && (
+              <button ref={deleteButtonRef} type="button" onClick={() => setConfirmAction('delete')} disabled={loading} className="min-h-11 text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] disabled:opacity-40">대화 지우기</button>
+            )}
+          </>
+        )}
+      </div>}
     </BottomSheet>
   );
 }
