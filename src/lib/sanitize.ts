@@ -36,6 +36,12 @@ function clipForPiiScan(input: string): string {
   return input.slice(0, MAX_CONTENT_LENGTH + PII_SCAN_MARGIN);
 }
 
+/** 가린 뒤 길이를 자른다. 미리 잘린 입력이면 끝의 여유분(번호가 반쯤 잘렸을 수 있음)은 버린다. */
+function limitRedacted(redacted: string, wasClipped: boolean): string {
+  const safe = wasClipped ? redacted.slice(0, Math.max(0, redacted.length - PII_SCAN_MARGIN)) : redacted;
+  return safe.slice(0, MAX_CONTENT_LENGTH);
+}
+
 /** history 배열에서 user/assistant 역할만 허용, content 길이 제한 */
 export function sanitizeHistory(
   history: unknown,
@@ -55,7 +61,10 @@ export function sanitizeHistory(
     .map((msg) => ({
       role: msg.role,
       // 경계에 걸린 개인정보 일부가 남지 않도록 자르기 전에 가린다.
-      content: redactPiiText(clipForPiiScan(msg.content)).slice(0, MAX_CONTENT_LENGTH),
+      content: limitRedacted(
+        redactPiiText(clipForPiiScan(msg.content)),
+        msg.content.length > MAX_CONTENT_LENGTH + PII_SCAN_MARGIN,
+      ),
     }));
 }
 
@@ -209,5 +218,8 @@ export function redactHistoryPii<T extends { content: string }>(history: T[]): T
 /** 요약 원문의 인젝션 패턴을 지운 뒤 개인정보를 가리고 마지막에 길이를 자른다. */
 export function sanitizeSummary(input: string): string {
   // 패턴 제거로 쪼개 둔 번호가 다시 붙을 수 있어 마스킹은 제거 뒤에 한다.
-  return scanAndRedactPii(sanitizeUserInput(clipForPiiScan(input))).redacted.slice(0, MAX_CONTENT_LENGTH);
+  return limitRedacted(
+    scanAndRedactPii(sanitizeUserInput(clipForPiiScan(input))).redacted,
+    input.length > MAX_CONTENT_LENGTH + PII_SCAN_MARGIN,
+  );
 }

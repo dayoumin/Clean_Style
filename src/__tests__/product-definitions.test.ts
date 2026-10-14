@@ -51,3 +51,19 @@ describe('product definitions', () => {
     expect(student.resultMode).toBe('unscored-feedback');
   });
 });
+
+describe('workplace-respect kill switch', () => {
+  it('turns the default product respect check off when the pilot flag is 0', async () => {
+    const { vi } = await import('vitest');
+    vi.resetModules();
+    vi.stubEnv('NEXT_PUBLIC_APP_VARIANT', 'default');
+    vi.stubEnv('NEXT_PUBLIC_ENABLE_RESPECT_PILOT', '0');
+    const off = await import('@/data/workplaceRespectFeature');
+    expect(off.RESPECT_FEATURE_ENABLED).toBe(false);
+    vi.resetModules();
+    vi.stubEnv('NEXT_PUBLIC_ENABLE_RESPECT_PILOT', '1');
+    const on = await import('@/data/workplaceRespectFeature');
+    expect(on.RESPECT_FEATURE_ENABLED).toBe(true);
+    vi.unstubAllEnvs();
+  });
+});

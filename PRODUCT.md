@@ -1,6 +1,6 @@
 # Clean Style product context
 
-This repository composes three products from one main branch. Adult Clean Style is a short Korean workplace integrity self-reflection experience: 15 situations, eight descriptive styles, a six-direction display, optional result-sharing name, saved local result history, and optional AI advice. It is not a moral grade or a clinical diagnosis.
+This repository composes two products from one main branch (adult Clean Style and Clean Style Student). Adult Clean Style is a short Korean workplace integrity self-reflection experience: 15 situations, eight descriptive styles, a six-direction display, optional result-sharing name, saved local result history, and optional AI advice. It is not a moral grade or a clinical diagnosis.
 
 Clean Style also includes diagnostic-owned workplace-respect flows and safeguarding, reached from the home screen's top-right icons (the former Plus product was merged into it). Clean Style Student is a separate instrument with no adult questions, adult results/history, name entry, or AI chat.
 

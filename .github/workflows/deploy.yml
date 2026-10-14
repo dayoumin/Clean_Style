@@ -156,7 +156,15 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           const base = process.env.NEXT_PUBLIC_APP_URL;
-          const home = await (await fetch(base)).text();
+          let homeRes;
+          for (let attempt = 1; attempt <= 5; attempt += 1) {
+            homeRes = await fetch(base);
+            if (homeRes.ok) break;
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+          }
+          if (!homeRes?.ok) throw new Error(`home HTTP ${homeRes?.status ?? 'no response'}`);
+          // /respect/check는 기능이 꺼져도 안내 화면으로 200을 주므로, 홈의 아이콘 링크로 켜짐을 확인한다.
+          const home = await homeRes.text();
           for (const entry of ['action', 'experience']) {
             if (!home.includes(`/respect/check?entry=${entry}`)) {
               throw new Error(`home is missing the ${entry} workplace-respect icon`);

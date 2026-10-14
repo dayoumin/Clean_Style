@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LeafLineArt } from '@/components/LeafLineArt';
 import ProgressBar from '@/components/ProgressBar';
@@ -54,14 +54,27 @@ export default function RespectCheckClient({ entry }: { entry: RespectEntry }) {
         setStorageBlocked(true);
         return;
       }
-      router.push(buildRespectResultUrl(entry));
+      // 결과로 바꿔치기해, 뒤로가기가 점검 화면(열면 결과를 지움)으로 돌아가지 않게 한다.
+      router.replace(buildRespectResultUrl(entry));
       return;
     }
     setAnswers(nextAnswers);
   }, [answers, currentQuestion, entry, questions.length, router]);
 
   const handleBack = () => setAnswers((prev) => prev.slice(0, -1));
-  const handleQuit = () => router.push('/respect');
+  const handleQuit = () => router.push('/');
+
+  // 다음 문항은 맨 위에서 시작하고, 스크린리더가 새 문항을 읽도록 제목으로 포커스를 옮긴다.
+  const questionHeadingRef = useRef<HTMLHeadingElement>(null);
+  const previousAnswerCountRef = useRef<number | null>(null);
+  useEffect(() => {
+    const previous = previousAnswerCountRef.current;
+    previousAnswerCountRef.current = answers.length;
+    if (previous === null || previous === answers.length) return;
+    window.scrollTo({ top: 0 });
+    questionHeadingRef.current?.closest('main')?.scrollTo({ top: 0 });
+    questionHeadingRef.current?.focus({ preventScroll: true });
+  }, [answers.length]);
 
   if (!currentQuestion) return null;
 
@@ -83,7 +96,7 @@ export default function RespectCheckClient({ entry }: { entry: RespectEntry }) {
               <button
                 type="button"
                 onClick={handleBack}
-                className={`rounded-full border border-[var(--color-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)] ${focusRing}`}
+                className={`min-h-11 whitespace-nowrap rounded-full border border-[var(--color-border)] px-3.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)] ${focusRing}`}
               >
                 ← 이전
               </button>
@@ -91,7 +104,7 @@ export default function RespectCheckClient({ entry }: { entry: RespectEntry }) {
             <button
               type="button"
               onClick={handleQuit}
-              className={`rounded-full border border-[var(--color-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)] ${focusRing}`}
+              className={`min-h-11 whitespace-nowrap rounded-full border border-[var(--color-border)] px-3.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)] ${focusRing}`}
             >
               중단
             </button>
@@ -106,11 +119,11 @@ export default function RespectCheckClient({ entry }: { entry: RespectEntry }) {
             <span>{currentQuestion.category}</span>
           </div>
 
-          <div className="mb-3 text-5xl font-extrabold leading-none tracking-tighter text-[var(--color-primary-muted)]">
+          <div className="mb-3 text-5xl font-extrabold leading-none tracking-tighter text-[var(--color-text-muted)]">
             {String(answers.length + 1).padStart(2, '0')}
           </div>
 
-          <h2 className="mb-8 text-[18px] font-semibold leading-[1.65] tracking-tight text-[var(--color-text)]">
+          <h2 ref={questionHeadingRef} tabIndex={-1} className="mb-8 text-[18px] font-semibold focus:outline-none leading-[1.65] tracking-tight text-[var(--color-text)]">
             {currentQuestion.prompt}
           </h2>
 

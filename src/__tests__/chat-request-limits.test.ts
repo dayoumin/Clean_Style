@@ -228,3 +228,14 @@ describe('긴 입력의 개인정보 검사 시간', () => {
     expect(message.content).not.toContain('kim.lee');
   });
 });
+
+describe('잘린 입력의 경계 개인정보', () => {
+  it('가려서 짧아진 뒤에도 반쯤 잘린 번호 조각을 남기지 않는다', async () => {
+    const { sanitizeHistory, sanitizeSummary } = await import('@/lib/sanitize');
+    const content = Array.from({ length: 300 }, () => '010-9876-5432').join(' ');
+    const [message] = sanitizeHistory([{ role: 'user', content }]);
+    // 번호는 모두 [전화번호]로 바뀌어야 하므로 숫자가 하나도 남지 않아야 한다.
+    expect(message.content).not.toMatch(/\d/);
+    expect(sanitizeSummary(content)).not.toMatch(/\d/);
+  });
+});

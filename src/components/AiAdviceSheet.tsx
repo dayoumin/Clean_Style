@@ -117,12 +117,15 @@ export default function AiAdviceSheet({
     (previousControl ?? inputRef.current)?.focus();
   }, [confirmAction, inputRef]);
 
-  // 답변이 끝나면(성공·오류·중단) 버튼 교체로 잃은 포커스를 입력창으로 돌려준다.
+  // 키보드로 보낸 경우에만, 답변이 끝나면 버튼 교체로 잃은 포커스를 입력창으로 돌려준다.
+  // 손가락으로 탭해 보낸 경우에는 다시 포커스하면 화면 키보드가 답변을 가리므로 그대로 둔다.
+  const sentByKeyboardRef = useRef(false);
   const wasLoadingRef = useRef(loading);
   useEffect(() => {
     const finished = wasLoadingRef.current && !loading;
     wasLoadingRef.current = loading;
-    if (!finished || limitReached) return;
+    if (!finished || limitReached || !sentByKeyboardRef.current) return;
+    sentByKeyboardRef.current = false;
     const active = document.activeElement;
     if (!active || active === document.body) inputRef.current?.focus();
   }, [loading, limitReached, inputRef]);
@@ -161,6 +164,10 @@ export default function AiAdviceSheet({
             <div ref={scrollAnchorRef} />
           </div>
       )}
+          {/* 마지막 질문(한도 도달)에서도 보이도록 입력창 영역 밖에 두고, 낭독되도록 상태 영역은 항상 둔다. */}
+          <p role="status" className={piiWarning && piiWarning.length > 0 ? 'shrink-0 px-5 pt-2 text-[12px] leading-relaxed text-amber-800' : 'sr-only'}>
+            {piiWarning && piiWarning.length > 0 ? `개인정보(${piiWarning.join(', ')})가 감지되어 자동으로 가렸습니다.` : ''}
+          </p>
           {limitNotice && (
             <p role="status" className="shrink-0 px-5 py-2 text-center text-[12px] leading-relaxed text-[var(--color-text-secondary)]">{limitNotice}</p>
           )}
@@ -190,6 +197,7 @@ export default function AiAdviceSheet({
                     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) {
                       e.preventDefault();
                       if (canSubmit) {
+                        sentByKeyboardRef.current = true;
                         setConfirmAction(null);
                         onSubmit();
                       }
@@ -206,14 +214,9 @@ export default function AiAdviceSheet({
                   // key로 전송 버튼과 다른 요소임을 알려, 누르는 도중 전송 버튼으로 바뀌어 폼이 다시 제출되지 않게 한다.
                   <button key="stop" type="button" onClick={(event) => { event.preventDefault(); onAbort(); }} className="min-h-11 shrink-0 rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-card)]">중단</button>
                 ) : (
-                  <button key="submit" type="submit" disabled={!canSubmit} className="min-h-11 shrink-0 rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:bg-[var(--color-card)] disabled:text-[var(--color-text-secondary)]">{submitLabel}</button>
+                  <button key="submit" type="submit" onClick={(event) => { sentByKeyboardRef.current = event.detail === 0; }} disabled={!canSubmit} className="min-h-11 shrink-0 rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:bg-[var(--color-card)] disabled:text-[var(--color-text-secondary)]">{submitLabel}</button>
                 )}
               </form>
-              {piiWarning && piiWarning.length > 0 && (
-                <p role="status" className="text-[12px] leading-relaxed text-amber-800">
-                  개인정보({piiWarning.join(', ')})가 감지되어 자동으로 가렸습니다.
-                </p>
-              )}
               {errorType && (
                 <p role="alert" className="text-[13px] text-red-700">
                   {errorType === 'network' && '인터넷 연결을 확인해주세요.'}

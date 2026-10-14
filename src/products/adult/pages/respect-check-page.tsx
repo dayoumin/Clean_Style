@@ -21,13 +21,13 @@ export default async function RespectCheckPage({ searchParams }: Props) {
       <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
         <p className="mb-2 text-[16px] font-bold text-[var(--color-text)]">점검 유형을 먼저 선택해주세요</p>
         <p className="mb-6 text-[13px] leading-relaxed text-[var(--color-text-muted)]">
-          내 행동 점검 또는 내가 겪은 일 점검 중 하나를 선택하면 문항을 시작할 수 있어요.
+          처음 화면 오른쪽 위의 ‘내 행동’ 또는 ‘일터 존중’을 눌러 점검을 시작할 수 있어요.
         </p>
         <Link
-          href="/respect"
+          href="/"
           className="rounded-[var(--radius-md)] bg-[var(--color-primary)] px-6 py-3 text-[14px] font-semibold text-white"
         >
-          선택 화면으로
+          처음으로
         </Link>
       </div>
     );

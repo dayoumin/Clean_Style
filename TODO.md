@@ -109,8 +109,8 @@
 - [ ] 요약 요청에 검증된 스타일 정보 명시 — `src/app/api/summarize/route.ts`는 `styleKey`를 검증하지만 실제 유형명을 모델 입력에 넣지 않으며 요약 프롬프트는 유형명을 반드시 포함하라고 지시함. 인사·중립 응답만 있는 긴 대화나 새 미요약 구간에는 이름이 없을 수 있음. 소스에서 입력 누락을 확인했으며 잘못된 유형 생성은 실제 호출로 검증하지 않음. 종료 조건: 대화에서 추측하지 않고 서버가 확인한 유형을 사용하며 인사→요약→첫 상담·복원에서도 소개 여부 유지.
 - [ ] 첫 실제 상담에서 스타일 소개 보장 — 2026-10-14 현재 로컬 Luna 실제 응답으로 확인: 새 대화의 직접 상담은 유형명을 언급하지만 인사 뒤 첫 상담은 소개가 빠짐. `src/app/api/chat/route.ts`가 상담 여부와 무관하게 이전 메시지 존재로 후속 프롬프트를 선택함. 단순 인사와 실제 상담을 구분하고, 요약·재접속 뒤에도 소개 여부를 보존하도록 변경 필요. 종료 조건: 인사→첫 상담에서 정확한 유형명을 첫 문장에 한 번 소개하고 이후 상담은 반복하지 않음. 증거: `artifacts/chat-style-simulation-2026-10-14/evidence.json`, 전체 답변: `report.html`. 이번 작업에서는 제품 코드 수정 없이 현상만 재현함.
 - [x] 직접 OpenAI `gpt-6-luna` 일반·스트리밍 및 로컬 채팅 실제 응답 확인 — 2026-10-14
-- [ ] Plus 배포 후 확인을 홈 응답 외에 `/api/chat` 및 `/api/respect-advice` 실제 본문·완료 검사로 보완 — 현재 홈 검사만으로 AI 연결을 입증하지 못함
-- [ ] 승인된 배포에서 기본·Plus Worker의 Luna 접근과 학생 AI 경로 차단 확인 — 상세 종료 조건: `docs/adult-design-release-qa.html#luna-production`
+- [ ] 기본 배포 후 확인에 `/api/respect-advice` 실제 본문·완료 검사 추가 — Plus는 기본에 합쳐짐(배포 워크플로 삭제). 현재는 홈의 두 아이콘과 `/respect/check` 응답만 확인
+- [ ] 승인된 배포에서 기본 Worker의 Luna 접근과 학생 AI 경로 차단 확인 (남아 있는 `clean-style-plus` Worker는 Cloudflare에서 정리 필요) — 상세 종료 조건: `docs/adult-design-release-qa.html#luna-production`
 - [ ] GitHub Actions scheduled workflow 또는 Cloudflare Cron Trigger로 주기적 AI smoke test 구성
 - [ ] 실패 시 알림 경로 지정 (GitHub Actions 실패 알림, 이메일, Slack 등)
 - 현재 제공사는 OpenAI 하나이며 OpenRouter·NVIDIA·Grok 대체 호출은 제거됨. 운영 키 등록과 외부 배포는 이번 작업에서 수행하지 않음.
