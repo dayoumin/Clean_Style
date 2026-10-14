@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MAX_HISTORY_MESSAGES } from '@/lib/constants';
+import { MAX_HISTORY_MESSAGES, MAX_CONTENT_LENGTH } from '@/lib/constants';
 import { shouldSummarizeChat } from '@/lib/chat-summary-policy';
 import { getHistoryEntry, updateChat, clearChat, type ChatMessage } from '@/lib/history';
 import { compressHistoryToSummary } from '@/lib/compress-history';
 import { getClientIdHeader } from '@/lib/client-id';
+import { scanAndRedactPii, trimHistoryToLimit } from '@/lib/sanitize';
 
 interface UseAiChatOptions {
   styleKey: string;
@@ -19,6 +20,9 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
   const [aiErrorType, setAiErrorType] = useState<'network' | 'rate-limit' | 'shared-rate-limit' | 'server' | null>(null);
   const [piiWarning, setPiiWarning] = useState<string[] | null>(null);
   const [userContext, setUserContext] = useState('');
+  // 전송 중인 질문(PII 마스킹본). 입력창은 전송 즉시 비운다.
+  const [pendingQuestion, setPendingQuestion] = useState('');
+  const pendingRawQuestionRef = useRef('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [chatSummary, setChatSummary] = useState('');
   const [summarizedUpTo, setSummarizedUpTo] = useState(0);
@@ -66,7 +70,9 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     const controller = new AbortController();
     summarizeAbortRef.current = controller;
     const currentSummary = chatSummaryRef.current;
-    const messagesToSummarize = currentSummary ? messages.slice(summarizedUpToRef.current) : messages;
+    const messagesToSummarize = trimHistoryToLimit(
+      currentSummary ? messages.slice(summarizedUpToRef.current) : messages,
+    );
     const applySummary = (summary: string) => {
       if (controller.signal.aborted || summarizeAbortRef.current !== controller) return;
       chatSummaryRef.current = summary;
@@ -80,7 +86,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
         headers: { 'Content-Type': 'application/json', ...getClientIdHeader() },
         body: JSON.stringify({
           history: messagesToSummarize,
-          summary: currentSummary || undefined,
+          summary: currentSummary ? currentSummary.slice(-MAX_CONTENT_LENGTH) : undefined,
           styleKey,
         }),
         signal: controller.signal,
@@ -144,16 +150,26 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
   const clearChatUI = useCallback(() => {
     setAiAnswer('');
     setUserContext('');
+    setPendingQuestion('');
+    pendingRawQuestionRef.current = '';
     setAiErrorType(null);
+    setPiiWarning(null);
   }, []);
 
   const fetchAnswer = useCallback(async () => {
     const question = userContextRef.current.trim();
     if (!question || chatHistoryRef.current.length >= MAX_HISTORY_MESSAGES) return;
     abortRef.current?.abort();
+    // 개인정보는 보내기 전에 가리고, 가린 문장만 화면·기록에 남긴다.
+    const piiResult = scanAndRedactPii(question);
+    const safeQuestion = piiResult.redacted;
+    pendingRawQuestionRef.current = question;
+    setPendingQuestion(safeQuestion);
+    userContextRef.current = '';
+    setUserContext('');
     setAiLoading(true);
     setAiErrorType(null);
-    setPiiWarning(null);
+    setPiiWarning(piiResult.hasPii ? piiResult.detected : null);
     setAiAnswer('');
 
     const controller = new AbortController();
@@ -165,18 +181,18 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
       const currentHistory = chatHistoryRef.current;
       const currentSummary = chatSummaryRef.current;
       const currentSummarizedUpTo = summarizedUpToRef.current;
-      const historyToSend = currentSummary
+      const historyToSend = trimHistoryToLimit(currentSummary
         ? currentHistory.slice(currentSummarizedUpTo)
-        : currentHistory;
+        : currentHistory);
 
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getClientIdHeader() },
         body: JSON.stringify({
           styleKey, scores,
-          userContext: question,
+          userContext: safeQuestion,
           history: historyToSend.length > 0 ? historyToSend : undefined,
-          summary: currentSummary || undefined,
+          summary: currentSummary ? currentSummary.slice(-MAX_CONTENT_LENGTH) : undefined,
         }),
         signal: controller.signal,
       });
@@ -234,7 +250,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
 
       const raw: ChatMessage[] = [
         ...currentHistory,
-        { role: 'user', content: question },
+        { role: 'user', content: safeQuestion },
         { role: 'assistant', content: fullAnswer },
       ];
       const trimCount = raw.length - MAX_HISTORY_MESSAGES;
@@ -251,7 +267,8 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
       }
 
       setChatHistory(newHistory);
-      setUserContext('');
+      setPendingQuestion('');
+      pendingRawQuestionRef.current = '';
 
       if (newHistory.length < MAX_HISTORY_MESSAGES && shouldSummarizeChat(newHistory, newSummarizedUpTo) && !summarizingRef.current) {
         triggerSummarize(newHistory);
@@ -259,6 +276,12 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     } catch (err) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
       if (fullAnswer) setAiAnswer(fullAnswer);
+      // 실패하면 다시 보낼 수 있게 질문을 입력창에 돌려놓는다.
+      if (abortRef.current === controller) {
+        setUserContext(pendingRawQuestionRef.current);
+        setPendingQuestion('');
+        pendingRawQuestionRef.current = '';
+      }
       if (err instanceof TypeError) {
         setAiErrorType('network');
       } else if (err instanceof Error && err.message === 'RATE_LIMIT') {
@@ -295,11 +318,14 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
   const abortAnswer = useCallback(() => {
     abortRef.current?.abort();
     setAiLoading(false);
+    setUserContext(pendingRawQuestionRef.current);
+    setPendingQuestion('');
+    pendingRawQuestionRef.current = '';
   }, []);
 
   return {
     aiLoading, aiAnswer, aiErrorType, piiWarning,
-    userContext, setUserContext,
+    userContext, setUserContext, pendingQuestion,
     chatHistory, chatMaxReached, chatLastTurn,
     scrollAnchorRef,
     fetchAnswer,

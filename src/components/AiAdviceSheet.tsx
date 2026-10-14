@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type RefObject } from 'react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import BottomSheet from '@/components/BottomSheet';
 import { MAX_QUESTION_LENGTH } from '@/lib/constants';
 
@@ -93,10 +93,36 @@ export default function AiAdviceSheet({
   const limitReached = maxTurns !== undefined && messages.length >= maxTurns * 2;
   const lastTurn = maxTurns !== undefined && !limitReached && messages.length >= (maxTurns - 1) * 2;
   const canSubmit = !loading && !limitReached && inputValue.trim().length > 0;
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  // 'delete' = 대화 지우기, 'restart' = 한도 도달 후 새 대화 시작. 둘 다 저장된 대화를 지운다.
+  const [confirmAction, setConfirmAction] = useState<'delete' | 'restart' | null>(null);
+  const lastConfirmRef = useRef<'delete' | 'restart' | null>(null);
+  const confirmCancelRef = useRef<HTMLButtonElement>(null);
+  const deleteButtonRef = useRef<HTMLButtonElement>(null);
+  const newConversationRef = useRef<HTMLButtonElement>(null);
   const limitNotice = limitReached
     ? `한 대화에서 ${maxTurns}번의 질문을 마쳤어요. 새 대화를 시작해 주세요.`
     : lastTurn ? '이어서 질문은 1번 더 가능해요.' : null;
+
+  // 포커스된 컨트롤이 다른 컨트롤로 바뀌면 포커스가 body로 빠지므로 새 컨트롤로 옮긴다.
+  useEffect(() => {
+    if (confirmAction) {
+      lastConfirmRef.current = confirmAction;
+      confirmCancelRef.current?.focus();
+      return;
+    }
+    const last = lastConfirmRef.current;
+    lastConfirmRef.current = null;
+    if (!last || document.activeElement !== document.body) return;
+    (last === 'restart' ? newConversationRef.current : deleteButtonRef.current)?.focus();
+  }, [confirmAction]);
+
+  useEffect(() => {
+    if (!limitReached) return;
+    const active = document.activeElement;
+    if (!active || active === document.body || active.getAttribute('role') === 'dialog') {
+      newConversationRef.current?.focus();
+    }
+  }, [limitReached]);
 
   return (
     <BottomSheet title={title} onClose={onClose} hideHeader>
@@ -139,7 +165,7 @@ export default function AiAdviceSheet({
                 onSubmit={(event) => {
                   event.preventDefault();
                   if (canSubmit) {
-                    setConfirmDelete(false);
+                    setConfirmAction(null);
                     onSubmit();
                   }
                 }}
@@ -152,7 +178,7 @@ export default function AiAdviceSheet({
                     if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
                       e.preventDefault();
                       if (canSubmit) {
-                        setConfirmDelete(false);
+                        setConfirmAction(null);
                         onSubmit();
                       }
                     }
@@ -171,25 +197,26 @@ export default function AiAdviceSheet({
                 )}
               </form>
               {piiWarning && piiWarning.length > 0 && (
-                <p className="text-[12px] leading-relaxed text-amber-600">
+                <p className="text-[12px] leading-relaxed text-amber-800">
                   개인정보({piiWarning.join(', ')})가 감지되어 자동으로 가렸습니다.
                 </p>
               )}
               {errorType && (
-                <p role="alert" className="text-[13px] text-red-500">
+                <p role="alert" className="text-[13px] text-red-700">
                   {errorType === 'network' && '인터넷 연결을 확인해주세요.'}
                   {errorType === 'rate-limit' && 'AI 질문은 1분에 5번까지 가능해요. 잠시 후 다시 시도해주세요.'}
                   {errorType === 'shared-rate-limit' && '같은 네트워크에서 AI 요청이 많아요. 잠시 후 다시 시도해주세요.'}
-                  {errorType === 'server' && 'AI 서비스에 일시적인 문제가 생겼어요.'}
+                  {errorType === 'server' && 'AI 서비스에 일시적인 문제가 생겼어요. 잠시 후 다시 전송해 주세요.'}
                 </p>
               )}
             </div>
           ) : (
             <div className="shrink-0 space-y-2 border-t border-[var(--color-border)] px-5 py-3">
                 <button
+                  ref={newConversationRef}
                   type="button"
-                  onClick={onStartNewConversation}
-                  disabled={!onStartNewConversation}
+                  onClick={() => setConfirmAction('restart')}
+                  disabled={!onStartNewConversation || confirmAction !== null}
                   className="w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   새 대화 시작
@@ -197,19 +224,32 @@ export default function AiAdviceSheet({
             </div>
           )}
       {!loading && <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 px-5 pb-2">
-        {confirmDelete ? (
+        {confirmAction ? (
           <>
-            <p role="status" className="text-[13px] text-[var(--color-text-secondary)]">대화를 지울까요?</p>
+            <p role="status" className="text-[13px] text-[var(--color-text-secondary)]">
+              {confirmAction === 'restart' ? '지금 대화를 지우고 새로 시작할까요?' : '대화를 지울까요?'}
+            </p>
             <div className="flex gap-4">
-              <button type="button" onClick={() => setConfirmDelete(false)} className="min-h-11 text-[13px] text-[var(--color-text-secondary)]">취소</button>
-              <button type="button" onClick={() => { setConfirmDelete(false); onDeleteConversation?.(); }} className="min-h-11 text-[13px] text-[var(--color-text-secondary)]">지우기</button>
+              <button ref={confirmCancelRef} type="button" onClick={() => setConfirmAction(null)} className="min-h-11 text-[13px] text-[var(--color-text-secondary)]">취소</button>
+              <button
+                type="button"
+                onClick={() => {
+                  const action = confirmAction;
+                  setConfirmAction(null);
+                  if (action === 'restart') onStartNewConversation?.();
+                  else onDeleteConversation?.();
+                }}
+                className="min-h-11 text-[13px] text-[var(--color-text-secondary)]"
+              >
+                {confirmAction === 'restart' ? '새로 시작' : '지우기'}
+              </button>
             </div>
           </>
         ) : (
           <>
             <button type="button" onClick={onClose} disabled={loading} className="min-h-11 text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] disabled:opacity-40">{closeLabel}</button>
             {hasMessages && !limitReached && onDeleteConversation && (
-              <button type="button" onClick={() => setConfirmDelete(true)} disabled={loading} className="min-h-11 text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] disabled:opacity-40">대화 지우기</button>
+              <button ref={deleteButtonRef} type="button" onClick={() => setConfirmAction('delete')} disabled={loading} className="min-h-11 text-[13px] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] disabled:opacity-40">대화 지우기</button>
             )}
           </>
         )}

@@ -21,6 +21,11 @@ const categoryIcons: Record<string, AdultIconName> = { research: 'research', adm
 const STORAGE_KEY = 'integrity-test-progress';
 const AUTO_RESULT_DELAY_SECONDS = 7;
 
+// 저장소가 막힌 브라우저(사생활 보호 모드 등)에서도 테스트는 계속 진행되도록 오류를 삼킨다.
+function tryStorage(action: () => void) {
+  try { action(); } catch { /* ignore */ }
+}
+
 function loadProgress(): AdultTestProgress | null {
   try {
     const saved = parseAdultTestProgress(localStorage.getItem(STORAGE_KEY));
@@ -31,11 +36,13 @@ function loadProgress(): AdultTestProgress | null {
 }
 
 function saveProgress(answers: number[], seed: number) {
-  if (answers.length > 0 && answers.length < questions.length) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, seed }));
-  } else {
-    localStorage.removeItem(STORAGE_KEY);
-  }
+  tryStorage(() => {
+    if (answers.length > 0 && answers.length < questions.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, seed }));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  });
 }
 
 export default function TestPage() {
@@ -50,6 +57,9 @@ export default function TestPage() {
   const [nameFieldFocused, setNameFieldFocused] = useState(false);
   const shareNameRef = useRef('');
   const navigatedRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const questionHeadingRef = useRef<HTMLHeadingElement>(null);
+  const previousAnswerCountRef = useRef<number | null>(null);
 
   // 최초 로드: 저장된 진행 상황 확인 + 분석용 메타데이터 기록
   useEffect(() => {
@@ -57,12 +67,14 @@ export default function TestPage() {
     if (saved) {
       setResumeData(saved);
     }
-    if (!sessionStorage.getItem(TEST_START_TIME_KEY)) {
-      sessionStorage.setItem(TEST_START_TIME_KEY, String(Date.now()));
-    }
-    if (!sessionStorage.getItem(TEST_REFERRER_KEY)) {
-      sessionStorage.setItem(TEST_REFERRER_KEY, document.referrer || 'direct');
-    }
+    tryStorage(() => {
+      if (!sessionStorage.getItem(TEST_START_TIME_KEY)) {
+        sessionStorage.setItem(TEST_START_TIME_KEY, String(Date.now()));
+      }
+      if (!sessionStorage.getItem(TEST_REFERRER_KEY)) {
+        sessionStorage.setItem(TEST_REFERRER_KEY, document.referrer || 'direct');
+      }
+    });
     setReady(true);
   }, []);
 
@@ -82,7 +94,7 @@ export default function TestPage() {
     if (ready && answers.length >= questions.length && !finishing) {
       navigatedRef.current = false;
       setFinishing(true);
-      localStorage.removeItem(STORAGE_KEY);
+      tryStorage(() => localStorage.removeItem(STORAGE_KEY));
       const result = calculateResult(answers);
       const style = styleTypes[result.styleKey];
       const entry = addHistoryEntry({
@@ -96,6 +108,17 @@ export default function TestPage() {
     }
   }, [answers, ready, finishing]);
 
+  // 다음(또는 이전) 문항은 맨 위에서 시작하고, 스크린리더가 새 상황을 읽도록 제목으로 포커스를 옮긴다.
+  useEffect(() => {
+    if (!ready || finishing || resumeData) return;
+    const previous = previousAnswerCountRef.current;
+    previousAnswerCountRef.current = answers.length;
+    if (previous === null || previous === answers.length) return;
+    window.scrollTo({ top: 0 });
+    containerRef.current?.closest('main')?.scrollTo({ top: 0 });
+    questionHeadingRef.current?.focus({ preventScroll: true });
+  }, [answers.length, ready, finishing, resumeData]);
+
   const handleResume = () => {
     if (resumeData) {
       setAnswers(resumeData.answers);
@@ -105,8 +128,10 @@ export default function TestPage() {
   };
 
   const handleStartNew = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    sessionStorage.setItem(TEST_START_TIME_KEY, String(Date.now()));
+    tryStorage(() => {
+      localStorage.removeItem(STORAGE_KEY);
+      sessionStorage.setItem(TEST_START_TIME_KEY, String(Date.now()));
+    });
     setAnswers([]);
     setShuffleSeed(Math.floor(Math.random() * ADULT_SHUFFLE_SEED_RANGE));
     setResumeData(null);
@@ -129,7 +154,8 @@ export default function TestPage() {
     const url = new URL(resultUrlRef.current, window.location.origin);
     const displayName = normalizeDisplayName(shareNameRef.current);
     if (displayName) url.searchParams.set('name', displayName);
-    router.push(`${url.pathname}${url.search}`);
+    // 끝난 테스트 화면을 기록에서 결과로 바꿔, 뒤로가기가 빈 1번 문항으로 돌아가지 않게 한다.
+    router.replace(`${url.pathname}${url.search}`);
   }, [router]);
 
   useEffect(() => {
@@ -234,7 +260,7 @@ export default function TestPage() {
   if (!question) return null;
 
   return (
-    <div className="adult-question-page relative -mx-6 -mb-6 -mt-4 flex flex-1 flex-col px-6 pb-6 pt-4 sm:-mx-6 sm:-mb-8 sm:-mt-6 sm:px-6 sm:pb-8 sm:pt-6">
+    <div ref={containerRef} className="adult-question-page relative -mx-6 -mb-6 -mt-4 flex flex-1 flex-col px-6 pb-6 pt-4 sm:-mx-6 sm:-mb-8 sm:-mt-6 sm:px-6 sm:pb-8 sm:pt-6">
 
       <div className="adult-question-content relative z-10">
         <div className="mb-4 flex items-center justify-between border-b border-[var(--color-border)] pb-3">
@@ -243,14 +269,14 @@ export default function TestPage() {
             {answers.length > 0 && (
               <button
                 onClick={handleBack}
-                className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
+                className="min-h-11 rounded-full border border-[var(--color-border)] px-3.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
               >
                 ← 이전
               </button>
             )}
             <button
               onClick={handleQuit}
-              className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
+              className="min-h-11 rounded-full border border-[var(--color-border)] px-3.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
             >
               중단
             </button>
@@ -263,6 +289,7 @@ export default function TestPage() {
           questionIndex={answers.length}
           shuffleSeed={shuffleSeed}
           onSelect={handleSelect}
+          headingRef={questionHeadingRef}
           categoryIcon={<AdultIcon name={categoryIcons[question.category] ?? 'document'} size={18} />}
         />
       </div>

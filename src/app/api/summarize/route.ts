@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chat } from '@/lib/ai';
 import { styleTypes } from '@/diagnostics/adult-integrity';
-import { MAX_CONTENT_LENGTH } from '@/lib/constants';
+import { MAX_CONTENT_LENGTH, MAX_CHAT_REQUEST_BYTES } from '@/lib/constants';
 import { SUMMARIZE_SYSTEM_PROMPT } from '@/lib/prompts';
-import { sanitizeHistory, sanitizeUserInput } from '@/lib/sanitize';
+import { sanitizeHistory, sanitizeUserInput, trimHistoryToLimit, redactHistoryPii, scanAndRedactPii } from '@/lib/sanitize';
+import { readJsonBodyWithLimit } from '@/lib/request-body';
 import { checkScopedRateLimit } from '@/lib/rate-limit';
 import { getAiRuntimeEnv } from '@/lib/runtime-env';
 import { AI_CHAT_ENABLED } from '@/data/appVariant';
@@ -32,7 +33,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const parsed = await readJsonBodyWithLimit(request, MAX_CHAT_REQUEST_BYTES);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.body as Record<string, unknown> | null;
     if (typeof body !== 'object' || body === null) {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
@@ -45,12 +48,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid styleKey' }, { status: 400 });
     }
 
-    const safeHistory = sanitizeHistory(history);
+    const safeHistory = redactHistoryPii(trimHistoryToLimit(sanitizeHistory(history)));
     if (safeHistory.length === 0) {
       return NextResponse.json({ error: 'history is required' }, { status: 400 });
     }
 
-    const safeSummary = typeof summary === 'string' ? sanitizeUserInput(summary.slice(0, MAX_CONTENT_LENGTH)) : '';
+    const safeSummary = typeof summary === 'string'
+      ? scanAndRedactPii(sanitizeUserInput(summary.slice(0, MAX_CONTENT_LENGTH))).redacted
+      : '';
     const conversation = safeHistory
       .map(m => `${m.role === 'user' ? '사용자' : 'AI'}: ${m.content}`)
       .join('\n');

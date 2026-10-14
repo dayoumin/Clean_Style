@@ -21,30 +21,31 @@ export default function BottomSheet({
     if (e.target === e.currentTarget) onClose();
   };
 
-  const handleDialogKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key !== 'Tab') return;
-
-    const focusable = sheetRef.current?.querySelectorAll<HTMLElement>(
-      'button, [href], textarea, input, select, [tabindex]:not([tabindex="-1"])',
-    );
-    if (!focusable?.length) return;
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault();
-      last.focus();
-    }
-
-    if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
-    }
-  };
-
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || !sheetRef.current) return;
+
+      // 문서 단위로 잡아서, 포커스가 시트 밖(body 등)으로 빠진 뒤에도 시트 안으로 되돌린다.
+      const focusable = Array.from(sheetRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], textarea, input:not([disabled]), select, [tabindex]:not([tabindex="-1"])',
+      ));
+      if (focusable.length === 0) {
+        e.preventDefault();
+        sheetRef.current.focus();
+        return;
+      }
+
+      const index = focusable.indexOf(document.activeElement as HTMLElement);
+      const wrap = e.shiftKey ? index <= 0 : index === -1 || index === focusable.length - 1;
+      if (wrap) {
+        e.preventDefault();
+        focusable[e.shiftKey ? focusable.length - 1 : 0].focus();
+      }
+    };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
@@ -81,8 +82,7 @@ export default function BottomSheet({
         aria-modal="true"
         aria-label={hideHeader ? title : undefined}
         aria-labelledby={hideHeader ? undefined : titleId}
-        tabIndex={hideHeader ? -1 : undefined}
-        onKeyDown={handleDialogKeyDown}
+        tabIndex={-1}
         className="animate-slide-up flex max-h-[88dvh] w-full max-w-md flex-col rounded-t-[20px] bg-[var(--color-bg)] shadow-xl sm:max-h-[82vh] sm:rounded-[20px]"
       >
         {!hideHeader && (
@@ -93,9 +93,11 @@ export default function BottomSheet({
               type="button"
               onClick={onClose}
               aria-label="닫기"
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-card)] text-[var(--color-text-muted)] hover:bg-[var(--color-border)]"
+              className="group -mr-1.5 flex h-11 w-11 items-center justify-center rounded-full"
             >
-              ✕
+              <span aria-hidden="true" className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-card)] text-[var(--color-text-muted)] group-hover:bg-[var(--color-border)]">
+                ✕
+              </span>
             </button>
           </div>
         )}

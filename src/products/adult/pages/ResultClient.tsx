@@ -61,11 +61,15 @@ export default function ResultContent() {
   useEffect(() => {
     if (isNew && !isShared && !savedRef.current && answers) {
       savedRef.current = true;
-      const startTime = Number(sessionStorage.getItem(TEST_START_TIME_KEY) || 0);
-      const durationSec = startTime ? Math.round((Date.now() - startTime) / 1000) : undefined;
-      const referrer = sessionStorage.getItem(TEST_REFERRER_KEY) || undefined;
-      sessionStorage.removeItem(TEST_START_TIME_KEY);
-      sessionStorage.removeItem(TEST_REFERRER_KEY);
+      let durationSec: number | undefined;
+      let referrer: string | undefined;
+      try {
+        const startTime = Number(sessionStorage.getItem(TEST_START_TIME_KEY) || 0);
+        durationSec = startTime ? Math.round((Date.now() - startTime) / 1000) : undefined;
+        referrer = sessionStorage.getItem(TEST_REFERRER_KEY) || undefined;
+        sessionStorage.removeItem(TEST_START_TIME_KEY);
+        sessionStorage.removeItem(TEST_REFERRER_KEY);
+      } catch { /* 저장소가 막혀 있으면 소요 시간·유입 경로 없이 저장 */ }
       fetch('/api/results', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getClientIdHeader() },
@@ -213,7 +217,7 @@ export default function ResultContent() {
       {toastVisible && (
         <div role="status" aria-live="polite" aria-atomic="true" className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 animate-slide-up rounded-[var(--radius-md)] px-5 py-2.5 text-[13px] font-semibold shadow-lg ${
           toastType === 'warning'
-            ? 'bg-amber-600 text-white'
+            ? 'bg-amber-800 text-white'
             : 'bg-[var(--color-primary)] text-white'
         }`}>
           {toastMessage}
@@ -225,7 +229,7 @@ export default function ResultContent() {
           title="AI 조언"
           loading={chat.aiLoading}
           messages={chat.chatHistory}
-          currentUserMessage={chat.aiLoading ? chat.userContext : ''}
+          currentUserMessage={chat.aiLoading ? chat.pendingQuestion : ''}
           streamingAnswer={chat.aiAnswer}
           inputValue={chat.userContext}
           onInputChange={chat.setUserContext}

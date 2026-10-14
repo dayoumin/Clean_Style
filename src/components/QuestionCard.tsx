@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, type ReactNode, type Ref } from 'react';
 import type { Question } from '@/diagnostics/adult-integrity';
 import { seededShuffle } from '@/lib/utils';
 import { FluentEmoji } from '@/components/FluentEmoji';
@@ -11,6 +11,7 @@ interface QuestionCardProps {
   shuffleSeed: number;
   onSelect: (choiceIndex: number) => void;
   categoryIcon?: ReactNode;
+  headingRef?: Ref<HTMLHeadingElement>;
 }
 
 const categoryInfo: Record<string, { label: string; emoji: string }> = {
@@ -22,7 +23,7 @@ const categoryInfo: Record<string, { label: string; emoji: string }> = {
 const choiceLabels = ['A', 'B', 'C', 'D'];
 
 
-export default function QuestionCard({ question, questionIndex, shuffleSeed, onSelect, categoryIcon }: QuestionCardProps) {
+export default function QuestionCard({ question, questionIndex, shuffleSeed, onSelect, categoryIcon, headingRef }: QuestionCardProps) {
   const cat = categoryInfo[question.category];
 
   const shuffledChoices = useMemo(() => {
@@ -44,7 +45,7 @@ export default function QuestionCard({ question, questionIndex, shuffleSeed, onS
       </div>
 
       {/* 상황 설명 */}
-      <h2 className="mb-8 text-[18px] font-semibold leading-[1.65] tracking-tight text-[var(--color-text)]">
+      <h2 ref={headingRef} tabIndex={-1} className="mb-8 text-[18px] font-semibold leading-[1.65] tracking-tight text-[var(--color-text)] focus:outline-none">
         {question.situation}
       </h2>
 

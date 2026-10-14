@@ -43,14 +43,14 @@ function HistoryItem({
       </div>
       <button
         onClick={onView}
-        className={`min-h-9 rounded-full bg-[var(--color-primary-soft)] px-3 py-1.5 text-[12px] font-semibold text-[var(--color-primary-accent)] hover:bg-[var(--color-primary-muted)] ${focusRing}`}
+        className={`min-h-11 rounded-full bg-[var(--color-primary-soft)] px-3.5 py-1.5 text-[12px] font-semibold text-[var(--color-primary-accent)] hover:bg-[var(--color-primary-muted)] ${focusRing}`}
       >
         보기
       </button>
       <button
         onClick={onDelete}
         aria-label={`${entry.styleName} 삭제`}
-        className={`min-h-9 rounded-full px-2.5 py-1.5 text-[12px] text-[var(--color-text-muted)] hover:text-red-500 ${focusRing}`}
+        className={`min-h-11 min-w-11 rounded-full px-2.5 py-1.5 text-[12px] text-[var(--color-text-muted)] hover:text-red-500 ${focusRing}`}
       >
         ✕
       </button>
@@ -112,7 +112,7 @@ export default function HistoryList({
           aria-haspopup="dialog"
           aria-expanded={showModal}
           onClick={() => setShowModal(true)}
-          className={`inline-flex min-h-10 items-center justify-center rounded-full px-4 text-[12px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)] hover:text-[var(--color-text-secondary)] ${focusRing} ${buttonClassName}`}
+          className={`inline-flex min-h-11 items-center justify-center rounded-full px-4 text-[12px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)] hover:text-[var(--color-text-secondary)] ${focusRing} ${buttonClassName}`}
         >
           {buttonLabel}
         </button>
