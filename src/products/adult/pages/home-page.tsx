@@ -12,7 +12,7 @@ import { AdultIcon, AdultStyleIcon, type AdultIconName } from '../components/Adu
 const infoChips: { icon: AdultIconName; title: string; detail: string }[] = [
   { icon: 'document', title: '15개 상황', detail: '업무 중 겪을 수 있는 15가지 상황에 대해 답해보는 테스트입니다.' },
   { icon: 'clock', title: '약 3분', detail: '잠깐 시간을 내어 일상 속 선택을 돌아보세요. 자신의 속도로 편하게 답하면 됩니다.' },
-  { icon: 'heart', title: '오답 없음', detail: '정답·오답이 없는 테스트입니다. 생각대로 편하게 선택하세요.' },
+  { icon: 'heart', title: '정답 없음', detail: '정답·오답이 없는 테스트입니다. 생각대로 편하게 선택하세요.' },
 ];
 
 const historyIcons = {

@@ -139,8 +139,8 @@ export default function TestPage() {
 
   const handleBack = () => setAnswers(prev => prev.slice(0, -1));
 
+  // 진행 상황은 남겨 두고 나간다. 다시 들어오면 이어하기/처음부터를 고를 수 있다.
   const handleQuit = () => {
-    tryStorage(() => localStorage.removeItem(STORAGE_KEY));
     router.push('/');
   };
 
