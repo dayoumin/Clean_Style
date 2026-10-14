@@ -11,4 +11,7 @@ export const studentIntegrityDefinition: DiagnosticDefinition = {
   resultMode: 'unscored-feedback',
 };
 
-export const STUDENT_PROTOTYPE_FORM_ID = 'student-prototype-form-p0';
+export const STUDENT_DEMO_FORM_ID = 'student-demo-form-v1';
+export const STUDENT_DEMO_CONTENT_VERSION = 'student-demo-content-v1';
+export const STUDENT_DEMO_FEEDBACK_VERSION = 'student-demo-feedback-v1';
+export const STUDENT_EXPERIENCE_MODE = 'contest-demo';

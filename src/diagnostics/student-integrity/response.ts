@@ -4,12 +4,12 @@ import type {
   StudentScenario,
 } from './types';
 import {
-  STUDENT_PROTOTYPE_FORM_ID,
+  STUDENT_DEMO_FORM_ID,
   studentIntegrityDefinition,
 } from './definition';
-import { studentPrototypeScenarios } from './prototype-content';
+import { studentDemoScenarios } from './prototype-content';
 
-export const STUDENT_RESPONSE_STORAGE_KEY = 'student-integrity-prototype-response-v1';
+export const STUDENT_RESPONSE_STORAGE_KEY = 'student-integrity-demo-response-v1';
 
 export function createStudentResponseEnvelope(
   responses: StudentItemResponse[],
@@ -24,7 +24,7 @@ export function createStudentResponseEnvelope(
     instrumentId: 'student-integrity',
     instrumentVersion: studentIntegrityDefinition.instrumentVersion,
     scoringVersion: studentIntegrityDefinition.scoringVersion,
-    formId: STUDENT_PROTOTYPE_FORM_ID,
+    formId: STUDENT_DEMO_FORM_ID,
     phase: 'initial',
     status,
     responseMode: 'unscored',
@@ -53,7 +53,7 @@ export function isValidStudentResponseEnvelope(
     || record.instrumentId !== 'student-integrity'
     || record.instrumentVersion !== studentIntegrityDefinition.instrumentVersion
     || record.scoringVersion !== studentIntegrityDefinition.scoringVersion
-    || record.formId !== STUDENT_PROTOTYPE_FORM_ID
+    || record.formId !== STUDENT_DEMO_FORM_ID
     || record.phase !== 'initial'
     || (record.status !== 'in-progress' && record.status !== 'completed' && record.status !== 'abandoned')
     || record.responseMode !== 'unscored'
@@ -66,7 +66,7 @@ export function isValidStudentResponseEnvelope(
   }
 
   const scenariosById = new Map<string, StudentScenario>(
-    studentPrototypeScenarios.map((scenario) => [scenario.id, scenario]),
+    studentDemoScenarios.map((scenario) => [scenario.id, scenario]),
   );
   const seenQuestionIds = new Set<string>();
 
@@ -97,7 +97,7 @@ export function isValidStudentResponseEnvelope(
   if (!responsesAreValid) return false;
   if (record.status === 'completed') {
     return record.completedAt !== null
-      && seenQuestionIds.size === studentPrototypeScenarios.length;
+      && seenQuestionIds.size === studentDemoScenarios.length;
   }
 
   return record.completedAt === null;
