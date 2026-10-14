@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MAX_HISTORY_MESSAGES, SUMMARIZE_AT_MESSAGES } from '@/lib/constants';
+import { MAX_HISTORY_MESSAGES } from '@/lib/constants';
+import { shouldSummarizeChat } from '@/lib/chat-summary-policy';
 import { getHistoryEntry, updateChat, clearChat, type ChatMessage } from '@/lib/history';
 import { compressHistoryToSummary } from '@/lib/compress-history';
 import { getClientIdHeader } from '@/lib/client-id';
@@ -64,9 +65,16 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     summarizingRef.current = true;
     const controller = new AbortController();
     summarizeAbortRef.current = controller;
+    const currentSummary = chatSummaryRef.current;
+    const messagesToSummarize = currentSummary ? messages.slice(summarizedUpToRef.current) : messages;
+    const applySummary = (summary: string) => {
+      if (controller.signal.aborted || summarizeAbortRef.current !== controller) return;
+      chatSummaryRef.current = summary;
+      summarizedUpToRef.current = messages.length;
+      setChatSummary(summary);
+      setSummarizedUpTo(messages.length);
+    };
     try {
-      const currentSummary = chatSummaryRef.current;
-      const messagesToSummarize = currentSummary ? messages.slice(-SUMMARIZE_AT_MESSAGES) : messages;
       const res = await fetch('/api/summarize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...getClientIdHeader() },
@@ -79,29 +87,28 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
       });
       if (res.ok) {
         const data = await res.json();
-        setChatSummary(data.summary);
-        setSummarizedUpTo(messages.length);
+        if (controller.signal.aborted || summarizeAbortRef.current !== controller) return;
+        applySummary(data.summary);
       } else {
+        if (controller.signal.aborted || summarizeAbortRef.current !== controller) return;
         // LLM 요약 실패 → 문자열 축약 fallback
-        setChatSummary(compressHistoryToSummary(messagesToSummarize, currentSummary || undefined));
-        setSummarizedUpTo(messages.length);
+        applySummary(compressHistoryToSummary(messagesToSummarize, currentSummary || undefined));
       }
     } catch {
       // 네트워크 실패/취소 → 문자열 축약 fallback (취소 제외)
-      if (!controller.signal.aborted) {
-        const currentSummary = chatSummaryRef.current;
-        const messagesToSummarize = currentSummary ? messages.slice(-SUMMARIZE_AT_MESSAGES) : messages;
-        setChatSummary(compressHistoryToSummary(messagesToSummarize, currentSummary || undefined));
-        setSummarizedUpTo(messages.length);
+      if (!controller.signal.aborted && summarizeAbortRef.current === controller) {
+        applySummary(compressHistoryToSummary(messagesToSummarize, currentSummary || undefined));
       }
     } finally {
-      summarizingRef.current = false;
+      if (summarizeAbortRef.current === controller) summarizingRef.current = false;
     }
   }, [styleKey]);
 
   useEffect(() => {
     // historyId 전환 시 이전 요약 요청 취소 (stale summary 방지)
     summarizeAbortRef.current?.abort();
+    chatSummaryRef.current = '';
+    summarizedUpToRef.current = 0;
     setChatSummary('');
     setSummarizedUpTo(0);
     if (!historyId) {
@@ -112,7 +119,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     if (entry?.chat.length) {
       chatLoadedRef.current = true;
       setChatHistory(entry.chat);
-      if (entry.chat.length >= SUMMARIZE_AT_MESSAGES) {
+      if (entry.chat.length < MAX_HISTORY_MESSAGES && shouldSummarizeChat(entry.chat)) {
         triggerSummarize(entry.chat);
       }
     } else {
@@ -142,7 +149,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
 
   const fetchAnswer = useCallback(async () => {
     const question = userContextRef.current.trim();
-    if (!question) return;
+    if (!question || chatHistoryRef.current.length >= MAX_HISTORY_MESSAGES) return;
     abortRef.current?.abort();
     setAiLoading(true);
     setAiErrorType(null);
@@ -233,18 +240,20 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
       const trimCount = raw.length - MAX_HISTORY_MESSAGES;
       const newHistory = trimCount > 0 ? raw.slice(trimCount) : raw;
 
-      const newSummarizedUpTo = (trimCount > 0 && currentSummarizedUpTo > 0)
-        ? Math.max(0, currentSummarizedUpTo - trimCount)
-        : currentSummarizedUpTo;
+      const latestSummarizedUpTo = summarizedUpToRef.current;
+      const newSummarizedUpTo = (trimCount > 0 && latestSummarizedUpTo > 0)
+        ? Math.max(0, latestSummarizedUpTo - trimCount)
+        : latestSummarizedUpTo;
 
-      if (trimCount > 0 && currentSummarizedUpTo > 0) {
+      if (trimCount > 0 && latestSummarizedUpTo > 0) {
+        summarizedUpToRef.current = newSummarizedUpTo;
         setSummarizedUpTo(newSummarizedUpTo);
       }
 
       setChatHistory(newHistory);
+      setUserContext('');
 
-      const unsummarized = newHistory.length - newSummarizedUpTo;
-      if (unsummarized >= SUMMARIZE_AT_MESSAGES && !summarizingRef.current) {
+      if (newHistory.length < MAX_HISTORY_MESSAGES && shouldSummarizeChat(newHistory, newSummarizedUpTo) && !summarizingRef.current) {
         triggerSummarize(newHistory);
       }
     } catch (err) {
@@ -267,6 +276,10 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
   const resetChat = useCallback(() => {
     abortRef.current?.abort();
     summarizeAbortRef.current?.abort();
+    chatHistoryRef.current = [];
+    chatSummaryRef.current = '';
+    summarizedUpToRef.current = 0;
+    userContextRef.current = '';
     setAiLoading(false);
     clearChatUI();
     setChatHistory([]);

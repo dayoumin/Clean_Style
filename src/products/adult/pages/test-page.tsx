@@ -3,26 +3,29 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { questions, calculateResult, styleTypes } from '@/diagnostics/adult-integrity';
+import { ADULT_SHUFFLE_SEED_RANGE, parseAdultTestProgress, type AdultTestProgress } from '@/diagnostics/adult-integrity/progress';
 import ProgressBar from '@/components/ProgressBar';
 import QuestionCard from '@/components/QuestionCard';
-import { LeafLineArt } from '@/components/LeafLineArt';
 import { addHistoryEntry } from '@/lib/history';
 import { buildResultUrl } from '@/lib/utils';
 import { TEST_START_TIME_KEY, TEST_REFERRER_KEY } from '@/lib/constants';
 import { AnalyzingScreen } from '@/components/LoadingFairy';
 import { normalizeDisplayName, MAX_DISPLAY_NAME_LENGTH } from '@/lib/display-name';
+import { adultCommonArtwork } from '@/diagnostics/adult-integrity/artwork';
+import AdultArtwork from '../components/AdultArtwork';
+import QuestionSeaweed from '../components/QuestionSeaweed';
+import { AdultIcon, type AdultIconName } from '../components/AdultIcon';
+
+const categoryIcons: Record<string, AdultIconName> = { research: 'research', admin: 'document', relation: 'handshake' };
 
 const STORAGE_KEY = 'integrity-test-progress';
-const AUTO_RESULT_DELAY_SECONDS = 10;
+const AUTO_RESULT_DELAY_SECONDS = 7;
 
-function loadProgress(): { answers: number[]; seed: number } | null {
+function loadProgress(): AdultTestProgress | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const data = JSON.parse(raw);
-    if (Array.isArray(data.answers) && data.answers.length > 0 && data.answers.length < questions.length) {
-      return data;
-    }
+    const saved = parseAdultTestProgress(localStorage.getItem(STORAGE_KEY));
+    if (!saved) localStorage.removeItem(STORAGE_KEY);
+    return saved;
   } catch { /* ignore */ }
   return null;
 }
@@ -38,8 +41,8 @@ function saveProgress(answers: number[], seed: number) {
 export default function TestPage() {
   const router = useRouter();
   const [answers, setAnswers] = useState<number[]>([]);
-  const [shuffleSeed, setShuffleSeed] = useState(() => Math.floor(Math.random() * 100000));
-  const [resumeData, setResumeData] = useState<{ answers: number[]; seed: number } | null>(null);
+  const [shuffleSeed, setShuffleSeed] = useState(() => Math.floor(Math.random() * ADULT_SHUFFLE_SEED_RANGE));
+  const [resumeData, setResumeData] = useState<AdultTestProgress | null>(null);
   const [ready, setReady] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [shareName, setShareName] = useState('');
@@ -63,10 +66,11 @@ export default function TestPage() {
     setReady(true);
   }, []);
 
-  // 답변 변경 시 자동 저장 (0개면 제거)
+  // 복원 확인과 이어하기/처음부터 결정 전에는 저장된 진행을 덮어쓰지 않음.
   useEffect(() => {
+    if (!ready || resumeData) return;
     saveProgress(answers, shuffleSeed);
-  }, [answers, shuffleSeed]);
+  }, [ready, resumeData, answers, shuffleSeed]);
 
   useEffect(() => {
     shareNameRef.current = shareName;
@@ -104,7 +108,7 @@ export default function TestPage() {
     localStorage.removeItem(STORAGE_KEY);
     sessionStorage.setItem(TEST_START_TIME_KEY, String(Date.now()));
     setAnswers([]);
-    setShuffleSeed(Math.floor(Math.random() * 100000));
+    setShuffleSeed(Math.floor(Math.random() * ADULT_SHUFFLE_SEED_RANGE));
     setResumeData(null);
   };
 
@@ -156,6 +160,7 @@ export default function TestPage() {
       <AnalyzingScreen
         autoComplete={false}
         onDone={handleViewResult}
+        artwork={<AdultArtwork src={adultCommonArtwork.pause} className="adult-neutral-art" eager />}
       >
         <div className="mt-7 w-full max-w-xs rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-4 shadow-sm">
           <label className="block text-left text-[12px] font-bold text-[var(--color-text-muted)]" htmlFor="share-name">
@@ -229,11 +234,9 @@ export default function TestPage() {
   if (!question) return null;
 
   return (
-    <div className="relative -mx-6 -mb-6 -mt-4 flex flex-1 flex-col overflow-hidden bg-white px-6 pb-6 pt-4 sm:-mx-6 sm:-mb-8 sm:-mt-6 sm:px-6 sm:pb-8 sm:pt-6">
-      <LeafLineArt className="pointer-events-none absolute -right-16 top-16 h-52 w-52 text-[#b9c8aa] opacity-[0.16]" />
-      <LeafLineArt className="pointer-events-none absolute -left-24 bottom-10 h-56 w-56 rotate-[-18deg] text-[#cbd6c0] opacity-[0.14]" />
+    <div className="adult-question-page relative -mx-6 -mb-6 -mt-4 flex flex-1 flex-col px-6 pb-6 pt-4 sm:-mx-6 sm:-mb-8 sm:-mt-6 sm:px-6 sm:pb-8 sm:pt-6">
 
-      <div className="relative z-10">
+      <div className="adult-question-content relative z-10">
         <div className="mb-4 flex items-center justify-between border-b border-[var(--color-border)] pb-3">
           <h1 className="text-[17px] font-bold text-[var(--color-text)]">나의 청렴 스타일은?</h1>
           <div className="flex gap-1.5">
@@ -260,8 +263,10 @@ export default function TestPage() {
           questionIndex={answers.length}
           shuffleSeed={shuffleSeed}
           onSelect={handleSelect}
+          categoryIcon={<AdultIcon name={categoryIcons[question.category] ?? 'document'} size={18} />}
         />
       </div>
+      <QuestionSeaweed questionIndex={answers.length} />
     </div>
   );
 }

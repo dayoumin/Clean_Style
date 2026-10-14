@@ -2,6 +2,10 @@
 
 ## 우선 확인
 
+### 성인 테스트 이어하기 결함 (2026-10-14 확인)
+- [x] 이어하기 선택 전 진행 기록 보존 — 2026-10-14 수정: 최초 읽기 완료 및 이어하기·처음부터 선택 전에는 자동 저장을 실행하지 않음. 에이전트 검토 후 실제 Edge에서 안내 중 두 번 새로고침, 이어하기 후 다시 저장·복원, 답안·선택지 순서 유지, 처음부터·이전·중단·완료를 확인. 증거: `artifacts/resume-fix/result.json`.
+- [x] 손상된 이어하기 답안 거절 — 2026-10-14 수정: 성인 진단 소유 `progress.ts`에서 문항별 선택지 인덱스와 기존 생성 범위의 정수 seed를 검증. 잘못된 기록은 제거하고 새 테스트로 이동하며 이전 완료 결과는 보존. 정상 기존 기록은 그대로 복원. 관련 테스트 79개와 브라우저 시뮬레이션 13개 통과, 이어한 정상 15답안의 순점수 `(14,0,9)` 및 그래프 정상 확인. 수정 전 증거: `artifacts/score-review/progress-browser.json`; 수정 후: `artifacts/resume-fix/result.json`.
+
 ### API 키 설정
 - [ ] OpenRouter API 키 확인 — https://openrouter.ai/settings/keys 에서 Active 상태 + 크레딧 잔액 확인
 - [ ] 로컬: `.env.local`에 `OPENROUTER_API_KEY=sk-or-v1-...` 설정

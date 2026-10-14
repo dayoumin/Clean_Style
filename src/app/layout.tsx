@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "../styles/globals.css";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
-import { APP_COPY } from "@/data/appVariant";
+import { APP_COPY, IS_STUDENT_VARIANT } from "@/data/appVariant";
+import { ADULT_THEME_COLOR } from "@/products/adult/theme";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -18,6 +19,10 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
+  icons: IS_STUDENT_VARIANT ? undefined : {
+    icon: [{ url: '/icon', type: 'image/png' }],
+    apple: [{ url: '/apple-icon', type: 'image/png' }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -28,7 +33,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#4f46e5",
+  themeColor: IS_STUDENT_VARIANT ? "#4f46e5" : ADULT_THEME_COLOR,
 };
 
 export default function RootLayout({

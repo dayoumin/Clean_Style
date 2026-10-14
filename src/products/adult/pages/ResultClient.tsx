@@ -4,16 +4,23 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { styleTypes, computeSixAxisScores, type StyleType } from '@/diagnostics/adult-integrity';
 import StyleRadarChart from '@/components/StyleRadarChart';
-import { TEST_START_TIME_KEY, TEST_REFERRER_KEY } from '@/lib/constants';
+import { TEST_START_TIME_KEY, TEST_REFERRER_KEY, MAX_HISTORY_MESSAGES } from '@/lib/constants';
 import { AnalyzingScreen } from '@/components/LoadingFairy';
 import { useAiChat } from '@/hooks/useAiChat';
-import { FluentEmoji } from '@/components/FluentEmoji';
-import { LeafLineArt } from '@/components/LeafLineArt';
 import { getClientIdHeader } from '@/lib/client-id';
 import { formatNamedResultTitle, normalizeDisplayName } from '@/lib/display-name';
-import { cn } from '@/lib/utils';
 import AiAdviceSheet from '@/components/AiAdviceSheet';
 import { AI_CHAT_ENABLED } from '@/data/appVariant';
+import { adultCommonArtwork, getAdultResultArtwork } from '@/diagnostics/adult-integrity/artwork';
+import { parseAdultResultAnswers } from '@/diagnostics/adult-integrity/result-answers';
+import AdultArtwork from '../components/AdultArtwork';
+import { AdultIcon } from '../components/AdultIcon';
+
+const RESULT_TABS = [
+  { key: 'strength' as const, label: '강점' },
+  { key: 'caution' as const, label: '주의' },
+  { key: 'tip' as const, label: '팁' },
+];
 
 export default function ResultContent() {
   const searchParams = useSearchParams();
@@ -27,7 +34,6 @@ export default function ResultContent() {
   const [toastType, setToastType] = useState<'default' | 'warning'>('default');
   const toastTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [activeTab, setActiveTab] = useState<'strength' | 'caution' | 'tip'>('strength');
-  const [showAiComposer, setShowAiComposer] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const focusTextarea = useCallback(() => {
@@ -45,15 +51,15 @@ export default function ResultContent() {
     independence: Number(iRaw),
   }), [pRaw, tRaw, iRaw]);
   const answersRaw = searchParams.get('a') ?? '';
-  const answers = useMemo(() => answersRaw.split(',').map(Number), [answersRaw]);
-  const sixAxis = useMemo(() => computeSixAxisScores(answers), [answers]);
+  const answers = useMemo(() => parseAdultResultAnswers(answersRaw), [answersRaw]);
+  const sixAxis = useMemo(() => answers ? computeSixAxisScores(answers) : undefined, [answers]);
   const displayName = normalizeDisplayName(searchParams.get('name'));
 
   const chat = useAiChat({ styleKey, historyId, scores });
 
   const savedRef = useRef(false);
   useEffect(() => {
-    if (isNew && !isShared && !savedRef.current && answers.length > 0) {
+    if (isNew && !isShared && !savedRef.current && answers) {
       savedRef.current = true;
       const startTime = Number(sessionStorage.getItem(TEST_START_TIME_KEY) || 0);
       const durationSec = startTime ? Math.round((Date.now() - startTime) / 1000) : undefined;
@@ -76,7 +82,7 @@ export default function ResultContent() {
     return () => clearTimeout(toastTimerRef.current);
   }, []);
 
-  const style: StyleType | undefined = styleTypes[styleKey];
+  const style: StyleType | undefined = Object.prototype.hasOwnProperty.call(styleTypes, styleKey) ? styleTypes[styleKey] : undefined;
   const resultTitle = style ? formatNamedResultTitle(displayName, style.name) : '';
 
   const getShareUrl = () => {
@@ -95,9 +101,11 @@ export default function ResultContent() {
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(getShareUrl()).then(() => {
+    Promise.resolve().then(() => navigator.clipboard.writeText(getShareUrl())).then(() => {
       showToast('링크가 복사되었어요');
-    }).catch(() => {});
+    }).catch(() => {
+      showToast('링크를 복사하지 못했어요. 브라우저의 주소를 복사해 주세요.', 'warning');
+    });
   };
 
   // PII 경고 감지 시 토스트 표시
@@ -109,43 +117,22 @@ export default function ResultContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chat.piiWarning]);
 
-  useEffect(() => {
-    if (showModal && !chat.aiLoading && chat.aiAnswer) {
-      setShowAiComposer(false);
-    }
-  }, [chat.aiAnswer, chat.aiLoading, showModal]);
-
   const openAiAdvice = useCallback(() => {
-    const shouldShowComposer = chat.chatHistory.length === 0;
     setShowModal(true);
-    setShowAiComposer(shouldShowComposer);
     chat.scrollToBottom();
-    if (shouldShowComposer) focusTextarea();
-  }, [chat.chatHistory.length, chat.scrollToBottom, focusTextarea]);
+    if (!chat.chatMaxReached) focusTextarea();
+  }, [chat.chatMaxReached, chat.scrollToBottom, focusTextarea]);
 
   const closeAiAdvice = useCallback(() => {
     if (chat.aiLoading) return;
     setShowModal(false);
-    setShowAiComposer(false);
     chat.clearInput();
   }, [chat]);
 
   const resetAiConversation = useCallback(() => {
     chat.deleteChat();
-    setShowAiComposer(true);
     focusTextarea();
   }, [chat, focusTextarea]);
-
-  const showComposer = useCallback(() => {
-    chat.clearInput();
-    setShowAiComposer(true);
-    focusTextarea();
-  }, [chat, focusTextarea]);
-
-  const hideComposer = useCallback(() => {
-    chat.clearInput();
-    setShowAiComposer(false);
-  }, [chat]);
 
   if (!style) {
     return (
@@ -163,114 +150,68 @@ export default function ResultContent() {
 
   return (
     <>
-      {analyzing && <AnalyzingScreen onDone={() => setAnalyzing(false)} />}
-      <div className={analyzing ? 'hidden' : 'flex flex-col animate-fade-in'}>
-      <div className="flex-1 animate-slide-up">
-        <div className="result-gradient relative z-0 mb-2 overflow-hidden rounded-[var(--radius-xl)] px-6 pt-12 pb-4 text-center text-white shadow-lg">
-          <LeafLineArt className="pointer-events-none absolute -right-12 top-2 h-40 w-40 text-white opacity-[0.10]" />
-          <LeafLineArt className="pointer-events-none absolute -left-16 bottom-[-52px] h-44 w-44 rotate-[-18deg] text-white opacity-[0.08]" />
-          <span className="absolute left-4 top-3 z-20 rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold tracking-wide text-white/80 backdrop-blur-sm">
-            청렴 스타일
-          </span>
-          {!isShared && (
-            <button
-              onClick={handleCopyLink}
-              className="absolute right-4 top-3 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-white/80 backdrop-blur-sm hover:bg-white/25 transition-colors"
-              aria-label="결과 링크 복사"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            </button>
-          )}
-          <div className="relative z-10">
-            <div className="mb-2 flex justify-center"><FluentEmoji emoji={style.emoji} size={56} /></div>
-            <h1
-              className={cn(
-                'mb-1 font-extrabold leading-tight tracking-tight [word-break:keep-all]',
-                displayName ? 'text-[22px]' : 'text-[24px]',
-              )}
-            >
-              {displayName ? (
-                <>
-                  <span className="text-white">&apos;</span>
-                  <span className="text-[#fde68a]">{displayName}</span>
-                  <span className="text-white">&apos;</span>
-                  {`님은 ${style.name}`}
-                </>
-              ) : resultTitle}
-            </h1>
-            <p className="text-[13px] leading-relaxed text-white/80">{style.description}</p>
+      {analyzing && <AnalyzingScreen onDone={() => setAnalyzing(false)} artwork={<AdultArtwork src={adultCommonArtwork.pause} className="adult-neutral-art" eager />} />}
+      <div className={analyzing ? 'hidden' : 'adult-integrity-result animate-fade-in'}>
+        <section className="adult-result-hero" aria-label="당신의 청렴 스타일">
+          {!isShared ? (
+            <button type="button" onClick={handleCopyLink} className="adult-icon-button adult-result-share" aria-label="결과 링크 복사"><AdultIcon name="share" size={19} /></button>
+          ) : null}
+          <div className="adult-result-title">
+            <h1>{displayName && <span className="adult-result-name">'{displayName}'님은</span>}{displayName ? style.name : resultTitle}</h1>
+            <p>{style.description}</p>
           </div>
+          <div className={`adult-result-visual${isShared ? '' : ' adult-result-visual-with-share'}`}>
+            <AdultArtwork src={getAdultResultArtwork(styleKey) ?? adultCommonArtwork.pause} fallback={style.emoji} className="adult-result-art" eager />
+          </div>
+        </section>
+        <div className="adult-result-traits" aria-label="주요 성향">
+          {style.subtitle.split('-').map(trait => <span key={trait}>{trait}</span>)}
         </div>
-
-        <div className="result-card px-3 pb-1 pt-1">
-          <StyleRadarChart sixAxis={sixAxis} />
-        </div>
-
-        <div className="result-card !py-4">
-          <div className="flex justify-center gap-3 mb-2">
-            {([
-              { key: 'strength' as const, label: '강점' },
-              { key: 'caution' as const, label: '주의' },
-              { key: 'tip' as const, label: '팁' },
-            ]).map(({ key, label }) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={`inline-flex h-8 w-16 items-center justify-center rounded-full text-[12px] font-bold transition-colors ${
-                  activeTab === key
-                    ? 'bg-[var(--color-primary)] text-white'
-                    : 'bg-[var(--color-primary-soft)] text-[var(--color-primary-accent)]'
-                }`}
-              >
-                {label}
-              </button>
+        <section className="adult-result-chart" aria-labelledby="adult-chart-title">
+          <h2 id="adult-chart-title">나의 성향</h2>
+          {sixAxis ? <StyleRadarChart sixAxis={sixAxis} /> : (
+            <p className="adult-result-chart-unavailable">응답 정보가 없어 성향 그래프를 표시할 수 없어요.</p>
+          )}
+        </section>
+        <section aria-label="스타일 해석">
+          <div className="adult-result-tabs" role="tablist" aria-label="강점, 주의, 팁">
+            {RESULT_TABS.map(({ key, label }, index) => (
+              <button key={key} id={'adult-tab-' + key} type="button" role="tab" aria-selected={activeTab === key}
+                aria-controls="adult-interpretation" tabIndex={activeTab === key ? 0 : -1} onClick={() => setActiveTab(key)}
+                onKeyDown={event => {
+                  let next: number | undefined;
+                  if (event.key === 'ArrowRight') next = (index + 1) % RESULT_TABS.length;
+                  if (event.key === 'ArrowLeft') next = (index + RESULT_TABS.length - 1) % RESULT_TABS.length;
+                  if (event.key === 'Home') next = 0;
+                  if (event.key === 'End') next = RESULT_TABS.length - 1;
+                  if (next !== undefined) {
+                    event.preventDefault();
+                    setActiveTab(RESULT_TABS[next].key);
+                    const tabs = event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+                    tabs?.[next]?.focus();
+                  }
+                }}>{label}</button>
             ))}
           </div>
-          <p className="text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
-            {activeTab === 'strength' && style.strength}
-            {activeTab === 'caution' && style.caution}
-            {activeTab === 'tip' && style.tip}
-          </p>
-        </div>
-      </div>
-
-      {isShared ? (
-        <div className="mt-auto pt-2">
-          <button
-            onClick={() => router.push('/')}
-            className="w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] py-3.5 text-center text-[14px] font-bold text-white hover:bg-[var(--color-primary-hover)]"
-          >
-            나도 테스트 해보기 →
-          </button>
-        </div>
-      ) : (
-        <div className="mt-auto flex flex-col gap-2 pt-2">
-          <div className="flex gap-2">
-            <button
-              onClick={() => router.push('/')}
-              className={`${AI_CHAT_ENABLED ? 'flex-1' : 'w-full'} rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-primary-soft)] py-3 text-center text-[13px] font-semibold text-[var(--color-text)] hover:bg-[var(--color-border)]`}
-            >
-              처음으로
-            </button>
+          <div id="adult-interpretation" role="tabpanel" aria-labelledby={'adult-tab-' + activeTab} tabIndex={0} className="adult-result-description">
+            {activeTab === 'strength' ? style.strength : activeTab === 'caution' ? style.caution : style.tip}
+          </div>
+        </section>
+        {isShared ? (
+          <button type="button" onClick={() => router.push('/')} className="adult-primary-action w-full">나도 테스트 해보기 <AdultIcon name="arrow" size={18} /></button>
+        ) : (
+          <div className="adult-result-actions">
+            <button type="button" onClick={() => router.push('/')}>처음으로</button>
             {AI_CHAT_ENABLED && (
-              <button
-                onClick={openAiAdvice}
-                className="flex-1 rounded-[var(--radius-md)] border border-[var(--color-primary-muted)] py-3 text-center text-[13px] font-semibold text-[var(--color-primary-accent)] hover:bg-[var(--color-primary-soft)]"
-              >
-                AI 조언
-                {chat.chatHistory.length > 0 && (
-                  <span className="ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white/25 text-[11px] text-white">
-                    {Math.floor(chat.chatHistory.length / 2)}
-                  </span>
-                )}
+              <button type="button" onClick={openAiAdvice}><AdultIcon name="chat" size={18} /> AI 조언
+                {chat.chatHistory.length > 0 && <span className="text-[11px] opacity-80">{Math.floor(chat.chatHistory.length / 2)}</span>}
               </button>
             )}
           </div>
-        </div>
-      )}
+        )}
 
       {toastVisible && (
-        <div className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 animate-slide-up rounded-[var(--radius-md)] px-5 py-2.5 text-[13px] font-semibold shadow-lg ${
+        <div role="status" aria-live="polite" aria-atomic="true" className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 animate-slide-up rounded-[var(--radius-md)] px-5 py-2.5 text-[13px] font-semibold shadow-lg ${
           toastType === 'warning'
             ? 'bg-amber-600 text-white'
             : 'bg-[var(--color-primary)] text-white'
@@ -292,12 +233,11 @@ export default function ResultContent() {
           onAbort={chat.abortAnswer}
           onClose={closeAiAdvice}
           onDeleteConversation={resetAiConversation}
-          showComposer={showAiComposer}
-          onShowComposer={showComposer}
-          onHideComposer={hideComposer}
+          onStartNewConversation={resetAiConversation}
+          maxTurns={MAX_HISTORY_MESSAGES / 2}
           inputRef={textareaRef}
           scrollAnchorRef={chat.scrollAnchorRef}
-          placeholder={chat.chatHistory.length > 0 ? '이어서 질문해주세요' : '궁금한 상황을 자유롭게 질문해주세요'}
+          placeholder={chat.chatHistory.length > 0 ? '이어서 이야기해 주세요' : '궁금한 상황을 적어 주세요'}
           errorType={chat.aiErrorType}
           piiWarning={chat.piiWarning}
         />
