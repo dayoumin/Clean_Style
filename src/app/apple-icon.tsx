@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import { IS_STUDENT_VARIANT } from '@/data/appVariant';
+import { ADULT_THEME_COLOR } from '@/products/adult/theme';
 
 export const dynamic = "force-static";
 export const size = { width: 180, height: 180 };
@@ -15,7 +17,7 @@ export default function AppleIcon() {
           alignItems: "center",
           justifyContent: "center",
           background:
-            "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #22d3ee 100%)",
+            IS_STUDENT_VARIANT ? "linear-gradient(135deg, #1e3a5f 0%, #2563eb 50%, #22d3ee 100%)" : ADULT_THEME_COLOR,
         }}
       >
         <svg

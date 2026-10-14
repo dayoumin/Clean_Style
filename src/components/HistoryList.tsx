@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { getHistory, deleteHistoryEntry, type HistoryEntry } from '@/lib/history';
 import { buildResultUrl } from '@/lib/utils';
@@ -18,22 +18,26 @@ function HistoryItem({
   entry,
   onView,
   onDelete,
+  icon,
+  chatIcon,
 }: {
   entry: HistoryEntry;
   onView: () => void;
   onDelete: () => void;
+  icon?: ReactNode;
+  chatIcon?: ReactNode;
 }) {
   const chatCount = entry.chat?.length ?? 0;
 
   return (
     <div className="flex items-center gap-2.5 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-3 py-2">
-      <FluentEmoji emoji={entry.styleEmoji} size={24} />
+      {icon ?? <FluentEmoji emoji={entry.styleEmoji} size={24} />}
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] font-semibold text-[var(--color-text)]">
           {entry.styleName}
           <span className="ml-1.5 text-[11px] font-normal text-[var(--color-text-muted)]">
             {formatDate(entry.createdAt)}
-            {chatCount > 0 && (<> · <FluentEmoji emoji="💬" size={12} className="inline align-baseline" />{Math.floor(chatCount / 2)}</>)}
+            {chatCount > 0 && (<> · {chatIcon ?? <FluentEmoji emoji="💬" size={12} className="inline align-baseline" />}{Math.floor(chatCount / 2)}</>)}
           </span>
         </p>
       </div>
@@ -57,9 +61,15 @@ function HistoryItem({
 export default function HistoryList({
   buttonLabel = '이전 결과 보기',
   emptyFocusTargetId,
+  renderStyleIcon,
+  chatIcon,
+  buttonClassName = '',
 }: {
   buttonLabel?: string;
   emptyFocusTargetId?: string;
+  renderStyleIcon?: (styleKey: string) => ReactNode;
+  chatIcon?: ReactNode;
+  buttonClassName?: string;
 }) {
   const router = useRouter();
   const [entries, setEntries] = useState<HistoryEntry[]>([]);
@@ -99,8 +109,10 @@ export default function HistoryList({
       <div className="pb-1 text-center">
         <button
           type="button"
+          aria-haspopup="dialog"
+          aria-expanded={showModal}
           onClick={() => setShowModal(true)}
-          className={`inline-flex min-h-10 items-center justify-center rounded-full px-4 text-[12px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)] hover:text-[var(--color-text-secondary)] ${focusRing}`}
+          className={`inline-flex min-h-10 items-center justify-center rounded-full px-4 text-[12px] font-semibold text-[var(--color-text-muted)] hover:bg-[var(--color-card)] hover:text-[var(--color-text-secondary)] ${focusRing} ${buttonClassName}`}
         >
           {buttonLabel}
         </button>
@@ -118,6 +130,8 @@ export default function HistoryList({
                 entry={entry}
                 onView={() => handleView(entry)}
                 onDelete={() => handleDelete(entry.id)}
+                icon={renderStyleIcon?.(entry.styleKey)}
+                chatIcon={chatIcon}
               />
             ))}
           </div>

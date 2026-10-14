@@ -119,7 +119,22 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-bounce-soft { animation: none; }
+  .animate-bounce-soft,
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-scale-in,
+  .loading-dot {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 /* ═══ Choice Button ═══ */

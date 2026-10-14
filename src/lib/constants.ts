@@ -1,10 +1,10 @@
-// 이어서 질문 시 유지할 최대 대화 메시지 수 (10턴 = user+assistant 20개)
-export const MAX_HISTORY_MESSAGES = 20;
+// 한 대화의 최대 질문·답변 20회 (user+assistant 40개). 도달 후 사용자가 새 대화를 시작.
+export const MAX_HISTORY_MESSAGES = 40;
 
 // 일터 존중 점검 AI 조언은 상황 정리가 길어질 수 있어 조금 더 긴 맥락을 유지
 export const RESPECT_MAX_HISTORY_MESSAGES = 32;
 
-// 대화 요약 트리거 시점 (4턴 = user+assistant 8개)
+// 요약의 최소 메시지 수 (4회 = user+assistant 8개). 실제 요약은 추가 길이 조건 충족 시에만.
 export const SUMMARIZE_AT_MESSAGES = 8;
 
 // history 메시지 1건당 최대 허용 길이

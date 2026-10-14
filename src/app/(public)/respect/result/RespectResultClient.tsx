@@ -72,7 +72,6 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
   const [chatLoading, setChatLoading] = useState(false);
   const [chatErrorType, setChatErrorType] = useState<RespectChatErrorType | null>(null);
   const [piiWarning, setPiiWarning] = useState<string[] | null>(null);
-  const [showChatComposer, setShowChatComposer] = useState(false);
   const chatAbortRef = useRef<AbortController | null>(null);
   const chatScrollAnchorRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -156,11 +155,10 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
   }, [clearStoredResult, router]);
   const openAiChat = useCallback(() => {
     setShowAiChat(true);
-    setShowChatComposer(chatMessages.length === 0);
     setTimeout(() => {
-      if (chatMessages.length === 0) textareaRef.current?.focus();
+      textareaRef.current?.focus();
     }, 200);
-  }, [chatMessages.length]);
+  }, []);
   const fetchAiChat = useCallback(async () => {
     const question = chatInput.trim();
     if (!stored || !question) return;
@@ -245,7 +243,6 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
       }
 
       setStreamingAnswer(fullAnswer);
-      setShowChatComposer(false);
       setChatMessages((prev) => {
         const next: RespectChatMessage[] = [
           ...prev,
@@ -347,7 +344,6 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
       onClose={() => {
         if (!chatLoading) {
           setShowAiChat(false);
-          setShowChatComposer(false);
         }
       }}
       onDeleteConversation={() => {
@@ -356,14 +352,8 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
         setChatInput('');
         setChatErrorType(null);
         setPiiWarning(null);
-        setShowChatComposer(true);
-      }}
-      showComposer={showChatComposer}
-      onShowComposer={() => {
-        setShowChatComposer(true);
         setTimeout(() => textareaRef.current?.focus(), 100);
       }}
-      onHideComposer={() => setShowChatComposer(false)}
       inputRef={textareaRef}
       scrollAnchorRef={chatScrollAnchorRef}
       placeholder={aiQuestionPlaceholder}

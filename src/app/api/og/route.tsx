@@ -1,5 +1,8 @@
 import { ImageResponse } from 'next/og';
 import { NextRequest } from 'next/server';
+import { Buffer } from 'node:buffer';
+import { getAdultResultArtwork } from '@/diagnostics/adult-integrity/artwork';
+import { ADULT_THEME_COLOR } from '@/products/adult/theme';
 import { styleTypes } from '@/diagnostics/adult-integrity';
 import { formatNamedResultTitle, normalizeDisplayName } from '@/lib/display-name';
 import { APP_COPY, IS_STUDENT_VARIANT } from '@/data/appVariant';
@@ -8,13 +11,40 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
   const styleKey = searchParams.get('style') ?? '';
   const displayName = normalizeDisplayName(searchParams.get('name'));
-  const style = IS_STUDENT_VARIANT ? undefined : styleTypes[styleKey];
+  const style = !IS_STUDENT_VARIANT && Object.prototype.hasOwnProperty.call(styleTypes, styleKey) ? styleTypes[styleKey] : undefined;
 
   const emoji = style?.emoji ?? '🧭';
   const name = style
     ? formatNamedResultTitle(displayName, style.name)
     : IS_STUDENT_VARIANT ? APP_COPY.title : '청렴 스타일';
   const description = style?.description ?? APP_COPY.primaryDiagnosticDescription;
+
+
+  if (!IS_STUDENT_VARIANT) {
+    const artworkPath = getAdultResultArtwork(styleKey);
+    let artworkData: string | undefined;
+    if (artworkPath) {
+      try {
+        const image = await fetch(new URL(artworkPath.replace('.webp', '.png'), request.url), { signal: AbortSignal.timeout(3000) });
+        if (image.ok) artworkData = 'data:image/png;base64,' + Buffer.from(await image.arrayBuffer()).toString('base64');
+      } catch {
+        // Result title and existing symbol remain available if the illustration cannot load.
+      }
+    }
+    return new ImageResponse(
+      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f7fbf7', color: '#263e36', padding: 70, fontFamily: 'sans-serif' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, maxWidth: 700 }}>
+          <div style={{ display: 'flex', color: ADULT_THEME_COLOR, fontSize: 25, fontWeight: 700, marginBottom: 28 }}>Clean Style</div>
+          <div style={{ display: 'flex', fontSize: displayName ? 38 : 48, fontWeight: 800, lineHeight: 1.3, marginBottom: 22 }}>{name}</div>
+          <div style={{ display: 'flex', fontSize: 25, color: '#53675f', lineHeight: 1.6 }}>{description}</div>
+        </div>
+        {artworkData
+          ? <img src={artworkData} width={300} height={300} alt="" style={{ objectFit: 'contain', marginLeft: 24 }} />
+          : <div style={{ display: 'flex', fontSize: 100, marginLeft: 30 }}>{emoji}</div>}
+      </div>,
+      { width: 1200, height: 630, headers: { 'Cache-Control': 'public, max-age=86400' } },
+    );
+  }
 
   return new ImageResponse(
     (

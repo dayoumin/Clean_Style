@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { FluentEmoji } from '@/components/FluentEmoji';
 
-export function LoadingFairy({ message, children }: { message: string; children?: React.ReactNode }) {
+export function LoadingFairy({ message, children, artwork }: { message: string; children?: ReactNode; artwork?: ReactNode }) {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center">
-      <div className="animate-bounce-soft mb-5 inline-flex h-14 w-14 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-primary-soft)]">
+      {artwork ?? <div className="animate-bounce-soft mb-5 inline-flex h-14 w-14 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--color-primary-soft)]">
         <FluentEmoji emoji="✨" size={32} />
-      </div>
+      </div>}
       <p className="mb-3 text-base font-semibold text-[var(--color-text)]">
         {message}
       </p>
@@ -26,10 +26,12 @@ export function AnalyzingScreen({
   onDone,
   autoComplete = true,
   children,
+  artwork,
 }: {
   onDone: () => void;
   autoComplete?: boolean;
   children?: React.ReactNode;
+  artwork?: ReactNode;
 }) {
   const [step, setStep] = useState(0);
   const onDoneRef = useRef(onDone);
@@ -49,7 +51,7 @@ export function AnalyzingScreen({
   }, [autoComplete]);
 
   return (
-    <LoadingFairy message={steps[step]}>
+    <LoadingFairy message={steps[step]} artwork={artwork}>
       <div className="mt-6 h-1 w-48 overflow-hidden rounded-full bg-[var(--color-border)]">
         <div
           className="h-full rounded-full bg-[var(--color-primary-accent)] transition-all duration-500 ease-out"

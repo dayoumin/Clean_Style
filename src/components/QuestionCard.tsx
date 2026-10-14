@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import type { Question } from '@/diagnostics/adult-integrity';
 import { seededShuffle } from '@/lib/utils';
 import { FluentEmoji } from '@/components/FluentEmoji';
@@ -10,6 +10,7 @@ interface QuestionCardProps {
   questionIndex: number;
   shuffleSeed: number;
   onSelect: (choiceIndex: number) => void;
+  categoryIcon?: ReactNode;
 }
 
 const categoryInfo: Record<string, { label: string; emoji: string }> = {
@@ -21,7 +22,7 @@ const categoryInfo: Record<string, { label: string; emoji: string }> = {
 const choiceLabels = ['A', 'B', 'C', 'D'];
 
 
-export default function QuestionCard({ question, questionIndex, shuffleSeed, onSelect }: QuestionCardProps) {
+export default function QuestionCard({ question, questionIndex, shuffleSeed, onSelect, categoryIcon }: QuestionCardProps) {
   const cat = categoryInfo[question.category];
 
   const shuffledChoices = useMemo(() => {
@@ -33,12 +34,12 @@ export default function QuestionCard({ question, questionIndex, shuffleSeed, onS
     <div className="animate-fade-in">
       {/* 카테고리 */}
       <div className="mb-3.5 inline-flex items-center gap-1 text-[12px] font-bold uppercase tracking-wide text-[var(--color-primary-accent)]">
-        {cat && <FluentEmoji emoji={cat.emoji} size={16} />}
+        {categoryIcon ?? (cat && <FluentEmoji emoji={cat.emoji} size={16} />)}
         <span>{cat?.label}</span>
       </div>
 
       {/* 문항 번호 */}
-      <div className="mb-3 text-5xl font-extrabold leading-none tracking-tighter text-[var(--color-primary-muted)]">
+      <div className="question-number mb-3 text-5xl font-extrabold leading-none tracking-tighter text-[var(--color-primary-muted)]">
         {String(questionIndex + 1).padStart(2, '0')}
       </div>
 
