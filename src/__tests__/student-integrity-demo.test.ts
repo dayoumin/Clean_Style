@@ -2,20 +2,27 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
-  STUDENT_PROTOTYPE_FORM_ID,
+  STUDENT_DEMO_FEEDBACK_VERSION,
+  STUDENT_DEMO_FORM_ID,
   STUDENT_RESPONSE_STORAGE_KEY,
+  STUDENT_RESULT_STORAGE_KEY,
   clearStudentResponseHandoff,
+  createStudentDemoFeedback,
   createStudentResponseEnvelope,
+  isValidStudentDemoFeedback,
   isValidStudentResponseEnvelope,
+  readStudentDemoFeedbackFromStorage,
   readStudentResponse,
-  studentPrototypeScenarios,
+  studentDemoScenarios,
+  studentPerspectiveAxes,
   takeStudentResponseFromHandoff,
+  writeStudentDemoFeedback,
   writeStudentResponseForHandoff,
   type StudentItemResponse,
 } from '@/diagnostics/student-integrity';
 
 function completeResponses(): StudentItemResponse[] {
-  return studentPrototypeScenarios.map((scenario, index) => {
+  return studentDemoScenarios.map((scenario, index) => {
     if (index === 1) {
       return {
         questionId: scenario.id,
@@ -34,12 +41,13 @@ function completeResponses(): StudentItemResponse[] {
   });
 }
 
-describe('student integrity prototype contract', () => {
-  it('keeps prototype content explicitly unvalidated with unique stable ids', () => {
-    const questionIds = studentPrototypeScenarios.map((scenario) => scenario.id);
+describe('student integrity demo contract', () => {
+  it('keeps demo content explicitly unvalidated with unique DEMO ids', () => {
+    const questionIds = studentDemoScenarios.map((scenario) => scenario.id);
     expect(new Set(questionIds).size).toBe(questionIds.length);
+    expect(questionIds.every((id) => id.startsWith('DEMO-'))).toBe(true);
 
-    for (const scenario of studentPrototypeScenarios) {
+    for (const scenario of studentDemoScenarios) {
       expect(scenario.contentStatus).toBe('sample-unvalidated');
       expect(scenario.safetyMode).toBe('standard');
       expect(new Set(scenario.choices.map((choice) => choice.id)).size).toBe(scenario.choices.length);
@@ -54,7 +62,7 @@ describe('student integrity prototype contract', () => {
       '2026-07-28T00:03:00.000Z',
     );
 
-    expect(response.formId).toBe(STUDENT_PROTOTYPE_FORM_ID);
+    expect(response.formId).toBe(STUDENT_DEMO_FORM_ID);
     expect(response.status).toBe('completed');
     expect(response.responseMode).toBe('unscored');
     expect(response.storagePolicy).toBe('session-only');
@@ -201,5 +209,104 @@ describe('student integrity prototype contract', () => {
     expect(writeStudentResponseForHandoff(unavailableStorage, complete)).toBe(false);
     expect(takeStudentResponseFromHandoff(unavailableStorage)).toBeNull();
     expect(() => clearStudentResponseHandoff(unavailableStorage)).not.toThrow();
+  });
+
+  it('creates feedback from integrated action-by-reason patterns', () => {
+    const response = createStudentResponseEnvelope(
+      [
+        {
+          questionId: 'DEMO-GROUP-001',
+          phase: 'initial',
+          status: 'answered',
+          choiceId: 'teacher-check',
+          reasonId: 'shared-standard',
+        },
+        {
+          questionId: 'DEMO-DIGITAL-001',
+          phase: 'initial',
+          status: 'answered',
+          choiceId: 'ask-permission',
+          reasonId: 'consent',
+        },
+        {
+          questionId: 'DEMO-LEARNING-001',
+          phase: 'initial',
+          status: 'answered',
+          choiceId: 'verify-and-disclose',
+          reasonId: 'authorship',
+        },
+      ],
+      '2026-07-28T00:00:00.000Z',
+      '2026-07-28T00:03:00.000Z',
+    );
+    const feedback = createStudentDemoFeedback(response);
+
+    expect(feedback.version).toBe(STUDENT_DEMO_FEEDBACK_VERSION);
+    expect(feedback.axisCounts.principleJudgment).toBe(2);
+    expect(feedback.axisCounts.empathyPerspective).toBe(1);
+    expect(feedback.axisCounts.valueCommitment).toBe(1);
+    expect(feedback.axisCounts.braveAction).toBe(3);
+    expect(feedback.highlightedCompanionKeys).toEqual(
+      expect.arrayContaining(['fair-radar', 'core-keeper', 'brave-mover']),
+    );
+  });
+
+  it('does not reward partial or conflicting combinations', () => {
+    const response = createStudentResponseEnvelope(
+      [
+        {
+          questionId: 'DEMO-GROUP-001',
+          phase: 'initial',
+          status: 'answered',
+          choiceId: 'group-decision',
+          reasonId: 'fair-contribution',
+        },
+        {
+          questionId: 'DEMO-DIGITAL-001',
+          phase: 'initial',
+          status: 'answered',
+          choiceId: 'ask-permission',
+          reasonId: 'group-fun',
+        },
+        {
+          questionId: 'DEMO-LEARNING-001',
+          phase: 'initial',
+          status: 'answered',
+          choiceId: 'rewrite-only',
+          reasonId: 'authorship',
+        },
+      ],
+      '2026-07-28T00:00:00.000Z',
+      '2026-07-28T00:03:00.000Z',
+    );
+    const feedback = createStudentDemoFeedback(response);
+
+    expect(feedback.highlightedCompanionKeys).toEqual([]);
+    expect(studentPerspectiveAxes.every(({ key }) => feedback.axisCounts[key] === 0)).toBe(true);
+    expect(feedback.reconsiderScenarioId).toBe('DEMO-GROUP-001');
+  });
+
+  it('stores only validated derived feedback without response ids', () => {
+    const response = createStudentResponseEnvelope(
+      completeResponses(),
+      '2026-07-28T00:00:00.000Z',
+      '2026-07-28T00:03:00.000Z',
+    );
+    const feedback = createStudentDemoFeedback(response);
+    const values = new Map<string, string>();
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => { values.set(key, value); },
+    };
+
+    expect(writeStudentDemoFeedback(storage, feedback)).toBe(true);
+    expect(readStudentDemoFeedbackFromStorage(storage)).toEqual(feedback);
+    expect(isValidStudentDemoFeedback(feedback)).toBe(true);
+
+    const stored = values.get(STUDENT_RESULT_STORAGE_KEY) ?? '';
+    expect(stored).not.toContain('questionId');
+    expect(stored).not.toContain('choiceId');
+    expect(stored).not.toContain('reasonId');
+    expect(isValidStudentDemoFeedback({ ...feedback, answeredCount: 4 })).toBe(false);
   });
 });

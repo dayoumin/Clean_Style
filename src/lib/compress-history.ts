@@ -9,8 +9,11 @@
  */
 
 import type { ChatMessage } from './history';
+import { MAX_CONTENT_LENGTH } from './constants';
 
 const MAX_CHARS_PER_MESSAGE = 120;
+// sanitizeSummary가 앞쪽 20줄·MAX_CONTENT_LENGTH자만 남기므로, 미리 최신 내용 위주로 맞춘다.
+const MAX_SUMMARY_LINES = 20;
 
 /**
  * 대화 히스토리를 텍스트 요약으로 축약 (LLM 호출 없음)
@@ -30,11 +33,17 @@ export function compressHistoryToSummary(
   });
 
   const newSummary = lines.join('\n');
+  const combined = existingSummary ? `${existingSummary}\n\n${newSummary}` : newSummary;
+  return keepNewest(combined);
+}
 
-  if (existingSummary) {
-    return `${existingSummary}\n\n${newSummary}`;
+/** 줄 수·글자 수 한도를 넘으면 오래된(앞쪽) 줄부터 버린다. */
+function keepNewest(text: string): string {
+  const lines = text.replace(/\n{3,}/g, '\n\n').split('\n');
+  while (lines.length > 1 && (lines.length > MAX_SUMMARY_LINES || lines.join('\n').length > MAX_CONTENT_LENGTH)) {
+    lines.shift();
   }
-  return newSummary;
+  return lines.join('\n').trim().slice(-MAX_CONTENT_LENGTH);
 }
 
 function truncateAtSentence(text: string, maxChars: number): string {

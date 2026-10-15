@@ -1,4 +1,6 @@
-export default function EmergencyHelpStrip({ compact = false }: { compact?: boolean }) {
+import type { RespectEntry } from '@/data/workplaceRespectQuestions';
+
+export default function EmergencyHelpStrip({ compact = false, entry = 'experience' }: { compact?: boolean; entry?: RespectEntry }) {
   const focusRing = 'transition-colors hover:bg-[#ffe4e6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#be123c] focus-visible:ring-offset-2';
 
   return (
@@ -11,7 +13,8 @@ export default function EmergencyHelpStrip({ compact = false }: { compact?: bool
           자해 생각, 폭력 위험, 즉각적인 안전 문제가 있으면 문항을 계속하지 말고 가까운 사람이나 기관에 바로 연결하세요.
         </p>
       )}
-      <div className="mt-3 grid grid-cols-3 gap-2">
+      <div className={`mt-3 grid gap-2 ${entry === 'action' ? 'grid-cols-2' : 'grid-cols-3'}`}>
+        {entry === 'experience' && (
         <a
           href="tel:109"
           aria-label="109 자살예방상담전화"
@@ -19,6 +22,7 @@ export default function EmergencyHelpStrip({ compact = false }: { compact?: bool
         >
           109 상담
         </a>
+        )}
         <a
           href="tel:112"
           aria-label="112 긴급신고"

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import { FluentEmoji } from '@/components/FluentEmoji';
 
 const focusRing = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-accent)] focus-visible:ring-offset-2';
@@ -11,6 +12,7 @@ interface DiagnosticCardProps {
   iconClassName?: string;
   tags?: string[];
   className?: string;
+  icon?: ReactNode;
 }
 
 export function DiagnosticCard({
@@ -21,6 +23,7 @@ export function DiagnosticCard({
   iconClassName = 'bg-[var(--color-primary-soft)]',
   tags = [],
   className = '',
+  icon,
 }: DiagnosticCardProps) {
   return (
     <Link
@@ -28,7 +31,7 @@ export function DiagnosticCard({
       className={`flex min-h-24 items-center gap-4 rounded-[20px] border border-transparent bg-white px-4 py-4 text-left shadow-[0_12px_28px_rgba(15,23,42,0.08)] transition-transform hover:-translate-y-0.5 hover:border-[var(--color-primary-muted)] active:scale-[0.99] ${focusRing} ${className}`}
     >
       <span className={`inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-[14px] ${iconClassName}`}>
-        <FluentEmoji emoji={emoji} size={32} />
+        {icon ?? <FluentEmoji emoji={emoji} size={32} />}
       </span>
 
       <div className="min-w-0 flex-1">

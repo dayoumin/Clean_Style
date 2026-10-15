@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  clearStudentDemoFeedback,
   clearStudentResponseHandoff,
   createStudentResponseEnvelope,
-  studentPrototypeScenarios,
+  studentDemoScenarios,
   writeStudentResponseForHandoff,
   type StudentItemResponse,
 } from '@/diagnostics/student-integrity';
@@ -22,10 +23,11 @@ export default function StudentTestPage() {
   const [responses, setResponses] = useState<StudentItemResponse[]>([]);
   const [handoffError, setHandoffError] = useState(false);
 
-  const scenario = studentPrototypeScenarios[questionIndex];
+  const scenario = studentDemoScenarios[questionIndex];
 
   useEffect(() => {
     clearStudentResponseHandoff(sessionStorage);
+    clearStudentDemoFeedback(sessionStorage);
   }, []);
 
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function StudentTestPage() {
   const completeQuestion = (response: StudentItemResponse) => {
     const nextResponses = [...responses, response];
 
-    if (questionIndex === studentPrototypeScenarios.length - 1) {
+    if (questionIndex === studentDemoScenarios.length - 1) {
       const envelope = createStudentResponseEnvelope(
         nextResponses,
         startedAtRef.current,
@@ -45,7 +47,6 @@ export default function StudentTestPage() {
         setHandoffError(true);
         return;
       }
-      window.setTimeout(() => clearStudentResponseHandoff(sessionStorage), 5000);
       router.push('/result');
       return;
     }
@@ -95,13 +96,14 @@ export default function StudentTestPage() {
 
   const handleQuit = () => {
     clearStudentResponseHandoff(sessionStorage);
+    clearStudentDemoFeedback(sessionStorage);
     router.push('/');
   };
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-1 flex-col pb-4">
       <div className="mb-4 flex items-center justify-between text-[12px] font-semibold text-[var(--color-text-muted)]">
-        <span>{questionIndex + 1} / {studentPrototypeScenarios.length}</span>
+        <span>{questionIndex + 1} / {studentDemoScenarios.length}</span>
         <span>{step === 'choice' ? '행동 선택' : '이유 선택'}</span>
       </div>
       <div
@@ -109,12 +111,12 @@ export default function StudentTestPage() {
         role="progressbar"
         aria-label="진행률"
         aria-valuemin={1}
-        aria-valuemax={studentPrototypeScenarios.length}
+        aria-valuemax={studentDemoScenarios.length}
         aria-valuenow={questionIndex + 1}
       >
         <div
           className="h-full rounded-full bg-[#377d6a] transition-[width] duration-300"
-          style={{ width: `${((questionIndex + 1) / studentPrototypeScenarios.length) * 100}%` }}
+          style={{ width: `${((questionIndex + 1) / studentDemoScenarios.length) * 100}%` }}
         />
       </div>
 

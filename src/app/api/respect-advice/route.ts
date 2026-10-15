@@ -2,18 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { chatStream } from '@/lib/ai';
 import { getAiRuntimeEnv } from '@/lib/runtime-env';
 import { checkScopedRateLimit } from '@/lib/rate-limit';
-import { MAX_QUESTION_LENGTH, RESPECT_MAX_HISTORY_MESSAGES } from '@/lib/constants';
-import { sanitizeHistory, sanitizeUserInput, scanAndRedactPii } from '@/lib/sanitize';
+import { MAX_QUESTION_LENGTH, MAX_CHAT_REQUEST_BYTES, RESPECT_MAX_HISTORY_MESSAGES } from '@/lib/constants';
+import { sanitizeHistory, sanitizeUserInput, scanAndRedactPii, trimHistoryToLimit } from '@/lib/sanitize';
+import { readJsonBodyWithLimit } from '@/lib/request-body';
 import {
   calculateRespectResult,
   getRespectQuestions,
   isRespectEntry,
-  type RespectEntry,
   respectAxisLabels,
   respectEntryLabels,
 } from '@/data/workplaceRespectQuestions';
 import { AI_CHAT_ENABLED } from '@/data/appVariant';
 import { RESPECT_FEATURE_ENABLED } from '@/data/workplaceRespectFeature';
+import { getRespectAdviceSystemPrompt } from '@/diagnostics/workplace-respect/advice-prompts';
+import { decodeRespectResponse } from '@/diagnostics/workplace-respect/response';
 
 const RESPECT_ADVICE_CLIENT_LIMIT = 5;
 const RESPECT_ADVICE_IP_LIMIT = 200;
@@ -55,53 +57,6 @@ function concatStreams(a: ReadableStream<Uint8Array>, b: ReadableStream<Uint8Arr
   });
 }
 
-const RESPECT_ADVICE_SYSTEM_PROMPT_BASE = `당신은 공공 연구기관 종사자를 위한 일터 존중 점검 조언 도우미입니다.
-
-## 역할
-- 사용자의 자가점검 결과를 바탕으로 상황 정리와 다음 행동을 제안합니다.
-- 법률상 갑질·직장 내 괴롭힘 여부를 판정하지 않습니다.
-- 의료·정신건강 진단을 하지 않습니다.
-- 신고 여부를 단정하지 않고, 기록·상담·기준 확인 같은 안전한 다음 행동을 제안합니다.
-
-## 응답 원칙
-- 한국어 일반 텍스트로 답하세요.
-- 사용자의 질문에 직접 답하되, 자가점검 결과 맥락을 반영하세요.
-- 답변은 기본적으로 5~7개의 완성된 문장으로 작성하세요.
-- 1~2문장마다 빈 줄을 넣어 전체 답변을 3~4개의 짧은 문단으로 나누세요.
-- 첫 문단은 결론과 핵심 이유를 말하고, 중간 문단은 확인할 사실과 기록 방법을 다루며, 마지막 문단은 다음 행동을 안내하세요.
-- "갑질입니다", "괴롭힘입니다", "진단되었습니다"처럼 단정하는 표현을 쓰지 마세요.
-- 사용자를 가해자나 피해자로 단정하지 말고, 상황을 기준으로 차분하게 정리하세요.
-- 불확실한 사안은 인사·감사·인권·청렴 담당자에게 사실관계와 기준을 확인하라고 안내하세요.
-- 자해 생각, 폭력, 즉각적인 안전 위험이 보이면 앱 조언보다 사람과 기관의 도움을 먼저 받으라고 말하세요.
-- JSON, 표, 과도한 목록 대신 자연스러운 상담 문장으로 답하세요.`;
-
-const RESPECT_ADVICE_ENTRY_PROMPTS: Record<RespectEntry, string> = {
-  action: `## 내 행동 점검 조언 방향
-- 사용자가 자신의 말, 지시, 요청, 회식·휴가·사적 부탁 등을 돌아보는 상황입니다.
-- 사용자를 비난하지 말고, 상대가 거절하기 어려운 위치였는지와 업무상 필요·범위·시간·표현이 적절했는지 함께 살피게 하세요.
-- 바로 사과나 신고를 단정하지 말고, 업무 목적과 기준을 짧게 설명하기, 선택권을 남기기, 중요한 지시는 기록으로 남기기 같은 예방 행동을 제안하세요.`,
-  experience: `## 일터 존중 점검 조언 방향
-- 사용자가 자신이 겪은 말, 지시, 배제, 모욕, 불이익 우려 등을 정리하는 상황입니다.
-- 사용자의 억울함을 단정적으로 판정하지 말고, 반복성·업무 관련성·관계상 우위·기록 가능성을 기준으로 차분히 정리하게 하세요.
-- 혼자 판단하게 두지 말고, 날짜·장소·말투·증거를 남기기, 신뢰할 수 있는 사람이나 인사·감사·인권·청렴 담당자에게 일반 기준을 확인하기 같은 도움 경로를 제안하세요.`,
-};
-
-const RESPECT_ADVICE_CRISIS_PROMPT = `## 긴급 도움 연결 답변 방향
-- 사용자가 스스로를 해칠 생각, 즉각적인 안전위험, 폭력 위험을 선택한 상태입니다.
-- 전문 상담사처럼 안전과 감정을 먼저 확인하되, 과장된 위로나 반복적인 호소 대신 차분하고 실무적인 문장으로 답하세요.
-- 답변은 직장 내 괴롭힘 판단보다 지금 연결할 사람과 기관의 순서를 먼저 안내하세요.
-- 화면에서 긴급 연락처는 이미 안내되므로 모든 답변에 109, 112, 119를 반복하지 마세요. 사용자가 현재 즉시 위험하다고 말하거나 긴급 연락처를 묻는 경우에만 한 문장으로 짧게 안내하세요.
-- 사용자가 "누구에게 먼저 말할까", "어디에 문의할까"처럼 연결 순서를 묻는 경우에는 가까운 신뢰할 수 있는 사람, 기관 내 안전한 공식 창구, 외부 긴급·전문기관 순서로 답하세요.
-- 기관 내부 문의처는 직장 내 괴롭힘·갑질 담당자, 인사·감사·인권·청렴 담당부서, 고충처리·EAP·노동조합 등 기관에 있는 안전한 상담 창구로 표현하세요.
-- 사용자가 바로 보낼 수 있는 짧은 문장을 1개 포함하세요. 예: "지금 혼자 감당하기 어렵고 안전이 걱정됩니다. 상담 가능한 창구와 보호조치를 확인하고 싶습니다."
-- 과도한 설명이나 법률 판단은 줄이고, 4~6개의 짧은 문장으로 답하세요.`;
-
-function getRespectAdviceSystemPrompt(entry: RespectEntry, crisis: boolean): string {
-  return `${RESPECT_ADVICE_SYSTEM_PROMPT_BASE}
-
-${RESPECT_ADVICE_ENTRY_PROMPTS[entry]}${crisis ? `\n\n${RESPECT_ADVICE_CRISIS_PROMPT}` : ''}`;
-}
-
 function sanitizeAndRedactText(text: string) {
   const cleaned = sanitizeUserInput(text);
   const result = scanAndRedactPii(cleaned);
@@ -141,7 +96,9 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const parsed = await readJsonBodyWithLimit(request, MAX_CHAT_REQUEST_BYTES);
+    if (!parsed.ok) return parsed.response;
+    const body = parsed.body as Record<string, unknown> | null;
     if (typeof body !== 'object' || body === null) {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
@@ -152,18 +109,12 @@ export async function POST(request: NextRequest) {
     }
 
     const questions = getRespectQuestions(entry);
-    const rawAnswers = Array.isArray(body.answers) ? body.answers : null;
-    const answers = rawAnswers?.every((answer: unknown): answer is number => Number.isInteger(answer))
-      ? rawAnswers
-      : null;
-    const validAnswers = answers?.every((answer: number, index: number) => (
-      answer >= 0
-      && answer < (questions[index]?.choices.length ?? 0)
-    ));
-
-    if (!answers || answers.length !== questions.length || !validAnswers) {
+    // Retention is local to the browser; its clock is not a trusted server clock.
+    const decoded = decodeRespectResponse(body.response, entry, Date.now(), { enforceLocalExpiry: false });
+    if (!decoded) {
       return NextResponse.json({ error: 'Invalid answers' }, { status: 400 });
     }
+    const answers = decoded.answers;
 
     const rawQuestion = typeof body.question === 'string' ? body.question : '';
     if (!rawQuestion.trim()) {
@@ -177,8 +128,7 @@ export async function POST(request: NextRequest) {
     const questionRedaction = sanitizeAndRedactText(rawQuestion);
     const finalQuestion = questionRedaction.text;
     const detectedPii = new Set(questionRedaction.detected);
-    const safeHistory = sanitizeHistory(body.history)
-      .slice(-RESPECT_MAX_HISTORY_MESSAGES)
+    const safeHistory = trimHistoryToLimit(sanitizeHistory(body.history), RESPECT_MAX_HISTORY_MESSAGES)
       .map((message) => {
         const redacted = sanitizeAndRedactText(message.content);
         redacted.detected.forEach((type) => detectedPii.add(type));
@@ -196,7 +146,7 @@ export async function POST(request: NextRequest) {
       .join(', ') || '뚜렷한 신호 없음';
     const selectedAnswers = questions.map((question, index) => {
       const choice = question.choices[answers[index]];
-      return `- ${question.category}: ${question.prompt} / 응답: ${choice.text}`;
+      return choice ? `- ${question.category}: ${question.prompt} / 응답: ${choice.text}` : `- ${question.id}: 미응답`;
     }).join('\n');
 
     const userMessage = `자가점검 유형: ${entryLabel.title}
@@ -224,11 +174,8 @@ ${finalQuestion}
         ...safeHistory,
         { role: 'user', content: userMessage },
       ],
-      temperature: 0.35,
       maxTokens: 700,
-      apiKey: aiEnv.OPENROUTER_API_KEY,
-      nvidiaApiKey: aiEnv.NVIDIA_API_KEY,
-      appUrl: aiEnv.NEXT_PUBLIC_APP_URL,
+      apiKey: aiEnv.OPENAI_API_KEY,
     });
 
     const encoder = new TextEncoder();

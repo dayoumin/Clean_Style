@@ -1,4 +1,5 @@
 import type { DiagnosticDefinition } from '../core/types';
+import { RESPECT_INSTRUMENT_VERSION, RESPECT_SCORING_VERSION } from './content';
 
 export {
   getRespectQuestions,
@@ -20,8 +21,8 @@ export const workplaceRespectDefinition: DiagnosticDefinition = {
   audience: 'adult',
   status: 'pilot',
   route: '/respect/check',
-  instrumentVersion: 'workplace-respect-v0.1',
-  scoringVersion: 'workplace-respect-risk-v0.1',
+  instrumentVersion: RESPECT_INSTRUMENT_VERSION,
+  scoringVersion: RESPECT_SCORING_VERSION,
   storagePolicy: 'local-ttl',
   resultMode: 'risk-guidance',
 };

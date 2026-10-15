@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>C 라인 드로잉 · 적용과 점검 계획</title>
+<style>body{max-width:1050px;margin:32px auto;padding:0 24px;font:15px/1.7 "Segoe UI","Malgun Gothic",sans-serif;color:#263e36;background:#fffffc}h1{font-size:28px;line-height:1.4}h2{font-size:21px;margin-top:32px}table{border-collapse:collapse;width:100%;background:#f5f8f5}th,td{padding:12px;text-align:left;vertical-align:top;border-bottom:1px solid #dce6e0}a{color:#26735f}code{overflow-wrap:anywhere}img{display:block;max-width:100%;height:auto}small{color:#53675f}</style></head><body>
+<h1>C 라인 드로잉 · 적용과 점검 계획</h1><p>2026-10-14 · C 그림 스타일 선택 완료. 기존 B 화면 구성과 민트·하늘색을 유지합니다. 현재 단계는 제품 구분과 제작 계획 점검 완료이며, 개별 C 그림 생성·화면 교체·배포는 아직 실행하지 않았습니다.</p>
+<img src="../design-concepts/2d-styles-2026-10-14/03-line.png" alt="C 스타일 비교: 메인 말풍선과 작은 물고기, 저울, 방패">
+<h2>제품과 배포 구성</h2><table><tr><th>제품</th><th>진단·AI</th><th>저장소에 설정된 배포</th></tr>
+<tr><td>청렴스타일 · default</td><td>성인 청렴스타일 · AI 활성</td><td><code>main</code> push 자동 · <a href="https://clean-style.ecomarin.workers.dev">clean-style</a></td></tr>
+<tr><td>청렴스타일 Plus</td><td>성인 청렴스타일 + 일터 존중 점검 · AI 활성</td><td><code>main</code> push 자동 · <a href="https://clean-style-plus.ecomarin.workers.dev">clean-style-plus</a></td></tr>
+<tr><td>학생용</td><td>학교생활 행동·이유 선택 교육 시연 · AI 비활성</td><td>수동 실행만 · <a href="https://clean-style-student.ecomarin.workers.dev">clean-style-student</a></td></tr></table>
+<p>같은 저장소에서 <code>NEXT_PUBLIC_APP_VARIANT</code>로 제품을 선택하여 별도 빌드·Worker로 배포합니다. 현재 운영 버전·배포 이력은 조회하지 않았습니다. 주소가 별도여도 D1 설정은 공통이며 기본·Plus 성인 청렴 결과는 제품 구분 없는 공통 집계 구조입니다. 학생은 성인 결과 저장 API가 차단되고 브라우저 임시 응답을 사용합니다.</p>
+<h2>그림 제작 범위</h2><table><tr><th>대상</th><th>원본 수</th><th>출력·사용 위치</th></tr>
+<tr><td>메인</td><td>1</td><td>투명 WebP · 기본·Plus 메인. 작은 물고기 1개와 해초 포인트.</td></tr>
+<tr><td>중립 안내</td><td>1</td><td>투명 WebP · 분석·결과 로딩. 특정 결과를 암시하지 않는 그림. 사용자 요청에 따라 채팅 시작·로딩에는 그림을 사용하지 않음.</td></tr>
+<tr><td>성인 결과</td><td>8</td><td>투명 WebP 8개 + 동일 원본 공유용 PNG 8개. 안정적인 유형 ID(stable ID)로 연결.</td></tr></table>
+<p>총 원본 10종, 배포 파일 18개입니다. 상징은 방패·저울·산·악수·로켓·말풍선·과녁·비둘기를 유지합니다. C 비교판을 그대로 잘라 사용하지 않고 각 그림을 따로 생성합니다. 둥근 짙은 세이지 선과 옅은 색면을 통일하고 작은 결과 카드에서 주변 장식선·점·식물은 줄입니다. 96px에서 상징 식별과 투명 배경을 확인합니다. 질문·채점·강점·주의·팁 원문은 유지합니다.</p>
+<p>기존 작은 SVG 아이콘과 방패·파도 로고는 유지합니다. 학생 그림과 일터 존중 진단 결과에는 성인 8유형 그림을 적용하지 않습니다. Plus 메인의 공통 그림은 기본형과 함께 교체됩니다.</p>
+<h2>작업 순서와 분리 점검</h2><table><tr><th>단계</th><th>담당 범위</th><th>완료 증거</th></tr>
+<tr><td>1 · 구조 확인<br>완료</td><td>제품·배포 에이전트 / 그림 연결 에이전트가 서로 다른 파일 범위를 읽기 전용으로 점검</td><td>3제품 구분, 10종·18파일 목록, 학생 API 경계. <code>corepack pnpm exec vitest run src/__tests__/product-definitions.test.ts src/__tests__/student-route-boundaries.test.ts src/__tests__/adult-artwork.test.ts</code> — 12개 통과.</td></tr>
+<tr><td>2 · 개별 그림 제작<br>예정</td><td>메인·중립·결과 8종 생성, 같은 스타일 지시문과 참조 사용</td><td>10종 원본, 투명도, 96px 축소에서 의미·선 굵기·장식 밀도 확인. 원본과 생성 지시문 보관.</td></tr>
+<tr><td>3 · 파일·화면 연결<br>예정</td><td>기존 유형 ID와 컴포넌트 연결 유지. 준비 스크립트에 동일 원본의 결과 PNG 출력 포함.</td><td>WebP 10개와 PNG 8개를 같은 제작 묶음으로 갱신. 8유형 결과·공유에 이전 3D 그림이 남지 않는지 확인. 네트워크 실패 대체 상징 유지.</td></tr>
+<tr><td>4 · 사용자 화면·기능 점검<br>예정</td><td>UI 담당: 메인·문항·분석·결과·채팅. 기능 담당: 진단 의미·원문·기록·공유·학생 분리. 검토 범위를 중복하지 않음.</td><td>대표 모바일·데스크톱 화면, 긴 이름·긴 설명·키보드·그림 오류 확인. 결과 상단 여백·그림 크기 축소 검토를 포함하되 본문을 자르거나 스크롤 자체를 막지 않음. 기본·Plus는 성인 청렴 흐름 확인, 학생은 성인 그림·AI 유입 없음 확인.</td></tr>
+<tr><td>5 · AI·출시 확인<br>일부 완료</td><td>주 에이전트는 AI 설정을 확인. 배포가 요청된 별도 작업에서 운영 담당이 제품별 후보를 확인.</td><td>Luna 일반·실시간 로컬 실제 응답 200, 관련 13개 테스트와 타입 검사 통과 증거 재사용. Worker Luna 접근·OG·설치 앱 갱신은 기존 출시 QA의 대기 항목으로 확인.</td></tr></table>
+<p>각 단계의 제작자와 검토자는 같은 질문을 중복 검토하지 않습니다. 기능 변경이 없는 시각 교체에는 불필요한 전체 테스트·벡터 저장소 재구축을 실행하지 않습니다. 공유 제품 경계를 바꾸면 제품 구성 검사 범위를 넓힙니다. 배포는 현재 요청되지 않았습니다.</p>
+<h2>에이전트가 확인한 준비 항목</h2><ul>
+<li>C는 현재 비교판이므로 개별 투명 파일과 나머지 상징이 필요합니다. 기존 <code>artwork.ts</code>의 8유형 연결 구조는 재사용할 수 있습니다.</li>
+<li><code>prepare-adult-artwork.mjs</code>는 현재 WebP만 생성합니다. PNG까지 함께 출력하도록 보완해야 화면·공유 스타일이 일치합니다.</li>
+<li>학생 배포 확인은 옛 준비 문구를 찾고 있어 현재 시연 화면과 맞지 않습니다. <a href="../TODO.md">TODO</a>에 등록했으며 학생 배포 전에 갱신해야 합니다. 실제 배포 실패 관찰이 아닌 소스 불일치 확인입니다.</li>
+<li>공통 통계의 운영 의도와 Worker의 실제 Luna 선택은 <a href="adult-design-release-qa.html">출시 QA</a>에 기록했습니다. 기본 배포의 토큰 검사는 대체 모델도 통과하며 Plus 검사는 홈 HTTP만 확인합니다.</li>
+</ul><p><small>Windows 소스 점검과 집중 검사만 수행했습니다. 제품 정의·진단 채점·학생 진행 중 작업·배포 설정을 변경하지 않았습니다. 디자인 선택은 DESIGN.md와 PRODUCT.md에 기록했습니다.</small></p>
+</body></html>

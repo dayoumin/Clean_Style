@@ -11,7 +11,7 @@ NEXT_PUBLIC_ENABLE_AI_CHAT = "1"
 NEXT_PUBLIC_APP_VARIANT = "default"
 
 [secrets]
-required = ["OPENROUTER_API_KEY", "ADMIN_SECRET"]
+required = ["OPENAI_API_KEY", "ADMIN_SECRET"]
 
 [assets]
 directory = ".open-next/assets"

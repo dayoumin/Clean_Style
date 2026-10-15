@@ -1,8 +1,8 @@
-import { MAX_CONTENT_LENGTH } from '@/lib/constants';
+import { MAX_CONTENT_LENGTH, MAX_HISTORY_MESSAGES, MAX_CHAT_HISTORY_CHARS } from '@/lib/constants';
 
-/** userContext에서 프롬프트 인젝션 패턴을 제거 */
-export function sanitizeUserInput(input: string): string {
-  let cleaned = input
+/** 프롬프트 인젝션 패턴만 제거한다 (줄 수 제한 없음 — 대화 기록·답변에도 쓴다). */
+export function stripInjectionMarkers(input: string): string {
+  return input
     .replace(/```/g, '')
     .replace(/#{1,6}\s/g, '')
     .replace(/\n{3,}/g, '\n\n')
@@ -13,6 +13,11 @@ export function sanitizeUserInput(input: string): string {
     .replace(/YOU\s+ARE\s+NOW/gi, '')
     .replace(/FORGET\s+(ALL\s+)?PREVIOUS/gi, '')
     .trim();
+}
+
+/** userContext에서 프롬프트 인젝션 패턴을 제거 */
+export function sanitizeUserInput(input: string): string {
+  let cleaned = stripInjectionMarkers(input);
 
   // 줄 수 제한 (20줄 초과 시 잘라냄)
   const lines = cleaned.split('\n');
@@ -41,8 +46,25 @@ export function sanitizeHistory(
     )
     .map((msg) => ({
       role: msg.role,
-      content: msg.content.slice(0, MAX_CONTENT_LENGTH),
+      // 경계에 걸린 개인정보 일부가 남지 않도록 자르기 전에 가린다.
+      content: redactPiiText(msg.content).slice(0, MAX_CONTENT_LENGTH),
     }));
+}
+
+/** 최근 메시지부터 개수·총 글자 수 한도 안에 드는 것만 남긴다 (오래된 메시지를 버림). */
+export function trimHistoryToLimit<T extends { content: string }>(
+  history: T[],
+  maxMessages = MAX_HISTORY_MESSAGES,
+  maxChars = MAX_CHAT_HISTORY_CHARS,
+): T[] {
+  const kept: T[] = [];
+  let total = 0;
+  for (let i = history.length - 1; i >= 0 && kept.length < maxMessages; i--) {
+    total += history[i].content.length;
+    if (total > maxChars) break;
+    kept.push(history[i]);
+  }
+  return kept.reverse();
 }
 
 /** scores 객체 검증 — 3개 축이 모두 숫자이고 합리적 범위 내인지 */
@@ -160,4 +182,24 @@ export function scanAndRedactPii(input: string): PiiScanResult {
     detected: [...detected],
     redacted,
   };
+}
+
+/** 인젝션 패턴을 지운 뒤 PII를 가린다. 패턴으로 쪼개 둔 번호가 제거 후 다시 붙어도 가려진다. */
+export function scanAndRedactPiiText(input: string): PiiScanResult {
+  return scanAndRedactPii(stripInjectionMarkers(input));
+}
+
+export function redactPiiText(input: string): string {
+  return scanAndRedactPiiText(input).redacted;
+}
+
+/** 대화 기록의 각 메시지에서 고위험 PII를 마스킹한다. */
+export function redactHistoryPii<T extends { content: string }>(history: T[]): T[] {
+  return history.map((message) => ({ ...message, content: redactPiiText(message.content) }));
+}
+
+/** 요약 원문의 인젝션 패턴을 지운 뒤 개인정보를 가리고 마지막에 길이를 자른다. */
+export function sanitizeSummary(input: string): string {
+  // 패턴 제거로 쪼개 둔 번호가 다시 붙을 수 있어 마스킹은 제거 뒤에 한다.
+  return scanAndRedactPii(sanitizeUserInput(input)).redacted.slice(0, MAX_CONTENT_LENGTH);
 }

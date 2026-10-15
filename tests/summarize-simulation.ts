@@ -3,6 +3,7 @@
  * 실행: npx tsx tests/summarize-simulation.ts
  *
  * API 호출 없이 클라이언트 로직(히스토리 관리, 요약 트리거, 전송 데이터 구성)을 검증
+ * 메시지 수 기반의 이전 요약 모델 참고용. 현재 길이 조건은 chat-summary-policy.test.ts와 실제 UI 검증에서 확인.
  */
 
 import { MAX_HISTORY_MESSAGES, SUMMARIZE_AT_MESSAGES } from '../src/lib/constants';
@@ -71,7 +72,7 @@ function simulateFetchAnswer(
 
 // ── Test 1: 상수 값 검증 ──
 console.log('\n[Test 1] 상수 값 검증');
-assert(MAX_HISTORY_MESSAGES === 20, 'MAX_HISTORY_MESSAGES === 20 (10턴)');
+assert(MAX_HISTORY_MESSAGES === 40, 'MAX_HISTORY_MESSAGES === 40 (20턴)');
 assert(SUMMARIZE_AT_MESSAGES === 8, 'SUMMARIZE_AT_MESSAGES === 8 (4턴)');
 assert(SUMMARIZE_AT_MESSAGES < MAX_HISTORY_MESSAGES, 'SUMMARIZE_AT < MAX_HISTORY');
 
@@ -160,15 +161,16 @@ assert(turn9.historyToSend.length === 0, '재요약 직후: 추가 히스토리 
 const turn10 = simulateFetchAnswer(history, summary, sumUpTo, '질문10', '답변10');
 history = turn10.newHistory;
 sumUpTo = turn10.newSummarizedUpTo;
-assert(history.length === 20, '10턴 후 20msg (MAX)');
+assert(history.length === 20, '10턴 후 20msg (추가 10턴 가능)');
 assert(turn10.historyToSend.length === 2, '턴9(2msg) 전송');
 assert(turn10.shouldSummarize === false, '10턴: 10%4=2 → 재요약 안 됨');
 
 // ── Test 9: MAX 초과 시 trim + summarizedUpTo 조정 ──
 console.log('\n[Test 9] MAX 초과 시 trim + summarizedUpTo 조정');
-const turn11 = simulateFetchAnswer(history, summary, sumUpTo, '질문11', '답변11');
-assert(turn11.newHistory.length === 20, '20msg 유지 (trim 작동)');
-assert(turn11.newSummarizedUpTo === sumUpTo - 2, 'trim 시 summarizedUpTo 2만큼 감소');
+const fullHistory = Array.from({ length: 20 }, (_, index) => makeTurn(index + 1)).flat();
+const overflow = simulateFetchAnswer(fullHistory, summary, 32, '추가질문', '추가답변');
+assert(overflow.newHistory.length === 40, '40msg 유지 (방어적 trim 작동)');
+assert(overflow.newSummarizedUpTo === 30, 'trim 시 summarizedUpTo 2만큼 감소');
 
 // ── Test 10: 리셋 후 깨끗한 상태 ──
 console.log('\n[Test 10] 리셋 후 깨끗한 상태');
@@ -231,7 +233,7 @@ console.log('\n[Test 12] 재방문: 히스토리 로드 → 즉시 요약 → �
   assert(rv5.summaryToSend === revisitSummary, '재방문 턴5: 요약 전송됨');
   assert(rv5.historyToSend.length === 0, '재방문 턴5: 요약 이후 추가 히스토리 0msg');
 
-  // 턴 6~10까지 이어서 가능
+  // 턴 6~20까지 이어서 가능
   let revisitHistory = rv5.newHistory;
   let rvSumUpTo = rv5.newSummarizedUpTo;
   const rv6 = simulateFetchAnswer(revisitHistory, revisitSummary, rvSumUpTo, '질문6', '답변6');
@@ -239,16 +241,16 @@ console.log('\n[Test 12] 재방문: 히스토리 로드 → 즉시 요약 → �
   rvSumUpTo = rv6.newSummarizedUpTo;
   assert(rv6.historyToSend.length === 2, '재방문 턴6: 최근 1턴(2msg) 전송');
 
-  // 10턴까지 진행
-  for (let t = 7; t <= 10; t++) {
+  // 20턴까지 진행
+  for (let t = 7; t <= 20; t++) {
     const r = simulateFetchAnswer(revisitHistory, revisitSummary, rvSumUpTo, `질문${t}`, `답변${t}`);
     revisitHistory = r.newHistory;
     rvSumUpTo = r.newSummarizedUpTo;
   }
-  assert(revisitHistory.length === 20, '재방문 10턴 완료: 20msg (MAX)');
+  assert(revisitHistory.length === 40, '재방문 20턴 완료: 40msg (MAX)');
 
   const maxReached = revisitHistory.length >= MAX_HISTORY_MESSAGES;
-  assert(maxReached === true, '재방문 후 10턴 도달 시 chatMaxReached');
+  assert(maxReached === true, '재방문 후 20턴 도달 시 chatMaxReached');
 }
 
 // ── Test 13: 재방문 시 히스토리 부족하면 요약 안 함 ──

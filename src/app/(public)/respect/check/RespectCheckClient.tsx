@@ -8,10 +8,12 @@ import {
   buildRespectResultUrl,
   getRespectQuestions,
   getRespectResultStorageKey,
-  RESPECT_QUESTION_VERSION,
+  RESPECT_SITUATION_GUIDANCE,
   type RespectEntry,
   respectEntryLabels,
 } from '@/data/workplaceRespectQuestions';
+import { createRespectResponse } from '@/diagnostics/workplace-respect/response';
+import EmergencyHelpStrip from '../EmergencyHelpStrip';
 
 const categoryEmoji: Record<string, string> = {
   관계: '🤝',
@@ -31,25 +33,32 @@ export default function RespectCheckClient({ entry }: { entry: RespectEntry }) {
   const router = useRouter();
   const questions = getRespectQuestions(entry);
   const [answers, setAnswers] = useState<number[]>([]);
+  const [storageBlocked, setStorageBlocked] = useState(false);
   const currentQuestion = questions[answers.length];
   const label = respectEntryLabels[entry];
 
   useEffect(() => {
-    sessionStorage.removeItem(getRespectResultStorageKey(entry));
+    try { sessionStorage.removeItem(getRespectResultStorageKey(entry)); } catch { /* 저장소 사용 불가 */ }
   }, [entry]);
 
   const handleSelect = useCallback((choiceIndex: number) => {
     const nextAnswers = [...answers, choiceIndex];
-    if (nextAnswers.length >= questions.length) {
-      sessionStorage.setItem(
-        getRespectResultStorageKey(entry),
-        JSON.stringify({ entry, answers: nextAnswers, createdAt: Date.now(), version: RESPECT_QUESTION_VERSION }),
-      );
+    if (currentQuestion.choices[choiceIndex]?.crisis || nextAnswers.length >= questions.length) {
+      try {
+        sessionStorage.setItem(
+          getRespectResultStorageKey(entry),
+          JSON.stringify(createRespectResponse(entry, nextAnswers)),
+        );
+      } catch {
+        // 결과는 이 탭의 저장소로만 넘기므로, 저장이 막히면 결과 화면 대신 안내를 보여준다.
+        setStorageBlocked(true);
+        return;
+      }
       router.push(buildRespectResultUrl(entry));
       return;
     }
     setAnswers(nextAnswers);
-  }, [answers, entry, questions.length, router]);
+  }, [answers, currentQuestion, entry, questions.length, router]);
 
   const handleBack = () => setAnswers((prev) => prev.slice(0, -1));
   const handleQuit = () => router.push('/respect');
@@ -120,6 +129,20 @@ export default function RespectCheckClient({ entry }: { entry: RespectEntry }) {
               </button>
             ))}
           </div>
+
+          {storageBlocked && (
+            <p role="alert" className="mt-4 text-[13px] leading-relaxed text-red-700">
+              브라우저 저장소를 사용할 수 없어 결과를 표시하지 못했어요. 사생활 보호 모드나 저장소 차단 설정을 확인한 뒤 다시 시도해 주세요.
+            </p>
+          )}
+
+          {answers.length === 0 && (
+            <div className="mt-6 rounded-[var(--radius-md)] bg-[var(--color-card)] px-4 py-3">
+              <p className="mb-1 text-[12px] font-bold text-[var(--color-text-secondary)]">응답 기준</p>
+              <p className="text-[12px] leading-relaxed text-[var(--color-text-muted)]">{RESPECT_SITUATION_GUIDANCE}</p>
+            </div>
+          )}
+          {currentQuestion.category === '안전' && <div className="mt-6"><EmergencyHelpStrip compact entry={entry} /></div>}
         </div>
       </div>
     </div>

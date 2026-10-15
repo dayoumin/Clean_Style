@@ -1,8 +1,8 @@
 import type { StudentScenario } from './types';
 
-export const studentPrototypeScenarios = [
+export const studentDemoScenarios = [
   {
-    id: 'SI-GROUP-001',
+    id: 'DEMO-GROUP-001',
     contentStatus: 'sample-unvalidated',
     safetyMode: 'standard',
     domain: 'group-participation',
@@ -24,7 +24,7 @@ export const studentPrototypeScenarios = [
     ],
   },
   {
-    id: 'SI-DIGITAL-001',
+    id: 'DEMO-DIGITAL-001',
     contentStatus: 'sample-unvalidated',
     safetyMode: 'standard',
     domain: 'digital-life',
@@ -46,7 +46,7 @@ export const studentPrototypeScenarios = [
     ],
   },
   {
-    id: 'SI-LEARNING-001',
+    id: 'DEMO-LEARNING-001',
     contentStatus: 'sample-unvalidated',
     safetyMode: 'standard',
     domain: 'learning',

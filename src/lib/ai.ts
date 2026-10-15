@@ -1,17 +1,10 @@
-// AI 호출 라이브러리 — OpenRouter + NVIDIA NIM fallback
-// 타임아웃: 10초 (non-stream), 30초 (stream)
+// AI 호출 라이브러리 — OpenAI Luna 직접 호출
+// 타임아웃: 10초 (non-stream), 90초 (stream)
 
 const AI_TIMEOUT_MS = 10_000;
 const AI_STREAM_TIMEOUT_MS = 90_000;
-export const AI_MODELS = [
-  'google/gemini-3.1-flash-lite-preview',
-  'nvidia:deepseek-ai/deepseek-v4-flash',
-  'x-ai/grok-4.3',
-] as const;
-const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const NVIDIA_MODEL_PREFIX = 'nvidia:';
-const DEFAULT_APP_URL = 'https://clean-style.ecomarin.workers.dev';
+export const AI_MODELS = ['gpt-6-luna'] as const;
+const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -20,11 +13,8 @@ interface ChatMessage {
 
 interface ChatOptions {
   messages: ChatMessage[];
-  temperature?: number;
   maxTokens?: number;
   apiKey?: string;
-  nvidiaApiKey?: string;
-  appUrl?: string;
 }
 
 interface ChatResponse {
@@ -43,47 +33,30 @@ function buildRequestInit(
   model: string,
   stream = false,
 ): Omit<RequestInit, 'signal'> {
-  const appUrl = options.appUrl?.trim() || process.env.NEXT_PUBLIC_APP_URL || DEFAULT_APP_URL;
-  const providerModel = model.startsWith(NVIDIA_MODEL_PREFIX)
-    ? model.slice(NVIDIA_MODEL_PREFIX.length)
-    : model;
-
   return {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
-      'HTTP-Referer': appUrl,
-      'X-Title': 'Clean Style',
     },
     body: JSON.stringify({
-      model: providerModel,
+      model,
       messages: options.messages,
-      temperature: options.temperature ?? 0.7,
-      max_tokens: options.maxTokens ?? (stream ? 1200 : 1500),
+      // Luna does not support temperature. Keep brief advice within the output budget.
+      reasoning_effort: 'none',
+      max_completion_tokens: options.maxTokens ?? (stream ? 1200 : 1500),
       ...(stream && { stream: true }),
     }),
   };
 }
 
-function getOpenRouterApiKey(options: ChatOptions): string | undefined {
-  return options.apiKey?.trim() || process.env.OPENROUTER_API_KEY;
-}
-
-function getNvidiaApiKey(options: ChatOptions): string | undefined {
-  return options.nvidiaApiKey?.trim() || process.env.NVIDIA_API_KEY;
-}
-
-function resolveProvider(model: string, options: ChatOptions): { url: string; apiKey?: string } {
-  if (model.startsWith(NVIDIA_MODEL_PREFIX)) {
-    return { url: NVIDIA_URL, apiKey: getNvidiaApiKey(options) };
-  }
-  return { url: OPENROUTER_URL, apiKey: getOpenRouterApiKey(options) };
+function resolveProvider(options: ChatOptions): { url: string; apiKey?: string } {
+  return { url: OPENAI_URL, apiKey: options.apiKey?.trim() || process.env.OPENAI_API_KEY };
 }
 
 async function readErrorText(res: Response): Promise<string> {
   const text = await res.text().catch(() => 'unknown');
-  return text.replace(/\s+/g, ' ').trim().slice(0, 500) || 'empty error body';
+  return text.replace(/sk-[A-Za-z0-9_-]+/g, '[redacted]').replace(/\s+/g, ' ').trim().slice(0, 500) || 'empty error body';
 }
 
 function serviceErrorEvent(status?: number): ServiceErrorEvent {
@@ -94,7 +67,7 @@ export async function chat(options: ChatOptions): Promise<ChatResponse> {
   let lastError: Error | null = null;
 
   for (const model of AI_MODELS) {
-    const { url, apiKey } = resolveProvider(model, options);
+    const { url, apiKey } = resolveProvider(options);
     if (!apiKey) {
       console.error('AI provider key missing:', model);
       continue;
@@ -146,7 +119,7 @@ export function chatStream(options: ChatOptions): ReadableStream {
       let lastStatus: number | undefined;
 
       for (const model of AI_MODELS) {
-        const { url, apiKey } = resolveProvider(model, options);
+        const { url, apiKey } = resolveProvider(options);
         if (!apiKey) {
           console.error('AI provider key missing:', model);
           continue;
@@ -157,6 +130,9 @@ export function chatStream(options: ChatOptions): ReadableStream {
         let timedOut = false;
         let emittedToken = false;
         let shouldTryNextModel = false;
+        // 업스트림이 정상 종료를 알렸는지 ([DONE] 또는 finish_reason). 연결만 끊긴 경우를 완료로 보지 않는다.
+        let upstreamDone = false;
+        let finishReason: string | null = null;
         const timeout = setTimeout(() => {
           timedOut = true;
           abortCtrl.abort();
@@ -192,7 +168,10 @@ export function chatStream(options: ChatOptions): ReadableStream {
                 const trimmed = line.trim();
                 if (!trimmed.startsWith('data: ')) continue;
                 const payload = trimmed.slice(6);
-                if (payload === '[DONE]') continue;
+                if (payload === '[DONE]') {
+                  upstreamDone = true;
+                  continue;
+                }
 
                 try {
                   const chunk = JSON.parse(payload);
@@ -207,6 +186,8 @@ export function chatStream(options: ChatOptions): ReadableStream {
                     ctrl.close();
                     return;
                   }
+                  const reason = chunk.choices?.[0]?.finish_reason;
+                  if (typeof reason === 'string') finishReason = reason;
                   const delta = chunk.choices?.[0]?.delta?.content;
                   if (delta) {
                     emittedToken = true;
@@ -220,12 +201,19 @@ export function chatStream(options: ChatOptions): ReadableStream {
           } finally {
             reader.releaseLock();
           }
+          // 마지막 줄에 줄바꿈이 없어도 종료 신호로 인정한다.
+          if (buffer.trim() === 'data: [DONE]') upstreamDone = true;
 
           if (shouldTryNextModel || !emittedToken) {
             if (!emittedToken) console.error('AI stream empty response:', model);
             continue;
           }
 
+          // 길이 한도('length')는 답변으로 인정하고, 종료 신호 없는 끊김·콘텐츠 필터는 오류로 알린다.
+          if ((!upstreamDone && !finishReason) || finishReason === 'content_filter') {
+            console.error('AI stream ended without completion:', model, finishReason ?? 'no finish signal');
+            ctrl.enqueue(encoder.encode(`data: ${JSON.stringify(serviceErrorEvent(lastStatus))}\n\n`));
+          }
           ctrl.enqueue(encoder.encode('data: [DONE]\n\n'));
           ctrl.close();
           return;

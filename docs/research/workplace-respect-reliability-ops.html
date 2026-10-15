@@ -261,6 +261,7 @@
 </style>
 </head>
 <body>
+<div id="v02-current" style="padding:16px;margin:20px 0;background:#fff3d4;border-left:4px solid #aa7300"><strong>현재 구현 규격: v0.2 (2026-10-14).</strong> 문항·점수·응답 저장 규격은 <a href="workplace-respect-v02.html">최신 v0.2 문서</a>를 우선합니다. 아래 v0.1의 문항·수치·화면 설명은 이전 설계 기록입니다. 운영 전 전문가 승인·개인정보·출처 검수 정책과 미완료 QA는 계속 적용합니다.</div>
 
 <main class="page-shell">
 <a class="back" href="index.html" target="_parent">&larr; 검토 문서 목록으로 돌아가기</a>
@@ -598,8 +599,8 @@
     <tr>
       <td><span class="tag tag-orange">운영 전환</span></td>
       <td>파일럿 플래그 전환 권한, 롤백 방법, 담당자가 정해졌는가?</td>
-      <td>배포 체크리스트와 승인자 기록</td>
-      <td>운영 전 필요</td>
+      <td>배포 체크리스트와 승인자 기록. 등록·마지막 확인: 2026-10-14. 소스에서 Plus 배포 워크플로의 <code>NEXT_PUBLIC_ENABLE_RESPECT_PILOT="1"</code>과 문항 20개의 초안·미승인 상태를 확인했다. 실제 운영 배포의 노출·접근 범위와 별도 승인 기록은 조회하지 않았다. 기대 증거: 승인 범위·승인자·문항/채점 버전 및 배포 후보의 기능 플래그·접근 범위. 종료 조건: 공개 운영 전 승인 증빙과 기능 활성화가 일치하거나, 미승인 초안의 제한된 파일럿 운영 정책과 접근 통제가 확인되면 <code>verified</code>; 불일치가 확인되면 TODO/이슈로 승격.</td>
+      <td><code>pending</code> — 운영 전 필요</td>
     </tr>
   </tbody>
 </table>
@@ -643,8 +644,8 @@
   <tbody>
     <tr>
       <td>임계값이 실제 상황을 과소·과대 안내할 수 있음</td>
-      <td>핵심 축과 점수를 함께 사용하고, 확정 판정을 피함</td>
-      <td>파일럿 응답 분포와 담당자 피드백으로 조정</td>
+      <td>v0.1의 핵심 신호+낮음, 안전 점수 합산, 문항 수에 따른 축 중복 가산 문제를 v0.2에서 보완했다. 축별 최대값 합산으로 두 입구 모두 최대 18점, 안전·기록 점수 제외, 핵심/강한 신호 최소 주의, 높음은 핵심 기준+8점이다. 위험 응답 조합 1,310,720개에서 핵심 또는 최고점 신호+낮음 공존 0건 확인. 수치는 열거한 입력의 검사이며 사용자 발생률·전문 타당성 승인과 다르다. <a href="workplace-respect-v02.html">현재 문항·채점 규격</a>.</td>
+      <td><code>pending</code>. 등록·마지막 확인: 2026-10-14. 영향 범위: 두 입구의 총점·축·등급 및 결과 해석. 출시 전 검사: 법·노무 검토자가 단발 위협, 불이익, 집단 우위, 업무 배제와 애매한 응답의 사례별 안내 수준을 검수하고 안전 신호와 위험 점수의 분리 여부를 결정한다. 기대 증거: 결과를 보기 전에 정한 사례별 기대 안내·검토자 의견, 문항별 근거 및 파일럿 이해도·응답 분포. 코드 보완 완료와 별개로 v0.2의 8점/6점 경계값·축별 최대값 합산을 전문가가 검수해야 한다. 종료 조건: 승인된 기준과 문구를 문서·코드·회귀 검사에 동일하게 반영하고 이전 응답의 버전 처리까지 확인하면 <code>verified</code>. 사례 테스트만으로 측정 타당성 검증 완료로 취급하지 않는다.</td>
     </tr>
     <tr>
       <td>사용자가 결과를 공식 판정처럼 오해할 수 있음</td>
@@ -653,8 +654,8 @@
     </tr>
     <tr>
       <td>위기 사용자가 문항을 끝까지 진행할 수 있음</td>
-      <td>위기 문항과 결과 화면에서 도움 연결 안내를 우선함</td>
-      <td>도움 요청 문구, 노출 위치, 상담 경로 순서를 전문가 검토</td>
+      <td>2026-10-14 v0.2 보완: A11/E11 신체 안전을 먼저, 경험 E10 마음건강을 둘째로 확인한다. 현재 위험을 선택하면 완성을 요구하지 않고 부분 응답으로 즉시 긴급 안내한다. 행동 위기에도 112/119가 연결되고, 타인 위험만 선택하면 자해를 추정하지 않는다. E10 비즉각 생각과 현재 실행·상해 위험을 구분했다. 두 독립 에이전트의 구현 검토에서 위기 흐름의 확정 결함은 없었으나 임상·기관 안전 정책 검수를 대체하지 않는다.</td>
+      <td><code>pending</code>. 등록·마지막 확인: 2026-10-14. 영향 범위: A10/E10 질문·선택지·도움 연결·결과 안내. 출시 전 검사: 정신건강·위기 대응 담당자가 외부 폭력, 보복, 즉각 위험, 지속되는 자해 생각의 안내 경로와 문항을 완료하기 전의 도움 접근성을 검수한다. 기대 증거: 위기 종류별 안내 순서와 문구·연결 경로의 승인 기록 및 해당 화면 동작 확인. 종료 조건: 기관 기준 확인으로 충분한 상황과 즉각적 보호가 필요한 상황을 구분한 정책, 문서·화면·테스트의 일치가 확인되면 <code>verified</code>; 구체적 안전 결함은 TODO/이슈로 승격한다.</td>
     </tr>
     <tr>
       <td>결과 문구와 도움 연결이 문항 출처 관리에서 빠질 수 있음</td>
@@ -669,10 +670,25 @@
     <tr>
       <td>공식 자료나 전화 안내가 바뀔 수 있음</td>
       <td>retrieved_at과 source_url을 내부 관리</td>
-      <td>분기별 또는 반기별 출처 재확인 일정 지정</td>
+      <td><code>pending</code>. 등록·마지막 확인: 2026-10-14. 영향 범위: 문항 근거·도움 안내의 출처와 승인. <a href="https://www.moel.go.kr/policy/policydata/view.do?bbs_seq=20260701008">고용노동부 2026년 7월 개정 매뉴얼</a>이 2026-07-29 게시됨을 확인했다. 이번 수정에서는 공식 첨부를 내려받아 Windows 번들 Python 3.12.14와 pypdf 6.10.0으로 관련 본문을 추출하고 관계 우위(PDF 48쪽), 배제·행위 방식(PDF 53쪽), 일회성 등 종합 판단(PDF 56쪽)을 확인했다. 거버넌스는 확인한 문항 위치와 새 판본을 반영했으나 24문항 전체의 출처·전문가 승인을 완료하지 않았다. 출시 전 검사: 새 매뉴얼의 관련 섹션·쪽수와 현행 법령을 문항별 근거에 대조하고, 실제 사용할 연락처·기관 경로도 담당자가 확인한다. 기대 증거: 문항별 출처 위치·판본 차이·확인일과 승인 범위. 종료 조건: 24문항 및 결과·도움 안내의 근거 위치와 승인 증빙이 확정되면 <code>verified</code>. 이후 정기 확인 주기는 운영자가 지정한다.</td>
     </tr>
   </tbody>
 </table>
+
+<h2 id="v02-verification">v0.2 기술 확인 기록 — 2026-10-14</h2>
+<p>증거: <code>artifacts/workplace-respect-v02/scoring-verification.json</code>. 두 입구의 위험 문항 조합 action 1,048,576개 / experience 262,144개를 현재 채점 함수로 검사했다. 핵심 기준 또는 단독 최고점 신호에 낮음이 공존하는 경우 0건, 최대점 각각 18점을 확인했다.</p>
+<p>독립 에이전트 2명은 계약·채점과 안전·사용자 안내를 분담했다. 브라우저 시계가 서버보다 앞서면 API가 정상 응답을 거절하던 결함을 발견하여 로컬 보관 만료와 서버 계약 검증을 분리했다. 60초 시계 편차 재현과 이전 버전 거절 유지로 해당 지적을 종료했다. 에이전트 검토는 법·노무·정신건강 승인이 아니다.</p>
+<p id="v02-execution">자동 검사: <code>corepack pnpm exec vitest run src/__tests__/workplace-respect.test.ts src/__tests__/respect-advice-route.test.ts src/__tests__/product-definitions.test.ts src/__tests__/product-ai-boundary.test.ts --exclude 'artifacts/**'</code> — 4파일 58개 통과. 최종 코어 타입 검사: <code>corepack pnpm exec tsc --noEmit --project artifacts/workplace-respect-v02/tsconfig-core.json</code> — 문항·채점·저장·거버넌스 통과. 증거: 같은 디렉터리의 <code>tests.log</code>, <code>types-core.log</code>. 전체 소스 타입 검사는 중간에 통과했으나 마지막 재실행에서 <code>next/server</code>·<code>next/navigation</code> 등 Next 의존성 선언 누락으로 완료하지 못했다(<code>types.log</code>). 추가 API 테스트의 모의 함수 인자 타입 오류는 정정했다. 최종 전체 타입·화면 검증은 아래 pending 항목으로 남긴다. 외부 AI 호출은 모의 처리했다.</p>
+<p>Windows Node 22.22.2를 유지했다. 실행 연결·React/Node 타입·SWC helper 누락을 진단한 뒤 <code>corepack pnpm install --frozen-lockfile --store-dir D:\Projects\Clean_style\artifacts\tool-cache\pnpm-store</code> 및 캐시를 쓰는 <code>--offline --force</code> 재연결을 수행했다. 샌드박스의 첫 <code>realpath node_modules EPERM</code>은 승인된 같은 범위 실행으로 처리했다. 원래 잠금 버전·패키지 정의를 유지했으며 전역 런타임·설정은 바꾸지 않았다. 아직 아래 브라우저 검증의 패키지 파일 누락이 남아 있다.</p>
+<table id="v02-browser-qa"><tbody>
+<tr><th>상태</th><td><code>pending</code> — 자동 검사·코어 타입·독립 코드 검토 완료, 최종 전체 타입·실제 화면 흐름 미확인</td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-14 / 2026-10-14. 로컬 Plus <code>/respect/check?entry=action</code>에서 HTTP 500. 서버 로그는 PostCSS의 <code>picocolors</code> 및 <code>react/jsx-runtime.js</code> 패키지 파일 누락이며, 새로운 문항 컴파일 오류로 확인된 것은 아니다. 설치·캐시 재연결 두 방식 후에도 화면 확인을 마치지 못했다.</td></tr>
+<tr><th>영향 범위</th><td>v0.2 첫 안전 질문·긴급 부분 응답 이동·전화 링크·일반 12문항 완료·결과 삭제·로컬 만료. 실제 모바일의 긴 선택지 접근성도 아직 확인하지 않았다.</td></tr>
+<tr><th>출시 전 검사</th><td>완전한 Windows 프로젝트 의존성 환경에서 전체 소스 타입 검사와 이 경로를 다시 확인한다. A11/E11 현재 위험 선택 직후 긴급 결과, E10 도움 선택 후 일반 점검, 결과 새로고침·삭제·구 버전 거절·만료와 작은 화면의 모든 선택지 접근을 확인한다. 전화 연결의 href를 검사하며 실제 긴급 전화를 시험 발신하지 않는다.</td></tr>
+<tr><th>기대 증거</th><td>정상 HTTP와 UI 전환 기록, 미완료 문항을 요구하지 않는 위기 결과, 선택 신호별 도움 링크, ID·버전 저장 및 삭제·만료, 모바일 폭의 선택지 접근 기록. 합성 응답만 사용하고 개인 원문을 남기지 않는다.</td></tr>
+<tr><th>종료 조건</th><td>정상 환경에서 위 시나리오를 실제 화면으로 통과하고 증거를 연결하면 <code>verified</code>. 제품 결함이 확인되면 TODO/이슈로 승격한다.</td></tr>
+<tr><th>이 작업의 서버</th><td><code>corepack pnpm dev --hostname 127.0.0.1 --port 3217</code>; 작업 폴더 <code>D:\Projects\Clean_style</code>, <code>NEXT_PUBLIC_APP_VARIANT=plus</code>, 존중 파일럿 1, AI 호출 0, 별도 캐시 <code>.next-respect-v02-3217</code>, 로그 <code>artifacts/dev-server/3217/server.log</code>. 이 작업에서 시작한 서버만 종료했다.</td></tr>
+</tbody></table>
 
 <h2 id="statement">9. 기관 설명 문안</h2>
 

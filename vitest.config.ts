@@ -2,9 +2,10 @@ import { defineConfig } from 'vitest/config';
 import path from 'path';
 
 export default defineConfig({
+  oxc: { jsx: { runtime: 'automatic' } },
   test: {
     globals: true,
-    exclude: ['**/node_modules/**', '**/tests/**'],
+    exclude: ['**/node_modules/**', '**/tests/**', 'artifacts/**'],
   },
   resolve: {
     alias: {

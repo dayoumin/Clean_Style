@@ -51,6 +51,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scrollbar-gutter: stable;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 * {
@@ -117,7 +119,22 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-bounce-soft { animation: none; }
+  .animate-bounce-soft,
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-scale-in,
+  .loading-dot {
+    animation: none !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 /* ═══ Choice Button ═══ */
@@ -127,9 +144,11 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-.choice-button:hover {
-  border-color: var(--color-primary) !important;
-  background: var(--color-card) !important;
+@media (hover: hover) {
+  .choice-button:hover {
+    border-color: var(--color-primary) !important;
+    background: var(--color-card) !important;
+  }
 }
 
 .choice-button:active {

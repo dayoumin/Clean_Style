@@ -3,43 +3,51 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { questions, calculateResult, styleTypes } from '@/diagnostics/adult-integrity';
+import { ADULT_SHUFFLE_SEED_RANGE, parseAdultTestProgress, type AdultTestProgress } from '@/diagnostics/adult-integrity/progress';
 import ProgressBar from '@/components/ProgressBar';
 import QuestionCard from '@/components/QuestionCard';
-import { LeafLineArt } from '@/components/LeafLineArt';
 import { addHistoryEntry } from '@/lib/history';
 import { buildResultUrl } from '@/lib/utils';
 import { TEST_START_TIME_KEY, TEST_REFERRER_KEY } from '@/lib/constants';
-import { AnalyzingScreen } from '@/components/LoadingFairy';
 import { normalizeDisplayName, MAX_DISPLAY_NAME_LENGTH } from '@/lib/display-name';
+import { adultCommonArtwork } from '@/diagnostics/adult-integrity/artwork';
+import AdultArtwork from '../components/AdultArtwork';
+import QuestionSeaweed from '../components/QuestionSeaweed';
+import { AdultIcon, type AdultIconName } from '../components/AdultIcon';
+
+const categoryIcons: Record<string, AdultIconName> = { research: 'research', admin: 'document', relation: 'handshake' };
 
 const STORAGE_KEY = 'integrity-test-progress';
-const AUTO_RESULT_DELAY_SECONDS = 10;
+const AUTO_RESULT_DELAY_SECONDS = 7;
 
-function loadProgress(): { answers: number[]; seed: number } | null {
+function tryStorage(action: () => void) {
+  try { action(); } catch { /* 저장소 사용 불가 시에도 테스트 진행 */ }
+}
+
+function loadProgress(): AdultTestProgress | null {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const data = JSON.parse(raw);
-    if (Array.isArray(data.answers) && data.answers.length > 0 && data.answers.length < questions.length) {
-      return data;
-    }
+    const saved = parseAdultTestProgress(localStorage.getItem(STORAGE_KEY));
+    if (!saved) localStorage.removeItem(STORAGE_KEY);
+    return saved;
   } catch { /* ignore */ }
   return null;
 }
 
 function saveProgress(answers: number[], seed: number) {
-  if (answers.length > 0 && answers.length < questions.length) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, seed }));
-  } else {
-    localStorage.removeItem(STORAGE_KEY);
-  }
+  tryStorage(() => {
+    if (answers.length > 0 && answers.length < questions.length) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, seed }));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  });
 }
 
 export default function TestPage() {
   const router = useRouter();
   const [answers, setAnswers] = useState<number[]>([]);
-  const [shuffleSeed, setShuffleSeed] = useState(() => Math.floor(Math.random() * 100000));
-  const [resumeData, setResumeData] = useState<{ answers: number[]; seed: number } | null>(null);
+  const [shuffleSeed, setShuffleSeed] = useState(() => Math.floor(Math.random() * ADULT_SHUFFLE_SEED_RANGE));
+  const [resumeData, setResumeData] = useState<AdultTestProgress | null>(null);
   const [ready, setReady] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [shareName, setShareName] = useState('');
@@ -47,6 +55,8 @@ export default function TestPage() {
   const [nameFieldFocused, setNameFieldFocused] = useState(false);
   const shareNameRef = useRef('');
   const navigatedRef = useRef(false);
+  const questionHeadingRef = useRef<HTMLHeadingElement>(null);
+  const previousAnswerCountRef = useRef<number | null>(null);
 
   // 최초 로드: 저장된 진행 상황 확인 + 분석용 메타데이터 기록
   useEffect(() => {
@@ -54,31 +64,34 @@ export default function TestPage() {
     if (saved) {
       setResumeData(saved);
     }
-    if (!sessionStorage.getItem(TEST_START_TIME_KEY)) {
-      sessionStorage.setItem(TEST_START_TIME_KEY, String(Date.now()));
-    }
-    if (!sessionStorage.getItem(TEST_REFERRER_KEY)) {
-      sessionStorage.setItem(TEST_REFERRER_KEY, document.referrer || 'direct');
-    }
+    tryStorage(() => {
+      if (!sessionStorage.getItem(TEST_START_TIME_KEY)) {
+        sessionStorage.setItem(TEST_START_TIME_KEY, String(Date.now()));
+      }
+      if (!sessionStorage.getItem(TEST_REFERRER_KEY)) {
+        sessionStorage.setItem(TEST_REFERRER_KEY, document.referrer || 'direct');
+      }
+    });
     setReady(true);
   }, []);
 
-  // 답변 변경 시 자동 저장 (0개면 제거)
+  // 복원 확인과 이어하기/처음부터 결정 전에는 저장된 진행을 덮어쓰지 않음.
   useEffect(() => {
+    if (!ready || resumeData) return;
     saveProgress(answers, shuffleSeed);
-  }, [answers, shuffleSeed]);
+  }, [ready, resumeData, answers, shuffleSeed]);
 
   useEffect(() => {
     shareNameRef.current = shareName;
   }, [shareName]);
 
-  // 마지막 문항 완료 시 분석 화면에서 공유용 이름을 선택 입력
+  // 마지막 문항 완료 시 결과를 준비하고 공유용 이름을 선택 입력
   const resultUrlRef = useRef<string | null>(null);
   useEffect(() => {
     if (ready && answers.length >= questions.length && !finishing) {
       navigatedRef.current = false;
       setFinishing(true);
-      localStorage.removeItem(STORAGE_KEY);
+      tryStorage(() => localStorage.removeItem(STORAGE_KEY));
       const result = calculateResult(answers);
       const style = styleTypes[result.styleKey];
       const entry = addHistoryEntry({
@@ -92,6 +105,16 @@ export default function TestPage() {
     }
   }, [answers, ready, finishing]);
 
+  useEffect(() => {
+    if (!ready || finishing || resumeData) return;
+    const previous = previousAnswerCountRef.current;
+    previousAnswerCountRef.current = answers.length;
+    if (previous === null || previous === answers.length) return;
+    window.scrollTo({ top: 0 });
+    questionHeadingRef.current?.closest('main')?.scrollTo({ top: 0 });
+    questionHeadingRef.current?.focus({ preventScroll: true });
+  }, [answers.length, ready, finishing, resumeData]);
+
   const handleResume = () => {
     if (resumeData) {
       setAnswers(resumeData.answers);
@@ -101,10 +124,12 @@ export default function TestPage() {
   };
 
   const handleStartNew = () => {
-    localStorage.removeItem(STORAGE_KEY);
-    sessionStorage.setItem(TEST_START_TIME_KEY, String(Date.now()));
+    tryStorage(() => {
+      localStorage.removeItem(STORAGE_KEY);
+      sessionStorage.setItem(TEST_START_TIME_KEY, String(Date.now()));
+    });
     setAnswers([]);
-    setShuffleSeed(Math.floor(Math.random() * 100000));
+    setShuffleSeed(Math.floor(Math.random() * ADULT_SHUFFLE_SEED_RANGE));
     setResumeData(null);
   };
 
@@ -114,8 +139,8 @@ export default function TestPage() {
 
   const handleBack = () => setAnswers(prev => prev.slice(0, -1));
 
+  // 진행 상황은 남겨 두고 나간다. 다시 들어오면 이어하기/처음부터를 고를 수 있다.
   const handleQuit = () => {
-    localStorage.removeItem(STORAGE_KEY);
     router.push('/');
   };
 
@@ -125,7 +150,7 @@ export default function TestPage() {
     const url = new URL(resultUrlRef.current, window.location.origin);
     const displayName = normalizeDisplayName(shareNameRef.current);
     if (displayName) url.searchParams.set('name', displayName);
-    router.push(`${url.pathname}${url.search}`);
+    router.replace(`${url.pathname}${url.search}`);
   }, [router]);
 
   useEffect(() => {
@@ -153,10 +178,9 @@ export default function TestPage() {
     const autoResultEnabled = !nameFieldFocused && !hasShareName;
 
     return (
-      <AnalyzingScreen
-        autoComplete={false}
-        onDone={handleViewResult}
-      >
+      <div className="flex min-h-[60vh] flex-col items-center justify-center">
+        <AdultArtwork src={adultCommonArtwork.pause} className="adult-neutral-art" eager />
+        <h1 className="text-base font-semibold text-[var(--color-text)]">결과가 준비됐어요</h1>
         <div className="mt-7 w-full max-w-xs rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-4 shadow-sm">
           <label className="block text-left text-[12px] font-bold text-[var(--color-text-muted)]" htmlFor="share-name">
             공유용 이름(선택)
@@ -193,7 +217,7 @@ export default function TestPage() {
               : '이름 입력 후 결과 보기를 눌러주세요'}
           </p>
         </div>
-      </AnalyzingScreen>
+      </div>
     );
   }
 
@@ -229,37 +253,41 @@ export default function TestPage() {
   if (!question) return null;
 
   return (
-    <div className="relative -mx-6 -mb-6 -mt-4 flex flex-1 flex-col overflow-hidden bg-white px-6 pb-6 pt-4 sm:-mx-6 sm:-mb-8 sm:-mt-6 sm:px-6 sm:pb-8 sm:pt-6">
-      <LeafLineArt className="pointer-events-none absolute -right-16 top-16 h-52 w-52 text-[#b9c8aa] opacity-[0.16]" />
-      <LeafLineArt className="pointer-events-none absolute -left-24 bottom-10 h-56 w-56 rotate-[-18deg] text-[#cbd6c0] opacity-[0.14]" />
+    <div className="adult-question-page relative -mx-6 -mb-6 -mt-4 flex flex-1 flex-col px-6 pb-6 pt-4 sm:-mx-6 sm:-mb-8 sm:-mt-6 sm:px-6 sm:pb-8 sm:pt-6">
 
-      <div className="relative z-10">
-        <div className="mb-4 flex items-center justify-between border-b border-[var(--color-border)] pb-3">
-          <h1 className="text-[17px] font-bold text-[var(--color-text)]">나의 청렴 스타일은?</h1>
-          <div className="flex gap-1.5">
+      <div className="adult-question-content relative z-10">
+        <div className="mb-4 flex min-h-[46px] items-center justify-between gap-2 border-b border-[var(--color-border)] pb-3">
+          <h1 className="whitespace-nowrap text-[14px] font-bold tracking-tight text-[var(--color-text)] sm:text-[17px]">나의 청렴 스타일은?</h1>
+          <div className="flex shrink-0 gap-1.5 whitespace-nowrap">
             {answers.length > 0 && (
               <button
                 onClick={handleBack}
-                className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
+                className="min-h-11 rounded-full border border-[var(--color-border)] px-2.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
               >
                 ← 이전
               </button>
             )}
             <button
               onClick={handleQuit}
-              className="rounded-full border border-[var(--color-border)] px-3 py-1.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
+              className="min-h-11 rounded-full border border-[var(--color-border)] px-2.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
             >
               중단
             </button>
           </div>
         </div>
         <ProgressBar current={answers.length + 1} total={questions.length} />
+        <p className="mb-6 text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
+          관련 규정과 필수 절차를 지키는 범위에서, 내가 평소 가장 먼저 취할 행동에 가까운 선택지 하나를 골라 주세요.
+        </p>
         <QuestionCard
           key={question.id}
           question={question}
           questionIndex={answers.length}
           shuffleSeed={shuffleSeed}
           onSelect={handleSelect}
+          headingRef={questionHeadingRef}
+          categoryIcon={<AdultIcon name={categoryIcons[question.category] ?? 'document'} size={18} />}
+          headerArtwork={<QuestionSeaweed />}
         />
       </div>
     </div>

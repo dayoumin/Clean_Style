@@ -451,33 +451,22 @@
 
 <div class="card">
 <pre style="font-size:0.75rem;">
-                    ┌──────────────────────────────────────────────────────────────┐
-                    │                     BottomSheet (모달)                        │
-                    │                                                              │
-                    │   ┌─────────┐    fetchAnswer()    ┌──────────┐              │
-  "AI 조언" 클릭 ──>│   │  입력    │ ──────────────────> │  로딩    │              │
-                    │   │  phase   │                     │  phase   │              │
-                    │   └────┬────┘                     └─────┬────┘              │
-                    │        │                                │                    │
-                    │   "대화 지우기"                    응답 도착                  │
-                    │        │                                │                    │
-                    │        v                                v                    │
-                    │   handleDeleteChat()           ┌───────────────┐            │
-                    │   resetModal()                 │    답변 phase  │            │
-                    │        │                       │               │            │
-                    │        │                       │  "새 질문"     │            │
-                    │        └──────────<─────────── │   resetModal() │            │
-                    │                                │               │            │
-                    │                                │  "이어서"     │            │
-                    │        ┌──────────<─────────── │  continueChat()│            │
-                    │        │                       └───────────────┘            │
-                    │        v                                                     │
-                    │   입력 phase (히스토리 유지)                                  │
-                    └──────────────────────────────────────────────────────────────┘
+2026-10-14 승인된 입력 흐름 (성인 조언·일터 존중 조언 공통):
+
+  AI 조언 열기 → 대화 + 두 줄 입력칸 → 전송 → 답변 생성
+                      ↑                        │
+                      └── 입력칸 비우기 ← 답변 완료
+
+  입력칸은 계속 표시하며 생성 중에는 읽기 전용 + 중단 버튼을 표시합니다.
+  실패·중단 시 질문은 남겨 다시 전송할 수 있습니다.
+  Enter: 전송 / Shift+Enter: 줄바꿈 / 한글 조합 중 Enter: 전송하지 않음
+  닫기: 시트 닫기, 대화 유지 / 다시 열기: 바로 입력 가능
+  대화 지우기: 확인 후 대화 초기화, 진단 결과 유지
+  성인 20턴 완료: 입력칸 대신 새 대화 시작 버튼 표시
 
 레이아웃:
-  모바일 → 하단 시트 (items-end, rounded-t-[20px], max-h-[85dvh])
-  PC     → 중앙 모달 (sm:items-center, sm:rounded-[20px], sm:max-h-[70vh])
+  모바일 → 하단 시트 (items-end, rounded-t-[20px], max-h-[88dvh])
+  PC     → 중앙 모달 (sm:items-center, sm:rounded-[20px], sm:max-h-[82vh])
   공통   → 대화 영역 스크롤 (flex-1 overflow-y-auto), 버튼/입력 하단 고정 (shrink-0)
 </pre>
 </div>
@@ -486,9 +475,9 @@
 <div class="card">
 <table>
   <tr><th>턴</th><th>메시지 수</th><th>상태</th><th>UI 표시</th></tr>
-  <tr><td>1~6턴</td><td>2~12</td><td>일반</td><td>&mdash;</td></tr>
-  <tr><td>7턴</td><td>14</td><td><code>chatLastTurn</code></td><td>"이어서 질문은 1번 더 가능해요"</td></tr>
-  <tr><td>8턴+</td><td>16+</td><td><code>chatMaxReached</code></td><td>"대화가 길어져서 새로 시작할게요" + 이어서 비활성화</td></tr>
+  <tr><td>1~18턴</td><td>2~36</td><td>일반</td><td>입력칸 + 전송</td></tr>
+  <tr><td>19턴</td><td>38</td><td><code>chatLastTurn</code></td><td>"이어서 질문은 1번 더 가능해요"</td></tr>
+  <tr><td>20턴</td><td>40</td><td><code>chatMaxReached</code></td><td>"새 대화 시작" — 명시적으로 초기화</td></tr>
 </table>
 </div>
 
@@ -580,7 +569,8 @@ MAX_ENTRIES = 10  (초과 시 가장 오래된 항목 삭제)
 </table>
 </div>
 
-<p class="updated">Last updated: 2026-03-24 &middot; Generated for developer reference</p>
+<p class="updated">Historical flow reference: 2026-03-24 &middot; Current policy checked: 2026-10-14</p>
+<p>이 문서의 흐름도·비용 예시는 이전 8회 버전의 참고 자료입니다. 2026-10-14 사용자 요청으로 성인 청렴 조언을 초회 포함 20회(메시지 40개)로 확장했습니다. 19회 완료 후 마지막 질문 안내, 20회 완료 후 명시적인 새 대화 시작을 제공합니다. 요약은 고정 4회마다 실행하지 않고 미요약 메시지가 8개 이상이며 누적 글자가 8,000자 이상일 때만 실행합니다. 짧은 대화는 원문을 유지하고, 한도 완료 시 불필요한 요약은 실행하지 않습니다. 일정 기간이 지나면 대화를 자동 초기화하는 정책은 없습니다. 창을 닫거나 다시 열어도 대화가 유지되며 새 대화 시작은 진단 결과를 보존하고 채팅만 초기화합니다. 1분에 5번의 요청 제한은 별도입니다. 일터 존중에는 이 정책 변경을 적용하지 않습니다.</p>
 
 </body>
 </html>
