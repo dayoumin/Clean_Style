@@ -276,6 +276,9 @@ export default function TestPage() {
           </div>
         </div>
         <ProgressBar current={answers.length + 1} total={questions.length} />
+        <p className="mb-6 text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
+          관련 규정과 필수 절차를 지키는 범위에서, 내가 평소 가장 먼저 취할 행동에 가까운 선택지 하나를 골라 주세요.
+        </p>
         <QuestionCard
           key={question.id}
           question={question}
