@@ -98,8 +98,9 @@
 .adult-neutral-art { width: 168px; height: 114px; margin: 0 auto 16px; }
 .adult-question-page { background: var(--color-bg); }
 .adult-question-seaweed { display: block; width: 48px; height: 48px; object-fit: contain; pointer-events: none; }
-.adult-question-page .choice-button { background: white; box-shadow: none; min-height: 58px; word-break: keep-all; overflow-wrap: anywhere; }
-.adult-question-page h2 { word-break: keep-all; overflow-wrap: anywhere; }
+/* One- and two-line choices share a base height; longer text stays fully visible. */
+.adult-question-page .choice-button { background: white; box-shadow: none; min-height: 76px; padding-block: 12px; line-height: 1.6; word-break: keep-all; overflow-wrap: anywhere; }
+.adult-question-page h2 { margin-bottom: 24px; word-break: keep-all; overflow-wrap: anywhere; }
 .adult-question-page .question-number { color: var(--color-text-muted); }
 .adult-experience .adult-diagnostic-card { border-color: var(--color-border); box-shadow: none; }
 @media (max-width: 360px) {
