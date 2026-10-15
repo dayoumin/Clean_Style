@@ -31,7 +31,10 @@ the product definition and build configuration, not from a long-lived product br
 
 ## Product Deployment Policy
 
-- The default and plus products may deploy from reviewed `main` according to their workflows.
+- Only the default product deploys automatically from reviewed `main` according to its workflow.
+- The separate `clean-style-plus` deployment was retired on 2026-10-15. Keep its deployment
+  workflow removed and do not recreate its Cloudflare Worker unless the user explicitly requests it.
+  The Plus product definition and diagnostic code remain available for local use.
 - The student product stays manual-deploy only until its content, safeguarding, and validation
   gates are approved. Do not restore automatic student deployment merely for convenience.
 - Do not deploy any product unless the user explicitly asks for deployment in the current task.
