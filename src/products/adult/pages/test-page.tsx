@@ -10,8 +10,6 @@ import { addHistoryEntry } from '@/lib/history';
 import { buildResultUrl } from '@/lib/utils';
 import { TEST_START_TIME_KEY, TEST_REFERRER_KEY } from '@/lib/constants';
 import { normalizeDisplayName, MAX_DISPLAY_NAME_LENGTH } from '@/lib/display-name';
-import { adultCommonArtwork } from '@/diagnostics/adult-integrity/artwork';
-import AdultArtwork from '../components/AdultArtwork';
 import QuestionSeaweed from '../components/QuestionSeaweed';
 import { AdultIcon, type AdultIconName } from '../components/AdultIcon';
 
@@ -179,7 +177,10 @@ export default function TestPage() {
 
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center">
-        <AdultArtwork src={adultCommonArtwork.pause} className="adult-neutral-art" eager />
+        <svg className="mb-4 shrink-0" width="56" height="56" viewBox="0 0 56 56" fill="none" aria-hidden="true" focusable="false">
+          <circle cx="28" cy="28" r="28" fill="var(--color-primary-soft)" />
+          <path className="adult-completion-check" d="m17 28 7 7 15-15" pathLength="1" stroke="var(--color-primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
         <h1 className="text-base font-semibold text-[var(--color-text)]">결과가 준비됐어요</h1>
         <div className="mt-7 w-full max-w-xs rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 py-4 shadow-sm">
           <label className="block text-left text-[12px] font-bold text-[var(--color-text-muted)]" htmlFor="share-name">

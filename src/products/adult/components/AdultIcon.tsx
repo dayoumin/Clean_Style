@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type AdultIconName = 'document' | 'clock' | 'heart' | 'spark' | 'research' | 'handshake' | 'chat' | 'shield' | 'scales' | 'mountain' | 'rocket' | 'target' | 'dove' | 'arrow' | 'back' | 'share' | 'close' | 'person-check' | 'people-heart';
+export type AdultIconName = 'document' | 'clock' | 'heart' | 'spark' | 'research' | 'handshake' | 'chat' | 'shield' | 'scales' | 'mountain' | 'rocket' | 'compass' | 'target' | 'dove' | 'arrow' | 'back' | 'share' | 'close' | 'person-check' | 'people-heart';
 
 const paths: Record<AdultIconName, ReactNode> = {
   document: <><path d="M14 3H6v18h12V7z" /><path d="M14 3v5h4M9 12h6M9 16h6" /></>,
@@ -14,6 +14,7 @@ const paths: Record<AdultIconName, ReactNode> = {
   scales: <><path d="M12 3v18M7 21h10M4 7h16M6 7l-4 8h8zm12 0-4 8h8z" /></>,
   mountain: <><path d="m2 20 7-15 5 10 3-7 5 12zM7 10l2 2 2-2" /></>,
   rocket: <><path d="M9 16C7 8 11 4 16 2c2 5 0 11-6 14zM9 9 4 12v6l5-2M14 14l-2 6H6" /><circle cx="13" cy="8" r="1.5" /></>,
+  compass: <><circle cx="12" cy="12" r="9" /><path d="m16 8-3 6-5 2 3-6z" /></>,
   target: <><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" /></>,
   dove: <><path d="M3 15c5 5 14 5 17-1 3-5-1-9-4-7l-3 3-7-4 3 7zM20 9l2 1-3 1M10 15l5-2" /></>,
   arrow: <path d="M4 12h16m-6-6 6 6-6 6" />,
@@ -33,7 +34,7 @@ const resultIcons: Record<string, AdultIconName> = {
   'principle-transparent-cooperative': 'scales',
   'principle-cautious-independent': 'mountain',
   'principle-cautious-cooperative': 'handshake',
-  'flexible-transparent-independent': 'rocket',
+  'flexible-transparent-independent': 'compass',
   'flexible-transparent-cooperative': 'chat',
   'flexible-cautious-independent': 'target',
   'flexible-cautious-cooperative': 'dove',

@@ -32,13 +32,14 @@ describe('성인 청렴 문구 수정의 기존 답안 호환성', () => {
     ]))).toEqual(originalScores);
   });
 
-  it('8유형 ID·이름·축 조합·이모지가 유지된다', () => {
+  it('8유형 ID·이름·축 조합과 승인된 표시 상징이 유지된다', () => {
     expect(Object.entries(styleTypes).map(([key, s]) => [key, s.id, s.name, s.subtitle, s.emoji])).toEqual([
       ['principle-transparent-independent', 'principle-transparent-independent', '소신 수호자', '원칙-투명-독립', '🛡️'],
       ['principle-transparent-cooperative', 'principle-transparent-cooperative', '정의의 조율자', '원칙-투명-협력', '⚖️'],
       ['principle-cautious-independent', 'principle-cautious-independent', '묵묵한 파수꾼', '원칙-신중-독립', '🏔️'],
       ['principle-cautious-cooperative', 'principle-cautious-cooperative', '신중한 중재자', '원칙-신중-협력', '🤝'],
-      ['flexible-transparent-independent', 'flexible-transparent-independent', '실용주의 개척자', '유연-투명-독립', '🚀'],
+      // 2026-10-15 사용자 요청으로 이 유형의 로켓만 나침반으로 교체했다.
+      ['flexible-transparent-independent', 'flexible-transparent-independent', '실용주의 개척자', '유연-투명-독립', '🧭'],
       ['flexible-transparent-cooperative', 'flexible-transparent-cooperative', '열린 소통가', '유연-투명-협력', '💬'],
       ['flexible-cautious-independent', 'flexible-cautious-independent', '전략적 해결사', '유연-신중-독립', '🎯'],
       ['flexible-cautious-cooperative', 'flexible-cautious-cooperative', '온건한 조정자', '유연-신중-협력', '🕊️'],

@@ -259,7 +259,7 @@ export const styleTypes: Record<string, StyleType> = {
     name: '실용주의 개척자',
     subtitle: '유연-투명-독립',
     description: '상황에 맞게 판단하고, 과정은 공개하며 주도적으로 실행하는 타입',
-    emoji: '🚀',
+    emoji: '🧭',
     strength: '상황에 맞는 대안을 찾고, 판단 과정과 근거를 공유하는 데 강점이 있어요.',
     caution: '상황에 따라 방법을 바꿀 때 판단 근거를 설명하지 않으면, 다른 사람이 기준을 이해하기 어려울 수 있어요.',
     tip: '"이건 왜 이렇게 판단했는지" 한 줄이라도 남겨두면, 유연함이 신뢰로 바뀌어요',
