@@ -24,7 +24,7 @@ function ChatBubbles({ messages }: { messages: AiAdviceMessage[] }) {
           className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
         >
           <div
-            className={`max-w-[85%] rounded-[var(--radius-md)] px-3.5 py-2.5 text-[13px] leading-relaxed ${
+            className={`max-w-[85%] rounded-[var(--radius-md)] px-3.5 py-2.5 text-[14px] leading-relaxed ${
               msg.role === 'user'
                 ? 'rounded-br-sm bg-[var(--color-primary)] text-white'
                 : 'rounded-bl-sm bg-[var(--color-card)] text-[var(--color-text-secondary)]'
@@ -145,7 +145,7 @@ export default function AiAdviceSheet({
             {loading && (streamingAnswer ? (
               <div className="flex justify-start">
                 <div className="max-w-[85%] rounded-[var(--radius-md)] rounded-bl-sm border border-[var(--color-primary-muted)] bg-[var(--color-primary-soft)] px-3.5 py-2.5">
-                  <p className="whitespace-pre-line text-[13px] leading-relaxed text-[var(--color-text-secondary)]">
+                  <p className="whitespace-pre-line text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
                     {streamingAnswer}
                     <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse bg-[var(--color-primary-accent)] align-text-bottom" />
                   </p>
@@ -154,7 +154,7 @@ export default function AiAdviceSheet({
             ) : (
               <div className="py-4 text-center">
                 <span className="mb-3 inline-block h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-primary-accent)] border-t-transparent" />
-                <p className="text-[14px] font-semibold text-[var(--color-primary-accent)]">질문을 살펴보고 있어요...</p>
+                <p className="text-[13px] text-[var(--color-text-secondary)]">질문을 살펴보고 있어요...</p>
               </div>
             ))}
             <div ref={scrollAnchorRef} />
@@ -197,7 +197,7 @@ export default function AiAdviceSheet({
                   readOnly={loading}
                   placeholder={placeholder}
                   aria-label="AI에게 질문할 내용"
-                  className="min-w-0 flex-1 resize-none border-0 bg-transparent px-2 py-2 text-[16px] leading-relaxed text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] outline-none! shadow-none! read-only:opacity-60"
+                  className="min-w-0 flex-1 resize-none border-0 bg-transparent px-2 py-2 text-[16px] leading-relaxed text-[var(--color-text)] placeholder:text-[14px] placeholder:text-[var(--color-text-muted)] outline-none! shadow-none! read-only:opacity-60"
                   rows={rows}
                 />
                 {loading ? (
@@ -209,7 +209,7 @@ export default function AiAdviceSheet({
                 )}
               </form>
               {piiWarning && piiWarning.length > 0 && (
-                <p className="text-[12px] leading-relaxed text-amber-800">
+                <p className="text-[13px] leading-relaxed text-amber-800">
                   개인정보({piiWarning.join(', ')})가 감지되어 자동으로 가렸습니다.
                 </p>
               )}
