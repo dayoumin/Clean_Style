@@ -34,14 +34,14 @@
 .adult-institution-name { font-family: 'Arial Black', Arial, sans-serif; font-size: 36px; font-weight: 900; font-style: normal; }
 .adult-institution-department { fill: #26343e; font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: 0; }
 .adult-institution-sheen { opacity: 0; animation: adult-institution-sheen 1.7s ease-in-out .45s 2 forwards; }
-.adult-institution-outline { opacity: 0; stroke-dasharray: 12 180; stroke-dashoffset: 12; animation: adult-institution-outline .65s linear 3.85s 1 both; }
-.adult-institution-outline:nth-child(2) { animation-delay: 4.5s; }
-.adult-institution-outline:nth-child(3) { animation-delay: 5.15s; }
-.adult-institution-outline:nth-child(4) { animation-delay: 5.8s; }
+.adult-institution-outline { opacity: 0; stroke-dasharray: 24 180; stroke-dashoffset: 24; animation: adult-institution-outline 1s linear 3.85s 1 both; }
+.adult-institution-outline:nth-child(2) { animation-delay: 4.85s; }
+.adult-institution-outline:nth-child(3) { animation-delay: 5.85s; }
+.adult-institution-outline:nth-child(4) { animation-delay: 6.85s; }
 @keyframes adult-institution-outline {
-  0% { stroke-dashoffset: 12; opacity: 0; }
-  8% { opacity: .9; }
-  90% { opacity: .9; }
+  0% { stroke-dashoffset: 24; opacity: 0; }
+  8% { opacity: 1; }
+  90% { opacity: 1; }
   100% { stroke-dashoffset: -180; opacity: 0; }
 }
 @keyframes adult-institution-sheen {

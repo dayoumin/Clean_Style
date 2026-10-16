@@ -1,6 +1,6 @@
 # Adult visual direction: B, a light walk
 
-On 2026-10-16 the user added a one-time letter-outline light after the NIFS logo's two existing surface sweeps. Keep the current face and Korean line unchanged. At 3.85s, a thin steel-blue light traces the N, I, F and S glyph contours in sequence (650ms per letter), then disappears at 6.45s. The same SVG text layout supplies both face and outline so the glyphs stay aligned. No enclosing logo box or main-card perimeter animation. Reduced motion disables both decorative effects; starting the diagnostic never waits for them.
+On 2026-10-16 the user added a one-time letter-outline light after the NIFS logo's two existing surface sweeps, then requested better visibility on white. Keep the current face and Korean line unchanged. At 3.85s, a medium steel-blue (#4d8fae) highlight traces the N, I, F and S glyph contours in sequence (1s per letter), then disappears at 7.85s. Its SVG stroke is 2.2 units with a 24-unit moving segment, twice the initial width and segment length. The same SVG text layout supplies both face and outline so the glyphs stay aligned. No enclosing logo box or main-card perimeter animation. Reduced motion disables both decorative effects; starting the diagnostic never waits for them.
 
 The selected visual reference is `design-concepts/warm-light-2026-10-13/B-mint-marine-home-result-v2.png`. Result/body corrections and the reviewed illustration set are under that directory's `asset-review/`.
 

@@ -39,7 +39,7 @@ export default function AdultInstitutionBrand() {
       <g clipPath={`url(#${id}-letters)`} aria-hidden="true">
         <rect className="adult-institution-sheen" x={-42} y={0} width={42} height={42} fill={`url(#${id}-sheen)`} />
       </g>
-      <text {...lettering} fill="none" stroke="#c1dbe9" strokeWidth={1.1} strokeLinejoin="round" strokeLinecap="round" aria-hidden="true">
+      <text {...lettering} fill="none" stroke="#4d8fae" strokeWidth={2.2} strokeLinejoin="round" strokeLinecap="round" aria-hidden="true">
         {['N', 'I', 'F', 'S'].map(letter => <tspan key={letter} className="adult-institution-outline">{letter}</tspan>)}
       </text>
       <text className="adult-institution-department" x={3} y={54}>생명공학과</text>
