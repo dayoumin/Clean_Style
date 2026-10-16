@@ -90,6 +90,7 @@ export default function AiAdviceSheet({
   submitLabel = '보내기',
 }: AiAdviceSheetProps) {
   const hasMessages = messages.length > 0;
+  const hasPiiWarning = Boolean(piiWarning?.length);
   const limitReached = maxTurns !== undefined && messages.length >= maxTurns * 2;
   const lastTurn = maxTurns !== undefined && !limitReached && messages.length >= (maxTurns - 1) * 2;
   const canSubmit = !loading && !limitReached && inputValue.trim().length > 0;
@@ -200,7 +201,7 @@ export default function AiAdviceSheet({
             <p role="status" className={`shrink-0 px-5 py-2 text-center text-[12px] leading-relaxed text-[var(--color-text-secondary)] ${!hasMessages && !loading ? 'pt-16' : ''}`}>{limitNotice}</p>
           )}
           {!limitReached ? (
-            <div className={`shrink-0 space-y-3 px-5 pb-3 ${hasMessages ? 'border-t border-[var(--color-border)] pt-3' : notice && !loading && !limitNotice ? 'pt-16' : 'pt-3'}`}>
+            <div className={`shrink-0 space-y-3 px-5 ${hasPiiWarning ? 'pb-0' : 'pb-3'} ${hasMessages ? 'border-t border-[var(--color-border)] pt-3' : notice && !loading && !limitNotice ? 'pt-16' : 'pt-3'}`}>
               {notice && (
                 <p className="rounded-[var(--radius-md)] bg-[var(--color-primary-soft)] px-3 py-2 text-[12px] leading-relaxed text-[var(--color-text-secondary)]">
                   {notice}
@@ -255,7 +256,7 @@ export default function AiAdviceSheet({
               )}
             </div>
           ) : (
-            <div className="shrink-0 space-y-2 border-t border-[var(--color-border)] px-5 py-3">
+            <div className={`shrink-0 space-y-2 border-t border-[var(--color-border)] px-5 pt-3 ${hasPiiWarning ? 'pb-0' : 'pb-3'}`}>
                 <button
                   ref={newConversationRef}
                   type="button"
@@ -267,7 +268,7 @@ export default function AiAdviceSheet({
                 </button>
             </div>
           )}
-          <p role="status" className={piiWarning && piiWarning.length > 0 ? 'shrink-0 px-5 pt-2 text-[13px] leading-relaxed text-amber-800' : 'sr-only'}>
+          <p role="status" className={hasPiiWarning ? 'shrink-0 px-5 pt-2 pb-4 text-[13px] leading-relaxed text-amber-800' : 'sr-only'}>
             {piiWarning && piiWarning.length > 0 ? '개인정보(' + piiWarning.join(', ') + ')가 감지되어 자동으로 가려졌습니다.' : ''}
           </p>
       {!loading && confirmAction && (
