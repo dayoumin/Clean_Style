@@ -12,6 +12,7 @@ interface QuestionCardProps {
   onSelect: (choiceIndex: number) => void;
   categoryIcon?: ReactNode;
   headerArtwork?: ReactNode;
+  hideQuestionNumber?: boolean;
   headingRef?: Ref<HTMLHeadingElement>;
 }
 
@@ -24,7 +25,7 @@ const categoryInfo: Record<string, { label: string; emoji: string }> = {
 const choiceLabels = ['A', 'B', 'C', 'D'];
 
 
-export default function QuestionCard({ question, questionIndex, shuffleSeed, onSelect, categoryIcon, headerArtwork, headingRef }: QuestionCardProps) {
+export default function QuestionCard({ question, questionIndex, shuffleSeed, onSelect, categoryIcon, headerArtwork, hideQuestionNumber = false, headingRef }: QuestionCardProps) {
   const cat = categoryInfo[question.category];
 
   const shuffledChoices = useMemo(() => {
@@ -35,9 +36,9 @@ export default function QuestionCard({ question, questionIndex, shuffleSeed, onS
   return (
     <div>
       <div className="mb-3 flex items-center gap-3">
-        <div className="question-number shrink-0 text-5xl font-extrabold leading-none tracking-tighter text-[var(--color-primary-muted)]">
+        {!hideQuestionNumber && <div className="question-number shrink-0 text-5xl font-extrabold leading-none tracking-tighter text-[var(--color-primary-muted)]">
           {String(questionIndex + 1).padStart(2, '0')}
-        </div>
+        </div>}
       {/* 카테고리 */}
       <div className="inline-flex items-center gap-1 text-[12px] font-bold tracking-wide text-[var(--color-primary-accent)]">
         {categoryIcon ?? (cat && <FluentEmoji emoji={cat.emoji} size={16} />)}

@@ -10,7 +10,7 @@ import { addHistoryEntry } from '@/lib/history';
 import { buildResultUrl } from '@/lib/utils';
 import { TEST_START_TIME_KEY, TEST_REFERRER_KEY } from '@/lib/constants';
 import { normalizeDisplayName, MAX_DISPLAY_NAME_LENGTH } from '@/lib/display-name';
-import QuestionSeaweed from '../components/QuestionSeaweed';
+import QuestionOcean from '../components/QuestionOcean';
 import { AdultIcon, type AdultIconName } from '../components/AdultIcon';
 
 const categoryIcons: Record<string, AdultIconName> = { research: 'research', admin: 'document', relation: 'handshake' };
@@ -257,22 +257,26 @@ export default function TestPage() {
     <div className="adult-question-page relative -mx-6 -mb-6 -mt-4 flex flex-1 flex-col px-6 pb-6 pt-4 sm:-mx-6 sm:-mb-8 sm:-mt-6 sm:px-6 sm:pb-8 sm:pt-6">
 
       <div className="adult-question-content relative z-10">
-        <div className="mb-4 flex min-h-[46px] items-center justify-between gap-2 border-b border-[var(--color-border)] pb-3">
+        <div className="mb-2 flex min-h-11 items-center justify-between gap-2">
           <h1 className="whitespace-nowrap text-[14px] font-bold tracking-tight text-[var(--color-text)] sm:text-[17px]">나의 청렴 스타일은?</h1>
           <div className="flex shrink-0 gap-1.5 whitespace-nowrap">
             {answers.length > 0 && (
               <button
                 onClick={handleBack}
-                className="min-h-11 rounded-full border border-[var(--color-border)] px-2.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
+                aria-label="이전 문항"
+                title="이전 문항"
+                className="adult-question-nav"
               >
-                ← 이전
+                <span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="m14 6-6 6 6 6" /></svg></span>
               </button>
             )}
             <button
               onClick={handleQuit}
-              className="min-h-11 rounded-full border border-[var(--color-border)] px-2.5 text-[13px] font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-[var(--color-text)]"
+              aria-label="검사 중단"
+              title="검사 중단"
+              className="adult-question-nav"
             >
-              중단
+              <span><AdultIcon name="close" size={16} /></span>
             </button>
           </div>
         </div>
@@ -284,9 +288,10 @@ export default function TestPage() {
           shuffleSeed={shuffleSeed}
           onSelect={handleSelect}
           headingRef={questionHeadingRef}
+          hideQuestionNumber
           categoryIcon={<AdultIcon name={categoryIcons[question.category] ?? 'document'} size={18} />}
-          headerArtwork={<QuestionSeaweed />}
         />
+        <QuestionOcean seed={shuffleSeed} questionIndex={answers.length} />
       </div>
     </div>
   );
