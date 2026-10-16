@@ -1,5 +1,7 @@
 # Adult visual direction: B, a light walk
 
+On 2026-10-16 the user added a one-time letter-outline light after the NIFS logo's two existing surface sweeps. Keep the current face and Korean line unchanged. At 3.85s, a thin steel-blue light traces the N, I, F and S glyph contours in sequence (650ms per letter), then disappears at 6.45s. The same SVG text layout supplies both face and outline so the glyphs stay aligned. No enclosing logo box or main-card perimeter animation. Reduced motion disables both decorative effects; starting the diagnostic never waits for them.
+
 The selected visual reference is `design-concepts/warm-light-2026-10-13/B-mint-marine-home-result-v2.png`. Result/body corrections and the reviewed illustration set are under that directory's `asset-review/`.
 
 On 2026-10-14 the user selected illustration style C: `design-concepts/2d-styles-2026-10-14/03-line.png`. This replaces the 3D illustration direction while retaining the approved B page composition and warm palette. The C comparison board is a reference; home/result runtime assets remain 3D, with the separately approved 2D question seaweed now applied. Production work and review gates are in `docs/adult-c-illustration-plan.html`.
