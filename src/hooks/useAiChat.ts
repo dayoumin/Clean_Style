@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { getChatErrorType, readChatReplyResponse } from '@/lib/chat-reply';
 import { MAX_HISTORY_MESSAGES } from '@/lib/constants';
 import { shouldSummarizeChat } from '@/lib/chat-summary-policy';
 import { getHistoryEntry, updateChat, clearChat, type ChatMessage } from '@/lib/history';
 import { compressHistoryToSummary } from '@/lib/compress-history';
 import { getClientIdHeader } from '@/lib/client-id';
-import { scanAndRedactPiiText, redactPiiText, trimHistoryToLimit, redactHistoryPii, sanitizeHistory, sanitizeSummary } from '@/lib/sanitize';
+import { scanAndRedactPiiText, trimHistoryToLimit, redactHistoryPii, sanitizeHistory, sanitizeSummary } from '@/lib/sanitize';
 
 interface UseAiChatOptions {
   styleKey: string;
@@ -54,7 +55,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     };
   }, []);
 
-  // auto-scroll during streaming (interval while loading, not per-token)
+  // Keep the pending question in view while waiting for the completed masked reply.
   useEffect(() => {
     if (aiLoading) {
       const interval = setInterval(() => {
@@ -207,8 +208,6 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     abortRef.current = controller;
     const isCurrentRequest = () => abortRef.current === controller && !controller.signal.aborted;
 
-    let fullAnswer = '';
-
     try {
       const currentHistory = chatHistoryRef.current;
       const currentSummary = chatSummaryRef.current;
@@ -234,66 +233,11 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
         return;
       }
 
-      if (res.status === 429) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.limitedBy === 'ip' ? 'SHARED_RATE_LIMIT' : 'RATE_LIMIT');
-      }
-      if (!res.ok || !res.body) {
-        const body = await res.json().catch(() => ({}));
-        console.error('Chat API error:', res.status, body.detail ?? body.error);
-        throw new Error('API 응답 오류');
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let completed = false;
-      let lastRenderTime = 0;
-      const RENDER_INTERVAL = 30; // ms — 자연스러운 타이핑 속도
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (!isCurrentRequest()) {
-          await reader.cancel();
-          return;
-        }
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith('data: ')) continue;
-          const payload = trimmed.slice(6);
-          if (payload === '[DONE]') {
-            completed = true;
-            continue;
-          }
-
-          let parsed;
-          try { parsed = JSON.parse(payload); } catch { continue; }
-          if (parsed.error) throw new Error(parsed.error);
-          if (parsed.pii_warning) {
-            setPiiWarning(parsed.pii_warning);
-            continue;
-          }
-          if (parsed.token) {
-            fullAnswer += parsed.token;
-            const now = performance.now();
-            if (now - lastRenderTime >= RENDER_INTERVAL) {
-              setAiAnswer(fullAnswer);
-              lastRenderTime = now;
-            }
-          }
-        }
-      }
+      const reply = await readChatReplyResponse(res, controller.signal);
       if (!isCurrentRequest()) return;
-      fullAnswer = redactPiiText(fullAnswer);
+      const fullAnswer = reply.answer;
       setAiAnswer(fullAnswer);
-
-      if (!fullAnswer || !completed) throw new Error('Incomplete response');
+      if (reply.detected.length) setPiiWarning(current => [...new Set([...(current ?? []), ...reply.detected])]);
 
       const raw: ChatMessage[] = [
         ...currentHistory,
@@ -324,7 +268,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     } catch (err) {
       if (!isCurrentRequest()) return;
       if (err instanceof DOMException && err.name === 'AbortError') return;
-      if (fullAnswer) setAiAnswer(redactPiiText(fullAnswer));
+      setAiAnswer('');
       // 실패하면 다시 보낼 수 있게 질문을 입력창에 돌려놓는다.
       if (abortRef.current === controller) {
         userContextRef.current = pendingRawQuestionRef.current;
@@ -332,15 +276,7 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
         setPendingQuestion('');
         pendingRawQuestionRef.current = '';
       }
-      if (err instanceof TypeError) {
-        setAiErrorType('network');
-      } else if (err instanceof Error && err.message === 'RATE_LIMIT') {
-        setAiErrorType('rate-limit');
-      } else if (err instanceof Error && err.message === 'SHARED_RATE_LIMIT') {
-        setAiErrorType('shared-rate-limit');
-      } else {
-        setAiErrorType('server');
-      }
+      setAiErrorType(getChatErrorType(err));
     } finally {
       // 취소된 이전 요청이 새 요청의 로딩 상태를 해제하지 않게 한다.
       if (abortRef.current === controller) {

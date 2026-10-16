@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chatStream } from '@/lib/ai';
+import { createPrivateChatStream } from '@/lib/private-chat-stream';
 import { getAiRuntimeEnv } from '@/lib/runtime-env';
 import { checkScopedRateLimit } from '@/lib/rate-limit';
 import { MAX_QUESTION_LENGTH, MAX_CHAT_REQUEST_BYTES, RESPECT_MAX_HISTORY_MESSAGES } from '@/lib/constants';
@@ -20,42 +21,6 @@ import { decodeRespectResponse } from '@/diagnostics/workplace-respect/response'
 const RESPECT_ADVICE_CLIENT_LIMIT = 5;
 const RESPECT_ADVICE_IP_LIMIT = 200;
 const RESPECT_ADVICE_WINDOW_MS = 60_000;
-
-function concatStreams(a: ReadableStream<Uint8Array>, b: ReadableStream<Uint8Array>): ReadableStream<Uint8Array> {
-  let activeReader: ReadableStreamDefaultReader<Uint8Array> | null = null;
-  let cancelled = false;
-
-  return new ReadableStream({
-    async start(ctrl) {
-      try {
-        for (const stream of [a, b]) {
-          if (cancelled) return;
-
-          const reader = stream.getReader();
-          activeReader = reader;
-          try {
-            while (!cancelled) {
-              const { done, value } = await reader.read();
-              if (done) break;
-              ctrl.enqueue(value);
-            }
-          } finally {
-            activeReader = null;
-            reader.releaseLock();
-          }
-        }
-
-        if (!cancelled) ctrl.close();
-      } catch (err) {
-        if (!cancelled) ctrl.error(err);
-      }
-    },
-    cancel(reason) {
-      cancelled = true;
-      return activeReader?.cancel(reason);
-    },
-  });
-}
 
 function sanitizeAndRedactText(text: string) {
   const cleaned = sanitizeUserInput(text);
@@ -178,22 +143,7 @@ ${finalQuestion}
       apiKey: aiEnv.OPENAI_API_KEY,
     });
 
-    const encoder = new TextEncoder();
-    const piiWarnings = [...detectedPii];
-    const piiWarningStream = piiWarnings.length > 0
-      ? new ReadableStream({
-          start(ctrl) {
-            ctrl.enqueue(encoder.encode(
-              `data: ${JSON.stringify({ pii_warning: piiWarnings })}\n\n`,
-            ));
-            ctrl.close();
-          },
-        })
-      : null;
-
-    const finalStream = piiWarningStream
-      ? concatStreams(piiWarningStream, stream)
-      : stream;
+    const finalStream = createPrivateChatStream(stream, { signal: request.signal, detected: [...detectedPii] });
 
     return new Response(finalStream, {
       headers: {

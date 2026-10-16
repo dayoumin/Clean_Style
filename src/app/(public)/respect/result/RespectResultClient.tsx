@@ -1,12 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import AiAdviceSheet from '@/components/AiAdviceSheet';
 import { LeafLineArt } from '@/components/LeafLineArt';
-import { getClientIdHeader } from '@/lib/client-id';
-import { RESPECT_MAX_HISTORY_MESSAGES } from '@/lib/constants';
-import { scanAndRedactPiiText, trimHistoryToLimit } from '@/lib/sanitize';
+import { useRespectChat } from '@/hooks/useRespectChat';
+import { scanAndRedactPiiText } from '@/lib/sanitize';
 import { AI_CHAT_ENABLED } from '@/data/appVariant';
 import {
   calculateRespectResult,
@@ -59,26 +58,12 @@ const urgentCallLinks: Record<RespectEntry, Array<{ href: string; label: string;
 
 type StoredRespectResult = DecodedRespectResponse;
 
-interface RespectChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-}
-
-type RespectChatErrorType = 'network' | 'rate-limit' | 'shared-rate-limit' | 'server';
-
 export default function RespectResultClient({ entry }: { entry: RespectEntry }) {
   const router = useRouter();
   const [stored, setStored] = useState<StoredRespectResult | null | undefined>(undefined);
   const [showAiChat, setShowAiChat] = useState(false);
-  const [chatInput, setChatInput] = useState('');
-  const [chatMessages, setChatMessages] = useState<RespectChatMessage[]>([]);
-  const [streamingAnswer, setStreamingAnswer] = useState('');
-  const [chatLoading, setChatLoading] = useState(false);
-  const [chatErrorType, setChatErrorType] = useState<RespectChatErrorType | null>(null);
-  const [piiWarning, setPiiWarning] = useState<string[] | null>(null);
-  const chatAbortRef = useRef<AbortController | null>(null);
-  const chatScrollAnchorRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { chatInput, setChatInput, chatMessages, streamingAnswer, chatLoading, chatErrorType,
+    piiWarning, chatScrollAnchorRef, textareaRef, fetchAiChat, abortAiChat, resetChat } = useRespectChat(entry, stored?.response);
   const storageKey = useMemo(() => getRespectResultStorageKey(entry), [entry]);
 
   useEffect(() => {
@@ -108,41 +93,21 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
     const expiresAt = stored.response.createdAt + RESPECT_RESULT_TTL_MS;
     const expire = () => {
       if (Date.now() < expiresAt) return;
-      chatAbortRef.current?.abort();
+      resetChat();
       removeStoredResult(storageKey);
-      setChatMessages([]);
-      setStreamingAnswer('');
       setShowAiChat(false);
       setStored(null);
     };
     const timer = setTimeout(expire, Math.max(0, expiresAt - Date.now()));
     document.addEventListener('visibilitychange', expire);
     return () => { clearTimeout(timer); document.removeEventListener('visibilitychange', expire); };
-  }, [stored, storageKey]);
-
-  useEffect(() => {
-    return () => chatAbortRef.current?.abort();
-  }, [chatAbortRef]);
+  }, [stored, storageKey, resetChat]);
 
   useEffect(() => {
     if (stored === null) {
       router.replace('/');
     }
   }, [router, stored]);
-
-  useEffect(() => {
-    if (!chatLoading) return;
-    const interval = setInterval(() => {
-      chatScrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 400);
-    return () => clearInterval(interval);
-  }, [chatLoading]);
-
-  // 답변 완료·오류 뒤에도 마지막 메시지가 보이도록 한 번 더 내린다.
-  useEffect(() => {
-    if (chatLoading) return;
-    chatScrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatLoading, chatMessages.length, chatErrorType]);
 
   const questions = useMemo(() => getRespectQuestions(entry), [entry]);
   const result = useMemo(() => {
@@ -163,121 +128,6 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
       textareaRef.current?.focus();
     }, 200);
   }, []);
-  const fetchAiChat = useCallback(async () => {
-    const rawQuestion = chatInput.trim();
-    if (!stored || !rawQuestion) return;
-    // 개인정보는 보내기 전에 가리고, 가린 문장만 화면·대화 기록에 남긴다.
-    const piiResult = scanAndRedactPiiText(rawQuestion);
-    const question = piiResult.redacted;
-
-    chatAbortRef.current?.abort();
-    const controller = new AbortController();
-    chatAbortRef.current = controller;
-    setStreamingAnswer('');
-    setChatErrorType(null);
-    setPiiWarning(piiResult.hasPii ? piiResult.detected : null);
-    setChatLoading(true);
-
-    let fullAnswer = '';
-
-    try {
-      const res = await fetch('/api/respect-advice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...getClientIdHeader() },
-        body: JSON.stringify({
-          entry,
-          response: stored.response,
-          question,
-          // 서버 본문 한도(64KB) 안에 들도록 최근 대화부터 글자 수 한도까지만 보낸다.
-          history: chatMessages.length > 0 ? trimHistoryToLimit(chatMessages, RESPECT_MAX_HISTORY_MESSAGES) : undefined,
-        }),
-        signal: controller.signal,
-      });
-
-      if (res.status === 429) {
-        const body = await res.json().catch(() => ({}));
-        setChatErrorType(body.limitedBy === 'ip' ? 'shared-rate-limit' : 'rate-limit');
-        return;
-      }
-
-      if (!res.ok || !res.body) {
-        setChatErrorType('server');
-        return;
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let lastRenderTime = 0;
-      let completed = false;
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() ?? '';
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed.startsWith('data: ')) continue;
-          const payload = trimmed.slice(6);
-          if (payload === '[DONE]') {
-            completed = true;
-            continue;
-          }
-
-          let parsed: { token?: string; error?: string; pii_warning?: string[] };
-          try { parsed = JSON.parse(payload); } catch { continue; }
-          if (parsed.pii_warning) {
-            setPiiWarning((current) => current ?? parsed.pii_warning ?? null);
-            continue;
-          }
-          if (parsed.error) {
-            setChatErrorType('server');
-            return;
-          }
-          if (parsed.token) {
-            fullAnswer += parsed.token;
-            const now = performance.now();
-            if (now - lastRenderTime > 30) {
-              setStreamingAnswer(fullAnswer);
-              lastRenderTime = now;
-            }
-          }
-        }
-      }
-
-      // 종료 신호 없이 끊긴 부분 답변은 대화에 저장하지 않는다.
-      if (!fullAnswer.trim() || !completed) {
-        setChatErrorType('server');
-        return;
-      }
-
-      setStreamingAnswer(fullAnswer);
-      setChatMessages((prev) => {
-        const next: RespectChatMessage[] = [
-          ...prev,
-          { role: 'user', content: question },
-          { role: 'assistant', content: fullAnswer },
-        ];
-        const trimCount = next.length - RESPECT_MAX_HISTORY_MESSAGES;
-        return trimCount > 0 ? next.slice(trimCount) : next;
-      });
-      setChatInput('');
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') return;
-      setChatErrorType(error instanceof TypeError ? 'network' : 'server');
-    } finally {
-      setChatLoading(false);
-    }
-  }, [chatInput, chatMessages, entry, stored]);
-  const abortAiChat = useCallback(() => {
-    chatAbortRef.current?.abort();
-    setChatLoading(false);
-  }, []);
-
   if (stored === undefined) {
     return <div className="min-h-[60vh]" />;
   }
@@ -362,11 +212,7 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
         }
       }}
       onDeleteConversation={() => {
-        setChatMessages([]);
-        setStreamingAnswer('');
-        setChatInput('');
-        setChatErrorType(null);
-        setPiiWarning(null);
+        resetChat();
         setTimeout(() => textareaRef.current?.focus(), 100);
       }}
       inputRef={textareaRef}

@@ -248,3 +248,9 @@ describe('/api/respect-advice', () => {
     expect(systemPrompt).toContain('지금 혼자 감당하기 어렵고 안전이 걱정됩니다');
   });
 });
+
+ it('masks generated private content before sending an HTTP reply',async()=>{
+    mocks.chatStream.mockImplementationOnce(()=>new Response('data: {"token":"연락 010-12"}\n\ndata: {"token":"34-5678 test@example.com"}\n\ndata: [DONE]\n\n').body!);
+    const response=await POST(adviceRequest({entry:'experience',answers:Array(12).fill(0),question:'도움이 필요해요'})); const body=await response.text();
+    expect(body).toContain('[전화번호] [이메일]'); expect(body).not.toContain('010-12'); expect(body).not.toContain('test@example.com');
+  });
