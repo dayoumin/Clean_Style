@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     const history = Array.isArray(body.history) ? body.history : undefined;
     const summary = typeof body.summary === 'string' ? body.summary : undefined;
 
-    if (!styleKey || !styleTypes[styleKey]) {
+    if (!styleKey || !Object.hasOwn(styleTypes, styleKey)) {
       return NextResponse.json({ error: 'Invalid styleKey' }, { status: 400 });
     }
 

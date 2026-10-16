@@ -1,3 +1,5 @@
+// Legacy heuristic retained solely for historical scripts/experiments baseline comparisons.
+// The live /api/chat route uses semantic classification in chat-scope.ts.
 export type ChatIntent =
   | 'integrity-advice'
   | 'style-info'

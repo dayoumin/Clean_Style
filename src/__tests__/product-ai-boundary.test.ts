@@ -2,7 +2,7 @@ import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
 const ai = vi.hoisted(() => ({
-  chat: vi.fn(async () => ({ content: '요약', provider: 'test' })),
+  chat: vi.fn(async (options: { messages: { content: string }[] }) => ({ content: options.messages[0].content.includes('요청 범위 판정기') ? '{"mode":"advice","mixed":false}' : '요약', provider: 'test' })),
   chatStream: vi.fn(() => new ReadableStream({ start(ctrl) { ctrl.close(); } })),
 }));
 vi.mock('@/lib/ai', () => ai);
@@ -28,7 +28,7 @@ describe('product matrix AI route boundary', () => {
       expect(res.status).toBe(variant === 'student' ? 404 : 200);
       await res.text();
     }
-    expect(ai.chat.mock.calls.length).toBe(variant === 'student' ? 0 : 1);
+    expect(ai.chat.mock.calls.length).toBe(variant === 'student' ? 0 : 2);
     expect(ai.chatStream.mock.calls.length).toBe(variant === 'student' ? 0 : 1);
   });
 

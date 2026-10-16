@@ -6,6 +6,7 @@ import { CLIENT_ID_HEADER, MAX_CHAT_REQUEST_BYTES, MAX_CONTENT_LENGTH } from '@/
 import { _resetStore } from '@/lib/rate-limit';
 import { redactHistoryPii, sanitizeHistory, sanitizeSummary, trimHistoryToLimit } from '@/lib/sanitize';
 import { compressHistoryToSummary } from '@/lib/compress-history';
+import { CHAT_SCOPE_PROMPT } from '@/lib/chat-scope';
 
 const STYLE_KEY = 'principle-transparent-independent';
 const PII_TEXT = '연락처는 010-1234-5678, 메일은 kim@example.com, 주민번호 900101-1234567 입니다.';
@@ -28,7 +29,8 @@ function captureUpstream() {
   vi.stubGlobal('fetch', vi.fn(async (_url: string, init: RequestInit) => {
     bodies.push(JSON.parse(String(init.body)));
     const sse = 'data: {"choices":[{"delta":{"content":"답변"}}]}\n\ndata: [DONE]\n\n';
-    const json = { choices: [{ message: { content: '요약' } }] };
+    const isScope = JSON.parse(String(init.body)).messages[0].content === CHAT_SCOPE_PROMPT;
+    const json = { choices: [{ message: { content: isScope ? '{"mode":"advice","mixed":false}' : '요약' } }] };
     const isStream = JSON.parse(String(init.body)).stream === true;
     return isStream
       ? new Response(sse, { status: 200, headers: { 'content-type': 'text/event-stream' } })

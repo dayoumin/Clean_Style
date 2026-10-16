@@ -15,9 +15,14 @@ describe('QA_SYSTEM_PROMPT', () => {
   });
 
   it('청렴 첫 상담과 후속·중립 답변의 유형 사용 범위를 구분한다', () => {
-    expect(QA_SYSTEM_PROMPT).toContain('첫 구체적인 청렴 상담');
+    expect(QA_SYSTEM_PROMPT).toContain('스타일 정보는 약한 참고');
     expect(QA_SYSTEM_PROMPT).toContain('성향으로 위법 여부나 도덕성을 판단하지 마세요');
-    expect(QA_SYSTEM_PROMPT_CONTINUE).toContain('유형명(「...」), 스타일 특성, 성향 설명을 절대 다시 언급하지 마세요');
+    expect(QA_SYSTEM_PROMPT_CONTINUE).toContain('유형명·스타일 라벨');
+    expect(QA_SYSTEM_PROMPT_CONTINUE).toContain('스타일만으로 다른 조언을 만들지 마세요');
+    expect(QA_SYSTEM_PROMPT_CONTINUE).toContain('현재 상황·어려움·제약·선호가 스타일 참고보다 우선');
+    expect(QA_SYSTEM_PROMPT_CONTINUE).not.toContain('그 사람의 강점은 살리고 약점은 보완');
+    expect(QA_SYSTEM_PROMPT_CONTINUE).not.toContain('독립 성향이 강하면');
+    expect(QA_SYSTEM_PROMPT_CONTINUE).not.toContain('이전 대화에서 이미 스타일을 언급했습니다');
     expect(QA_SYSTEM_PROMPT_NEUTRAL).toContain('유형명, 유형 라벨, 성향 설명을 언급하지 마세요');
   });
 });
