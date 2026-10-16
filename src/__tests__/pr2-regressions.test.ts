@@ -10,6 +10,7 @@ vi.mock('react', async (load) => ({
   useState: (initial: unknown) => [initial, vi.fn()],
   useRef: (initial: unknown) => ({ current: initial }),
   useEffect: vi.fn(),
+  useId: () => "test-confirmation-id",
 }));
 vi.mock('@/components/BottomSheet', () => ({ default: ({children}: {children: ReactNode}) => children }));
 afterEach(() => vi.restoreAllMocks());
