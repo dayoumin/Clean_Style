@@ -291,7 +291,7 @@ export default function TestPage() {
           hideQuestionNumber
           categoryIcon={<AdultIcon name={categoryIcons[question.category] ?? 'document'} size={18} />}
         />
-        <QuestionOcean seed={shuffleSeed} questionIndex={answers.length} />
+        <QuestionOcean seed={shuffleSeed} questionIndex={answers.length} hasNext={answers.length + 1 < questions.length} />
       </div>
     </div>
   );

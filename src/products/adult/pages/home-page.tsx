@@ -7,6 +7,8 @@ import HistoryList from '@/components/HistoryList';
 import { RESPECT_FEATURE_ENABLED } from '@/data/workplaceRespectFeature';
 import { adultCommonArtwork } from '@/diagnostics/adult-integrity/artwork';
 import AdultArtwork from '../components/AdultArtwork';
+import AdultInstitutionBrand from '../components/AdultInstitutionBrand';
+import { ADULT_HOME_TITLE } from '../components/adult-home-title';
 import { AdultIcon, AdultStyleIcon, type AdultIconName } from '../components/AdultIcon';
 
 const infoChips: { icon: AdultIconName; title: string; detail: string }[] = [
@@ -30,12 +32,13 @@ function CleanStyleHomePage() {
   const [titleImageFailed, setTitleImageFailed] = useState(false);
   return (
     <div className={`adult-home animate-fade-in${RESPECT_FEATURE_ENABLED ? ' adult-home-with-secondary' : ''}`}>
+      <AdultInstitutionBrand />
       <div className="adult-home-heading">
         <h1 id="home-start" tabIndex={-1} className={titleImageFailed ? undefined : 'adult-home-title-art'}>
           {titleImageFailed ? <>나의 청렴<br />스타일은?</> : (
             <>
               <span className="sr-only">나의 청렴 스타일은?</span>
-              <img src="/images/integrity-home-title-smile.png" alt="" aria-hidden="true" width={1860} height={845} draggable={false} onError={() => setTitleImageFailed(true)} />
+              <img src={ADULT_HOME_TITLE.src} alt="" aria-hidden="true" width={ADULT_HOME_TITLE.width} height={ADULT_HOME_TITLE.height} draggable={false} onError={() => setTitleImageFailed(true)} />
             </>
           )}
         </h1>

@@ -1,4 +1,5 @@
-const CACHE_NAME = "clean-style-v6";
+const CACHE_NAME = "clean-style-v7";
+const IMMUTABLE_IMAGE = /^\/images\/(?:[^/]+\/)*[^/]+-[a-f0-9]{10}\.webp$/;
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "::1"];
 const IS_LOCAL_DEV = LOCAL_HOSTS.includes(self.location.hostname);
 
@@ -53,14 +54,49 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+async function cacheFirstImage(request) {
+  let cache;
+  try {
+    cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(request);
+    if (cached) return cached;
+  } catch {
+    // Storage may be unavailable; fetching the public image must still work.
+  }
+  const response = await fetch(request);
+  if (response.ok && cache) {
+    await cache.put(request, response.clone()).catch(() => {});
+  }
+  return response;
+}
+
 self.addEventListener("fetch", (event) => {
   if (IS_LOCAL_DEV) return;
   if (event.request.method !== "GET") return;
-  if (!event.request.url.startsWith(self.location.origin)) return;
-
   const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
 
   if (url.pathname.startsWith("/api/")) return;
+
+  if (IMMUTABLE_IMAGE.test(url.pathname)) {
+    event.respondWith(cacheFirstImage(event.request));
+    return;
+  }
+
+  if (url.pathname.startsWith("/images/") && /\.(?:webp|png|jpe?g|svg)$/i.test(url.pathname)) {
+    const storage = caches.open(CACHE_NAME).catch(() => null);
+    const cached = storage.then((cache) => cache?.match(event.request)).catch(() => undefined);
+    const refresh = fetch(event.request).then(async (response) => {
+      const cache = await storage;
+      if (response.ok && cache) {
+        await cache.put(event.request, response.clone()).catch(() => {});
+      }
+      return response;
+    });
+    event.waitUntil(refresh.then(() => undefined).catch(() => undefined));
+    event.respondWith(cached.then((response) => response || refresh));
+    return;
+  }
 
   if (url.pathname.startsWith("/_next/static/")) {
     event.respondWith(

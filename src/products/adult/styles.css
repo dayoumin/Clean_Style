@@ -29,7 +29,20 @@
 .adult-experience button:disabled { cursor: not-allowed; }
 .adult-artwork { display: block; object-fit: contain; }
 .adult-artwork-fallback { display: flex; align-items: center; justify-content: center; font-size: 48px; }
-.adult-home { position: relative; display: flex; flex: 1; flex-direction: column; justify-content: center; padding-top: 3px; }
+.adult-home { position: relative; display: flex; flex: 1; min-height: 560px; flex-direction: column; justify-content: center; padding-top: 60px; }
+.adult-institution-brand { position: absolute; top: 0; left: 0; display: block; overflow: visible; }
+.adult-institution-name { font-family: 'Arial Black', Arial, sans-serif; font-size: 36px; font-weight: 900; font-style: normal; }
+.adult-institution-department { fill: #26343e; font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; font-size: 20px; font-weight: 600; letter-spacing: 0; }
+.adult-institution-sheen { opacity: 0; animation: adult-institution-sheen 1.7s ease-in-out .45s 2 forwards; }
+@keyframes adult-institution-sheen {
+  0%, 10% { transform: translateX(0); opacity: 0; }
+  22% { opacity: 1; }
+  68% { transform: translateX(184px); opacity: 1; }
+  78%, 100% { transform: translateX(184px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adult-institution-sheen { animation: none; }
+}
 .adult-experience:has(main > .adult-home) { align-items: center; }
 .adult-home-heading { position: relative; display: flow-root; }
 .adult-home-with-secondary .adult-home-heading { min-height: 134px; }
