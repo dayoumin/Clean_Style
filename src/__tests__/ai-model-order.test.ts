@@ -5,6 +5,24 @@ afterEach(() => { vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 describe('OpenAI Luna direct requests', () => {
   const options = { apiKey: 'test-openai', messages: [{ role: 'user' as const, content: '조언을 주세요.' }], maxTokens: 120 };
   it('uses only the requested Luna model', () => { expect(AI_MODELS).toEqual(['gpt-6-luna']); });
+  it('does not call upstream when scope classification was already cancelled', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const controller = new AbortController(); controller.abort();
+    await expect(chat({ ...options, signal: controller.signal })).rejects.toThrow();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it('propagates scope cancellation to the in-flight OpenAI request', async () => {
+    const controller = new AbortController();
+    const fetchMock = vi.fn((_url, init: RequestInit) => new Promise((_resolve, reject) => {
+      init.signal?.addEventListener('abort', () => reject(new DOMException('cancelled', 'AbortError')), { once: true });
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    const pending = chat({ ...options, signal: controller.signal });
+    controller.abort();
+    await expect(pending).rejects.toThrow('cancelled');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
   it('calls OpenAI directly with supported parameters', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ model: 'gpt-6-luna', choices: [{ message: { content: '한 걸음씩 시작해 보세요.' } }] })));
     vi.stubGlobal('fetch', fetchMock);

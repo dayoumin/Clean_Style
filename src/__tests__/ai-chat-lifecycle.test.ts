@@ -77,6 +77,25 @@ describe('adult AI chat cancellation and privacy', () => {
     vi.useRealTimers(); vi.unstubAllGlobals();
   });
 
+  it.each([true, false])('keeps the selected result when summarization succeeds=%s', async succeeds => {
+    const saved = Array.from({ length: 8 }, (_, i) => ({ role: i % 2 ? 'assistant' : 'user', content: '기관 기준 확인 중입니다. '.repeat(100) }));
+    vi.mocked(getHistoryEntry).mockReturnValue({ chat: saved } as ReturnType<typeof getHistoryEntry>);
+    const request = vi.fn(async (url: string, _init?: RequestInit) => url === '/api/summarize'
+      ? { ok: succeeds, json: async () => ({ summary: '기관 장비의 승인 여부는 모른다고 했고 확인 절차를 안내했습니다.' }) }
+      : answer('담당자에게 확인하세요.'));
+    vi.stubGlobal('fetch', request);
+    let chat = render();
+    await vi.runAllTimersAsync(); chat = render();
+    expect(request.mock.calls.some(call => call[0] === '/api/summarize')).toBe(true);
+    chat.setUserContext('지금 남은 확인 사항은요?'); chat = render();
+    await chat.fetchAnswer(); chat = render();
+    const sent = JSON.parse(String(request.mock.calls.find(call => call[0] === '/api/chat')?.[1]?.body));
+    expect(sent.styleKey).toBe(options.styleKey);
+    expect(sent.scores).toEqual(options.scores);
+    expect(sent.summary.length).toBeGreaterThan(0);
+    expect(chat.aiErrorType).toBeNull();
+  });
+
   it('keeps the new request loading when an aborted previous request rejects late', async () => {
     const first = pendingResponse(), second = pendingResponse();
     vi.stubGlobal('fetch', vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise));

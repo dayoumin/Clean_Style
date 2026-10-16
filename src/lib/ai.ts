@@ -15,6 +15,7 @@ interface ChatOptions {
   messages: ChatMessage[];
   maxTokens?: number;
   apiKey?: string;
+  signal?: AbortSignal;
 }
 
 interface ChatResponse {
@@ -64,6 +65,7 @@ function serviceErrorEvent(status?: number): ServiceErrorEvent {
 }
 
 export async function chat(options: ChatOptions): Promise<ChatResponse> {
+  options.signal?.throwIfAborted();
   let lastError: Error | null = null;
 
   for (const model of AI_MODELS) {
@@ -74,6 +76,8 @@ export async function chat(options: ChatOptions): Promise<ChatResponse> {
     }
 
     const controller = new AbortController();
+    const onAbort = () => controller.abort();
+    options.signal?.addEventListener('abort', onAbort, { once: true });
     const timeout = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
 
     try {
@@ -99,10 +103,12 @@ export async function chat(options: ChatOptions): Promise<ChatResponse> {
 
       return { content, provider: data.model ?? model };
     } catch (err) {
+      if (options.signal?.aborted) throw err;
       lastError = err instanceof Error ? err : new Error('AI request failed');
       console.error('AI API request failed:', model, lastError.message);
     } finally {
       clearTimeout(timeout);
+      options.signal?.removeEventListener('abort', onAbort);
     }
   }
 

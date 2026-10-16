@@ -34,9 +34,10 @@ describe('always-visible advice composer', () => {
     for (const history of [[], messages]) {
       const html = render({ messages: history });
       expect(html).toContain('<textarea');
-      expect(html).toContain('rows="2"');
-      expect(html).toContain('>전송</button>');
+      expect(html).toContain('rows="4"');
+      expect(html).toContain('aria-label="보내기"');
       expect(html).not.toContain('질문하기');
+      expect(html.includes('aria-label="대화 지우기"')).toBe(history.length > 0);
     }
   });
 
@@ -45,8 +46,9 @@ describe('always-visible advice composer', () => {
     expect(html).toContain('<textarea');
     expect(html).toContain('readOnly=""');
     expect(html).toContain('>중단</button>');
-    expect(html).not.toContain('>전송</button>');
+    expect(html).not.toContain('aria-label="보내기"');
     expect(html).not.toContain('>대화 지우기</button>');
+    expect(html).not.toContain('aria-label="대화 지우기"');
   });
 
   it('warns before the cap and replaces input with an explicit new conversation at the cap', () => {
@@ -54,7 +56,7 @@ describe('always-visible advice composer', () => {
     const html = render({ maxTurns: 1, onStartNewConversation: vi.fn() });
     expect(html).not.toContain('<textarea');
     expect(html).toContain('>새 대화 시작</button>');
-    expect(html).toContain('>닫기</button>');
+    expect(html).toContain('aria-label="닫기"');
   });
 
   it('leaves the draft available for correction after a failed request', () => {
