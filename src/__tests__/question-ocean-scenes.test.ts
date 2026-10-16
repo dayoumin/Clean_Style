@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { createHash } from 'node:crypto';
+import { createRequire } from 'node:module';
 import { getQuestionOceanScene, QUESTION_OCEAN_SCENE_COUNT, QUESTION_OCEAN_FILES } from '@/products/adult/components/question-ocean-scenes';
 
 describe('question ocean scene selection', () => {
@@ -18,13 +20,29 @@ describe('question ocean scene selection', () => {
     expect(new Set(scenes).size).toBe(QUESTION_OCEAN_SCENE_COUNT);
   });
 
-  it('ships thirty independent PNGs with exactly the same canvas dimensions', () => {
+  it('advances in file order on every question and wraps after the thirtieth', () => {
+    expect(Array.from({ length: 5 }, (_, index) => getQuestionOceanScene(28, index))).toEqual([28, 29, 0, 1, 2]);
+    for (const seed of [0, 1, 731, 99999]) {
+      for (let index = 0; index < 14; index++) {
+        expect(getQuestionOceanScene(seed, index + 1)).toBe((getQuestionOceanScene(seed, index) + 1) % 30);
+      }
+    }
+  });
+
+  it('ships thirty small versioned WebPs with exactly the same canvas dimensions', async () => {
+    const require = createRequire(import.meta.url);
+    const sharp = createRequire(require.resolve('next/package.json'))('sharp');
     expect(new Set(QUESTION_OCEAN_FILES).size).toBe(30);
     for (const name of QUESTION_OCEAN_FILES) {
-      const png = readFileSync(resolve('public/images/adult-integrity/question-ocean', name));
-      expect(png.subarray(1, 4).toString()).toBe('PNG');
-      expect(png.readUInt32BE(16)).toBe(435);
-      expect(png.readUInt32BE(20)).toBe(214);
+      const webp = readFileSync(resolve('public/images/adult-integrity/question-ocean', name));
+      expect(webp.subarray(0, 4).toString()).toBe('RIFF');
+      expect(webp.subarray(8, 12).toString()).toBe('WEBP');
+      const hash = createHash('sha256').update(webp).digest('hex').slice(0, 10);
+      expect(name.endsWith(`-${hash}.webp`)).toBe(true);
+      const metadata = await sharp(webp).metadata();
+      expect(metadata.width).toBe(435);
+      expect(metadata.height).toBe(214);
+      expect(webp.length).toBeLessThan(15_000);
     }
   });
 });
