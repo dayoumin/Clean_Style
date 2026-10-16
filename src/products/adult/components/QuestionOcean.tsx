@@ -25,7 +25,7 @@ export default function QuestionOcean({ seed, questionIndex, hasNext }: { seed: 
     const incoming = frame.incoming;
     if (!incoming) return;
     // Also settle when animation events are suppressed or the tab is hidden.
-    const timeout = window.setTimeout(() => finishTransition(incoming), 550);
+    const timeout = window.setTimeout(() => finishTransition(incoming), 900);
     return () => window.clearTimeout(timeout);
   }, [frame.incoming]);
   const nextSource = `/images/adult-integrity/question-ocean/${QUESTION_OCEAN_FILES[getQuestionOceanScene(seed, questionIndex + 1)]}`;
