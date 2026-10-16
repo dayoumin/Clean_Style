@@ -2,6 +2,8 @@
 
 Latest NIFS decision, 2026-10-16: the user removed all moving light effects. Show the existing native SVG mark statically, preserving its navy face, fine edge, natural Korean typography, 84px size and placement. Remove both surface sheen and letter-outline animation, their overlays and unused CSS/definitions. This supersedes all earlier animated-logo instructions in this document.
 
+Approved result layout, 2026-10-16: keep the radar canvas fluid between 160px and 240px high, at most 360px wide. Its heading and canvas occupy a bounded 188–268px section instead of absorbing spare viewport height as blank space above and below the chart. Keep the existing 8px/12px section gaps; put remaining height before the bottom actions, including the single action on shared results. Short screens and enlarged text may scroll rather than clip essential content. This supersedes the earlier instruction to balance extra height inside the chart region.
+
 The selected visual reference is `design-concepts/warm-light-2026-10-13/B-mint-marine-home-result-v2.png`. Result/body corrections and the reviewed illustration set are under that directory's `asset-review/`.
 
 On 2026-10-14 the user selected illustration style C: `design-concepts/2d-styles-2026-10-14/03-line.png`. This replaces the 3D illustration direction while retaining the approved B page composition and warm palette. The C comparison board is a reference; home/result runtime assets remain 3D, with the separately approved 2D question seaweed now applied. Production work and review gates are in `docs/adult-c-illustration-plan.html`.
