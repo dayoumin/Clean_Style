@@ -1,6 +1,6 @@
 # Adult visual direction: B, a light walk
 
-AI conversation deletion refinement, 2026-10-16: replace the inline footer confirmation with a centered native modal. Focus Cancel initially, contain Tab/Shift+Tab, and handle Escape in capture phase so only this confirmation closes. Keep the chat inert while confirming; cancel returns focus to the trigger. Confirmed deletion clears chat while preserving the diagnostic result. Use the same modal for starting a new conversation after the question limit. Remove the old footer text buttons.
+AI conversation deletion refinement, 2026-10-16: replace the inline footer confirmation with a centered native modal. Focus Cancel initially, contain Tab/Shift+Tab, and handle Escape in capture phase so only this confirmation closes. Keep the chat inert while confirming; cancel returns focus to the trigger. Confirmed deletion clears chat while preserving the diagnostic result. Use the same modal for starting a new conversation after the question limit. Remove the old footer text buttons. Use the app primary pine color for confirmation, equal-width 44px-minimum buttons in two grid columns, and an overlapping single focus outline without an outer gap.
 
 Chat typography refinement, 2026-10-16: use 14px for placeholders and both completed/streaming messages, while keeping entered text at 16px and the four-row input height. Keep the waiting label at 13px in regular secondary text and PII notices at 13px. Preserve the established palette, input width, controls and conversation behavior.
 

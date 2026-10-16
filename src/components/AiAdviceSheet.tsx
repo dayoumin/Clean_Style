@@ -279,8 +279,8 @@ export default function AiAdviceSheet({
             <p id={confirmDescriptionId} className="mt-3 text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
               AI와 나눈 대화가 지워지며 복구할 수 없어요. 진단 결과는 그대로 유지돼요.
             </p>
-            <div className="mt-6 flex gap-3">
-              <button ref={confirmCancelRef} type="button" onClick={() => setConfirmAction(null)} className="min-h-11 flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]">취소</button>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button ref={confirmCancelRef} type="button" onClick={() => setConfirmAction(null)} className="min-h-11 w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)] focus-visible:outline-offset-0!">취소</button>
               <button
                 type="button"
                 onClick={() => {
@@ -289,7 +289,7 @@ export default function AiAdviceSheet({
                   if (action === 'restart') onStartNewConversation?.();
                   else onDeleteConversation?.();
                 }}
-                className="min-h-11 flex-1 rounded-[var(--radius-md)] bg-red-700 px-4 text-[14px] font-semibold text-white hover:bg-red-800"
+                className="min-h-11 w-full rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 text-[14px] font-semibold text-white hover:bg-[var(--color-primary-hover)] focus-visible:outline-offset-0!"
               >
                 {confirmAction === 'restart' ? '새로 시작' : '지우기'}
               </button>
