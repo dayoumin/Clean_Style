@@ -1,0 +1,18 @@
+Final runtime illustrations (built-in image_gen tool, 2026-10-16)
+Thirty independent PNGs: public/images/adult-integrity/question-ocean/
+Manifest: public/images/adult-integrity/question-ocean/index.json
+Each final file is 435 x 214 pixels, with the same crop and canvas; no species-specific zoom.
+Extraction: Windows PowerShell 7.6.6 and System.Drawing, via scripts/export-question-ocean-scenes.ps1.
+Original generated source atlases:
+public/images/adult-integrity/question-ocean-scenes-a-v2.png
+public/images/adult-integrity/question-ocean-scenes-b-v2.png
+Each original is 2172 x 724, five columns by three rows, fifteen separate landscapes.
+QuestionOcean displays one independent PNG in a fixed-size image box using object-fit: contain.
+
+Final prompt set:
+Generate a 3:1 panoramic atlas with exactly five equal columns and three equal rows, fifteen separate sparse miniature underwater watercolor landscapes. Pure white background, pale sage/seafoam/blue-grey/sand, no text, numbers, borders, UI or dense scenery. Keep the artwork within its own cell with generous gutters. Vary asymmetric sandbanks, short sparse plants, rocks and small animals. Use quiet natural poses without human smiles. Match the approved underwater footer reference.
+Atlas A subjects: turtle, seahorse, jellyfish, sea star, fish pair, octopus, hermit crab, ray, reef fish, pufferfish, sea slug, squid, scallop, shrimp, anemone.
+Atlas B subjects: ocean sunfish, crab, butterflyfish pair, cuttlefish, urchin, swimming penguin, lobster, anchovy pair, nautilus, sea hare, manta ray, moon jellyfish pair, resting turtle, blenny, sand dollar.
+Final precise-object edits: preserve exact atlas dimensions, cell positions, colors, seafloor and all other creatures. Replace A row 2 column 4 whale with one small spotted reef fish; A row 3 column 5 seal with one small anemone on the same rock; B row 1 column 1 dolphin with one small ocean sunfish. Remove all traces of these mammals. Do not add any marine mammals.
+
+Final selection: shuffle thirty scenes from the saved session seed plus a separate decoration salt. Show fifteen distinct scenes, changing on question navigation. Back and resume retain that question's scene. Source and display dimensions remain constant across all scenes. Artwork never depends on answers or scores.
