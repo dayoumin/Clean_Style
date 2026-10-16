@@ -189,7 +189,7 @@ export default function TestPage() {
           <input
             id="share-name"
             value={shareName}
-            onChange={(event) => setShareName(normalizeDisplayName(event.target.value))}
+            onChange={(event) => setShareName(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.nativeEvent.isComposing) {
                 event.preventDefault();

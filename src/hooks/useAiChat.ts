@@ -64,6 +64,12 @@ export function useAiChat({ styleKey, historyId, scores }: UseAiChatOptions) {
     }
   }, [aiLoading]);
 
+  // 답변 완료·오류·대화 추가 뒤에도 마지막 메시지가 보이도록 한 번 더 내린다.
+  useEffect(() => {
+    if (aiLoading) return;
+    scrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [aiLoading, chatHistory.length, aiErrorType]);
+
   const triggerSummarize = useCallback(async (messages: ChatMessage[]) => {
     summarizeAbortRef.current?.abort();
     summarizingRef.current = true;

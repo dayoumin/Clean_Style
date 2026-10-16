@@ -125,6 +125,17 @@ export default function AiAdviceSheet({
     }
   }, [limitReached]);
 
+  const sentByKeyboardRef = useRef(false);
+  const wasLoadingRef = useRef(loading);
+  useEffect(() => {
+    const finished = wasLoadingRef.current && !loading;
+    wasLoadingRef.current = loading;
+    if (!finished || limitReached || !sentByKeyboardRef.current) return;
+    sentByKeyboardRef.current = false;
+    const active = document.activeElement;
+    if (!active || active === document.body) inputRef.current?.focus();
+  }, [loading, limitReached, inputRef]);
+
   return (
     <BottomSheet title={title} onClose={onClose} hideHeader>
       <div className="relative flex min-h-0 max-h-[inherit] flex-col">
@@ -185,9 +196,10 @@ export default function AiAdviceSheet({
                   value={inputValue}
                   onChange={(e) => onInputChange(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) {
                       e.preventDefault();
                       if (canSubmit) {
+                        sentByKeyboardRef.current = true;
                         setConfirmAction(null);
                         onSubmit();
                       }
@@ -201,18 +213,13 @@ export default function AiAdviceSheet({
                   rows={rows}
                 />
                 {loading ? (
-                  <button type="button" onClick={onAbort} className="min-h-11 shrink-0 rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-card)]">중단</button>
+                  <button key="stop" type="button" onClick={(event) => { event.preventDefault(); onAbort(); }} className="min-h-11 shrink-0 rounded-[var(--radius-md)] border border-[var(--color-border)] px-4 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-card)]">중단</button>
                 ) : (
-                  <button type="submit" disabled={!canSubmit} aria-label={submitLabel} title={submitLabel} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-primary)] text-white enabled:hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-45">
+                  <button key="submit" type="submit" onClick={(event) => { sentByKeyboardRef.current = event.detail === 0; }} disabled={!canSubmit} aria-label={submitLabel} title={submitLabel} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--color-primary)] text-white enabled:hover:bg-[var(--color-primary-hover)] disabled:cursor-not-allowed disabled:opacity-45">
                     <svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m21 3-7 18-4-7-7-4 18-7ZM10 14 21 3" /></svg>
                   </button>
                 )}
               </form>
-              {piiWarning && piiWarning.length > 0 && (
-                <p className="text-[13px] leading-relaxed text-amber-800">
-                  개인정보({piiWarning.join(', ')})가 감지되어 자동으로 가렸습니다.
-                </p>
-              )}
               {errorType && (
                 <p role="alert" className="text-[13px] text-red-700">
                   {errorType === 'network' && '인터넷 연결을 확인해주세요.'}
@@ -235,6 +242,9 @@ export default function AiAdviceSheet({
                 </button>
             </div>
           )}
+          <p role="status" className={piiWarning && piiWarning.length > 0 ? 'shrink-0 px-5 pt-2 text-[13px] leading-relaxed text-amber-800' : 'sr-only'}>
+            {piiWarning && piiWarning.length > 0 ? '개인정보(' + piiWarning.join(', ') + ')가 감지되어 자동으로 가려졌습니다.' : ''}
+          </p>
       {!loading && confirmAction && <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 px-5 pb-2">
         {confirmAction ? (
           <>

@@ -116,4 +116,11 @@
 <tr><th>Additional browser evidence</th><td>All eight result types with a synthetic 12-character Korean name and caution tab pass at 375×667 with no page overflow or interpretation clipping. Canvas height remains 205–226px. Evidence: artifacts/result-mobile-layout-review/name-style-checks.json. Independent final CSS review found no release blocker.</td></tr>
 <tr><th>Scope</th><td>Adult integrity result layout only. Radar data, scoring, result text and student layouts are unchanged.</td></tr>
 <tr><th>Required evidence / close criteria</th><td>Record device/browser versions and captures on iOS Safari and Android Chrome with expanded/collapsed browser chrome and enlarged text. Verify no overlapping or clipped chart labels, readable interpretation and reachable tabs/actions; accessibility enlargement may scroll. Mark verified only after these checks; promote a reproduced defect to TODO/issue.</td></tr></table>
+<h2 id="legacy-pr2-product-boundary">PR #2 선별 이식과 출시 전 확인</h2><table>
+<tr><th>상태 / 마지막 확인</th><td><code>pending</code> / 2026-10-16. 기존 PR #2의 통합 대신 최신 main 기반 <code>codex/pr2-bugfixes</code>에서 기능 수정만 분리. 원래 브랜치는 보존하며 새 PR로 추적한다.</td></tr>
+<tr><th>적용 범위</th><td>중단 클릭의 기본 전송 방지·별도 버튼 식별, 한글 조합 Enter 보호·키보드 전송 후 포커스, 답변 후 스크롤, 개인정보 검사의 사전 길이 제한·잘린 경계 보수 처리, 마지막 턴의 경고 유지·중복 토스트 제거, 이름 입력 중 공백 유지. 일터 존중은 결과 이동을 replace로 바꿔 뒤로가기의 결과 삭제를 방지하고, 전송·대기 표시 전 개인정보 마스킹과 문항 포커스·작은 링크 터치 영역을 보완.</td></tr>
+<tr><th>제외·정책</th><td>기본 제품에 일터 존중을 합치는 설정, Plus 정의 제거, 배포 플래그·워크플로 및 디자인 샘플 페이지 삭제는 이번 범위에서 제외. 기존 3제품 경계, 학생 AI 차단, 오늘 반영된 상담 범위·약한 프로파일 정책·아이콘·4줄 입력창·14px 안내/본문을 유지.</td></tr>
+<tr><th>확인과 한계</th><td>집중 검사 8파일 136개 통과. 개인정보 출력·스캔 경계, 64KB 입력의 시간 제한, IME/일반 Enter, 중단의 기본 동작 취소 순서, 대화 상한의 개인정보 경고를 포함. 이벤트 핸들러 단위 검사는 실제 브라우저의 버튼 교체 과정 전체를 재현한 증거가 아님. 전용 로컬 화면 검증은 기존 의존성의 <code>@alloc/quick-lru</code> 누락으로 빌드 실패하여 중단. 전체 의존성 재설치·다른 세션 서버 변경·운영 배포는 하지 않음.</td></tr>
+<tr><th>출시 전 검사·기대 증거</th><td>정상 의존성으로 빌드된 실제 화면에서 중단 한 번 후 재전송 없음, 키보드 전송 뒤 포커스·터치 전송 뒤 키보드 비재개, 한도 도달 뒤 개인정보 경고, 일터 존중 완료→뒤로가기→기록 보존·마스킹된 요청/대기/기록을 확인. 실제 iOS Safari의 조합 직후 Enter와 키보드 동작은 기기·브라우저 버전과 함께 별도 증거를 남긴다.</td></tr>
+<tr><th>종료 조건</th><td>새 PR의 빌드·경계 검사와 위 실제 상호작용 증거를 연결하고 승인된 제품 구성 및 최신 UI 보존을 확인하면 <code>verified</code>. 환경 차이로 확인하지 못한 항목을 자동 검사 통과만으로 완료 처리하지 않는다.</td></tr></table>
 </body></html>

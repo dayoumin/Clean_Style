@@ -6,7 +6,7 @@ import AiAdviceSheet from '@/components/AiAdviceSheet';
 import { LeafLineArt } from '@/components/LeafLineArt';
 import { getClientIdHeader } from '@/lib/client-id';
 import { RESPECT_MAX_HISTORY_MESSAGES } from '@/lib/constants';
-import { trimHistoryToLimit } from '@/lib/sanitize';
+import { scanAndRedactPiiText, trimHistoryToLimit } from '@/lib/sanitize';
 import { AI_CHAT_ENABLED } from '@/data/appVariant';
 import {
   calculateRespectResult,
@@ -27,7 +27,7 @@ function removeStoredResult(key: string) {
 const levelStyle: Record<RespectRiskLevel, { label: string; className: string }> = {
   low: {
     label: '낮음',
-    className: 'bg-[var(--color-success-soft)] text-[#059669]',
+    className: 'bg-[var(--color-success-soft)] text-[#047857]',
   },
   caution: {
     label: '주의',
@@ -138,6 +138,12 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
     return () => clearInterval(interval);
   }, [chatLoading]);
 
+  // 답변 완료·오류 뒤에도 마지막 메시지가 보이도록 한 번 더 내린다.
+  useEffect(() => {
+    if (chatLoading) return;
+    chatScrollAnchorRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [chatLoading, chatMessages.length, chatErrorType]);
+
   const questions = useMemo(() => getRespectQuestions(entry), [entry]);
   const result = useMemo(() => {
     if (!stored) return null;
@@ -158,15 +164,18 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
     }, 200);
   }, []);
   const fetchAiChat = useCallback(async () => {
-    const question = chatInput.trim();
-    if (!stored || !question) return;
+    const rawQuestion = chatInput.trim();
+    if (!stored || !rawQuestion) return;
+    // 개인정보는 보내기 전에 가리고, 가린 문장만 화면·대화 기록에 남긴다.
+    const piiResult = scanAndRedactPiiText(rawQuestion);
+    const question = piiResult.redacted;
 
     chatAbortRef.current?.abort();
     const controller = new AbortController();
     chatAbortRef.current = controller;
     setStreamingAnswer('');
     setChatErrorType(null);
-    setPiiWarning(null);
+    setPiiWarning(piiResult.hasPii ? piiResult.detected : null);
     setChatLoading(true);
 
     let fullAnswer = '';
@@ -222,7 +231,7 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
           let parsed: { token?: string; error?: string; pii_warning?: string[] };
           try { parsed = JSON.parse(payload); } catch { continue; }
           if (parsed.pii_warning) {
-            setPiiWarning(parsed.pii_warning);
+            setPiiWarning((current) => current ?? parsed.pii_warning ?? null);
             continue;
           }
           if (parsed.error) {
@@ -341,7 +350,7 @@ export default function RespectResultClient({ entry }: { entry: RespectEntry }) 
     <AiAdviceSheet
       loading={chatLoading}
       messages={chatMessages}
-      currentUserMessage={chatInput.trim()}
+      currentUserMessage={chatLoading ? scanAndRedactPiiText(chatInput.trim()).redacted : ''}
       streamingAnswer={streamingAnswer}
       inputValue={chatInput}
       onInputChange={setChatInput}
