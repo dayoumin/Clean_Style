@@ -112,15 +112,6 @@ export default function ResultContent() {
     });
   };
 
-  // PII 경고 감지 시 토스트 표시
-  useEffect(() => {
-    if (chat.piiWarning && chat.piiWarning.length > 0) {
-      const types = chat.piiWarning.join(', ');
-      showToast(`⚠️ 개인정보(${types})가 감지되어 자동으로 가려졌습니다.`, 'warning');
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chat.piiWarning]);
-
   const openAiAdvice = useCallback(() => {
     setShowModal(true);
     chat.scrollToBottom();

@@ -181,5 +181,19 @@ describe('adult AI chat cancellation and privacy', () => {
     expect(chat.chatHistory).toEqual([]);
     expect(chat.userContext).toBe('질문');
     expect(chat.aiErrorType).toBe('server');
+    expect(chat.aiAnswer).toBe('');
+  });
+
+  it('holds split private output until completion and saves only its masked form', async () => {
+    let streamController!: ReadableStreamDefaultController<Uint8Array>;
+    const stream = new ReadableStream<Uint8Array>({ start(c) { streamController=c; } });
+    vi.stubGlobal('fetch',vi.fn().mockResolvedValue(new Response(stream)));
+    let chat=render(); chat.setUserContext('질문'); chat=render(); const run=chat.fetchAnswer();
+    streamController.enqueue(new TextEncoder().encode('data: {"token":"연락 010-12"}\n\n'));
+    await Promise.resolve(); await Promise.resolve(); chat=render();
+    expect(chat.aiAnswer).toBe(''); expect(chat.chatHistory).toEqual([]);
+    streamController.enqueue(new TextEncoder().encode('data: {"token":"34-5678"}\n\ndata: [DONE]\n\n')); streamController.close();
+    await run; chat=render();
+    expect(chat.aiAnswer).toBe('연락 [전화번호]'); expect(chat.chatHistory.at(-1)?.content).toBe('연락 [전화번호]'); expect(chat.piiWarning).toContain('전화번호');
   });
 });

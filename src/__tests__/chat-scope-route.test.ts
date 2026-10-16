@@ -146,3 +146,9 @@ describe('weak result context', () => {
     expect(messages.at(-1).content).toContain('스타일은 반영하지 말아주세요');
   });
 });
+
+ it('masks generated private content before sending an HTTP reply',async()=>{
+    ai.chatStream.mockImplementationOnce(()=>new Response('data: {"token":"연락 010-12"}\n\ndata: {"token":"34-5678 test@example.com"}\n\ndata: [DONE]\n\n').body!);
+    const response=await POST(request()); const body=await response.text();
+    expect(body).toContain('[전화번호] [이메일]'); expect(body).not.toContain('010-12'); expect(body).not.toContain('test@example.com');
+  });

@@ -18,7 +18,7 @@ export default function EmergencyHelpStrip({ compact = false, entry = 'experienc
         <a
           href="tel:109"
           aria-label="109 자살예방상담전화"
-          className={`rounded-[var(--radius-md)] bg-white px-2 py-2 text-center text-[12px] font-bold text-[#be123c] ${focusRing}`}
+          className={`flex min-h-11 items-center justify-center rounded-[var(--radius-md)] bg-white px-2 text-center text-[12px] font-bold text-[#be123c] ${focusRing}`}
         >
           109 상담
         </a>
@@ -26,14 +26,14 @@ export default function EmergencyHelpStrip({ compact = false, entry = 'experienc
         <a
           href="tel:112"
           aria-label="112 긴급신고"
-          className={`rounded-[var(--radius-md)] bg-white px-2 py-2 text-center text-[12px] font-bold text-[#be123c] ${focusRing}`}
+          className={`flex min-h-11 items-center justify-center rounded-[var(--radius-md)] bg-white px-2 text-center text-[12px] font-bold text-[#be123c] ${focusRing}`}
         >
           112 신고
         </a>
         <a
           href="tel:119"
           aria-label="119 구조·응급"
-          className={`rounded-[var(--radius-md)] bg-white px-2 py-2 text-center text-[12px] font-bold text-[#be123c] ${focusRing}`}
+          className={`flex min-h-11 items-center justify-center rounded-[var(--radius-md)] bg-white px-2 text-center text-[12px] font-bold text-[#be123c] ${focusRing}`}
         >
           119 응급
         </a>
