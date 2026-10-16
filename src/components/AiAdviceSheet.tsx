@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type RefObject } from 'react';
+import { useEffect, useId, useRef, useState, type RefObject } from 'react';
 import BottomSheet from '@/components/BottomSheet';
 import { MAX_QUESTION_LENGTH } from '@/lib/constants';
 
@@ -97,6 +97,9 @@ export default function AiAdviceSheet({
   const [confirmAction, setConfirmAction] = useState<'delete' | 'restart' | null>(null);
   const lastConfirmRef = useRef<'delete' | 'restart' | null>(null);
   const confirmCancelRef = useRef<HTMLButtonElement>(null);
+  const confirmDialogRef = useRef<HTMLDialogElement>(null);
+  const confirmTitleId = useId();
+  const confirmDescriptionId = useId();
   const deleteButtonRef = useRef<HTMLButtonElement>(null);
   const newConversationRef = useRef<HTMLButtonElement>(null);
   const limitNotice = limitReached
@@ -107,6 +110,7 @@ export default function AiAdviceSheet({
   useEffect(() => {
     if (confirmAction) {
       lastConfirmRef.current = confirmAction;
+      confirmDialogRef.current?.showModal();
       confirmCancelRef.current?.focus();
       return;
     }
@@ -116,6 +120,27 @@ export default function AiAdviceSheet({
     const previousControl = last === 'restart' ? newConversationRef.current : deleteButtonRef.current;
     (previousControl ?? inputRef.current)?.focus();
   }, [confirmAction, inputRef]);
+
+  useEffect(() => {
+    if (!confirmAction) return;
+    const handleConfirmationKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' && event.key !== 'Tab') return;
+      // 상위 시트의 document 키 처리보다 먼저 확인 팝업에서 처리한다.
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      if (event.key === 'Escape') {
+        if (!event.isComposing && event.keyCode !== 229) setConfirmAction(null);
+        return;
+      }
+      const buttons = Array.from(confirmDialogRef.current?.querySelectorAll<HTMLButtonElement>('button:not([disabled])') ?? []);
+      if (!buttons.length) return;
+      const index = buttons.indexOf(document.activeElement as HTMLButtonElement);
+      const next = event.shiftKey ? (index <= 0 ? buttons.length - 1 : index - 1) : (index + 1) % buttons.length;
+      buttons[next].focus();
+    };
+    document.addEventListener('keydown', handleConfirmationKey, true);
+    return () => document.removeEventListener('keydown', handleConfirmationKey, true);
+  }, [confirmAction]);
 
   useEffect(() => {
     if (!limitReached) return;
@@ -128,7 +153,7 @@ export default function AiAdviceSheet({
   return (
     <BottomSheet title={title} onClose={onClose} hideHeader>
       <div className="relative flex min-h-0 max-h-[inherit] flex-col">
-        {!loading && hasMessages && !limitReached && onDeleteConversation && !confirmAction && (
+        {!loading && hasMessages && !limitReached && onDeleteConversation && (
           <button ref={deleteButtonRef} type="button" onClick={() => setConfirmAction('delete')} aria-label="대화 지우기" title="대화 지우기" className="absolute top-3 right-20 z-10 flex h-11 w-11 items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] hover:text-red-700">
             <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6M14 10v6" /></svg>
           </button>
@@ -235,14 +260,27 @@ export default function AiAdviceSheet({
                 </button>
             </div>
           )}
-      {!loading && confirmAction && <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-4 px-5 pb-2">
-        {confirmAction ? (
-          <>
-            <p role="status" className="text-[13px] text-[var(--color-text-secondary)]">
+      {!loading && confirmAction && (
+        <dialog
+          ref={confirmDialogRef}
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby={confirmTitleId}
+          aria-describedby={confirmDescriptionId}
+          onCancel={(event) => {
+            event.preventDefault();
+            setConfirmAction(null);
+          }}
+          className="fixed inset-0 m-auto w-[calc(100%-2.5rem)] max-w-sm rounded-[var(--radius-lg)] bg-[var(--color-bg)] p-5 text-[var(--color-text)] shadow-xl backdrop:bg-black/35"
+        >
+            <h2 id={confirmTitleId} className="text-[18px] font-bold leading-snug">
               {confirmAction === 'restart' ? '지금 대화를 지우고 새로 시작할까요?' : '대화를 지울까요?'}
+            </h2>
+            <p id={confirmDescriptionId} className="mt-3 text-[14px] leading-relaxed text-[var(--color-text-secondary)]">
+              AI와 나눈 대화가 지워지며 복구할 수 없어요. 진단 결과는 그대로 유지돼요.
             </p>
-            <div className="flex gap-4">
-              <button ref={confirmCancelRef} type="button" onClick={() => setConfirmAction(null)} className="min-h-11 text-[13px] text-[var(--color-text-secondary)]">취소</button>
+            <div className="mt-6 flex gap-3">
+              <button ref={confirmCancelRef} type="button" onClick={() => setConfirmAction(null)} className="min-h-11 flex-1 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-card)] px-4 text-[14px] font-semibold text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]">취소</button>
               <button
                 type="button"
                 onClick={() => {
@@ -251,14 +289,13 @@ export default function AiAdviceSheet({
                   if (action === 'restart') onStartNewConversation?.();
                   else onDeleteConversation?.();
                 }}
-                className="min-h-11 text-[13px] text-[var(--color-text-secondary)]"
+                className="min-h-11 flex-1 rounded-[var(--radius-md)] bg-red-700 px-4 text-[14px] font-semibold text-white hover:bg-red-800"
               >
                 {confirmAction === 'restart' ? '새로 시작' : '지우기'}
               </button>
             </div>
-          </>
-        ) : null}
-      </div>}
+        </dialog>
+      )}
       </div>
     </BottomSheet>
   );
