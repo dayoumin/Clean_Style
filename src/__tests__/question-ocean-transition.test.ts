@@ -55,3 +55,77 @@ describe('ocean replacement readiness', () => {
     expect(PendingImage.instances[0].onload).toBeNull();
   });
 });
+
+describe('ocean replacement minimum hold', () => {
+  beforeEach(() => {
+    PendingImage.instances = [];
+    vi.stubGlobal('Image', PendingImage);
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps a decoded replacement hidden for the full 500ms', async () => {
+    const ready = vi.fn();
+    prepareOceanImage('/next.webp', ready, 500);
+    const image = PendingImage.instances[0];
+    const loaded = image.onload!();
+    image.resolveDecode();
+    await loaded;
+    expect(ready).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(499);
+    expect(ready).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+    expect(ready).toHaveBeenCalledOnce();
+  });
+
+  it('loads in parallel with the hold instead of adding another delay after decoding', async () => {
+    const ready = vi.fn();
+    prepareOceanImage('/slow.webp', ready, 500);
+    vi.advanceTimersByTime(800);
+    expect(ready).not.toHaveBeenCalled();
+    const image = PendingImage.instances[0];
+    const loaded = image.onload!();
+    image.resolveDecode();
+    await loaded;
+    expect(ready).toHaveBeenCalledOnce();
+  });
+
+  it('cancels a decoded replacement during the hold', async () => {
+    const ready = vi.fn();
+    const cancel = prepareOceanImage('/cancelled.webp', ready, 500);
+    const image = PendingImage.instances[0];
+    const loaded = image.onload!();
+    image.resolveDecode();
+    await loaded;
+    vi.advanceTimersByTime(300);
+    cancel();
+    vi.advanceTimersByTime(1000);
+    expect(ready).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('ignores late decoding after a new scene supersedes the old request', async () => {
+    const staleReady = vi.fn();
+    const latestReady = vi.fn();
+    const cancel = prepareOceanImage('/stale.webp', staleReady, 500);
+    const stale = PendingImage.instances[0];
+    const staleLoaded = stale.onload!();
+    vi.advanceTimersByTime(300);
+    cancel();
+    prepareOceanImage('/latest.webp', latestReady, 500);
+    const latest = PendingImage.instances[1];
+    const latestLoaded = latest.onload!();
+    latest.resolveDecode();
+    await latestLoaded;
+    stale.resolveDecode();
+    await staleLoaded;
+    vi.advanceTimersByTime(499);
+    expect(staleReady).not.toHaveBeenCalled();
+    expect(latestReady).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+    expect(latestReady).toHaveBeenCalledOnce();
+  });
+});

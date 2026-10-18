@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getQuestionOceanScene, QUESTION_OCEAN_FILES } from './question-ocean-scenes';
 import { prepareOceanImage } from './prepare-ocean-image';
 
@@ -8,15 +8,19 @@ import { prepareOceanImage } from './prepare-ocean-image';
 export default function QuestionOcean({ seed, questionIndex, hasNext }: { seed: number; questionIndex: number; hasNext: boolean }) {
   const scene = getQuestionOceanScene(seed, questionIndex);
   const source = `/images/adult-integrity/question-ocean/${QUESTION_OCEAN_FILES[scene]}`;
-  const [readySource, setReadySource] = useState(source);
+  const preparationId = useRef(0);
+  const [readyScene, setReadyScene] = useState<{ source: string; requestId: number } | null>(null);
   const [frame, setFrame] = useState<{ current: string; incoming: string | null }>({ current: source, incoming: null });
-  useEffect(() => prepareOceanImage(source, () => setReadySource(source)), [source]);
   useEffect(() => {
-    if (readySource !== source) return;
+    const requestId = ++preparationId.current;
+    return prepareOceanImage(source, () => setReadyScene({ source, requestId }), 500);
+  }, [source]);
+  useEffect(() => {
+    if (!readyScene || readyScene.source !== source || readyScene.requestId !== preparationId.current) return;
     // Finish an active fade before advancing to the latest requested scene.
-    setFrame(previous => previous.incoming || previous.current === readySource
-      ? previous : { ...previous, incoming: readySource });
-  }, [readySource, source, frame.incoming]);
+    setFrame(previous => previous.incoming || previous.current === readyScene.source
+      ? previous : { ...previous, incoming: readyScene.source });
+  }, [readyScene, source, frame.incoming]);
   function finishTransition(incoming: string) {
     setFrame(previous => previous.incoming === incoming
       ? { current: incoming, incoming: null } : previous);

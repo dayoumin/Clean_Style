@@ -47,9 +47,10 @@ describe('OG 이미지 데이터 조회', () => {
 
   it.each(allStyleKeys)('유형 "%s" → 이모지, 이름, 설명 모두 존재', (key) => {
     const data = resolveOgData(key);
-    expect(data.emoji).not.toBe('🧭');
-    expect(data.name).not.toBe('청렴 스타일');
-    expect(data.description).not.toBe('나의 업무 스타일을 알아보세요');
+    const style = styleTypes[key];
+    expect(data.emoji).toBe(style.emoji);
+    expect(data.name).toBe(style.name);
+    expect(data.description).toBe(style.description);
     expect(data.emoji.length).toBeGreaterThan(0);
     expect(data.name.length).toBeGreaterThan(0);
     expect(data.description.length).toBeGreaterThan(0);

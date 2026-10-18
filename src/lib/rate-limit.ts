@@ -10,13 +10,31 @@ import { CLIENT_ID_HEADER } from '@/lib/constants';
 
 const DEFAULT_LIMIT = 20;
 const DEFAULT_WINDOW_MS = 60_000;
+const CLEANUP_INTERVAL_MS = 60_000;
 export const CLIENT_ID_PATTERN = /^[a-zA-Z0-9_-]{12,80}$/;
 
-/** key -> sorted array of request timestamps (ms) */
-const store = new Map<string, number[]>();
+interface RateLimitWindow {
+  timestamps: number[];
+  expiresAt: number;
+}
+
+const store = new Map<string, RateLimitWindow>();
+let nextCleanupAt = 0;
+
+// Reclaim abandoned keys on incoming traffic, without background timers.
+function cleanupExpiredWindows(now: number) {
+  if (now < nextCleanupAt) return;
+  for (const [key, window] of store) {
+    if (window.expiresAt <= now) store.delete(key);
+  }
+  nextCleanupAt = now + CLEANUP_INTERVAL_MS;
+}
 
 /** 테스트용: 내부 store 초기화 */
-export function _resetStore() { store.clear(); }
+export function _resetStore() {
+  store.clear();
+  nextCleanupAt = 0;
+}
 
 /** 테스트용: 내부 store 크기 확인 */
 export function _getStoreSize() { return store.size; }
@@ -42,7 +60,7 @@ function checkWindow(
   now: number,
 ): WindowCheck {
   const windowStart = now - windowMs;
-  let timestamps = store.get(key) ?? [];
+  let timestamps = store.get(key)?.timestamps ?? [];
 
   let firstValid = 0;
   while (firstValid < timestamps.length && timestamps[firstValid] <= windowStart) {
@@ -65,23 +83,27 @@ function checkWindow(
   return { allowed: true, timestamps };
 }
 
-function persistWindow(key: string, timestamps: number[], now?: number) {
+function persistWindow(key: string, timestamps: number[], windowMs: number, now?: number) {
   if (key === 'unknown') return;
 
-  if (typeof now === 'number') {
-    store.set(key, [...timestamps, now]);
-  } else if (timestamps.length === 0) {
+  const recorded = typeof now === 'number' ? [...timestamps, now] : timestamps;
+  if (recorded.length === 0) {
     store.delete(key);
-  } else {
-    store.set(key, timestamps);
+    return;
   }
+
+  store.set(key, {
+    timestamps: recorded,
+    // Rejected requests must not extend the last accepted request's lifetime.
+    expiresAt: recorded[recorded.length - 1] + windowMs,
+  });
 }
 
 /**
  * Check whether a request from `ip` is within the rate limit.
  *
- * On every call the window is lazily pruned so the Map never grows
- * unbounded for a given key.
+ * Each call prunes the current window. Incoming traffic also reclaims expired
+ * keys at most once per minute, including keys that are never queried again.
  */
 export function checkRateLimit(
   key: string,
@@ -92,14 +114,15 @@ export function checkRateLimit(
   if (key === 'unknown') return { allowed: true };
 
   const now = Date.now();
+  cleanupExpiredWindows(now);
   const result = checkWindow(key, limit, windowMs, now);
 
   if (!result.allowed) {
-    persistWindow(key, result.timestamps);
+    persistWindow(key, result.timestamps, windowMs);
     return { allowed: false, retryAfter: result.retryAfter };
   }
 
-  persistWindow(key, result.timestamps, now);
+  persistWindow(key, result.timestamps, windowMs, now);
 
   return { allowed: true };
 }
@@ -134,12 +157,13 @@ export function checkScopedRateLimit({
     ? `${scope}:client:${ip}:${clientId}`
     : (ip === 'unknown' ? 'unknown' : `${scope}:client:${ip}:anonymous`);
   const now = Date.now();
+  cleanupExpiredWindows(now);
 
   const ipResult = ipKey === 'unknown'
     ? { allowed: true, timestamps: [] }
     : checkWindow(ipKey, ipLimit, windowMs, now);
   if (!ipResult.allowed) {
-    persistWindow(ipKey, ipResult.timestamps);
+    persistWindow(ipKey, ipResult.timestamps, windowMs);
     return { allowed: false, retryAfter: ipResult.retryAfter, limitedBy: 'ip' };
   }
 
@@ -147,13 +171,13 @@ export function checkScopedRateLimit({
     ? { allowed: true, timestamps: [] }
     : checkWindow(clientKey, clientLimit, windowMs, now);
   if (!clientResult.allowed) {
-    persistWindow(ipKey, ipResult.timestamps);
-    persistWindow(clientKey, clientResult.timestamps);
+    persistWindow(ipKey, ipResult.timestamps, windowMs);
+    persistWindow(clientKey, clientResult.timestamps, windowMs);
     return { allowed: false, retryAfter: clientResult.retryAfter, limitedBy: 'client' };
   }
 
-  persistWindow(ipKey, ipResult.timestamps, now);
-  persistWindow(clientKey, clientResult.timestamps, now);
+  persistWindow(ipKey, ipResult.timestamps, windowMs, now);
+  persistWindow(clientKey, clientResult.timestamps, windowMs, now);
 
   return { allowed: true };
 }
