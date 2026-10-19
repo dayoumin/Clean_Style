@@ -131,7 +131,7 @@
 }
 /* One- and two-line choices share a base height; longer text stays fully visible. */
 .adult-question-page .choice-button { background: white; box-shadow: none; height: 100%; min-height: 0; padding-block: 5px; line-height: 1.5; word-break: keep-all; overflow-wrap: anywhere; }
-.adult-question-page h2 { margin-bottom: 16px; line-height: 1.5; word-break: keep-all; overflow-wrap: anywhere; }
+.adult-question-page h2 { min-block-size: 3lh; margin-bottom: 16px; line-height: 1.5; word-break: keep-all; overflow-wrap: anywhere; }
 .adult-question-content > :nth-child(2) { margin-bottom: clamp(12px, 2dvh, 24px); }
 .adult-question-page .question-number { color: var(--color-text-muted); font-size: 28px; font-weight: 700; letter-spacing: -.02em; }
 @media (max-height: 780px) {
