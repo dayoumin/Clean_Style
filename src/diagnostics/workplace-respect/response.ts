@@ -1,5 +1,4 @@
 import { getRespectQuestions, isRespectEntry, RESPECT_INSTRUMENT_VERSION, RESPECT_SCORING_VERSION, RESPECT_RESULT_TTL_MS } from './content';
-import { calculateRespectResult } from './scoring';
 import type { RespectEntry } from './types';
 
 export interface RespectResponse {
@@ -16,6 +15,14 @@ export interface DecodedRespectResponse {
   answers: number[];
 }
 
+// The check stops at the first crisis answer, so a stored response is either every question
+// or an unbroken prefix that ends exactly at its first crisis answer.
+function expectedAnswerCount(entry: RespectEntry, answers: number[]): number {
+  const questions = getRespectQuestions(entry);
+  const firstCrisis = answers.findIndex((answer, index) => Boolean(questions[index]?.choices[answer]?.crisis));
+  return firstCrisis >= 0 ? firstCrisis + 1 : questions.length;
+}
+
 export function createRespectResponse(entry: RespectEntry, answers: number[], now = Date.now()): RespectResponse {
   const questions = getRespectQuestions(entry);
   const responses: RespectResponse['responses'] = [];
@@ -25,9 +32,9 @@ export function createRespectResponse(entry: RespectEntry, answers: number[], no
     if (!item || !choice) throw new Error('Invalid respect answer');
     responses.push({ questionId: item.id, choiceId: choice.id });
   });
-  if (responses.length !== questions.length && !calculateRespectResult(entry, answers).crisis) {
-    throw new Error('Incomplete respect response');
-  }
+  const expected = expectedAnswerCount(entry, answers);
+  if (responses.length < expected) throw new Error('Incomplete respect response');
+  if (responses.length > expected) throw new Error('Respect response continues after a crisis answer');
   return { schemaVersion: 'workplace-respect-response-v1', instrumentId: 'workplace-respect', instrumentVersion: RESPECT_INSTRUMENT_VERSION,
     scoringVersion: RESPECT_SCORING_VERSION, entry, createdAt: now, responses };
 }
@@ -53,7 +60,8 @@ export function decodeRespectResponse(value: unknown, entry: RespectEntry, now =
     answers[index] = choiceIndex;
     seen.add(item.questionId);
   }
-  if (seen.size !== questions.length && !calculateRespectResult(entry, answers).crisis) return null;
+  const expected = expectedAnswerCount(entry, answers);
+  if (!answers.every((answer, index) => (index < expected) === (answer >= 0))) return null;
   return { response: {
     schemaVersion: 'workplace-respect-response-v1', instrumentId: 'workplace-respect',
     instrumentVersion: RESPECT_INSTRUMENT_VERSION, scoringVersion: RESPECT_SCORING_VERSION,

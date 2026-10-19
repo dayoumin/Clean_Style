@@ -1,204 +1,171 @@
 import { describe, expect, it } from 'vitest';
-import { calculateRespectResult, getRespectQuestions, respectAxisLabels, workplaceRespectRuntimeQuestions, RESPECT_RESULT_TTL_MS } from '@/data/workplaceRespectQuestions';
+import { calculateRespectResult, getRespectQuestions, getRespectScoredQuestions, getRespectSituationGuidance, getRespectSituationGuidanceIndex, workplaceRespectRuntimeQuestions, RESPECT_RESULT_TTL_MS, RESPECT_INSTRUMENT_VERSION, RESPECT_SCORING_VERSION } from '@/data/workplaceRespectQuestions';
 import { workplaceRespectQuestions as governance } from '@/data/workplaceRespectQuestionGovernance';
 import { createRespectResponse, decodeRespectResponse } from '@/diagnostics/workplace-respect/response';
-import type { RespectEntry, RespectRiskAxis } from '@/data/workplaceRespectQuestions';
+import type { RespectEntry } from '@/data/workplaceRespectQuestions';
+import { getRespectHelpCalls } from '@/diagnostics/workplace-respect/help';
 
 function answersFor(entry: RespectEntry, selected: Record<string, number> = {}) {
-  return getRespectQuestions(entry).map((q) => selected[q.id] ?? 0);
+  return getRespectQuestions(entry).map(q => selected[q.id] ?? 0);
 }
-describe('workplace-respect v0.2', () => {
-  it('24문항·안전 우선 순서·안정적인 선택지 ID를 제공한다', () => {
-    expect(workplaceRespectRuntimeQuestions).toHaveLength(24);
-    expect(getRespectQuestions('action')).toHaveLength(12);
-    expect(getRespectQuestions('experience')).toHaveLength(12);
+function scored(entry: RespectEntry, value: number) {
+  return getRespectQuestions(entry).map(q => q.axis === 'crisisGate' ? 0 : value);
+}
+function actionTotal(total: number) {
+  let remaining = total;
+  return getRespectQuestions('action').map(q => {
+    if (q.axis === 'crisisGate') return 0;
+    const value = Math.min(4, remaining); remaining -= value; return value;
+  });
+}
+
+describe('official source instruments and separate help', () => {
+  it('공식 10개·25개와 독립된 안전 문항 3개, 안정적인 ID를 제공한다', () => {
+    expect(getRespectScoredQuestions('action')).toHaveLength(10);
+    expect(getRespectScoredQuestions('experience')).toHaveLength(25);
+    expect(workplaceRespectRuntimeQuestions).toHaveLength(38);
     expect(getRespectQuestions('action')[0].id).toBe('A11');
     expect(getRespectQuestions('experience').slice(0, 2).map(q => q.id)).toEqual(['E11', 'E10']);
-    const ids = workplaceRespectRuntimeQuestions.flatMap(q => q.choices.map(c => c.id));
+    const ids = workplaceRespectRuntimeQuestions.flatMap(q => [q.id, ...q.choices.map(c => c.id)]);
     expect(new Set(ids).size).toBe(ids.length);
-    for (const q of workplaceRespectRuntimeQuestions) expect(q.choices).toHaveLength(4);
+    expect(getRespectSituationGuidanceIndex('action')).toBe(1);
+    expect(getRespectSituationGuidanceIndex('experience')).toBe(2);
   });
-  it('화면·출처 관리의 문구·축·점수·모든 게이트가 일치하고 출처가 공개 데이터로 새지 않는다', () => {
-    for (const q of workplaceRespectRuntimeQuestions) {
-      const managed = governance.find(other => other.id === q.id);
-      expect(managed).toMatchObject(q);
-      expect(managed?.choices).toEqual(q.choices);
-      expect(managed?.source.sourceUrl).toMatch(/^https:\/\//);
-      expect(managed?.source.reviewStatus).toBe('초안');
-      expect(managed?.source.expertReviewer).toBeNull();
-      expect('source' in q).toBe(false);
+  it('원표 10개 문구를 임의로 순화·확장하지 않는다', () => {
+    expect(getRespectScoredQuestions('action').map(q => q.prompt)).toEqual([
+      '업무지시를 할 때 화를 내거나 욕을 한 적이 있다.',
+      '다른 직원 앞에서 특정 직원의 잘못을 과도하게 질책한 적이 있다.',
+      '공식적 자리에서 부하직원을 공식 직명이 아닌 “야”, “너” 등의 반말로 부른 적이 있다.',
+      '직원의 외모나 의상, 출신지역이나 연령 등에 대해 지적한 적이 있다.',
+      '개인적인 일을 부하 직원에게 시키기도 한다.',
+      '부하 직원에게 긴급하지 않은 경우임에도 야근, 주말근무를 지시한 적이 있다.',
+      '본인 의사와 상관없이 불필요한 회식, 야외활동 참여를 요구한 적이 있다.',
+      '소속 직원이 연차휴가나 병가 등을 신청하였으나 타당한 이유 없이 거부한 적이 있다.',
+      '특정 직원에게 타당한 이유 없이 업무를 과다 또는 과소하게 부여한 적이 있다.',
+      '사적인 이유로 부하 직원에게 인사상 불이익을 준 적이 있다.',
+    ]);
+    expect(getRespectScoredQuestions('experience')[13].prompt).toBe('나에게 신체적인 위협이나 폭력을 가했다.(예: 물건 던지기, 주먹질 등)');
+    expect(getRespectScoredQuestions('experience')[24].prompt).toContain('성적 수치심');
+  });
+  it.each(['action', 'experience'] as const)('%s는 원표 다섯 응답과 별도 모름·건너뛰기를 구분한다', entry => {
+    const expected = entry === 'action' ? ['전혀 아니다','아니다','보통이다','그렇다','매우 그렇다'] : ['전혀 없음','6개월에 1-2회','월 1회 정도','주 1회 정도','매일'];
+    for (const q of getRespectScoredQuestions(entry)) {
+      expect(q.choices.filter(c => !c.auxiliary).map(c => c.text)).toEqual(expected);
+      expect(q.choices.filter(c => !c.auxiliary).map(c => c.score)).toEqual([0,1,2,3,4]);
+      expect(q.choices.slice(5).every(c => c.auxiliary && c.uncertain)).toBe(true);
     }
-    expect(governance).toHaveLength(24);
   });
-  it.each(['action', 'experience'] as const)('%s의 동일 축 중복 응답은 점수를 부풀리지 않고 최대점은 18이다', entry => {
-    const riskOnly = Object.fromEntries(getRespectQuestions(entry).filter(q => !['crisisGate', 'resultGate', 'evidenceSupport'].includes(q.axis)).map(q => [q.id, 3]));
-    expect(calculateRespectResult(entry, answersFor(entry, riskOnly)).score).toBe(18);
-    const prefix = entry === 'action' ? 'A' : 'E';
-    const one = calculateRespectResult(entry, answersFor(entry, { [prefix+'02']: 2 }));
-    const two = calculateRespectResult(entry, answersFor(entry, { [prefix+'02']: 2, [prefix+'03']: 2 }));
-    expect(one.score).toBe(two.score);
+  it('행동 안내에 경험 회상기간을 적용하지 않고 경험은 최근 6개월을 사용한다', () => {
+    expect(getRespectSituationGuidance('action')).not.toContain('최근 6개월');
+    expect(getRespectSituationGuidance('action')).toContain('2026년');
+    expect(getRespectSituationGuidance('experience')).toContain('최근 6개월');
+    expect(getRespectScoredQuestions('experience').every(q => q.helpText)).toBe(true);
   });
-  it('애매한 답변 두 개로 업무범위 축을 활성화하지 않는다', () => {
-    const r = calculateRespectResult('action', answersFor('action', { A02: 1, A03: 1 }));
-    expect(r.score).toBe(1);
-    expect(r.axisSummary.activeAxes).not.toContain('workScope');
-  });
-  it.each(['action', 'experience'] as const)('%s의 핵심 신호 충족과 낮음 결과가 공존하지 않는다', entry => {
-    const p = entry === 'action' ? 'A' : 'E';
-    const r = calculateRespectResult(entry, answersFor(entry, { [p+'01']: 2, [p+'07']: 2 }));
-    expect(r.axisSummary.coreCriteriaMet).toBe(true);
-    expect(r.level).toBe('caution');
-  });
-  it.each(['A06', 'A07', 'A09', 'A12'])('%s 단독 강한 신호도 낮음으로 안내하지 않는다', id => {
-    expect(calculateRespectResult('action', answersFor('action', { [id]: 3 })).level).toBe('caution');
-  });
-  it.each(['E05', 'E07', 'E12'])('%s 단독 강한 신호도 낮음으로 안내하지 않는다', id => {
-    expect(calculateRespectResult('experience', answersFor('experience', { [id]: 3 })).level).toBe('caution');
-  });
-  it('모욕·위협은 업무 관련 여부와 별개로 부적절한 방식 신호가 된다', () => {
-    const r = calculateRespectResult('experience', answersFor('experience', { E01: 2, E05: 2 }));
-    expect(r.axisSummary.coreCriteriaMet).toBe(true);
-    expect(r.level).toBe('caution');
-  });
-  it('관계 우위·심한 모욕·실제 불이익은 높은 안내 우선순위로 연결한다', () => {
-    const r = calculateRespectResult('experience', answersFor('experience', { E01: 3, E05: 3, E07: 3 }));
-    expect(r.level).toBe('high');
-    expect(r.score).toBe(9);
-  });
-  it('관계 우위 응답 없이 높은 총점만으로 핵심 기준이나 high를 만들지 않는다', () => {
-    const r = calculateRespectResult('experience', answersFor('experience', { E03: 3, E05: 3, E06: 3, E08: 3, E12: 3 }));
-    expect(r.level).toBe('caution');
-    expect(r.axisSummary.coreCriteriaMet).toBe(false);
-  });
-  it.each([
-    ['action', 'A02'], ['action', 'A03'], ['action', 'A04'], ['action', 'A08'],
-    ['experience', 'E02'], ['experience', 'E03'], ['experience', 'E04'], ['experience', 'E08'],
-  ] as const)('%s 관계 우위와 함께 나타난 %s 신호는 낮음이 아니라 주의로 안내한다', (entry, id) => {
-    const relationId = entry === 'action' ? 'A01' : 'E01';
-    const axis = getRespectQuestions(entry).find(q => q.id === id)!.axis as RespectRiskAxis;
-    const alone = calculateRespectResult(entry, answersFor(entry, { [id]: 2 }));
-    const withRelation = calculateRespectResult(entry, answersFor(entry, { [relationId]: 2, [id]: 2 }));
-    expect(alone.level).toBe('low');
-    expect(withRelation.level).toBe('caution');
-    expect(withRelation.score).toBe(4);
-    expect(withRelation.axisSummary.coreCriteriaMet).toBe(false);
-    expect(withRelation.axisSummary.activeAxes).toEqual(['relationPower', axis]);
-    expect(withRelation.summary).toContain(respectAxisLabels[axis]);
-    expect(withRelation.title).not.toBe(alone.title);
-  });
-  it.each([
-    ['action', 'A01'], ['action', 'A08'], ['experience', 'E01'], ['experience', 'E08'],
-  ] as const)('%s의 %s 최고점만으로는 주의로 올리지 않는다', (entry, id) => {
-    const r = calculateRespectResult(entry, answersFor(entry, { [id]: 3 }));
-    expect(r.score).toBe(3);
-    expect(r.level).toBe('low');
-    expect(r.axisSummary.activeAxes).toHaveLength(1);
-    expect(r.axisSummary.coreCriteriaMet).toBe(false);
-  });
-  it.each(['action', 'experience'] as const)('%s에서 관계 우위와 다른 위험 문항 하나의 조합은 그 문항이 2점 이상일 때만 주의다', entry => {
-    const items = getRespectQuestions(entry);
-    const relation = items.find(q => q.axis === 'relationPower')!;
-    const others = items.filter(q => q.axis !== 'relationPower' && !['crisisGate', 'resultGate', 'evidenceSupport'].includes(q.axis));
-    let checked = 0;
-    for (const relationChoice of [2, 3]) {
-      for (const q of others) {
-        q.choices.forEach((choice, index) => {
-          const r = calculateRespectResult(entry, answersFor(entry, { [relation.id]: relationChoice, [q.id]: index }));
-          expect(r.level, `${relation.id}=${relationChoice}, ${q.id}=${index}`).toBe(choice.score >= 2 ? 'caution' : 'low');
-          checked++;
-        });
-      }
+  it('출처를 확인한 사실과 전문가 승인 사실을 구분한다', () => {
+    expect(governance).toHaveLength(38);
+    for (const q of governance) {
+      expect(q.source.expertReviewer).toBeNull();
+      expect(q.source.approvalDecision).toBe('미검토');
+      expect(q.choices).toEqual(workplaceRespectRuntimeQuestions.find(item => item.id === q.id)?.choices);
+      expect(q.source.sourceLocatorStatus).toBe(q.axis === 'crisisGate' ? '보완필요' : '확정');
     }
-    expect(checked).toBe(others.length * 4 * 2);
-  });
-  it.each([1, 2])('E10 도움 응답 %s는 위험 점수·축을 바꾸지 않는다', choice => {
-    const base = { E01: 2, E03: 2, E05: 2 };
-    const r = calculateRespectResult('experience', answersFor('experience', { ...base, E10: choice }));
-    const before = calculateRespectResult('experience', answersFor('experience', base));
-    expect(r.score).toBe(before.score);
-    expect(r.axisSummary).toEqual(before.axisSummary);
-    expect(r.level).toBe(before.level);
-    expect(r.support).toBe(true);
-  });
-  it('마음건강 도움만 선택하면 선택하지 않은 관계·업무 신호를 요약하지 않는다', () => {
-    const r = calculateRespectResult('experience', answersFor('experience', { E10: 2 }));
-    expect(r.score).toBe(0);
-    expect(r.level).toBe('caution');
-    expect(r.summary).toContain('마음건강');
-    expect(r.summary).not.toContain('관계');
-    expect(r.summary).not.toContain('모욕');
-  });
-  it('A10 중단 게이트는 총점 0으로 최소 주의를 보장한다', () => {
-    const r = calculateRespectResult('action', answersFor('action', { A10: 2 }));
-    expect(r.score).toBe(0);
-    expect(r.level).toBe('caution');
-    expect(r.primaryActions.join(' ')).not.toContain('사적인 부탁');
-  });
-  it.each(['action', 'experience'] as const)('%s의 단발·모름은 반복성 점수를 바꾸지 않는다', entry => {
-    const id = entry === 'action' ? 'A08' : 'E08';
-    const zero = calculateRespectResult(entry, answersFor(entry));
-    const unknown = calculateRespectResult(entry, answersFor(entry, { [id]: 1 }));
-    expect(unknown.score).toBe(zero.score);
-    expect(unknown.level).toBe(zero.level);
-    expect(unknown.uncertainCount).toBe(1);
-    expect(unknown.summary).toContain('판단하기 어렵다');
-  });
-  it.each(['action', 'experience'] as const)('%s의 첫 안전 응답만으로 바로 긴급 결과를 제공한다', entry => {
-    const r = calculateRespectResult(entry, [2]);
-    expect(r.level).toBe('urgent');
-    expect(r.score).toBe(0);
-    expect(r.crisisKinds).toEqual(['physicalSafety']);
-    const text = [...r.primaryActions, ...r.supportActions].join(' ');
-    expect(text).toContain('112');
-    expect(text).toContain('119');
-    expect(text).not.toContain('109');
-  });
-  it('자해의 현재 실행 위험과 반복 생각을 분리한다', () => {
-    const urgent = calculateRespectResult('experience', answersFor('experience', { E10: 3 }));
-    const recurring = calculateRespectResult('experience', answersFor('experience', { E10: 2 }));
-    expect(urgent.crisisKinds).toEqual(['selfHarm']);
-    expect(urgent.level).toBe('urgent');
-    expect(recurring.level).toBe('caution');
-    expect(recurring.support).toBe(true);
-  });
-  it('잘못된 선택지 인덱스·비정수는 응답 수에서 제외한다', () => {
-    const r = calculateRespectResult('action', [-1, 99, 1.5, NaN]);
-    expect(r.answeredCount).toBe(0);
-    expect(r.score).toBe(0);
   });
 });
-describe('versioned respect response', () => {
-  const now = 1_800_000_000_000;
-  it('문항·선택지 ID와 두 버전으로 저장하고 기록 배열 순서에 의존하지 않는다', () => {
-    const answers = answersFor('experience', { E05: 3 });
-    const response = createRespectResponse('experience', answers, now);
-    expect(response.instrumentVersion).toBe('workplace-respect-v0.2');
-    expect(response.scoringVersion).toBe('workplace-respect-risk-v0.2.1');
-    expect('answers' in response).toBe(false);
-    expect(decodeRespectResponse({ ...response, responses: [...response.responses].reverse() }, 'experience', now)?.answers).toEqual(answers);
+
+describe('independent scoring', () => {
+  it.each([[0,'low'],[10,'low'],[11,'moderate'],[20,'moderate'],[21,'high'],[29,'high'],[30,'veryHigh'],[40,'veryHigh']] as const)('2019년 원표 %s점 구간을 그대로 계산한다', (total, band) => {
+    const result = calculateRespectResult('action', actionTotal(total));
+    expect(result.score).toBe(total);
+    expect(result.sourceBand).toBe(band);
+    expect(result.maxScore).toBe(40);
   });
-  it('긴급 신호가 있는 일부 응답만 복원·공유할 수 있다', () => {
-    const response = createRespectResponse('action', [2], now);
-    const restored = decodeRespectResponse(response, 'action', now);
-    expect(restored).not.toBeNull();
-    expect(calculateRespectResult('action', restored!.answers).answeredCount).toBe(1);
-    expect(() => createRespectResponse('action', [0], now)).toThrow('Incomplete');
-    expect(decodeRespectResponse({ ...response, responses: [] }, 'action', now)).toBeNull();
+  it.each([[0,0],[1,25],[2,50],[3,75],[4,100]])('경험 빈도 %s 응답은 %s점이며 등급이 없다', (value,total) => {
+    const result = calculateRespectResult('experience',scored('experience',value));
+    expect(result.score).toBe(total);
+    expect(result.maxScore).toBe(100);
+    expect(result.sourceBand).toBeNull();
+    expect(result.sourceBandText).toBeNull();
+    expect(result).not.toHaveProperty('level');
+    expect(result).not.toHaveProperty('axisSummary');
+    expect(result.crisis).toBe(false);
   });
-  it('이전 버전·다른 관점·만료·미래 시각을 거절한다', () => {
-    const response = createRespectResponse('action', answersFor('action'), now);
-    expect(decodeRespectResponse({ ...response, instrumentVersion: 'workplace-respect-v0.1' }, 'action', now)).toBeNull();
-    expect(decodeRespectResponse({ ...response, scoringVersion: 'old' }, 'action', now)).toBeNull();
-    expect(decodeRespectResponse(response, 'experience', now)).toBeNull();
-    expect(decodeRespectResponse(response, 'action', now + RESPECT_RESULT_TTL_MS)).toBeNull();
-    expect(decodeRespectResponse({ ...response, createdAt: now + 1 }, 'action', now)).toBeNull();
+  it.each(['MOEL26-E14','MOEL26-E25'])('한 번의 %s 경험은 1점이지만 경미·안전으로 분류하지 않는다', id => {
+    const result = calculateRespectResult('experience',answersFor('experience',{[id]:1}));
+    expect(result.score).toBe(1);
+    expect(result.reportedItems.map(item => item.id)).toEqual([id]);
+    expect(result.sourceBand).toBeNull();
+    expect(result.summary).toContain('한 번의 경험도 상담');
   });
-  it('문항 중복·없는 문항·다른 문항의 선택지·부분 비긴급 응답을 거절한다', () => {
-    const response = createRespectResponse('action', answersFor('action'), now);
-    const first = response.responses[0];
-    expect(decodeRespectResponse({ ...response, responses: [...response.responses, first] }, 'action', now)).toBeNull();
-    expect(decodeRespectResponse({ ...response, responses: [{ questionId: 'A99', choiceId: 'A99:no' }] }, 'action', now)).toBeNull();
-    expect(decodeRespectResponse({ ...response, responses: [{ ...first, choiceId: 'E11:imminent' }] }, 'action', now)).toBeNull();
-    expect(decodeRespectResponse({ ...response, responses: [first] }, 'action', now)).toBeNull();
+  it('같은 종류의 두 문항도 각 응답을 합산하고 별도 가중치를 주지 않는다', () => {
+    expect(calculateRespectResult('experience', answersFor('experience',{'MOEL26-E01':4,'MOEL26-E02':4})).score).toBe(8);
+  });
+  it.each(['action','experience'] as const)('%s 모름·건너뛰기·무효 응답은 총점·구간을 산출하지 않는다', entry => {
+    const first = getRespectQuestions(entry).findIndex(q => q.axis !== 'crisisGate');
+    for (const value of [5,6,-1,99,NaN,0.5]) {
+      const answers = scored(entry,0); answers[first] = value;
+      const result = calculateRespectResult(entry,answers);
+      expect(result.score).toBeNull();
+      expect(result.sourceBand).toBeNull();
+      expect(result.scoredAnsweredCount).toBe(result.scoredTotal-1);
+      expect(result.informationLimited).toBe(true);
+    }
+    expect(calculateRespectResult(entry,[]).score).toBeNull();
+  });
+  it('안전·도움 응답은 완성 합계와 원표 구간을 바꾸지 않는다', () => {
+    for (const entry of ['action','experience'] as const) {
+      const baseline = scored(entry,2);
+      const before = calculateRespectResult(entry,baseline);
+      for (const q of getRespectQuestions(entry).filter(q => q.axis === 'crisisGate')) {
+        for (let choice=0; choice<q.choices.length; choice++) {
+          const changed=[...baseline]; changed[getRespectQuestions(entry).findIndex(item => item.id===q.id)]=choice;
+          const after=calculateRespectResult(entry,changed);
+          expect([after.score,after.sourceBand]).toEqual([before.score,before.sourceBand]);
+        }
+      }
+    }
+  });
+  it('별도 도움 신호에 즉시 도움을 제공하고 부분 응답에서 점수를 만들지 않는다', () => {
+    const urgent=calculateRespectResult('action',[2]);
+    expect(urgent.crisis).toBe(true);
+    expect(urgent.score).toBeNull();
+    expect(getRespectHelpCalls(urgent).map(c=>c.number)).toEqual(['112','119']);
+    const recurring=calculateRespectResult('experience',[0,2]);
+    expect(recurring.crisis).toBe(false);
+    expect(recurring.supportKind).toBe('recurring');
+    expect(recurring.supportNotice).not.toBeNull();
+    expect(getRespectHelpCalls(recurring)[0].number).toBe('109');
+    expect(calculateRespectResult('experience',[1]).safetyNotice).not.toBeNull();
+  });
+});
+
+describe('versioned source response contract', () => {
+  const now=1_800_000_000_000;
+  it('현재 버전·안정 ID를 사용하고 저장 배열 순서에 의존하지 않는다', () => {
+    const answers=scored('experience',2);
+    const response=createRespectResponse('experience',answers,now);
+    expect(response.instrumentVersion).toBe(RESPECT_INSTRUMENT_VERSION);
+    expect(response.scoringVersion).toBe(RESPECT_SCORING_VERSION);
+    expect(decodeRespectResponse({...response,responses:[...response.responses].reverse()},'experience',now)?.answers).toEqual(answers);
+  });
+  it('옛 문항·채점 버전, 관점 불일치, 중복·위조·만료를 거절한다', () => {
+    const response=createRespectResponse('action',scored('action',0),now);
+    for (const changes of [{instrumentVersion:'workplace-respect-v0.2.2'},{scoringVersion:'workplace-respect-risk-v0.2.2'},{responses:[...response.responses,response.responses[0]]},{responses:[{questionId:'A01',choiceId:'A01:yes'}]}]) {
+      expect(decodeRespectResponse({...response,...changes},'action',now)).toBeNull();
+    }
+    expect(decodeRespectResponse(response,'experience',now)).toBeNull();
+    expect(decodeRespectResponse(response,'action',now+RESPECT_RESULT_TTL_MS)).toBeNull();
+    expect(decodeRespectResponse({...response,createdAt:now+1},'action',now)).toBeNull();
+  });
+  it('명시한 모름·건너뛰기는 저장하지만 불완전한 일반 응답은 거절한다', () => {
+    const answers=answersFor('experience',{'MOEL26-E01':5,'MOEL26-E02':6});
+    const response=createRespectResponse('experience',answers,now);
+    expect(calculateRespectResult('experience',decodeRespectResponse(response,'experience',now)!.answers).score).toBeNull();
+    expect(()=>createRespectResponse('action',[0],now)).toThrow('Incomplete');
+  });
+  it('첫 위기 응답으로 끝나는 연속 앞부분만 허용한다', () => {
+    const response=createRespectResponse('experience',[0,3],now);
+    expect(decodeRespectResponse(response,'experience',now)).not.toBeNull();
+    expect(()=>createRespectResponse('experience',[2,2],now)).toThrow('after a crisis');
+    expect(decodeRespectResponse({...response,responses:[response.responses[1]]},'experience',now)).toBeNull();
   });
 });

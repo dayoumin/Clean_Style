@@ -1,22 +1,38 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getQuestionOceanScene, QUESTION_OCEAN_FILES } from './question-ocean-scenes';
 import { prepareOceanImage } from './prepare-ocean-image';
+
+type SceneRequest = { source: string };
 
 /** Every independent scene shares the same canvas and display scale. */
 export default function QuestionOcean({ seed, questionIndex, hasNext }: { seed: number; questionIndex: number; hasNext: boolean }) {
   const scene = getQuestionOceanScene(seed, questionIndex);
   const source = `/images/adult-integrity/question-ocean/${QUESTION_OCEAN_FILES[scene]}`;
-  const [readySource, setReadySource] = useState(source);
+  const requestRef = useRef<SceneRequest | null>(null);
+  const [readyRequest, setReadyRequest] = useState<SceneRequest | null>(null);
   const [frame, setFrame] = useState<{ current: string; incoming: string | null }>({ current: source, incoming: null });
-  useEffect(() => prepareOceanImage(source, () => setReadySource(source)), [source]);
   useEffect(() => {
-    if (readySource !== source) return;
+    const request = { source };
+    requestRef.current = request;
+    let decoded = false;
+    let delayElapsed = false;
+    const publishReady = () => {
+      if (decoded && delayElapsed) setReadyRequest(request);
+    };
+    // Loading runs alongside the quiet interval; navigation restarts only this interval.
+    const timeout = window.setTimeout(() => { delayElapsed = true; publishReady(); }, 1000);
+    const cancelImage = prepareOceanImage(source, () => { decoded = true; publishReady(); });
+    return () => { window.clearTimeout(timeout); cancelImage(); };
+  }, [source]);
+  useEffect(() => {
+    // Request identity also protects back/forward navigation to a previously ready image.
+    if (!readyRequest || readyRequest !== requestRef.current) return;
     // Finish an active fade before advancing to the latest requested scene.
-    setFrame(previous => previous.incoming || previous.current === readySource
-      ? previous : { ...previous, incoming: readySource });
-  }, [readySource, source, frame.incoming]);
+    setFrame(previous => previous.incoming || previous.current === readyRequest.source
+      ? previous : { ...previous, incoming: readyRequest.source });
+  }, [readyRequest, source, frame.incoming]);
   function finishTransition(incoming: string) {
     setFrame(previous => previous.incoming === incoming
       ? { current: incoming, incoming: null } : previous);

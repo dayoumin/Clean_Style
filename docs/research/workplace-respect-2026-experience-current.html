@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026년 일터 존중 점검 · 원문 유지·점수 없는 상황 정리와 상담 안내</title>
+<style>*{box-sizing:border-box}:root{color-scheme:light}body{margin:0;background:#f5f7fa;color:#263644;font:16px/1.85 system-ui,"Malgun Gothic",sans-serif}main{max-width:1080px;margin:auto;padding:30px 24px 64px}h1{font-size:28px;line-height:1.5}h2{font-size:22px;line-height:1.6;margin-top:34px}a{color:#205f98}code{font-size:13px;overflow-wrap:anywhere}.notice,.helper,.pending{padding:14px 18px;border-left:3px solid #a76e18;background:#fff3dc}.helper{background:#edf5fc;border-color:#406f98}.pending{font-size:14px}.item{margin:26px 0;padding:22px;background:white;border:1px solid #d5dfe7;border-radius:6px;scroll-margin-top:15px}.item h2{margin:0 0 16px}.tag{font:13px/1.7 system-ui,sans-serif;padding:3px 8px;background:#eaf1f8;color:#365977;border-radius:4px}.table-wrap{overflow-x:auto}table{width:100%;table-layout:fixed;border-collapse:collapse;background:white}th,td{border:1px solid #d5dfe7;padding:14px;text-align:left;vertical-align:top}th{background:#edf2f7;font-size:14px}.primary{font-weight:600}.jump{display:flex;flex-wrap:wrap;gap:7px;margin:20px 0}.jump a{padding:3px 9px;border:1px solid #d5dfe7;background:white;border-radius:4px;text-decoration:none}.small{font-size:13px;color:#526675}:focus-visible{outline:3px solid #3564bf;outline-offset:3px}@media(max-width:600px){main{padding:20px 14px 45px}h1{font-size:24px}.item{padding:16px 12px}th,td{padding:10px;font-size:14px}}@media print{main{padding:0}body{background:white}.jump{display:none}.item{border-radius:0}h2{break-after:avoid}tr{break-inside:avoid}}</style></head><body><main>
+<a href="index.html">검토 문서 목록</a> · <a href="workplace-respect-2026-action-current.html">내 행동 점검 기준안</a>
+<h1>2026년 일터 존중 점검<br>원문 유지·점수 없는 상황 정리와 상담 안내</h1><p id="official-implementation-notice"><strong>보관 문서 · 2026-10-15 기준 변경:</strong> 이 본문은 이전 문항·무점수 흐름·비교 검토 또는 구 구현의 이력이다. 사용자의 최종 지시에 따른 공식 행동 10문항·원표 채점 및 경험 25문항·0~100점 시험 합계는 <a href="workplace-respect-implementation-20261015.html">현재 v0.3.0 구현·근거·결정 기록</a>을 따른다. 이 본문의 ‘현재’, ‘미구현’, 구 위험 등급은 작성 당시의 상태로 읽는다. 문항·수정 이유·검토 이력은 보관한다.</p>
+<div class="helper"><strong>최신 시험 점수 요청:</strong> 사용자는 이후 실제 사용 전 추가 점검을 전제로 경험 점수를 만들자고 요청했다. <a href="workplace-respect-scoring-pilot-review-20261015.html#experience-score">공식 25문항을 유지한 자체 합계 0~100점 시험안</a>을 별도 정리했다. 아래 문항·선택 도움말은 그대로 보관하며 ‘점수 없음’은 이전 흐름의 이력으로 읽는다. 시험 산식과 검증된 위험 등급은 구분하고 앱은 아직 전환하지 않았다.</div>
+<p>2026-10-15 · <code>2026-experience-source-preserving-1</code> · 기관 내부 성인 종사자용 · <strong>문항·안내 정리안</strong></p>
+<div class="notice"><strong>공식 경험 문항 25개를 그대로 유지한다.</strong> 보조 질문은 선택 도움말이며 필수 추가 문항이 아니다. 배점·총점·가중치·위험 등급·유형·순위·체크 개수별 판정을 만들지 않고, 본인이 답변한 경험과 원하는 도움을 정리해 상담 안내로 연결한다. 내 행동 점검은 사용자가 채택한 기준안을 유지하며 점수는 계속 보류한다. 이번 작업은 문항·결과 문구·흐름 정리이며 앱·API·기존 채점은 변경하지 않았다.</div>
+<h2>간단한 기본 흐름</h2>
+<p><strong>경험 문항 → 답변한 경험 확인 → 상담·도움 안내</strong></p>
+<ul>
+<li>주질문은 25개다. 여러 행동을 별도 필수 문항으로 나누거나 원문보다 좁은 조건을 추가하지 않는다.</li>
+<li>보조 질문은 필요할 때 읽는 선택 도움말이다. 모든 도움말에 답하거나 별도의 장문 기록을 제출할 필요가 없다.</li>
+<li>상황 메모는 원하는 경우에만 남기는 별도 선택안이다. 모두 답하지 않았거나 메모·증거가 없어도 경험 정리와 상담 안내를 볼 수 있다.</li>
+<li>안전·도움 안내는 별도 경로로 계속 접근할 수 있게 한다. 문항 완료·빈도·체크 개수와 연결하지 않으며 새로운 위기 분류 기준은 만들지 않는다.</li>
+</ul>
+<p>출처: <a href="https://www.moel.go.kr/policy/policydata/view.do?bbs_seq=20260701008">고용노동부 직장 내 괴롭힘 예방·대응 매뉴얼(2026년 7월)</a>, 참고 5 「사업장 자체 조직문화 진단을 위한 근무환경 설문조사표」의 Ⅲ, 책자 139쪽(PDF 143쪽). 공식 문항의 줄바꿈·공백만 정리했다. 주질문을 그대로 유지하더라도 이 개인 상황 정리 도구 전체가 정부의 공식 검사·판정이 되는 것은 아니다.</p>
+<h2>안내·응답 방식 정리안</h2>
+<div class="table-wrap"><table><thead><tr><th>구분</th><th>내용</th></tr></thead><tbody>
+<tr><td>공식 경험 안내</td><td>다음은 최근 6개월 동안 직장 생활에서 발생한 경험의 빈도에 대한 질문입니다.</td></tr>
+<tr><td>공식 빈도 범주</td><td>전혀 없음 / 6개월에 1-2회 / 월 1회 정도 / 주 1회 정도 / 매일</td></tr>
+<tr><td>자체 보충 응답안</td><td>기억나지 않음·판단하기 어려움 / 답변하지 않음. 공식 선택지가 아님을 구분한다. 화면에서는 숫자 배점 대신 문구로 보여주는 안이며, 원표의 ①~⑤를 점수로 해석하지 않는다.</td></tr>
+<tr><td>자체 추가 안내</td><td>본인이 경험한 일을 기억나는 범위에서 답해 주세요. 답하기 어려운 문항은 건너뛰어도 됩니다. 보조 질문은 이해를 돕는 선택 도움말이며 모두 답할 필요는 없습니다. 답변·상세 메모·증거 유무와 관계없이 상담 안내를 볼 수 있습니다.</td></tr>
+<tr><td>회상 기간과 도움</td><td>문항의 기간은 원문의 최근 6개월을 유지한다. 6개월 이전의 일이라는 이유로 상담·도움 안내 접근을 제한하지 않는다.</td></tr>
+</tbody></table></div>
+<p>경험 빈도는 본인의 답변을 그대로 표시하는 정보다. 심각도나 법적 성립을 뜻하지 않는다. ‘전혀 없음’, 모름·판단 어려움, 답변 안 함을 서로 구분하고 모름·건너뛰기를 문제 없음으로 바꾸지 않는다. 빈도 범주 사이에서 애매한 사례의 이해와 보충 응답 문구는 기존 문항 검토 쟁점으로 남긴다.</p>
+<nav class="jump" aria-label="문항 이동"><a href="#item-01">01</a> <a href="#item-02">02</a> <a href="#item-03">03</a> <a href="#item-04">04</a> <a href="#item-05">05</a> <a href="#item-06">06</a> <a href="#item-07">07</a> <a href="#item-08">08</a> <a href="#item-09">09</a> <a href="#item-10">10</a> <a href="#item-11">11</a> <a href="#item-12">12</a> <a href="#item-13">13</a> <a href="#item-14">14</a> <a href="#item-15">15</a> <a href="#item-16">16</a> <a href="#item-17">17</a> <a href="#item-18">18</a> <a href="#item-19">19</a> <a href="#item-20">20</a> <a href="#item-21">21</a> <a href="#item-22">22</a> <a href="#item-23">23</a> <a href="#item-24">24</a> <a href="#item-25">25</a></nav>
+<section class="item" id="item-01" data-source="SRC26-III-01">
+<h2>01. <code>EXP26-01</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 1번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나의 업무능력이나 성과를 인정하지 않거나 조롱했다.</td><td class="primary">나의 업무능력이나 성과를 인정하지 않거나 조롱했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 업무나 성과에 대해 어떤 말·행동을 경험했나요? 기억나는 내용을 떠올리는 정도면 됩니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">업무 평가·칭찬 부재와 인정 부정·조롱의 구분을 설명할 때 원문 범위를 임의로 바꾸지 않는지 확인한다.</span></p>
+</section>
+<section class="item" id="item-02" data-source="SRC26-III-02">
+<h2>02. <code>EXP26-02</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 2번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">훈련, 승진, 보상, 일상적인 대우 등에서 차별을 했다.</td><td class="primary">훈련, 승진, 보상, 일상적인 대우 등에서 차별을 했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 대우가 달랐으며, 기준이나 이유에 대해 어떤 설명을 들었나요? 모르는 부분은 그대로 남겨도 됩니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">차별과 정상적인 차등의 구분에 관한 기관 설명을 확인한다. 응답자가 차별의 법적 성립을 입증하도록 요구하지 않는다.</span></p>
+</section>
+<section class="item" id="item-03" data-source="SRC26-III-03">
+<h2>03. <code>EXP26-03</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 3번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나에게 힘들고, 모두가 꺼리는 업무를 주었다.</td><td class="primary">나에게 힘들고, 모두가 꺼리는 업무를 주었다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 업무를 맡았으며, 당시 업무량·일정·지원과 배분 이유에 대한 설명은 어떠했나요?</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">힘든 업무의 배정 자체를 위반으로 표시하지 않는다. ‘모두가 꺼림’의 의미와 직접 알지 못하는 경우의 응답을 확인한다.</span></p>
+</section>
+<section class="item" id="item-04" data-source="SRC26-III-04">
+<h2>04. <code>EXP26-04</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 4번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">허드렛일만 시키거나 일을 거의 주지 않았다.</td><td class="primary">허드렛일만 시키거나 일을 거의 주지 않았다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 일을 얼마나 맡았으며, 담당 역할이나 업무 배분이 어떻게 달라졌나요?</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">특정 직무를 낮춰 보는 설명을 추가하지 않는다. 업무의 성격·역할 변경과 업무 배제의 구분을 확인한다.</span></p>
+</section>
+<section class="item" id="item-05" data-source="SRC26-III-05">
+<h2>05. <code>EXP26-05</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 5번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">업무와 관련된 중요한 정보나 의사결정 과정에서 나를 제외했다.</td><td class="primary">업무와 관련된 중요한 정보나 의사결정 과정에서 나를 제외했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 정보나 의사결정에서 제외되었으며, 업무에 어떤 관련이 있었나요? 제한 이유를 들었다면 함께 떠올려볼 수 있습니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">정보 중요성·업무 관련성과 보안·권한에 따른 제한의 구분을 확인한다. 이유를 모른다는 사실을 적정하거나 부당하다는 결론으로 바꾸지 않는다.</span></p>
+</section>
+<section class="item" id="item-06" data-source="SRC26-III-06">
+<h2>06. <code>EXP26-06</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 6번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">내 성과를 가로채거나, 성과 달성을 방해했다.</td><td class="primary">내 성과를 가로채거나, 성과 달성을 방해했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 성과와 관련된 일이었으며, 실제로 어떤 말·기록·행동이 있었나요? 공동 작업이었다면 역할도 함께 생각해볼 수 있습니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">공동 성과 귀속이나 협조 과정의 이견을 자동으로 가로챔·방해로 확정하지 않는다. 예시만으로 원문을 제한하지 않는다.</span></p>
+</section>
+<section class="item" id="item-07" data-source="SRC26-III-07">
+<h2>07. <code>EXP26-07</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 7번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나에게 휴가나 병가, 각종 복지혜택 등을 쓰지 못하도록 압력을 주었다.</td><td class="primary">나에게 휴가나 병가, 각종 복지혜택 등을 쓰지 못하도록 압력을 주었다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 말·행동 때문에 사용이 어려웠나요? 신청·사용 과정에서 들은 설명을 기억나는 범위에서 정리할 수 있습니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">압력과 정상적인 요건·절차 설명을 구분할 기관 안내를 확인한다. 신청 기록이나 불이익 증거가 있어야 상담할 수 있다는 조건을 만들지 않는다.</span></p>
+</section>
+<section class="item" id="item-08" data-source="SRC26-III-08">
+<h2>08. <code>EXP26-08</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 8번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">일하거나 휴식하는 모습을 지나치게 감시했다.(예: CCTV를 통한 감시)</td><td class="primary">일하거나 휴식하는 모습을 지나치게 감시했다.(예: CCTV를 통한 감시)</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">무엇을 어떤 방법·시간·범위로 확인받았나요? 확인 목적이나 절차에 대해 들은 설명이 있었나요?</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">‘지나치게’의 이해와 정상적인 감독·안전 확인·사생활 관찰의 구분을 확인한다. 자체 횟수 기준을 만들지 않는다.</span></p>
+</section>
+<section class="item" id="item-09" data-source="SRC26-III-09">
+<h2>09. <code>EXP26-09</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 9번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">사고위험이 있는 작업을 할 때, 나에게 주의사항이나 안전장비를 전달해주지 않았다.</td><td class="primary">사고위험이 있는 작업을 할 때, 나에게 주의사항이나 안전장비를 전달해주지 않았다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 작업에서 어떤 안내나 장비를 받지 못했나요? 지금 도움이 필요하면 이 문항을 마치지 않아도 별도 도움 안내를 볼 수 있습니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">산업안전 관련 경험의 범위와 도움 경로를 확인한다. 사용자가 제공 책임자를 특정하거나 현재 위험을 입증해야 도움을 받는 구조로 만들지 않는다.</span></p>
+</section>
+<section class="item" id="item-10" data-source="SRC26-III-10">
+<h2>10. <code>EXP26-10</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 10번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나에게 상사의 관혼상제나 개인적인 일상생활과 관련된 일을 하도록 했다.(예: 개인 심부름 등)</td><td class="primary">나에게 상사의 관혼상제나 개인적인 일상생활과 관련된 일을 하도록 했다.(예: 개인 심부름 등)</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">누구의 어떤 개인적인 일을 어떤 방식으로 요청받았나요? 업무 시간이나 자원을 사용했는지도 생각해볼 수 있습니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">자발적인 부탁과 지위·관계를 이용한 요구의 구분, 기관 내규에 맞는 설명을 확인한다. 명시적 거절을 필수 조건으로 두지 않는다.</span></p>
+</section>
+<section class="item" id="item-11" data-source="SRC26-III-11">
+<h2>11. <code>EXP26-11</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 11번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나에게 부서이동 또는 퇴사를 강요했다.</td><td class="primary">나에게 부서이동 또는 퇴사를 강요했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">이동이나 퇴사에 대해 실제로 어떤 말을 듣거나 요구를 받았나요? 인사 사유·절차에 대한 설명이 있었나요?</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">정상적인 인사 안내·제안과 강요의 구분을 확인한다. 요구를 거절하지 못했다는 이유로 자발적인 결정이라고 해석하지 않는다.</span></p>
+</section>
+<section class="item" id="item-12" data-source="SRC26-III-12">
+<h2>12. <code>EXP26-12</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 12번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">누군가 사소한 일에 트집을 잡거나 시비를 걸었다.</td><td class="primary">누군가 사소한 일에 트집을 잡거나 시비를 걸었다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 일에 대해 어떤 말·행동을 경험했나요? 업무 내용에 대한 지적과 표현 방식을 나눠 떠올려볼 수 있습니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">‘사소한 일·트집·시비’의 이해와 정상적인 피드백·문제 제기의 구분을 확인한다. 반복을 새 필수 조건으로 만들지 않는다.</span></p>
+</section>
+<section class="item" id="item-13" data-source="SRC26-III-13">
+<h2>13. <code>EXP26-13</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 13번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">누군가 내 개인사에 대한 뒷담화나 소문을 퍼뜨렸다.</td><td class="primary">누군가 내 개인사에 대한 뒷담화나 소문을 퍼뜨렸다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 종류의 개인사가 누구에게 어떤 방식으로 전달되었는지, 직접 알고 있는 범위만 생각해볼 수 있습니다. 실명이나 민감한 내용을 자세히 적을 필요는 없습니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">정당한 상담·신고·업무상 공유와의 구분, 입력 최소화 안내를 확인한다. 전파 범위나 의도를 추정하도록 요구하지 않는다.</span></p>
+</section>
+<section class="item" id="item-14" data-source="SRC26-III-14">
+<h2>14. <code>EXP26-14</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 14번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나에게 신체적인 위협이나 폭력을 가했다.(예: 물건 던지기, 주먹질 등)</td><td class="primary">나에게 신체적인 위협이나 폭력을 가했다.(예: 물건 던지기, 주먹질 등)</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">직접 겪은 행동과 당시 상황을 기억나는 범위에서 떠올려보세요. 현재 안전이 걱정되면 문항을 계속하지 않고 도움 안내로 이동할 수 있습니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">질문 부담·중단 선택과 안전 안내를 확인한다. 과거 빈도나 상해 여부로 현재 안전·도움 필요를 자동 판정하지 않는다.</span></p>
+</section>
+<section class="item" id="item-15" data-source="SRC26-III-15">
+<h2>15. <code>EXP26-15</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 15번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나에게 욕설이나 위협적인 말을 했다.</td><td class="primary">나에게 욕설이나 위협적인 말을 했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">기억나는 말과 당시 상황은 무엇인가요? 구체적인 표현을 다시 쓰고 싶지 않다면 쓰지 않아도 됩니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">위협적 발언과 업무 절차 설명의 구분 및 질문 부담을 확인한다. 특정 불이익이나 신체적 위협만 있어야 해당한다는 조건을 추가하지 않는다.</span></p>
+</section>
+<section class="item" id="item-16" data-source="SRC26-III-16">
+<h2>16. <code>EXP26-16</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 16번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나를 부적절하게 의심하거나, 누명을 씌웠다.</td><td class="primary">나를 부적절하게 의심하거나, 누명을 씌웠다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 의심이나 잘못에 관한 말을 들었으며, 사실 확인이나 설명 과정은 어떠했나요? 직접 아는 내용만 정리할 수 있습니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">정상적인 사실 확인·조사·신고와의 구분을 확인한다. 누명임을 증명할 자료가 있어야 상담할 수 있다는 조건을 만들지 않는다.</span></p>
+</section>
+<section class="item" id="item-17" data-source="SRC26-III-17">
+<h2>17. <code>EXP26-17</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 17번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">누군가 내 물건을 허락 없이 가져가거나 망가뜨렸다.</td><td class="primary">누군가 내 물건을 허락 없이 가져가거나 망가뜨렸다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 물건에 어떤 일이 있었으며, 허락·사용 권한이나 손상 경위에 대해 아는 내용은 무엇인가요?</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">개인·공용 물품, 사고·정당한 사용·처분과의 구분을 확인한다. 모르는 경위나 의도를 임의로 판단하지 않는다.</span></p>
+</section>
+<section class="item" id="item-18" data-source="SRC26-III-18">
+<h2>18. <code>EXP26-18</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 18번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">다른 사람들 앞에서(또는 온라인상에서) 나에게 모욕감을 주는 언행을 했다.</td><td class="primary">다른 사람들 앞에서(또는 온라인상에서) 나에게 모욕감을 주는 언행을 했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 말·행동을 어디에서 경험했고, 본인에게 어떻게 느껴졌나요? 원치 않으면 자세한 내용은 떠올리거나 적지 않아도 됩니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">본인이 느낀 경험을 묻는 원문을 유지한다. 제3자가 얼마나 모욕적이었는지 평가하거나 다른 사람의 감정을 대신 추정하는 문항으로 바꾸지 않는다.</span></p>
+</section>
+<section class="item" id="item-19" data-source="SRC26-III-19">
+<h2>19. <code>EXP26-19</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 19번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">내 의사와 상관없이 음주 / 흡연을 강요했다.</td><td class="primary">내 의사와 상관없이 음주 / 흡연을 강요했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">음주·흡연을 어떤 말·행동으로 요구받았나요? 본인이 밝힌 의견이나 당시 상황을 기억나는 범위에서 정리할 수 있습니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">권유와 강요의 구분을 확인한다. 거절을 명시하지 못한 경험을 동의로 해석하거나 상담에서 제외하지 않는다.</span></p>
+</section>
+<section class="item" id="item-20" data-source="SRC26-III-20">
+<h2>20. <code>EXP26-20</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 20번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">내 의사와 관계없이 회식 참여를 강요했다.</td><td class="primary">내 의사와 관계없이 회식 참여를 강요했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">회식 참석을 어떤 방식으로 요구받았으며, 불참 의사를 전했거나 전하기 어려웠던 상황이 있었나요? 답하기 어렵다면 건너뛰어도 됩니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">초대·안내와 강요의 구분을 확인한다. 명시적 거절·불이익 언급·반복 요구를 새 필수 조건으로 두지 않는다.</span></p>
+</section>
+<section class="item" id="item-21" data-source="SRC26-III-21">
+<h2>21. <code>EXP26-21</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 21번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나를 업무 외의 대화나 친목 모임에서 제외했다.</td><td class="primary">나를 업무 외의 대화나 친목 모임에서 제외했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 대화나 모임에서 어떤 방식으로 제외되었다고 경험했나요? 모임의 성격과 업무 관계도 함께 떠올려볼 수 있습니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">개인적 친교 선택과 배제의 구분을 확인한다. 모든 사적 모임에 초대받아야 한다는 안내를 하지 않으며 집단 가담·반복을 필수 조건으로 추가하지 않는다.</span></p>
+</section>
+<section class="item" id="item-22" data-source="SRC26-III-22">
+<h2>22. <code>EXP26-22</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 22번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나의 정당한 건의사항이나 의견을 무시했다.</td><td class="primary">나의 정당한 건의사항이나 의견을 무시했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 의견이나 건의를 냈으며, 검토·답변·발언 기회는 어떠했나요?</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">제안이 채택되지 않은 것과 무시된 경험의 구분 및 ‘정당한’의 이해를 확인한다. 발언 차단 등 일부 방식으로만 제한하지 않는다.</span></p>
+</section>
+<section class="item" id="item-23" data-source="SRC26-III-23">
+<h2>23. <code>EXP26-23</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 23번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나의 의사와 관계없이 불필요한 추가근무(야근, 주말출근 등)를 강요했다.</td><td class="primary">나의 의사와 관계없이 불필요한 추가근무(야근, 주말출근 등)를 강요했다.</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 추가근무를 어떤 방식으로 요구받았나요? 필요성·일정·절차에 대해 들은 설명과 본인이 밝힌 의견은 무엇이었나요?</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">정상적인 추가근무 지시와 원문의 불필요한 추가근무 강요의 구분을 확인한다. 야근·주말출근은 예시이며 다른 시간대의 경험을 제외하지 않는다.</span></p>
+</section>
+<section class="item" id="item-24" data-source="SRC26-III-24">
+<h2>24. <code>EXP26-24</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 24번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">나에게 부당한 징계를 주었다.(반성문, 처벌 등)</td><td class="primary">나에게 부당한 징계를 주었다.(반성문, 처벌 등)</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">어떤 조치를 어떤 사유로 받았으며, 규정·절차 설명과 본인이 설명할 기회는 어떠했나요?</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">공식 징계뿐 아니라 반성문·처벌 등 원문의 포함 범위를 확인한다. 공식 절차의 유무 하나로 정당·부당을 자동 판정하지 않는다.</span></p>
+</section>
+<section class="item" id="item-25" data-source="SRC26-III-25">
+<h2>25. <code>EXP26-25</code> <span class="tag">공식 원문 유지</span></h2>
+<div class="table-wrap"><table><thead><tr><th>공식 원문 · 참고 5, Ⅲ 표 안의 25번</th><th>일터 존중 주질문 · 원문과 동일</th></tr></thead><tbody><tr><td class="official">성적 수치심을 느끼게 하는 말 또는 행동을 나에게 했다.(이메일, 전화, 성적 농담, 성추행)</td><td class="primary">성적 수치심을 느끼게 하는 말 또는 행동을 나에게 했다.(이메일, 전화, 성적 농담, 성추행)</td></tr></tbody></table></div>
+<p class="helper"><strong>보조 질문 · 선택 도움말:</strong> <span class="auxiliary">경험한 말·행동의 종류와 본인의 느낌을 필요한 범위에서만 떠올려볼 수 있습니다. 구체적인 성적 내용의 상세 묘사는 필요 없고, 원하면 건너뛰어도 됩니다.</span></p>
+<p><strong>바꾼 내용:</strong> <span class="reason">주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다.</span></p>
+<p class="pending"><strong>확인 대기:</strong> <span class="expert">질문 부담과 별도 성희롱 상담 경로를 인권 담당이 확인한다. 본인의 경험을 묻되 원문 예시만으로 범위를 제한하거나 명시적 항의·거절을 상담 조건으로 두지 않는다.</span></p>
+</section>
+<section id="summary"><h2>점수 없는 경험 정리 화면 · 자체 작성 문구안</h2>
+<div class="helper"><strong>정리한 경험을 확인해 보세요.</strong><p>답변한 경험을 상담 전에 살펴볼 수 있도록 모았습니다. 이 정리는 괴롭힘의 법적 성립 여부를 판정하는 결과가 아닙니다. 자세한 메모나 자료가 없어도 상담 안내를 볼 수 있습니다.</p></div>
+<div class="table-wrap"><table><thead><tr><th>표시 내용</th><th>정리 원칙</th></tr></thead><tbody>
+<tr><td>본인이 답변한 경험</td><td>발생 경험을 선택한 문항의 원문과 빈도 문구를 그대로 보여준다. 우선순위·심각도 순위를 매기지 않고 원래 문항 순서를 유지한다.</td></tr>
+<tr><td>모름·판단 어려움과 미응답</td><td>발생 경험 목록과 구분한다. 상담에 필요한 경우 해당 항목을 다시 볼 수 있게 하는 안이며 자동으로 발생 없음·안전으로 해석하지 않는다.</td></tr>
+<tr><td>발생 경험 선택이 없을 때</td><td>‘정리한 발생 경험이 없습니다. 답변하지 않았거나 판단하기 어려운 내용이 있어도 상담 안내를 볼 수 있습니다.’로 안내한다. ‘안전함·괴롭힘 없음’이라는 결론을 내리지 않는다.</td></tr>
+<tr><td>선택 메모</td><td>사용자가 원하면 ① 언제 어떤 말·행동이 있었는지 ② 업무·근무환경이나 몸·마음에 어떤 영향이 있었는지 ③ 어떤 도움이 필요한지 정리할 수 있다. 이 세 항목을 기본 흐름의 필수 입력으로 추가하지 않는다.</td></tr>
+<tr><td>안내와 점수의 분리</td><td>총점·등급·위험 유형·축별 점수·체크 개수·백분율을 제시하지 않는다. 화면에서만 숨기고 내부에서 위험 등급을 산출해 상담 안내에 사용하는 방식도 채택하지 않는다. 빈도나 미응답 수로 도움 접근을 제한하지 않는다.</td></tr>
+</tbody></table></div>
+<h2>경험 정리 예시 · 실제 사용자 답변 아님</h2>
+<p>사용자가 아래 두 문항에 해당 빈도를 선택했다고 가정한 표시 예시다. 다른 답변이나 사실을 추정해 채우지 않는다.</p>
+<ul><li>업무와 관련된 중요한 정보나 의사결정 과정에서 나를 제외했다. — <strong>월 1회 정도</strong></li><li>내 의사와 관계없이 회식 참여를 강요했다. — <strong>6개월에 1-2회</strong></li></ul>
+<p>이 두 응답으로 위험 수준이나 법적 결론을 만들지 않는다. 기록·상담 준비에 사용할 수 있도록 본인이 답한 내용을 보여주는 예시다.</p></section>
+<section id="consultation"><h2>상담·도움 안내 · 자체 작성 문구안</h2>
+<p><strong>어떤 도움이 필요한지 살펴볼 수 있어요.</strong> 아직 도움의 종류를 정하지 못했거나 답변을 완료하지 않아도 아래 안내를 볼 수 있습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>선택할 안내</th><th>이어지는 내용</th></tr></thead><tbody>
+<tr><td>상황을 상담하고 싶어요</td><td>기관이 실제로 운영하는 고충·인권·노무 등 상담 창구와 확인된 기관 외 상담 경로를 안내한다. 특정 창구에 자동 신고·전송하지 않는다.</td></tr>
+<tr><td>절차를 알고 싶어요</td><td>기관의 상담·신고·보호조치 문의 절차와 담당 창구를 안내한다. 경험 응답만으로 신고를 권고하거나 법적 해당 여부를 확정하지 않는다.</td></tr>
+<tr><td>지금 안전·도움이 필요해요</td><td>기존의 별도 안전·도움 안내로 연결하는 방향을 유지한다. 이 도구의 문항 완료·빈도·점수와 무관하게 접근한다. 이번 문서에서 새로운 위기 질문·임계값을 만들지 않는다.</td></tr>
+</tbody></table></div>
+<p>실제 담당자·연락처·운영시간·열람 및 비밀보장 범위는 기관이 확인한 정보로 채운다. 확인하지 않은 연락처나 비밀보장 약속은 만들어 넣지 않는다. 창구 확인은 기존 운영 확인 사항이며 문항마다 별도 절차를 추가하지 않는다.</p></section>
+<section id="review"><h2>정리 상태와 남은 확인</h2>
+<p><strong>문항·도움말·점수 없는 경험 정리·상담 안내의 문서 정리는 완료했다.</strong> 원문·자체 설명을 구분했으며 경험 25개를 모두 포함했다. 기존 쟁점을 표현·범위, 기관 업무 맥락, 안전·도움의 세 묶음으로 유지한다. 25개별 승인 절차나 새 기능을 자동으로 추가하지 않는다.</p>
+<p>상태 <code>pending</code>, 마지막 확인 2026-10-15. 담당은 문항·노무·인권·기관 운영·안전의 해당 담당자다. 기대 증거는 보조 설명의 원문 범위·기관 적용에 대한 검토 의견과 실제 상담 경로·확정 문구 기록이다. 종료 조건은 공식 주질문·선택 안내·점수 없는 요약·기관 경로의 확인 결과가 최종 문구와 연결되는 것이다. 기존 <a href="workplace-respect-reliability-ops.html#risks">운영·위험 기록</a>에 연결하며 새 점수 검증 과제로 바꾸지 않는다.</p>
+<p>기존 조직문화 12문항·인적 사항·기관 평가용 후속 설문 전체를 이 개인 도구의 필수 문항으로 옮기지 않았다. 원문 Ⅲ-1~Ⅲ-7의 후속 질문을 그대로 추가한 것도 아니다. 선택 도움말·메모·상담 안내는 자체 작성안이다. 공식 문항의 의미를 보존하는 것과 원래 조직문화 설문 전체를 그대로 사용하는 것은 구분한다.</p>
+<p><strong>구현 범위:</strong> 내 행동 점검은 사용자 채택 문항 기준안으로 표시했고 점수는 보류했다. 일터 존중은 점수 없는 방향으로 정리했다. 앱·API·저장·결과 계산은 아직 전환하지 않았으며 현재 앱의 기존 점수 규칙이 이 새 정리안에 해당한다고 설명하지 않는다. 실제 전환 시 경험 요약·상담 안내 전 과정에서 점수·등급 의존을 제거해야 한다.</p>
+<p class="small">공식 주질문 25개를 PDF 본문과 공백·줄바꿈을 정규화해 대조했다. 문항 분할·의미 변경 없이 유지함을 확인했다. 번들 Windows Python 3.12.14·pypdf 6.10.0을 사용했으며 앱 테스트·배포를 수행한 것이 아니다. 원문 사본 SHA-256: <code>B8AE269EDCC20F5BBC2ABBC3242BD573B65B280F8AB89D498C22A6C423ECA207</code>.</p>
+<a href="workplace-respect-2026-action-current.html">내 행동 점검 기준안</a> · <a href="index.html">검토 문서 목록</a></section>
+<script type="application/json" id="review-data">[
+  {
+    "n": 1,
+    "aux": "어떤 업무나 성과에 대해 어떤 말·행동을 경험했나요? 기억나는 내용을 떠올리는 정도면 됩니다.",
+    "pending": "업무 평가·칭찬 부재와 인정 부정·조롱의 구분을 설명할 때 원문 범위를 임의로 바꾸지 않는지 확인한다.",
+    "official": "나의 업무능력이나 성과를 인정하지 않거나 조롱했다.",
+    "main": "나의 업무능력이나 성과를 인정하지 않거나 조롱했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 2,
+    "aux": "어떤 대우가 달랐으며, 기준이나 이유에 대해 어떤 설명을 들었나요? 모르는 부분은 그대로 남겨도 됩니다.",
+    "pending": "차별과 정상적인 차등의 구분에 관한 기관 설명을 확인한다. 응답자가 차별의 법적 성립을 입증하도록 요구하지 않는다.",
+    "official": "훈련, 승진, 보상, 일상적인 대우 등에서 차별을 했다.",
+    "main": "훈련, 승진, 보상, 일상적인 대우 등에서 차별을 했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 3,
+    "aux": "어떤 업무를 맡았으며, 당시 업무량·일정·지원과 배분 이유에 대한 설명은 어떠했나요?",
+    "pending": "힘든 업무의 배정 자체를 위반으로 표시하지 않는다. ‘모두가 꺼림’의 의미와 직접 알지 못하는 경우의 응답을 확인한다.",
+    "official": "나에게 힘들고, 모두가 꺼리는 업무를 주었다.",
+    "main": "나에게 힘들고, 모두가 꺼리는 업무를 주었다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 4,
+    "aux": "어떤 일을 얼마나 맡았으며, 담당 역할이나 업무 배분이 어떻게 달라졌나요?",
+    "pending": "특정 직무를 낮춰 보는 설명을 추가하지 않는다. 업무의 성격·역할 변경과 업무 배제의 구분을 확인한다.",
+    "official": "허드렛일만 시키거나 일을 거의 주지 않았다.",
+    "main": "허드렛일만 시키거나 일을 거의 주지 않았다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 5,
+    "aux": "어떤 정보나 의사결정에서 제외되었으며, 업무에 어떤 관련이 있었나요? 제한 이유를 들었다면 함께 떠올려볼 수 있습니다.",
+    "pending": "정보 중요성·업무 관련성과 보안·권한에 따른 제한의 구분을 확인한다. 이유를 모른다는 사실을 적정하거나 부당하다는 결론으로 바꾸지 않는다.",
+    "official": "업무와 관련된 중요한 정보나 의사결정 과정에서 나를 제외했다.",
+    "main": "업무와 관련된 중요한 정보나 의사결정 과정에서 나를 제외했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 6,
+    "aux": "어떤 성과와 관련된 일이었으며, 실제로 어떤 말·기록·행동이 있었나요? 공동 작업이었다면 역할도 함께 생각해볼 수 있습니다.",
+    "pending": "공동 성과 귀속이나 협조 과정의 이견을 자동으로 가로챔·방해로 확정하지 않는다. 예시만으로 원문을 제한하지 않는다.",
+    "official": "내 성과를 가로채거나, 성과 달성을 방해했다.",
+    "main": "내 성과를 가로채거나, 성과 달성을 방해했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 7,
+    "aux": "어떤 말·행동 때문에 사용이 어려웠나요? 신청·사용 과정에서 들은 설명을 기억나는 범위에서 정리할 수 있습니다.",
+    "pending": "압력과 정상적인 요건·절차 설명을 구분할 기관 안내를 확인한다. 신청 기록이나 불이익 증거가 있어야 상담할 수 있다는 조건을 만들지 않는다.",
+    "official": "나에게 휴가나 병가, 각종 복지혜택 등을 쓰지 못하도록 압력을 주었다.",
+    "main": "나에게 휴가나 병가, 각종 복지혜택 등을 쓰지 못하도록 압력을 주었다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 8,
+    "aux": "무엇을 어떤 방법·시간·범위로 확인받았나요? 확인 목적이나 절차에 대해 들은 설명이 있었나요?",
+    "pending": "‘지나치게’의 이해와 정상적인 감독·안전 확인·사생활 관찰의 구분을 확인한다. 자체 횟수 기준을 만들지 않는다.",
+    "official": "일하거나 휴식하는 모습을 지나치게 감시했다.(예: CCTV를 통한 감시)",
+    "main": "일하거나 휴식하는 모습을 지나치게 감시했다.(예: CCTV를 통한 감시)",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 9,
+    "aux": "어떤 작업에서 어떤 안내나 장비를 받지 못했나요? 지금 도움이 필요하면 이 문항을 마치지 않아도 별도 도움 안내를 볼 수 있습니다.",
+    "pending": "산업안전 관련 경험의 범위와 도움 경로를 확인한다. 사용자가 제공 책임자를 특정하거나 현재 위험을 입증해야 도움을 받는 구조로 만들지 않는다.",
+    "official": "사고위험이 있는 작업을 할 때, 나에게 주의사항이나 안전장비를 전달해주지 않았다.",
+    "main": "사고위험이 있는 작업을 할 때, 나에게 주의사항이나 안전장비를 전달해주지 않았다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 10,
+    "aux": "누구의 어떤 개인적인 일을 어떤 방식으로 요청받았나요? 업무 시간이나 자원을 사용했는지도 생각해볼 수 있습니다.",
+    "pending": "자발적인 부탁과 지위·관계를 이용한 요구의 구분, 기관 내규에 맞는 설명을 확인한다. 명시적 거절을 필수 조건으로 두지 않는다.",
+    "official": "나에게 상사의 관혼상제나 개인적인 일상생활과 관련된 일을 하도록 했다.(예: 개인 심부름 등)",
+    "main": "나에게 상사의 관혼상제나 개인적인 일상생활과 관련된 일을 하도록 했다.(예: 개인 심부름 등)",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 11,
+    "aux": "이동이나 퇴사에 대해 실제로 어떤 말을 듣거나 요구를 받았나요? 인사 사유·절차에 대한 설명이 있었나요?",
+    "pending": "정상적인 인사 안내·제안과 강요의 구분을 확인한다. 요구를 거절하지 못했다는 이유로 자발적인 결정이라고 해석하지 않는다.",
+    "official": "나에게 부서이동 또는 퇴사를 강요했다.",
+    "main": "나에게 부서이동 또는 퇴사를 강요했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 12,
+    "aux": "어떤 일에 대해 어떤 말·행동을 경험했나요? 업무 내용에 대한 지적과 표현 방식을 나눠 떠올려볼 수 있습니다.",
+    "pending": "‘사소한 일·트집·시비’의 이해와 정상적인 피드백·문제 제기의 구분을 확인한다. 반복을 새 필수 조건으로 만들지 않는다.",
+    "official": "누군가 사소한 일에 트집을 잡거나 시비를 걸었다.",
+    "main": "누군가 사소한 일에 트집을 잡거나 시비를 걸었다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 13,
+    "aux": "어떤 종류의 개인사가 누구에게 어떤 방식으로 전달되었는지, 직접 알고 있는 범위만 생각해볼 수 있습니다. 실명이나 민감한 내용을 자세히 적을 필요는 없습니다.",
+    "pending": "정당한 상담·신고·업무상 공유와의 구분, 입력 최소화 안내를 확인한다. 전파 범위나 의도를 추정하도록 요구하지 않는다.",
+    "official": "누군가 내 개인사에 대한 뒷담화나 소문을 퍼뜨렸다.",
+    "main": "누군가 내 개인사에 대한 뒷담화나 소문을 퍼뜨렸다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 14,
+    "aux": "직접 겪은 행동과 당시 상황을 기억나는 범위에서 떠올려보세요. 현재 안전이 걱정되면 문항을 계속하지 않고 도움 안내로 이동할 수 있습니다.",
+    "pending": "질문 부담·중단 선택과 안전 안내를 확인한다. 과거 빈도나 상해 여부로 현재 안전·도움 필요를 자동 판정하지 않는다.",
+    "official": "나에게 신체적인 위협이나 폭력을 가했다.(예: 물건 던지기, 주먹질 등)",
+    "main": "나에게 신체적인 위협이나 폭력을 가했다.(예: 물건 던지기, 주먹질 등)",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 15,
+    "aux": "기억나는 말과 당시 상황은 무엇인가요? 구체적인 표현을 다시 쓰고 싶지 않다면 쓰지 않아도 됩니다.",
+    "pending": "위협적 발언과 업무 절차 설명의 구분 및 질문 부담을 확인한다. 특정 불이익이나 신체적 위협만 있어야 해당한다는 조건을 추가하지 않는다.",
+    "official": "나에게 욕설이나 위협적인 말을 했다.",
+    "main": "나에게 욕설이나 위협적인 말을 했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 16,
+    "aux": "어떤 의심이나 잘못에 관한 말을 들었으며, 사실 확인이나 설명 과정은 어떠했나요? 직접 아는 내용만 정리할 수 있습니다.",
+    "pending": "정상적인 사실 확인·조사·신고와의 구분을 확인한다. 누명임을 증명할 자료가 있어야 상담할 수 있다는 조건을 만들지 않는다.",
+    "official": "나를 부적절하게 의심하거나, 누명을 씌웠다.",
+    "main": "나를 부적절하게 의심하거나, 누명을 씌웠다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 17,
+    "aux": "어떤 물건에 어떤 일이 있었으며, 허락·사용 권한이나 손상 경위에 대해 아는 내용은 무엇인가요?",
+    "pending": "개인·공용 물품, 사고·정당한 사용·처분과의 구분을 확인한다. 모르는 경위나 의도를 임의로 판단하지 않는다.",
+    "official": "누군가 내 물건을 허락 없이 가져가거나 망가뜨렸다.",
+    "main": "누군가 내 물건을 허락 없이 가져가거나 망가뜨렸다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 18,
+    "aux": "어떤 말·행동을 어디에서 경험했고, 본인에게 어떻게 느껴졌나요? 원치 않으면 자세한 내용은 떠올리거나 적지 않아도 됩니다.",
+    "pending": "본인이 느낀 경험을 묻는 원문을 유지한다. 제3자가 얼마나 모욕적이었는지 평가하거나 다른 사람의 감정을 대신 추정하는 문항으로 바꾸지 않는다.",
+    "official": "다른 사람들 앞에서(또는 온라인상에서) 나에게 모욕감을 주는 언행을 했다.",
+    "main": "다른 사람들 앞에서(또는 온라인상에서) 나에게 모욕감을 주는 언행을 했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 19,
+    "aux": "음주·흡연을 어떤 말·행동으로 요구받았나요? 본인이 밝힌 의견이나 당시 상황을 기억나는 범위에서 정리할 수 있습니다.",
+    "pending": "권유와 강요의 구분을 확인한다. 거절을 명시하지 못한 경험을 동의로 해석하거나 상담에서 제외하지 않는다.",
+    "official": "내 의사와 상관없이 음주 / 흡연을 강요했다.",
+    "main": "내 의사와 상관없이 음주 / 흡연을 강요했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 20,
+    "aux": "회식 참석을 어떤 방식으로 요구받았으며, 불참 의사를 전했거나 전하기 어려웠던 상황이 있었나요? 답하기 어렵다면 건너뛰어도 됩니다.",
+    "pending": "초대·안내와 강요의 구분을 확인한다. 명시적 거절·불이익 언급·반복 요구를 새 필수 조건으로 두지 않는다.",
+    "official": "내 의사와 관계없이 회식 참여를 강요했다.",
+    "main": "내 의사와 관계없이 회식 참여를 강요했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 21,
+    "aux": "어떤 대화나 모임에서 어떤 방식으로 제외되었다고 경험했나요? 모임의 성격과 업무 관계도 함께 떠올려볼 수 있습니다.",
+    "pending": "개인적 친교 선택과 배제의 구분을 확인한다. 모든 사적 모임에 초대받아야 한다는 안내를 하지 않으며 집단 가담·반복을 필수 조건으로 추가하지 않는다.",
+    "official": "나를 업무 외의 대화나 친목 모임에서 제외했다.",
+    "main": "나를 업무 외의 대화나 친목 모임에서 제외했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 22,
+    "aux": "어떤 의견이나 건의를 냈으며, 검토·답변·발언 기회는 어떠했나요?",
+    "pending": "제안이 채택되지 않은 것과 무시된 경험의 구분 및 ‘정당한’의 이해를 확인한다. 발언 차단 등 일부 방식으로만 제한하지 않는다.",
+    "official": "나의 정당한 건의사항이나 의견을 무시했다.",
+    "main": "나의 정당한 건의사항이나 의견을 무시했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 23,
+    "aux": "어떤 추가근무를 어떤 방식으로 요구받았나요? 필요성·일정·절차에 대해 들은 설명과 본인이 밝힌 의견은 무엇이었나요?",
+    "pending": "정상적인 추가근무 지시와 원문의 불필요한 추가근무 강요의 구분을 확인한다. 야근·주말출근은 예시이며 다른 시간대의 경험을 제외하지 않는다.",
+    "official": "나의 의사와 관계없이 불필요한 추가근무(야근, 주말출근 등)를 강요했다.",
+    "main": "나의 의사와 관계없이 불필요한 추가근무(야근, 주말출근 등)를 강요했다.",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 24,
+    "aux": "어떤 조치를 어떤 사유로 받았으며, 규정·절차 설명과 본인이 설명할 기회는 어떠했나요?",
+    "pending": "공식 징계뿐 아니라 반성문·처벌 등 원문의 포함 범위를 확인한다. 공식 절차의 유무 하나로 정당·부당을 자동 판정하지 않는다.",
+    "official": "나에게 부당한 징계를 주었다.(반성문, 처벌 등)",
+    "main": "나에게 부당한 징계를 주었다.(반성문, 처벌 등)",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  },
+  {
+    "n": 25,
+    "aux": "경험한 말·행동의 종류와 본인의 느낌을 필요한 범위에서만 떠올려볼 수 있습니다. 구체적인 성적 내용의 상세 묘사는 필요 없고, 원하면 건너뛰어도 됩니다.",
+    "pending": "질문 부담과 별도 성희롱 상담 경로를 인권 담당이 확인한다. 본인의 경험을 묻되 원문 예시만으로 범위를 제한하거나 명시적 항의·거절을 상담 조건으로 두지 않는다.",
+    "official": "성적 수치심을 느끼게 하는 말 또는 행동을 나에게 했다.(이메일, 전화, 성적 농담, 성추행)",
+    "main": "성적 수치심을 느끼게 하는 말 또는 행동을 나에게 했다.(이메일, 전화, 성적 농담, 성추행)",
+    "change": "주질문 원문 유지. 보조 질문·선택 도움말만 자체 작성했으며 행동·조건·예시를 추가하거나 삭제하지 않았다."
+  }
+]</script>
+</main></body></html>

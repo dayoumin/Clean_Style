@@ -139,12 +139,12 @@
 </style>
 </head>
 <body>
-<div id="v02-current" style="padding:16px;margin:20px 0;background:#fff3d4;border-left:4px solid #aa7300"><strong>현재 구현 규격: v0.2 (2026-10-14).</strong> 문항·점수·응답 저장 규격은 <a href="workplace-respect-v02.html">최신 v0.2 문서</a>를 우선합니다. 아래 v0.1의 문항·수치·화면 설명은 이전 설계 기록입니다. 운영 전 전문가 승인·개인정보·출처 검수 정책과 미완료 QA는 계속 적용합니다.</div>
+<div id="v02-current" style="padding:16px;margin:20px 0;background:#fff3d4;border-left:4px solid #aa7300"><strong>현재 구현 규격: v0.2.2 (2026-10-15).</strong> 문항·점수·응답 저장 규격은 <a href="workplace-respect-v02.html">최신 v0.2 문서</a>를 우선합니다. 아래 v0.1의 문항·수치·화면 설명은 이전 설계 기록입니다. 운영 전 전문가 승인·개인정보·출처 검수 정책과 미완료 QA는 계속 적용합니다.</div>
 
 <a class="back" href="index.html" target="_parent">&larr; 검토 문서 목록으로 돌아가기</a>
 
 <section class="hero">
-  <h1><span>일터 존중·안전</span> 공통 판정 구조</h1>
+  <h1><span>일터 존중·안전</span> 공통 판정 구조</h1><p id="official-implementation-notice"><strong>보관 문서 · 2026-10-15 기준 변경:</strong> 이 본문은 이전 문항·무점수 흐름·비교 검토 또는 구 구현의 이력이다. 사용자의 최종 지시에 따른 공식 행동 10문항·원표 채점 및 경험 25문항·0~100점 시험 합계는 <a href="workplace-respect-implementation-20261015.html">현재 v0.3.0 구현·근거·결정 기록</a>을 따른다. 이 본문의 ‘현재’, ‘미구현’, 구 위험 등급은 작성 당시의 상태로 읽는다. 문항·수정 이유·검토 이력은 보관한다.</p>
   <p class="subtitle">내 행동 점검과 일터 존중 점검이 공유하는 공식 판단축, 파일럿 임계값, 운영 전 검토 기준</p>
   <div class="summary-grid">
     <div class="metric"><b>2</b><span>자가점검 입구: 내 행동 점검 / 일터 존중 점검</span></div>
@@ -445,7 +445,7 @@
     </tr>
     <tr>
       <td>사용자 안내</td>
-      <td>결과 화면에 법적·기관 공식 판정이 아니라는 문구와 AI 전송 안내 표시</td>
+      <td>점검 첫 화면에 법적·기관 공식 판정·진단이 아니라는 안내 표시(v0.2.1부터 결과 화면에서는 반복하지 않음). AI 조언 전송 사전 안내는 아직 없고, 입력 후 개인정보 패턴 경고만 표시(결정 대기)</td>
       <td>기관 명칭, 상담 창구, AI 제공사 전송, 로그·보관, 개인정보 고지 문구를 실제 운영 기준에 맞게 확정</td>
     </tr>
     <tr>

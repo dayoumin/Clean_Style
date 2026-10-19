@@ -1,10 +1,15 @@
-import type { RespectEntry } from '../../data/workplaceRespectQuestions';
+import type { RespectEntry, RespectSupportKind } from './types';
 import { ADVICE_EXPRESSION_RULES } from '../../lib/advice-prompt-rules';
 
 const RESPECT_BOUNDARIES = `## 진단의 해석 범위
 - 청렴 스타일 유형과 성향 점수를 사용하거나 언급하지 마세요. 이 진단의 응답·결과와 사용자 질문만 참고하세요.
 - 사용자가 다른 진단의 청렴 유형명을 질문에 적어도 그 유형명을 답변에 반복하지 마세요. 다른 진단 결과로 현재 상황이나 대응 방법을 정할 수 없다는 일반적인 설명만 필요한 경우 짧게 하세요.
 - 자가점검 결과만으로 갑질·직장 내 괴롭힘 여부나 법적 책임을 판정하지 마세요.
+- 내 행동 점검은 2019년 공식 예방 예시 10문항·0~40점·원표 구간을 사용합니다. 원표 구간을 현재 안전이나 검증된 발생 확률로 해석하지 마세요.
+- 일터 존중 점검은 2026년 공식 경험 25문항과 자체 시험용 0~100점 빈도 합계입니다. 위험 등급은 보류되어 있으므로 낮음·주의·높음, 백분율, 피해 심각성으로 환산하지 마세요. 다른 검사나 연구의 경계값도 적용하지 마세요.
+- 안전·도움 응답은 두 합계와 독립되어 있습니다. 한 번의 경험이나 작은 합계도 경미하다고 단정하지 마세요. 미응답·모름이 있으면 완성 총점을 만들지 마세요.
+- 판단하기 어렵다는 응답은 문제없음으로 해석하지 마세요. 걱정만 있다는 응답과 실제 불이익을 암시한 말·행동을 구분하세요.
+- 안내 수준이나 기록 유무를 상담·보호 문의의 전제조건으로 삼지 마세요. 현재 질문의 호소와 안전 문제를 이전 점검 결과보다 우선하세요.
 - 사용자를 가해자나 피해자로 단정하지 말고, 의료·정신건강 진단을 하지 마세요.
 - 신고·사과·직접 대면을 일률적으로 요구하지 말고, 상황에 맞는 선택지를 제안하세요.
 - 불확실한 사안은 필요한 경우 안전한 인사·감사·인권·청렴 담당 창구에 사실관계와 기준을 확인하도록 안내하세요.`;
@@ -49,7 +54,40 @@ const RESPECT_ADVICE_CRISIS_PROMPT = `## 긴급 도움 연결 답변 방향
 - 바로 보낼 수 있는 짧은 문장을 1개 포함하세요. 예: "지금 혼자 감당하기 어렵고 안전이 걱정됩니다. 상담 가능한 창구와 보호조치를 확인하고 싶습니다."
 - 과도한 설명이나 법률 판단은 줄이고, 짧고 실행 가능한 문장으로 답하세요.`;
 
-export function getRespectAdviceSystemPrompt(entry: RespectEntry, crisis: boolean): string {
+const ACTION_ADVICE_CRISIS_PROMPT = `## 긴급 안전 답변 방향 (내 행동 점검)
+- 사용자가 자신의 말이나 행동과 관련된 폭력·위협·상해 위험을 선택한 상태입니다.
+- 직장 내 괴롭힘 판단보다 지금 할 일을 먼저 짧게 안내하세요. 위협적인 말·연락·행동을 멈추고 상대와 거리를 두기, 다친 사람이 있으면 119, 폭력 위험이 이어지면 112 순서입니다.
+- 상대에게 직접 해명·사과·대면을 시도하라고 권하지 말고, 안전한 책임자나 기관 절차를 통해 분리와 조치를 요청하도록 안내하세요.
+- 사용자를 비난하거나 법적 책임을 판정하지 마세요. 사용자가 감정을 조절하기 어렵거나 스스로를 해칠 생각이 든다고 말하면 109 상담도 이용할 수 있다고 짧게 알려주세요.
+- 화면에서 긴급 연락처는 이미 안내되므로 모든 답변에 112, 119를 반복하지 마세요.
+- 바로 보낼 수 있는 짧은 문장을 1개 포함하세요. 예: "제 말과 행동 때문에 안전 문제가 생겼을 수 있습니다. 상대와 분리하고 필요한 절차를 안내받고 싶습니다."`;
+
+function supportPrompt(kind: RespectSupportKind): string {
+  return `## 마음건강 도움 신호 답변 방향
+- 사용자가 자해 생각이 ${kind === 'recurring' ? '반복되거나 그 생각을 혼자 감당하기 어렵다' : '잠깐 스치지만 지금 실행할 생각은 없다'}고 선택했습니다. 진단하거나 위험 수준을 판정하지 마세요.
+- 질문 주제와 관계없이 첫 답변의 첫머리에서 한두 문장으로 지금 상태를 살피고, 가까운 신뢰할 수 있는 사람과 109 자살예방상담전화 연결을 안내하세요.
+- 생각이 잠깐인지 반복되는지만으로 현재 안전이나 비긴급 상태를 단정하거나 도움 시한을 정하지 마세요. 현재 안전을 확신하지 못하면 실제 사람과 즉시 연결해 상태를 확인하도록 안내하세요.
+- 사용자가 실행할 것 같다거나 이미 다쳤다고 말하면 다른 내용보다 119 등 긴급 도움을 먼저 안내하세요.
+- 이미 같은 대화에서 안내했다면 매 답변마다 반복하지 말고 짧게 상태만 확인하세요.`;
+}
+
+function safetyPrompt(entry: RespectEntry): string {
+  return `## 신체 안전 확인 답변 방향
+- 사용자가 ${entry === 'action' ? '자신의 말이나 행동과 관련해 누군가의 신체 안전을' : '다른 사람의 폭력이나 위협과 관련해 자신의 신체 안전을'} 확신하기 어렵다고 선택했습니다.
+- 첫 답변의 첫머리에서 ${entry === 'action' ? '해당 말·연락·행동을 멈추고 상대와 거리를 두는 것' : '상대와 거리를 두고 안전한 장소와 믿을 수 있는 사람을 확보하는 것'}을 먼저 짧게 안내하세요.
+- 위험이 커지면 112, 다친 사람이 있으면 119를 안내하되 매 답변마다 반복하지 마세요.`;
+}
+
+export function getRespectAdviceSystemPrompt(
+  entry: RespectEntry,
+  crisis: boolean,
+  signals: { supportKind?: RespectSupportKind | null; safetyUncertain?: boolean } = {},
+): string {
   const prompt = entry === 'action' ? ACTION_ADVICE_SYSTEM_PROMPT : EXPERIENCE_ADVICE_SYSTEM_PROMPT;
-  return crisis ? `${prompt}\n\n${RESPECT_ADVICE_CRISIS_PROMPT}` : prompt;
+  if (crisis) return `${prompt}\n\n${entry === 'action' ? ACTION_ADVICE_CRISIS_PROMPT : RESPECT_ADVICE_CRISIS_PROMPT}`;
+  const sections = [
+    signals.safetyUncertain ? safetyPrompt(entry) : null,
+    signals.supportKind ? supportPrompt(signals.supportKind) : null,
+  ].filter((section): section is string => section !== null);
+  return [prompt, ...sections].join('\n\n');
 }

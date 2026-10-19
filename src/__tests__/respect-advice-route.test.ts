@@ -30,6 +30,11 @@ import { _resetStore } from '@/lib/rate-limit';
 import { createRespectResponse } from '@/diagnostics/workplace-respect/response';
 import { getRespectQuestions, isRespectEntry } from '@/data/workplaceRespectQuestions';
 
+function answersFor(entry: string) {
+  if (!isRespectEntry(entry)) throw new Error('Invalid fixture entry');
+  return getRespectQuestions(entry).map(() => 0);
+}
+
 function adviceRequest(body: unknown, clientId = 'client-aaaaaaaaaaaa') {
   if (body && typeof body === 'object') {
     const value = body as Record<string, unknown>;
@@ -59,7 +64,7 @@ describe('/api/respect-advice', () => {
   });
 
   it('서버와 브라우저의 시계 편차로 정상 버전 응답을 거절하지 않는다', async () => {
-    const response = createRespectResponse('experience', Array(12).fill(0), Date.now() + 60_000);
+    const response = createRespectResponse('experience', answersFor('experience'), Date.now() + 60_000);
     const res = await POST(adviceRequest({ entry: 'experience', response, question: '어디에 상담할까요?' }));
     expect(res.status).toBe(200);
   });
@@ -75,7 +80,7 @@ describe('/api/respect-advice', () => {
   it('본문이 상한을 넘으면 AI를 호출하지 않고 413을 돌려준다', async () => {
     const res = await POST(adviceRequest({
       entry: 'experience',
-      answers: Array(12).fill(0),
+      answers: answersFor('experience'),
       question: '어디에 상담할까요?',
       history: [{ role: 'user', content: 'x'.repeat(MAX_CHAT_REQUEST_BYTES) }],
     }));
@@ -90,7 +95,7 @@ describe('/api/respect-advice', () => {
       ...Array.from({ length: 6 }, (_, index) => ({ role: index % 2 ? 'user' : 'assistant', content: '나'.repeat(2000) })),
       { role: 'user', content: '최근-기록' },
     ];
-    const res = await POST(adviceRequest({ entry: 'experience', answers: Array(12).fill(0), question: '어디에 상담할까요?', history }));
+    const res = await POST(adviceRequest({ entry: 'experience', answers: answersFor('experience'), question: '어디에 상담할까요?', history }));
 
     expect(res.status).toBe(200);
     const call = mocks.chatStream.mock.calls.at(-1)?.[0] as { messages: Array<{ role: string; content: string }> } | undefined;
@@ -116,7 +121,7 @@ describe('/api/respect-advice', () => {
   });
 
   it('질문이 없으면 AI 호출 전에 400을 반환한다', async () => {
-    const res = await POST(adviceRequest({ entry: 'action', answers: Array(12).fill(0) }));
+    const res = await POST(adviceRequest({ entry: 'action', answers: answersFor('action') }));
 
     expect(res.status).toBe(400);
     await expect(res.json()).resolves.toMatchObject({ error: 'question is required' });
@@ -125,7 +130,7 @@ describe('/api/respect-advice', () => {
   it('질문 길이가 너무 길면 400을 반환한다', async () => {
     const res = await POST(adviceRequest({
       entry: 'action',
-      answers: Array(12).fill(0),
+      answers: answersFor('action'),
       question: '가'.repeat(501),
     }));
 
@@ -150,7 +155,7 @@ describe('/api/respect-advice', () => {
   it('이전 대화 history의 개인정보도 AI 호출 전에 가린다', async () => {
     const res = await POST(adviceRequest({
       entry: 'action',
-      answers: Array(12).fill(0),
+      answers: answersFor('action'),
       question: '이 경우 어떻게 말하면 좋을까요?',
       history: [
         { role: 'user', content: '제 번호는 010-1234-5678이고 이름은 홍길동입니다.' },
@@ -171,7 +176,7 @@ describe('/api/respect-advice', () => {
   it('내 행동 점검은 자기 행동 조정용 시스템 프롬프트를 사용한다', async () => {
     const res = await POST(adviceRequest({
       entry: 'action',
-      answers: Array(12).fill(0),
+      answers: answersFor('action'),
       question: '제가 한 요청이 부담이었을까요?',
     }));
 
@@ -190,7 +195,7 @@ describe('/api/respect-advice', () => {
   it('일터 존중 점검은 겪은 일 정리와 도움 경로용 시스템 프롬프트를 사용한다', async () => {
     const res = await POST(adviceRequest({
       entry: 'experience',
-      answers: Array(12).fill(0),
+      answers: answersFor('experience'),
       question: '제가 겪은 일이 부당한지 어떻게 정리하면 될까요?',
     }));
 
@@ -208,7 +213,7 @@ describe('/api/respect-advice', () => {
 
   it.each(['action', 'experience'])('청렴 유형과 점수 필드를 %s 진단의 AI 맥락으로 전달하지 않는다', async (entry) => {
     const res = await POST(adviceRequest({
-      entry, answers: Array(12).fill(0), question: '이 상황에서 다음 행동을 알려주세요.',
+      entry, answers: answersFor(entry), question: '이 상황에서 다음 행동을 알려주세요.',
       styleKey: 'adult-type-must-not-leak', scores: { p: 987, t: 654, i: 321 },
     }));
     expect(res.status).toBe(200);
@@ -225,8 +230,9 @@ describe('/api/respect-advice', () => {
   });
 
   it('일터 존중 긴급 결과는 전문 상담사 톤과 즉시 도움 연결 프롬프트를 추가한다', async () => {
-    const answers = Array(12).fill(0);
-    answers[getRespectQuestions('experience').findIndex(q => q.id === 'E10')] = 3;
+    const crisisIndex = getRespectQuestions('experience').findIndex(q => q.id === 'E10');
+    const answers = Array(crisisIndex + 1).fill(0);
+    answers[crisisIndex] = 3;
 
     const res = await POST(adviceRequest({
       entry: 'experience',
@@ -247,10 +253,49 @@ describe('/api/respect-advice', () => {
     expect(systemPrompt).toContain('고충처리·EAP·노동조합');
     expect(systemPrompt).toContain('지금 혼자 감당하기 어렵고 안전이 걱정됩니다');
   });
+
+  it('반복되는 자해 생각은 비긴급이어도 도움 연결 지침과 화면 안내를 AI에 전달한다', async () => {
+    const answers = answersFor('experience');
+    answers[getRespectQuestions('experience').findIndex(q => q.id === 'E10')] = 2;
+    const res = await POST(adviceRequest({ entry: 'experience', answers, question: '팀장에게 어떻게 말하면 될까요?' }));
+    expect(res.status).toBe(200);
+    const call = (mocks.chatStream.mock.calls.at(-1) as unknown[])[0] as { messages: Array<{ role: string; content: string }> };
+    const systemPrompt = call.messages[0].content;
+    const userMessage = call.messages.at(-1)?.content ?? '';
+    expect(systemPrompt).toContain('마음건강 도움 신호 답변 방향');
+    expect(systemPrompt).toContain('현재 안전이나 비긴급 상태를 단정하거나 도움 시한을 정하지 마세요');
+    expect(systemPrompt).not.toContain('긴급 도움 연결 답변 방향');
+    expect(systemPrompt).not.toContain('신체 안전 확인 답변 방향');
+    expect(userMessage).toContain('화면 상단 안내: 도움받을 수 있는 곳');
+  });
+
+  it('신체 안전을 확신하기 어렵다는 내 행동 응답은 거리 두기 지침을 붙이고 자해 지침은 붙이지 않는다', async () => {
+    const answers = answersFor('action');
+    answers[getRespectQuestions('action').findIndex(q => q.id === 'A11')] = 1;
+    const res = await POST(adviceRequest({ entry: 'action', answers, question: '지금 무엇부터 해야 하나요?' }));
+    expect(res.status).toBe(200);
+    const call = (mocks.chatStream.mock.calls.at(-1) as unknown[])[0] as { messages: Array<{ role: string; content: string }> };
+    const systemPrompt = call.messages[0].content;
+    expect(systemPrompt).toContain('신체 안전 확인 답변 방향');
+    expect(systemPrompt).toContain('해당 말·연락·행동을 멈추고 상대와 거리를 두는 것');
+    expect(systemPrompt).not.toContain('마음건강 도움 신호 답변 방향');
+    expect(call.messages.at(-1)?.content).toContain('화면 상단 안내: 안전부터 확인하세요');
+  });
+
+  it('내 행동 긴급 결과는 피해자용이 아닌 행위자용 긴급 지침을 쓴다', async () => {
+    const res = await POST(adviceRequest({ entry: 'action', answers: [2], question: '어떻게 해야 하나요?' }));
+    expect(res.status).toBe(200);
+    const call = (mocks.chatStream.mock.calls.at(-1) as unknown[])[0] as { messages: Array<{ role: string; content: string }> };
+    const systemPrompt = call.messages[0].content;
+    expect(systemPrompt).toContain('긴급 안전 답변 방향 (내 행동 점검)');
+    expect(systemPrompt).toContain('상대에게 직접 해명·사과·대면을 시도하라고 권하지 말고');
+    expect(systemPrompt).not.toContain('긴급 도움 연결 답변 방향');
+    expect(systemPrompt).not.toContain('보호조치를 확인하고 싶습니다');
+  });
 });
 
  it('masks generated private content before sending an HTTP reply',async()=>{
     mocks.chatStream.mockImplementationOnce(()=>new Response('data: {"token":"연락 010-12"}\n\ndata: {"token":"34-5678 test@example.com"}\n\ndata: [DONE]\n\n').body!);
-    const response=await POST(adviceRequest({entry:'experience',answers:Array(12).fill(0),question:'도움이 필요해요'})); const body=await response.text();
+    const response=await POST(adviceRequest({entry:'experience',answers:answersFor('experience'),question:'도움이 필요해요'})); const body=await response.text();
     expect(body).toContain('[전화번호] [이메일]'); expect(body).not.toContain('010-12'); expect(body).not.toContain('test@example.com');
   });

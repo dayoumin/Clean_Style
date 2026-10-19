@@ -56,6 +56,7 @@ interface AiAdviceSheetProps {
   scrollAnchorRef: RefObject<HTMLDivElement | null>;
   placeholder: string;
   notice?: string | null;
+  helpAction?: { href: string; label: string; ariaLabel: string; description: string } | null;
   errorType?: AiAdviceErrorType;
   piiWarning?: string[] | null;
   rows?: number;
@@ -82,6 +83,7 @@ export default function AiAdviceSheet({
   scrollAnchorRef,
   placeholder,
   notice,
+  helpAction = null,
   errorType = null,
   piiWarning = null,
   rows = 4,
@@ -170,11 +172,23 @@ export default function AiAdviceSheet({
             <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6M14 10v6" /></svg>
           </button>
         )}
-        <button type="button" onClick={onClose} disabled={loading} aria-label={closeLabel} title={closeLabel} className={`absolute right-7 z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] disabled:opacity-40 ${hasMessages || loading || limitNotice ? 'top-3' : 'top-5'}`}>
+        <button type="button" onClick={onClose} disabled={loading} aria-label={closeLabel} title={closeLabel} className={`absolute right-7 z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:bg-[var(--color-card)] disabled:opacity-40 ${hasMessages || loading || helpAction || limitNotice ? 'top-3' : 'top-5'}`}>
           <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="m6 6 12 12M18 6 6 18" /></svg>
         </button>
+      {helpAction && (
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[var(--color-border)] px-5 pt-16 pb-3">
+          <p className="text-[13px] leading-snug text-[var(--color-text-secondary)]">{helpAction.description}</p>
+          <a
+            href={helpAction.href}
+            aria-label={helpAction.ariaLabel}
+            className="inline-flex min-h-[44px] shrink-0 items-center rounded-[var(--radius-md)] bg-[var(--color-primary)] px-4 text-[14px] font-bold text-white hover:bg-[var(--color-primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary-accent)] focus-visible:ring-offset-2"
+          >
+            {helpAction.label}
+          </a>
+        </div>
+      )}
       {(hasMessages || loading) && (
-          <div className={`${SCROLL_AREA} pt-16`} role="log" aria-label="대화 내용" aria-live={loading ? 'off' : 'polite'}>
+          <div className={`${SCROLL_AREA} ${helpAction ? '' : 'pt-16'}`} role="log" aria-label="대화 내용" aria-live={loading ? 'off' : 'polite'}>
             <ChatBubbles messages={messages} />
             {loading && currentUserMessage && (
               <ChatBubbles messages={[{ role: 'user', content: currentUserMessage }]} />
@@ -198,10 +212,10 @@ export default function AiAdviceSheet({
           </div>
       )}
           {limitNotice && (
-            <p role="status" className={`shrink-0 px-5 py-2 text-center text-[12px] leading-relaxed text-[var(--color-text-secondary)] ${!hasMessages && !loading ? 'pt-16' : ''}`}>{limitNotice}</p>
+            <p role="status" className={`shrink-0 px-5 py-2 text-center text-[12px] leading-relaxed text-[var(--color-text-secondary)] ${!hasMessages && !loading && !helpAction ? 'pt-16' : ''}`}>{limitNotice}</p>
           )}
           {!limitReached ? (
-            <div className={`shrink-0 space-y-3 px-5 ${hasPiiWarning ? 'pb-0' : 'pb-3'} ${hasMessages ? 'border-t border-[var(--color-border)] pt-3' : notice && !loading && !limitNotice ? 'pt-16' : 'pt-3'}`}>
+            <div className={`shrink-0 space-y-3 px-5 ${hasPiiWarning ? 'pb-0' : 'pb-3'} ${hasMessages ? 'border-t border-[var(--color-border)] pt-3' : notice && !helpAction && !loading && !limitNotice ? 'pt-16' : 'pt-3'}`}>
               {notice && (
                 <p className="rounded-[var(--radius-md)] bg-[var(--color-primary-soft)] px-3 py-2 text-[12px] leading-relaxed text-[var(--color-text-secondary)]">
                   {notice}
