@@ -9,6 +9,7 @@
     "build": "next build && opennextjs-cloudflare build --skipNextBuild",
     "start": "next start",
     "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit --incremental false",
     "test": "vitest run",
     "docs:student-item-bank": "node scripts/generate-student-item-bank.mjs"
   },
