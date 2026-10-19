@@ -87,6 +87,13 @@
 <tr><th>출시 전 검사</th><td>실제 브라우저 메뉴에서 확대를 200%로 설정하고 제목·보조 버튼·시작·이력의 겹침과 스크롤 접근을 확인합니다. 창 너비 조절을 확대 검사로 대체하지 않습니다.</td></tr>
 <tr><th>기대 증거</th><td>확대율 200%가 보이는 브라우저 화면, 제목과 보조 버튼 비겹침, 모든 버튼의 키보드·스크롤 접근 캡처. 로컬 확인 증거는 <code>artifacts/home-secondary-review/verification.json</code>과 해당 폴더의 이미지입니다.</td></tr>
 <tr><th>종료 조건</th><td>실제 200% 확대에서 가로 잘림·제목 겹침 없이 필요한 컨트롤에 접근하는 증거를 연결한 뒤 <code>verified</code>로 변경합니다. 결함이 확인되면 TODO/이슈로 승격합니다.</td></tr></table>
+<h2 id="adult-integrity-copy-candidate">성인 청렴 문항 수정 초안의 기관 기준·응답 해석 확인</h2><table>
+<tr><th>상태</th><td><code>pending</code> — 2026-10-15 사용자 제공 초안 검토. 초안은 채택 전이며 문항·채점·유형명은 이번 검토에서 변경하지 않았습니다.</td></tr>
+<tr><th>등록 / 마지막 확인</th><td>2026-10-15 / 2026-10-15 — 초안 15문항·8유형을 <code>src/data/questions.ts</code>, <code>src/lib/history.ts</code>, 결과 저장 API 및 기존 타당화 계획과 대조했습니다. 실제 기관 규정과 응답자 해석은 확인하지 않았습니다.</td></tr>
+<tr><th>영향 범위</th><td>초안을 채택할 경우 기본형·Plus 성인 청렴 문항과 결과 설명. 학생 문항은 대상이 아닙니다. 문항 8의 업무 비중별 청구와 문항 9의 퇴직 인사 만남을 일반적인 허용 행동으로 확정할 근거가 부족하며, 문구 변경 후 기존 채점의 의미 보존도 미확인입니다.</td></tr>
+<tr><th>출시 전 검사</th><td>초안 채택 시 적용 기관 담당자가 문항 8의 정산 기준, 문항 9의 비용 부담·남은 업무 관계·내부 접촉 기준을 확인합니다. 대상 응답자에게 선택 이유와 선택지별 의미를 묻는 인지면접으로 도덕적 정답 인식, 선택지 중복, 의도한 행동 차이를 확인합니다. 기존 <a href="research/scientific-validation-plan.html">타당화 계획</a>과 연결하며, 코드 검사만으로 해석 적절성을 완료 처리하지 않습니다.</td></tr>
+<tr><th>기대 증거</th><td>적용 기관 기준의 문서명·적용 범위·확인일, 비용·관계 조건이 명시된 최종 문항, 개인정보를 제외한 인지면접 요약과 문항별 선택 이유·수정 판단. 근거: <a href="https://www.clean.go.kr/board.es?act=view&amp;bid=130&amp;list_no=30159358&amp;mid=a10420020400&amp;nPage=22&amp;tag=">국민권익위원회 커피 제공 질의답변</a>, <a href="https://www.cdc.gov/nchs/ccqder/question-evaluation/cognitive-interviewing.html">CDC 인지면접 안내</a>. 이 자료만으로 특정 기관의 허용 여부나 Clean Style의 타당성이 입증되는 것은 아닙니다.</td></tr>
+<tr><th>종료 조건</th><td>기관 기준과 최종 문항의 일치, 의도한 행동 차이의 응답자 이해를 확인하고 근거를 연결하면 <code>verified</code>. 초안을 채택하지 않으면 사유와 함께 <code>not applicable</code>. 확인 결과 실제 결함 또는 승인된 구현 작업이 되면 TODO/이슈로 승격하고 <code>promoted</code>로 변경합니다.</td></tr></table>
 <h2 id="standalone-html-device-export">단독 HTML의 실제 기기 파일 실행·PNG 저장</h2><table>
 <tr><th>상태</th><td><code>pending</code> — 2026-10-16 별도 HTML 생성·이미지 내장·PNG 저장·이전 결과 구현 완료. Windows Edge의 실제 파일 오프라인 실행은 <code>verified</code>. 실제 휴대폰 파일 열기·사진 저장 및 다른 브라우저는 미확인입니다. 기본 서버 배포는 유지하며 이 작업에서 배포를 실행하지 않았습니다.</td></tr>
 <tr><th>배포 방식 구분</th><td>2026-10-16 사용자 확인: 기본은 기존 서버 배포이며 HTML은 별도 산출물입니다. 기존 서버 빌드·배포 명령과 AI 조언·결과 전송을 유지합니다. HTML 전용 생성 명령과 출력 폴더를 따로 두고 HTML 전용으로 AI·서버 기록을 제외하며 결과 이미지 저장을 제공합니다. 제품(default/plus/student) 선택과 배포 방식(server/html)을 별도 구분하고, HTML 생성이 기존 Worker 배포를 실행하거나 서버 설정을 덮어쓰지 않는지 확인합니다.</td></tr>
