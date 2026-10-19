@@ -10,7 +10,6 @@ import {
   calculateRespectResult,
   getRespectQuestions,
   isRespectEntry,
-  respectAxisLabels,
   respectEntryLabels,
 } from '@/data/workplaceRespectQuestions';
 import { AI_CHAT_ENABLED } from '@/data/appVariant';
@@ -106,23 +105,22 @@ export async function POST(request: NextRequest) {
 
     const result = calculateRespectResult(entry, answers);
     const entryLabel = respectEntryLabels[entry];
-    const activeSignals = result.axisSummary.activeAxes
-      .map((axis) => respectAxisLabels[axis])
-      .join(', ') || '뚜렷한 신호 없음';
     const selectedAnswers = questions.map((question, index) => {
       const choice = question.choices[answers[index]];
       return choice ? `- ${question.category}: ${question.prompt} / 응답: ${choice.text}` : `- ${question.id}: 미응답`;
     }).join('\n');
 
     const userMessage = `자가점검 유형: ${entryLabel.title}
-결과 수준: ${result.level}
+점수 종류: ${result.scoreLabel}
+합계: ${result.score === null ? '모름·미응답 포함 — 전체 합계 미산출' : `${result.score} / ${result.maxScore}`}
+${entry === 'action' ? `2019년 원표 기준 구간: ${result.sourceBandText ?? '미산출'}` : '위험 등급: 보류. 빈도 합계를 위험·안전·피해 심각성으로 해석하지 않음.'}
 결과 제목: ${result.title}
 상황 요약: ${result.summary}
-확인된 신호: ${activeSignals}
 기본 권장 행동:
 ${result.primaryActions.map((action) => `- ${action}`).join('\n')}
 도움 연결:
 ${result.supportActions.map((action) => `- ${action}`).join('\n')}
+${[result.safetyNotice, result.supportNotice].flatMap((notice) => (notice ? [`화면 상단 안내: ${notice.title} — ${notice.body}`] : [])).join('\n')}
 
 문항별 응답:
 ${selectedAnswers}
@@ -135,7 +133,7 @@ ${finalQuestion}
     const aiEnv = await getAiRuntimeEnv();
     const stream = chatStream({
       messages: [
-        { role: 'system', content: getRespectAdviceSystemPrompt(entry, result.crisis) },
+        { role: 'system', content: getRespectAdviceSystemPrompt(entry, result.crisis, { supportKind: result.supportKind, safetyUncertain: result.safetyUncertain }) },
         ...safeHistory,
         { role: 'user', content: userMessage },
       ],

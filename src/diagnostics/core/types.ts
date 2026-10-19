@@ -15,7 +15,7 @@ export interface DiagnosticDefinition {
   instrumentVersion: string;
   scoringVersion: string;
   storagePolicy: DiagnosticStoragePolicy;
-  resultMode: 'classified-style' | 'risk-guidance' | 'unscored-feedback';
+  resultMode: 'classified-style' | 'risk-guidance' | 'scored-reflection' | 'unscored-feedback';
 }
 
 export type DiagnosticResponsePhase = 'initial' | 'reconsidered' | 'transfer';

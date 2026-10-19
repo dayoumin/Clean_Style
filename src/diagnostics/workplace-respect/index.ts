@@ -12,8 +12,7 @@ export type {
   RespectEntry,
   RespectQuestion,
   RespectResult,
-  RespectRiskAxis,
-  RespectRiskLevel,
+  RespectOfficialBand,
 } from '../../data/workplaceRespectQuestions';
 
 export const workplaceRespectDefinition: DiagnosticDefinition = {
@@ -24,5 +23,5 @@ export const workplaceRespectDefinition: DiagnosticDefinition = {
   instrumentVersion: RESPECT_INSTRUMENT_VERSION,
   scoringVersion: RESPECT_SCORING_VERSION,
   storagePolicy: 'local-ttl',
-  resultMode: 'risk-guidance',
+  resultMode: 'scored-reflection',
 };

@@ -1,102 +1,78 @@
-import type { RespectChoice, RespectEntry, RespectQuestion, RespectRiskAxis } from './types';
+import type { RespectChoice, RespectEntry, RespectQuestion } from './types';
+import { officialActionItems2019, officialExperienceItems2026 } from './official-items';
 
-export const RESPECT_QUESTION_VERSION = 'v0.2';
-export const RESPECT_INSTRUMENT_VERSION = 'workplace-respect-v0.2';
-export const RESPECT_SCORING_VERSION = 'workplace-respect-risk-v0.2.1';
+export const RESPECT_QUESTION_VERSION = 'v0.3.0';
+export const RESPECT_INSTRUMENT_VERSION = 'workplace-respect-official-v0.3.0';
+export const RESPECT_SCORING_VERSION = 'opm2019-10-moel2026-25-pilot-v1';
 export const RESPECT_RESULT_STORAGE_KEY = 'workplace-respect-result';
 export const RESPECT_RESULT_TTL_MS = 30 * 60 * 1000;
-export const RESPECT_SITUATION_GUIDANCE = '점검할 한 사건이나 이어지는 상황 하나와 관련된 상대를 떠올려주세요. 상대는 한 사람 또는 집단일 수 있습니다. 그 상황이 시작된 때부터 지금까지를 기준으로 답해주세요. 판단하기 어렵거나 해당하지 않는 경우에는 그에 맞는 선택지를 골라주세요.';
-export const respectEntryLabels: Record<RespectEntry, { title: string; shortTitle: string; description: string }> = {
-  action: { title: '내 행동 점검', shortTitle: '내 행동', description: '내 말이나 지시가 상대에게 준 부담을 돌아봅니다.' },
-  experience: { title: '일터 존중 점검', shortTitle: '존중 점검', description: '내가 겪은 일을 정리하고 기록·상담·도움 경로를 살펴봅니다.' },
-};
-export const respectAxisLabels: Record<RespectRiskAxis, string> = {
-  relationPower: '거절하기 어려운 관계', workScope: '업무범위·방식의 적정성', dignityHarm: '존중·일상에 미친 영향',
-  privateBenefit: '사적 요구', disadvantage: '불이익 우려·경험', repetition: '반복성',
-};
-const agreement: RespectChoice[] = [
-  { id: 'no', text: '아니다 / 해당하지 않는다', score: 0 },
-  { id: 'uncertain', text: '판단하기 어렵다', score: 0, uncertain: true },
-  { id: 'yes', text: '그렇다', score: 2 }, { id: 'strong', text: '매우 그렇다', score: 3 },
-];
-const intensity: RespectChoice[] = [
-  { id: 'no', text: '아니다 / 해당하지 않는다', score: 0 }, { id: 'mild', text: '조금 과도했다', score: 1 },
-  { id: 'clear', text: '상당히 과도했다', score: 2 }, { id: 'strong', text: '매우 과도했다', score: 3 },
-];
-const repetition: RespectChoice[] = [
-  { id: 'notRepeated', text: '없거나 한 번뿐이었다', score: 0 },
-  { id: 'uncertain', text: '반복 여부를 모르겠다', score: 0, uncertain: true },
-  { id: 'sometimes', text: '가끔 반복됐다', score: 2 }, { id: 'often', text: '자주 반복됐다', score: 3 },
-];
-const relevance: RespectChoice[] = [
-  { id: 'relevant', text: '명확히 관련 있다 / 요구가 없었다', score: 0 }, { id: 'partlyRelevant', text: '일부 관련 있다', score: 1 },
-  { id: 'barelyRelevant', text: '거의 관련 없다', score: 2 }, { id: 'irrelevant', text: '관련 없다', score: 3 },
-];
-function question(value: RespectQuestion): RespectQuestion {
-  return { ...value, choices: value.choices.map((choice) => ({ ...choice, id: `${value.id}:${choice.id}` })) };
+export const RESPECT_START_NOTICE = '기관 내부 시험용 자가점검입니다. 안전·도움 확인은 점수와 별도이며, 점검을 끝내지 않아도 도움 경로를 이용할 수 있습니다. 이름·소속 등 식별정보를 묻지 않습니다.';
+export function getRespectStartNotice(entry: RespectEntry): string {
+  const safetyNotice = entry === 'experience'
+    ? '공식 경험 문항에 앞서 신체 안전과 마음건강을 확인하는 질문이 나옵니다. 마음건강 질문에는 스스로를 해칠 생각이 있는지에 대한 내용이 포함됩니다.'
+    : '공식 행동 문항에 앞서 신체 안전을 확인하는 질문이 나옵니다.';
+  return `${safetyNotice} ${RESPECT_START_NOTICE}`;
 }
-export const workplaceRespectRuntimeQuestions: RespectQuestion[] = [
-  question({ id: 'A01', entry: 'action', category: '관계', axis: 'relationPower', prompt: '직위, 평가 권한, 고용 형태 또는 집단의 영향력 때문에 상대가 내 요청이나 의견을 거절하기 어려웠나요?', choices: agreement }),
-  question({ id: 'A02', entry: 'action', category: '업무범위', axis: 'workScope', prompt: '내 요청이나 지시가 상대의 공식 업무와 직접 관련이 있었나요?', choices: relevance }),
-  question({ id: 'A03', entry: 'action', category: '업무범위', axis: 'workScope', prompt: '업무 관련 여부와 별개로, 내가 요청한 시간·방식·표현이 과도했나요?', choices: intensity }),
-  question({ id: 'A04', entry: 'action', category: '사적요구', axis: 'privateBenefit', prompt: '내 개인 편의를 위한 부탁이나 업무와 무관한 심부름을 요구했나요?', choices: agreement }),
-  question({ id: 'A05', entry: 'action', category: '존중', axis: 'dignityHarm', prompt: '나는 상대의 휴가·근무시간·사생활을 존중하지 못했나요?', choices: agreement }),
-  question({ id: 'A06', entry: 'action', category: '존중', axis: 'dignityHarm', prompt: '나는 상대에게 모욕·비하·위협으로 받아들여질 수 있는 말을 했나요? 공개된 자리, 1:1 대화, 메신저를 모두 포함합니다.', choices: agreement }),
-  question({ id: 'A07', entry: 'action', category: '불이익', axis: 'disadvantage', prompt: '상대의 거절·질문·문제 제기에 평가, 인사, 업무배정의 불이익을 암시하거나 실제로 줬나요?', choices: [
-    { id: 'no', text: '아니다 / 그런 상황이 없었다', score: 0 }, { id: 'uncertain', text: '판단하기 어렵다', score: 0, uncertain: true },
-    { id: 'implied', text: '불이익을 암시했다', score: 2 }, { id: 'occurred', text: '실제 불이익을 줬다', score: 3 },
-  ] }),
-  question({ id: 'A08', entry: 'action', category: '반복', axis: 'repetition', prompt: '같은 상대에게 비슷한 요구나 말이 반복됐나요?', choices: repetition }),
-  question({ id: 'A09', entry: 'action', category: '존중', axis: 'dignityHarm', prompt: '상대가 불편함을 표현한 뒤에도 나는 같은 요구를 계속했나요?', choices: [
-    { id: 'no', text: '아니다 / 불편함을 표현한 상황이 없었다', score: 0 }, { id: 'uncertain', text: '판단하기 어렵다', score: 0, uncertain: true },
-    { id: 'possible', text: '계속했을 수 있다', score: 2 }, { id: 'continued', text: '계속했다', score: 3 },
-  ] }),
-  question({ id: 'A10', entry: 'action', category: '안전', axis: 'resultGate', prompt: '이 행동을 멈추고 제3자에게 기준을 확인할 필요가 있다고 느끼나요?', choices: [
-    { id: 'no', text: '아니다', score: 0 }, { id: 'uncertain', text: '판단하기 어렵다', score: 0, uncertain: true },
-    { id: 'review', text: '확인이 필요하다', score: 0, gate: true }, { id: 'stop', text: '지금 멈추고 확인해야 한다', score: 0, gate: true },
-  ] }),
-  question({ id: 'A11', entry: 'action', category: '안전', axis: 'crisisGate', prompt: '지금 내 말이나 행동으로 누군가의 신체 안전이 위험한가요?', choices: [
+export const RESPECT_MISSING_SCORE_NOTICE = '모름·건너뛰기는 0점으로 계산하지 않으며, 하나라도 있으면 전체 합계를 표시하지 않습니다. 유효 응답 수와 상담 안내는 볼 수 있습니다.';
+export const RESPECT_EXPERIENCE_SOURCE_NOTICE = '고용노동부 2026년 매뉴얼의 사업장 조직문화 진단용 설문에서 경험 25문항을 발췌해 개인 자가점검에 활용했습니다.';
+export const RESPECT_RESULT_NOTICE = '법적 판단이나 진단이 아닙니다. 점수·완료·기록 유무와 관계없이 상담과 보호 조치를 문의할 수 있습니다.';
+export const RESPECT_STORAGE_NOTICE = '응답·결과는 이 탭의 브라우저 저장소에 30분의 보관 기한을 두며, 결과를 다시 열 때도 만료를 확인합니다. 결과 화면의 처음으로 버튼을 누르면 삭제합니다. AI 조언을 요청하면 응답·질문·최근 대화가 서버를 거쳐 외부 AI 제공사로 전송됩니다. 이름·소속·사건 당사자를 알아볼 정보는 적지 마세요.';
+export const respectEntryLabels: Record<RespectEntry, { title: string; shortTitle: string; description: string }> = {
+  action: { title: '내 행동 점검', shortTitle: '내 행동', description: '2019년 공식 예시표 10문항으로 내 행동을 돌아봅니다.' },
+  experience: { title: '일터 존중 점검', shortTitle: '존중 점검', description: '최근 6개월의 경험 25문항과 시험용 빈도 합계로 상황을 정리합니다.' },
+};
+export const RESPECT_ACTION_GUIDANCE = '2019년 공공분야 갑질 예방 예시표의 10문항과 응답·채점을 그대로 사용합니다. 공식 문항에는 공통 회상기간이 정해져 있지 않습니다. 판단하기 어렵거나 적용할 상황이 없으면 별도 버튼으로 건너뛸 수 있습니다. 이 경우 완성 총점과 원표 구간을 내지 않습니다. 예방·상담 안내는 2026년 고용노동부 매뉴얼을 참고했습니다.';
+export const RESPECT_EXPERIENCE_GUIDANCE = `다음은 최근 6개월 동안 직장 생활에서 발생한 경험의 빈도에 대한 질문입니다. ${RESPECT_EXPERIENCE_SOURCE_NOTICE} 공식 경험 문항과 다섯 빈도 응답을 사용하며, 0~4점 배점·0~100점 합계는 자체 시험안입니다. 위험 등급은 정하지 않았습니다. 모름·건너뛰기가 하나라도 있으면 전체 합계를 표시하지 않습니다. 답하기 어려운 문항은 건너뛰어도 유효 응답 수와 상담 안내를 볼 수 있습니다.`;
+export function getRespectSituationGuidance(entry: RespectEntry): string {
+  return entry === 'action' ? RESPECT_ACTION_GUIDANCE : RESPECT_EXPERIENCE_GUIDANCE;
+}
+const missingChoices: RespectChoice[] = [
+  { id: 'unknown', text: '기억나지 않음·판단하기 어려움', score: 0, uncertain: true, auxiliary: true },
+  { id: 'skip', text: '답변하지 않고 건너뛰기', score: 0, uncertain: true, auxiliary: true },
+];
+function sourceChoices(labels: string[]): RespectChoice[] {
+  return [...labels.map((text, score) => ({ id: `value-${score}`, text, score })), ...missingChoices];
+}
+function question(value: RespectQuestion): RespectQuestion {
+  return { ...value, choices: value.choices.map(choice => ({ ...choice, id: `${value.id}:${choice.id}` })) };
+}
+// Existing help questions stay separate from both source instruments and their totals.
+const safetyQuestions: RespectQuestion[] = [
+  question({ id: 'A11', entry: 'action', category: '안전', axis: 'crisisGate', prompt: '내 말이나 행동 때문에 지금 누군가의 신체 안전이 위험하거나, 이미 폭력·상해가 있었나요?', choices: [
     { id: 'safe', text: '아니다', score: 0 }, { id: 'uncertain', text: '안전한지 확신하기 어렵다', score: 0, gate: true, uncertain: true },
     { id: 'imminent', text: '폭력이나 위협을 가할 것 같다', score: 0, crisis: true, crisisKind: 'physicalSafety' },
-    { id: 'occurred', text: '폭력이 있었거나 다친 사람이 있다', score: 0, crisis: true, crisisKind: 'physicalSafety' },
+    { id: 'occurred', text: '이미 폭력이 있었거나 다친 사람이 있다', score: 0, crisis: true, crisisKind: 'physicalSafety' },
   ] }),
-  question({ id: 'A12', entry: 'action', category: '업무범위', axis: 'workScope', prompt: '정당한 업무 이유 없이 상대를 정보·회의·업무에서 배제하거나, 일을 주지 않거나, 허드렛일만 맡겼나요?', choices: agreement }),
-  question({ id: 'E01', entry: 'experience', category: '관계', axis: 'relationPower', prompt: '직위, 평가 권한, 고용 형태 또는 집단의 영향력 때문에 상대의 요구나 의견을 거절하기 어려웠나요?', choices: agreement }),
-  question({ id: 'E02', entry: 'experience', category: '업무범위', axis: 'workScope', prompt: '상대의 요구나 지시가 내 공식 업무와 직접 관련이 있었나요?', choices: relevance }),
-  question({ id: 'E03', entry: 'experience', category: '업무범위', axis: 'workScope', prompt: '업무 관련 여부와 별개로, 상대의 행동 방식·시간·강도가 과도했나요?', choices: intensity }),
-  question({ id: 'E04', entry: 'experience', category: '사적요구', axis: 'privateBenefit', prompt: '상대의 개인 편의를 위한 부탁이나 업무와 무관한 심부름을 요구받았나요?', choices: agreement }),
-  question({ id: 'E05', entry: 'experience', category: '존중', axis: 'dignityHarm', prompt: '모욕·비하·위협으로 받아들여질 수 있는 말이나 행동이 있었나요? 공개된 자리, 1:1 대화, 메신저를 모두 포함합니다.', choices: [
-    { id: 'no', text: '없었다', score: 0 }, { id: 'uncertain', text: '판단하기 어렵다', score: 0, uncertain: true },
-    { id: 'present', text: '있었다', score: 2 }, { id: 'severe', text: '심했다', score: 3 },
-  ] }),
-  question({ id: 'E06', entry: 'experience', category: '존중', axis: 'dignityHarm', prompt: '그 상황 때문에 출근, 업무수행, 수면, 불안, 대인관계에 영향이 있었나요?', choices: [
-    { id: 'no', text: '없었다', score: 0 }, { id: 'mild', text: '조금 있었다', score: 1 },
-    { id: 'clear', text: '상당히 있었다', score: 2 }, { id: 'disrupted', text: '일상에 지장이 있었다', score: 3 },
-  ] }),
-  question({ id: 'E07', entry: 'experience', category: '불이익', axis: 'disadvantage', prompt: '거절·질문·문제 제기를 이유로 평가, 인사, 업무배정의 불이익이 걱정되거나 실제로 있었나요?', choices: [
-    { id: 'no', text: '아니다 / 그런 상황이 없었다', score: 0 }, { id: 'uncertain', text: '판단하기 어렵다', score: 0, uncertain: true },
-    { id: 'expected', text: '불이익이 걱정됐다', score: 2 }, { id: 'occurred', text: '실제 불이익이 있었다', score: 3 },
-  ] }),
-  question({ id: 'E08', entry: 'experience', category: '반복', axis: 'repetition', prompt: '나에게 비슷한 일이 반복됐나요?', choices: repetition }),
-  question({ id: 'E09', entry: 'experience', category: '기록', axis: 'evidenceSupport', prompt: '문자, 메신저, 이메일, 일정 등 상황을 확인할 기록이 있나요?', choices: [
-    { id: 'none', text: '없다', score: 0 }, { id: 'some', text: '일부 있다', score: 0 }, { id: 'enough', text: '충분하다', score: 0 }, { id: 'several', text: '여러 종류가 있다', score: 0 },
-  ] }),
-  question({ id: 'E10', entry: 'experience', category: '안전', axis: 'crisisGate', prompt: '지금 스스로를 해칠 생각이 들거나 이미 스스로를 해친 상태인가요?', choices: [
-    { id: 'no', text: '없다', score: 0 }, { id: 'passing', text: '생각이 잠깐 스치지만 지금 실행할 생각은 없다', score: 0, support: true },
-    { id: 'recurring', text: '생각이 반복되거나 혼자 감당하기 어렵다', score: 0, support: true },
-    { id: 'immediate', text: '지금 실행할 것 같거나 이미 다쳐 즉시 도움이 필요하다', score: 0, crisis: true, crisisKind: 'selfHarm' },
-  ] }),
-  question({ id: 'E11', entry: 'experience', category: '안전', axis: 'crisisGate', prompt: '지금 다른 사람의 폭력이나 위협으로 내 신체 안전이 위험한가요?', choices: [
+  question({ id: 'E11', entry: 'experience', category: '안전', axis: 'crisisGate', prompt: '다른 사람의 폭력이나 위협으로 지금 내 신체 안전이 위험하거나, 이미 다쳤나요?', choices: [
     { id: 'safe', text: '아니다', score: 0 }, { id: 'uncertain', text: '안전한지 확신하기 어렵다', score: 0, gate: true, uncertain: true },
     { id: 'imminent', text: '폭력이나 위협이 진행 중이거나 곧 일어날 것 같다', score: 0, crisis: true, crisisKind: 'physicalSafety' },
     { id: 'injured', text: '이미 다쳤거나 즉시 보호가 필요하다', score: 0, crisis: true, crisisKind: 'physicalSafety' },
   ] }),
-  question({ id: 'E12', entry: 'experience', category: '업무범위', axis: 'workScope', prompt: '정당한 업무 이유 없이 정보·회의·업무에서 배제되거나, 일을 받지 못하거나, 허드렛일만 맡았나요?', choices: agreement }),
+  question({ id: 'E10', entry: 'experience', category: '안전', axis: 'crisisGate', prompt: '지금 스스로를 해칠 생각이 들거나 이미 스스로를 해친 상태인가요?', choices: [
+    { id: 'no', text: '없다', score: 0 }, { id: 'passing', text: '생각이 잠깐 스치지만 지금 실행할 생각은 없다', score: 0, support: true, supportKind: 'passing' },
+    { id: 'recurring', text: '생각이 반복되거나 그 생각을 혼자 감당하기 어렵다', score: 0, support: true, supportKind: 'recurring' },
+    { id: 'immediate', text: '지금 실행할 것 같거나 이미 다쳐 즉시 도움이 필요하다', score: 0, crisis: true, crisisKind: 'selfHarm' },
+  ] }),
 ];
+const actionQuestions: RespectQuestion[] = officialActionItems2019.map((prompt, index) => question({
+  id: `OPM19-A${String(index + 1).padStart(2, '0')}`, entry: 'action', category: '행동', axis: 'officialAction', prompt,
+  choices: sourceChoices(['전혀 아니다', '아니다', '보통이다', '그렇다', '매우 그렇다']),
+}));
+const experienceQuestions: RespectQuestion[] = officialExperienceItems2026.map((item, index) => question({
+  id: `MOEL26-E${String(index + 1).padStart(2, '0')}`, entry: 'experience', category: '경험', axis: 'experienceFrequency',
+  prompt: item.prompt, helpText: item.helpText,
+  choices: sourceChoices(['전혀 없음', '6개월에 1-2회', '월 1회 정도', '주 1회 정도', '매일']),
+}));
+export const workplaceRespectRuntimeQuestions: RespectQuestion[] = [...safetyQuestions, ...actionQuestions, ...experienceQuestions];
+/** Flow includes a distinct, unscored help step; numbered source questions are 10/25. */
 export function getRespectQuestions(entry: RespectEntry): RespectQuestion[] {
-  const safetyFirst = entry === 'action' ? ['A11'] : ['E11', 'E10'];
-  const priority = (id: string) => safetyFirst.includes(id) ? safetyFirst.indexOf(id) : safetyFirst.length;
-  return workplaceRespectRuntimeQuestions.filter((item) => item.entry === entry).sort((a, b) => priority(a.id) - priority(b.id));
+  return workplaceRespectRuntimeQuestions.filter(item => item.entry === entry);
+}
+export function getRespectScoredQuestions(entry: RespectEntry): RespectQuestion[] {
+  return getRespectQuestions(entry).filter(item => item.axis !== 'crisisGate');
+}
+export function getRespectSituationGuidanceIndex(entry: RespectEntry): number {
+  return getRespectQuestions(entry).findIndex(item => item.axis !== 'crisisGate');
 }
 export function isRespectEntry(value: string | null): value is RespectEntry { return value === 'action' || value === 'experience'; }
 export function buildRespectCheckUrl(entry: RespectEntry): string { return `/respect/check?entry=${entry}`; }

@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026년 내 행동 점검 문항별 검토·2차 수정 후보</title>
+<style>
+*{box-sizing:border-box}:root{color-scheme:light}body{margin:0;background:#f5f7fa;color:#253442;font:16px/1.85 system-ui,"Malgun Gothic",sans-serif}main{max-width:1080px;margin:auto;padding:32px 24px 64px}h1{font-size:28px;line-height:1.5}h2{font-size:22px;line-height:1.6;margin:0 0 20px}h3{font-size:19px}a{color:#1e5d97}code{font-size:13px;overflow-wrap:anywhere}blockquote{padding:14px 20px;margin:18px 0;background:#eef4fb;border-left:4px solid #345c90}.notice{background:#fff1d8;padding:18px 22px;border-left:4px solid #996200}.item{background:#fff;border:1px solid #d7e0e8;border-radius:8px;padding:26px;margin:26px 0;scroll-margin-top:16px}.tag{font-size:13px;display:inline-block;color:#385974;background:#edf3f8;border-radius:4px;padding:2px 8px;font-weight:500}dl{margin:0}dt{font-weight:700;font-size:14px;color:#344f66;margin-top:18px}dd{margin:5px 0 0;padding:12px 15px;border-left:3px solid #d8e1eb;background:#f8fafc}.previous{color:#4c5f6e}.official{background:#edf4fc;border-color:#4e76a2}.pending{background:#fff4e2;border-color:#b67c27}.questions{padding-left:21px;margin:0}.questions li+li{margin-top:12px}.questions code{display:block;font-size:12px;color:#526779}.revised{font-weight:600}table{border-collapse:collapse;width:100%;background:white;font-size:15px}td,th{padding:12px;border:1px solid #d7e0e8;text-align:left;vertical-align:top}th{background:#edf3f8}.table-wrap{overflow-x:auto;margin:20px 0}.jump{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}.jump a{padding:4px 9px;background:#fff;border:1px solid #d7e0e8;border-radius:4px;text-decoration:none;font-size:14px}.small{font-size:13px;color:#536777}.notes{margin:32px 0}:focus-visible{outline:3px solid #315ec4;outline-offset:3px}@media(max-width:640px){main{padding:20px 16px 48px}h1{font-size:24px}.item{padding:19px 16px}h2{font-size:20px}}@media print{body{background:#fff}main{padding:0}.jump{display:none}.item{border-radius:0;break-inside:auto}h2,dt{break-after:avoid}dd{break-inside:avoid}a{color:inherit}}
+</style></head><body><main>
+<a href="index.html">검토 문서 목록</a> · <a href="workplace-respect-2026-question-review.html">1차 공식·수정 문항 대조</a>
+<h1>2026년 내 행동 점검<br>문항별 검토·2차 수정 후보</h1><p id="official-implementation-notice"><strong>보관 문서 · 2026-10-15 기준 변경:</strong> 이 본문은 이전 문항·무점수 흐름·비교 검토 또는 구 구현의 이력이다. 사용자의 최종 지시에 따른 공식 행동 10문항·원표 채점 및 경험 25문항·0~100점 시험 합계는 <a href="workplace-respect-implementation-20261015.html">현재 v0.3.0 구현·근거·결정 기록</a>을 따른다. 이 본문의 ‘현재’, ‘미구현’, 구 위험 등급은 작성 당시의 상태로 읽는다. 문항·수정 이유·검토 이력은 보관한다.</p>
+<p>작성·마지막 확인: 2026-10-15 · <code>2026-action-review-draft-2</code> · 기관 내부 성인 종사자용 · <strong>검토 초안·전문가 미승인</strong></p>
+<div class="notice"><strong>점수 기준은 계속 보류한다.</strong> 배점·총점·경계값·등급·체크 개수별 위험 판정을 만들지 않는다. 아래 25개는 공식 원문과 연결하는 문항 묶음이며, 나눈 하위 질문 수나 최종 검사 길이를 확정한 것이 아니다. 공식 경험 설문을 행위자 관점으로 변형한 자체 검토안이다. 앱·API·기존 채점·안전 분기를 변경하지 않았다.</div>
+<section class="notes" id="adaptation"><h2>원문을 다듬어도 되는 자료인가?</h2>
+<p><strong>2026년 매뉴얼은 설문을 사업장 특성에 맞게 수정해 활용할 수 있다고 명시한다.</strong> 책자 69쪽(PDF 73쪽), 「사업장 자체 조직문화 진단 및 개선」에 다음 안내가 있다.</p>
+<blockquote>설문조사표는 예시일 뿐으로 개별 사업장의 특성에 맞게 설문을 수정하는 등 보다 실효적인 조직문화 진단에 활용</blockquote>
+<p>따라서 공식 원문을 한 글자도 바꾸지 않아야 한다는 전제는 두지 않는다. 다만 위 안내는 조직문화 진단을 위한 수정·활용 안내다. 경험 문항을 개인의 행동 점검으로 바꾸는 목적 전환, 그 결과의 타당성, 점수·등급 사용까지 승인한 것으로 해석하지 않는다. 의미·범위가 달라진 문구와 자체 추가 맥락 안내를 명시하고 실제 사용 적정성을 검토한다.</p>
+<p>출처: <a href="https://www.moel.go.kr/policy/policydata/view.do?bbs_seq=20260701008">고용노동부 직장 내 괴롭힘 예방·대응 매뉴얼(2026년 7월)</a>. 공식 경험 문항 25개는 참고 5의 책자 139쪽(PDF 143쪽)이다. 이 문서의 공식 원문과 앞선 1차안은 별도로 보존하고, 원문 열에는 수정 문구를 넣지 않는다.</p></section>
+<section class="notes" id="rules"><h2>이번 수정 원칙</h2>
+<div class="table-wrap"><table><thead><tr><th>구분</th><th>이번 처리</th></tr></thead><tbody>
+<tr><td>정상 업무와 겹치는 문항</td><td>업무 배분·대우·정보 접근·근무 확인·인사·추가근무·징계 등은 행동과 맥락을 분리한다. <strong>상황 확인형은 ‘있다’만으로 문제행동 배지나 경고를 표시하지 않는 안</strong>이다. 무엇을 왜 어떻게 했는지 확인하며, 필요성이 있었다는 주장만으로 모든 방식이 적정하다고 결론내리지도 않는다.</td></tr>
+<tr><td>상대의 생각·감정</td><td>모욕감·수치심 등을 내가 대신 판단하지 않도록 직접 한 말·행동으로 바꾼다. 상대의 명시적 항의·거절이 없었다는 사실을 동의·영향 없음으로 보지 않는다. 구체 행동을 열거한 안이 원표 전체를 포괄한다고 주장하지 않는다.</td></tr>
+<tr><td>‘차별·강요·부당함’ 같은 결론</td><td>자기에게 법적·윤리적 위반을 인정하라고 묻는 대신 실제 행동을 묻는 후보를 제시한다. 새 문구에 포함된 사례나 맥락이 법적 정의·성립 요건이 되는 것은 아니다.</td></tr>
+<tr><td>한 문항의 여러 행동</td><td>성과 부정·조롱, 정보·참여, 주의사항·장비, 위협·폭력 등을 검토용 하위 질문으로 나눈다. 나눈 수에 따른 가중치·점수는 없다.</td></tr>
+<tr><td>의미·범위가 바뀌는 경우</td><td>관점 전환, 구체화, 분리, 조건 추가·삭제, 범위 확대·축소를 문항별로 기록한다. 이전 문항과의 측정 등가성이나 기존 검증이 유지된다고 주장하지 않는다.</td></tr>
+</tbody></table></div>
+<p><strong>공통 안내 후보:</strong> 최근 6개월 동안 업무 관계에서 내가 실제로 한 말이나 행동을 돌아봐 주세요. 상대의 생각·감정은 추정하지 말고 직접 알고 있는 사실을 기준으로 답해 주세요. 기억나지 않거나 자신의 역할을 모르면 그렇게 남길 수 있고, 답하지 않아도 상담·도움 안내를 볼 수 있습니다. 아래 ‘맥락’은 선택적 상황 정리용이며, 충족해야 할 법적 조건이나 자동 판정 규칙이 아닙니다.</p>
+<p>6개월 회상·응답 방식은 최종 검토 대기다. 분리된 하위 질문에 기존 5개 빈도 범주를 자동 적용하지 않는다. 지금은 문구 검토 단계이며 선택지·수집·저장·관리자 열람도 확정하지 않았다.</p></section>
+<nav class="jump" aria-label="문항별 이동"><a href="#act-01">01</a> <a href="#act-02">02</a> <a href="#act-03">03</a> <a href="#act-04">04</a> <a href="#act-05">05</a> <a href="#act-06">06</a> <a href="#act-07">07</a> <a href="#act-08">08</a> <a href="#act-09">09</a> <a href="#act-10">10</a> <a href="#act-11">11</a> <a href="#act-12">12</a> <a href="#act-13">13</a> <a href="#act-14">14</a> <a href="#act-15">15</a> <a href="#act-16">16</a> <a href="#act-17">17</a> <a href="#act-18">18</a> <a href="#act-19">19</a> <a href="#act-20">20</a> <a href="#act-21">21</a> <a href="#act-22">22</a> <a href="#act-23">23</a> <a href="#act-24">24</a> <a href="#act-25">25</a></nav>
+<section class="item" id="act-01" data-source="SRC26-III-01">
+<h2>01. 성과 인정과 조롱 <span class="tag">분리·구체화</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 1번</dt><dd class="official">나의 업무능력이나 성과를 인정하지 않거나 조롱했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-01</dt><dd class="previous">나는 다른 사람의 업무능력이나 성과를 인정하지 않거나 조롱한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-01a</code> <span class="revised">나는 다른 사람이 수행한 일이나 낸 성과를 알고도, 그 사람이 한 일이 아니라고 말하거나 기록한 적이 있다.</span></li><li><code>ACT26-01b</code> <span class="revised">나는 다른 사람의 업무능력이나 성과를 흉내 내거나 비웃는 말·행동을 한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>단순히 칭찬하지 않은 일과 성과를 부정하는 일, 조롱하는 일을 구분했다. 상대가 상처받았는지 대신 판단하지 않고 내가 한 말·기록·행동을 묻는다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">어떤 성과·보고·말이었는지, 업무 평가나 성과 귀속에 관한 이견이 있었는지 확인한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">첫 문장은 원표의 ‘인정하지 않음’ 중 알고도 성과를 부정한 경우로 범위를 좁혔다. 칭찬 부재를 제외하는 효과와 다른 인정 부정 사례의 누락을 검토한다. 6번과 의미가 겹칠 수 있다.</dd>
+</dl></section>
+<section class="item" id="act-02" data-source="SRC26-III-02">
+<h2>02. 대우·기준의 차이 <span class="tag">상황 확인형</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 2번</dt><dd class="official">훈련, 승진, 보상, 일상적인 대우 등에서 차별을 했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-02</dt><dd class="previous">나는 다른 사람을 훈련, 승진, 보상 또는 일상적인 대우에서 차별한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-02</code> <span class="revised">나는 교육·훈련 대상 선정, 승진·보상 또는 일상적인 업무상 대우에서 특정인에게 다른 기준을 적용한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>응답자에게 ‘차별’을 스스로 판정하게 하는 표현을 기준 적용이라는 행동으로 바꿨다. 다른 기준을 적용했다는 답만으로 부당한 차별이라고 표시하지 않는다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">서로 어떤 기준을 적용했는지, 직무·자격·성과 등 적용 사유와 기관의 기준·예외 절차가 무엇인지 따로 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표보다 넓어져 합리적인 차등도 포함한다. 교육·승진·보상·일상적 대우를 분리할지, 기준이 명시되지 않은 대우를 어떻게 물을지 검토한다.</dd>
+</dl></section>
+<section class="item" id="act-03" data-source="SRC26-III-03">
+<h2>03. 업무량·난이도의 집중 <span class="tag">상황 확인형</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 3번</dt><dd class="official">나에게 힘들고, 모두가 꺼리는 업무를 주었다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-03</dt><dd class="previous">나는 다른 사람에게 힘들고 모두가 꺼리는 업무를 맡긴 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-03</code> <span class="revised">나는 업무를 배분하면서 특정인에게 업무량이나 난이도가 높은 일이 집중되도록 한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>다른 사람들이 ‘모두 꺼린다’는 마음을 추정하게 하는 표현을 없앴다. 힘든 업무 배정 자체를 문제행동으로 판정하지 않고 배분 상황을 먼저 확인한다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">업무 목적, 구성원별 업무량·전문성·일정, 집중 배분 이유, 조정·지원 내용을 확인한다. 사유가 있다는 주장만으로 적정하다고 확정하지 않는다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표의 ‘힘든 업무’를 업무량·난이도와 집중 배분으로 구체화해 범위가 달라졌다. 어려운 업무의 1회 배정이나 다른 부담을 누락하는지, ‘집중’의 이해를 검토한다. 횟수 경계값은 정하지 않는다.</dd>
+</dl></section>
+<section class="item" id="act-04" data-source="SRC26-III-04">
+<h2>04. 담당 역할과 다른 업무·업무 배제 <span class="tag">분리·상황 확인형</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 4번</dt><dd class="official">허드렛일만 시키거나 일을 거의 주지 않았다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-04</dt><dd class="previous">나는 다른 사람에게 허드렛일만 시키거나 일을 거의 주지 않은 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-04a</code> <span class="revised">나는 특정인에게 그 사람의 담당 역할과 다른 단순·보조 업무만 맡긴 적이 있다.</span></li><li><code>ACT26-04b</code> <span class="revised">나는 특정인의 담당 업무를 줄이거나 그 사람을 업무 배정에서 제외한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘허드렛일’이라는 표현으로 특정 업무 자체를 낮춰 보지 않도록 담당 역할과의 관계로 바꿨다. 보조 업무 배정과 업무를 주지 않는 행동을 나눴다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">담당 역할, 업무 변경 이유·기간, 본인의 요청 여부, 적응·보호·교육 목적, 설명과 대체 업무를 확인한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">‘담당 역할과 다름’과 ‘업무 감소’를 추가해 원표와 범위가 달라졌다. 정상적인 역할 조정·배려도 포함할 수 있으므로 발생 응답만으로 배제·괴롭힘으로 분류하지 않는다.</dd>
+</dl></section>
+<section class="item" id="act-05" data-source="SRC26-III-05">
+<h2>05. 정보·의사결정 참여 제한 <span class="tag">상황 확인형</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 5번</dt><dd class="official">업무와 관련된 중요한 정보나 의사결정 과정에서 나를 제외했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-05</dt><dd class="previous">나는 다른 사람을 업무와 관련된 중요한 정보나 의사결정 과정에서 제외한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-05a</code> <span class="revised">나는 다른 사람의 담당 업무에 필요한 정보를 전달하지 않은 적이 있다.</span></li><li><code>ACT26-05b</code> <span class="revised">나는 다른 사람이 담당 업무와 관련된 의사결정에 참여하지 못하도록 한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>정보 전달과 의사결정 참여를 분리했다. 단순히 회의에 초대하지 않은 사실과 담당 업무 수행에 관계되는 제한을 구분하려는 안이다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">정보·회의의 내용과 담당 역할, 보안·이해충돌·권한 등의 제한 사유, 대체 정보·전달 방식과 실제 업무 영향을 확인한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">‘담당 업무’를 기준으로 범위를 구체화했다. 관련성·필요성을 개인이 혼자 확정하게 하지 않고 모름 응답을 허용한다. 합법·정당한 제한 여부는 별도 검토다.</dd>
+</dl></section>
+<section class="item" id="act-06" data-source="SRC26-III-06">
+<h2>06. 성과 귀속과 업무 방해 <span class="tag">분리·구체화</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 6번</dt><dd class="official">내 성과를 가로채거나, 성과 달성을 방해했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-06</dt><dd class="previous">나는 다른 사람의 성과를 가로채거나 성과 달성을 방해한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-06a</code> <span class="revised">나는 다른 사람이 한 일이나 성과를 내 성과 또는 다른 사람의 성과로 보고하거나 기록한 적이 있다.</span></li><li><code>ACT26-06b</code> <span class="revised">나는 다른 사람의 업무 진행에 필요한 자료나 협조를 제공하지 않거나, 그 사람이 업무를 마치지 못하게 한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘가로챔·방해’라는 결론 대신 보고·기록·자료 제공 등 내가 한 행동으로 나눴다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">공동 성과의 기여·표시 방식, 자료·협조를 제공할 역할, 제공하지 못한 이유와 절차, 실제 진행 경위를 확인한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표의 성과 방해를 일부 구체 행동으로 풀어 범위가 달라졌다. 정상적인 공동 보고·제공 제한과 다른 방해 행위 누락을 검토한다. 1·5번과 겹쳐도 가산하지 않는다.</dd>
+</dl></section>
+<section class="item" id="act-07" data-source="SRC26-III-07">
+<h2>07. 휴가·병가·복지 사용 관련 말 <span class="tag">상황 확인형</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 7번</dt><dd class="official">나에게 휴가나 병가, 각종 복지혜택 등을 쓰지 못하도록 압력을 주었다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-07</dt><dd class="previous">나는 다른 사람이 휴가나 병가, 각종 복지혜택 등을 쓰지 못하도록 압력을 준 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-07</code> <span class="revised">나는 다른 사람이 휴가·병가·복지혜택을 신청하거나 사용하지 않도록 말한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘압력을 주었다’는 자기평가 대신 실제 말한 내용을 떠올리게 했다. 요건·절차 설명과 사용 자체를 억제하는 말을 구분해 확인한다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">실제 표현, 적용 요건·일정과 기관 규정, 변경·취소를 요구했는지, 사용과 업무상 대우를 연결했는지 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">말 이외의 압력은 문구에서 충분히 포착하지 못할 수 있다. 정당한 절차 안내도 포함할 수 있어 이 응답을 곧바로 부당한 제한으로 표시하지 않는다.</dd>
+</dl></section>
+<section class="item" id="act-08" data-source="SRC26-III-08">
+<h2>08. 근무·휴식 관찰과 확인 <span class="tag">상황 확인형</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 8번</dt><dd class="official">일하거나 휴식하는 모습을 지나치게 감시했다.(예: CCTV를 통한 감시)</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-08</dt><dd class="previous">나는 다른 사람이 일하거나 휴식하는 모습을 지나치게 감시한 적이 있다.(예: CCTV를 통한 감시)</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-08</code> <span class="revised">나는 CCTV, 화면 확인 또는 직접 관찰로 다른 사람의 근무·휴식 모습을 확인한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘지나치게’의 기준을 임의로 만들지 않고 확인 방법과 실제 행동부터 묻는 안이다. 화면 확인은 원표에 없는 자체 예시다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">확인 목적·대상·시간·범위, 권한·고지와 기관 절차, 안전·업무 확인 필요성, 사적 행동까지 포함했는지 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표보다 넓어져 일상적인 감독·안전 확인도 포함한다. 사건·상황 정리용 후보이며 응답만으로 감시·위반 표시를 하지 않는다. 개인 행동 점검에서 이 넓은 문항이 필요한지는 보류한다.</dd>
+</dl></section>
+<section class="item" id="act-09" data-source="SRC26-III-09">
+<h2>09. 작업 주의사항과 안전장비 제공 <span class="tag">분리·역할 확인</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 9번</dt><dd class="official">사고위험이 있는 작업을 할 때, 나에게 주의사항이나 안전장비를 전달해주지 않았다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-09</dt><dd class="previous">나는 다른 사람에게 사고위험이 있는 작업을 맡기거나 함께 수행하면서 필요한 주의사항이나 안전장비를 전달해주지 않은 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-09a</code> <span class="revised">나는 작업 주의사항을 안내하는 역할을 맡았지만, 그 내용을 안내하지 않고 작업을 진행하게 한 적이 있다.</span></li><li><code>ACT26-09b</code> <span class="revised">나는 작업에 필요한 안전장비를 제공하는 역할을 맡았지만, 장비를 제공하지 않은 채 작업을 진행하게 한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>단순히 같이 일했다는 이유만으로 다른 사람의 안전정보·장비 제공 책임까지 있다고 가정한 앞선 문구를 수정했다. 안내와 장비 제공을 나눴다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">작업의 위험과 필요한 안내·장비, 자신의 역할·제공 경로, 실제 조치와 작업 진행 경위를 확인한다. 역할을 모르면 모름으로 남긴다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">명시적으로 역할을 맡은 경우로 좁혔다. 역할이 명확하지 않은 상황에서의 예방 책임을 제외한다고 해석하지 않는다. 산업안전 담당자의 범위 검토와 현재 도움 경로 확인이 필요하다.</dd>
+</dl></section>
+<section class="item" id="act-10" data-source="SRC26-III-10">
+<h2>10. 사적인 일의 업무상 요구 <span class="tag">관점·범위 수정</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 10번</dt><dd class="official">나에게 상사의 관혼상제나 개인적인 일상생활과 관련된 일을 하도록 했다.(예: 개인 심부름 등)</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-10</dt><dd class="previous">나는 다른 사람에게 나 또는 다른 상사의 관혼상제나 개인적인 일상생활과 관련된 일을 하도록 한 적이 있다.(예: 개인 심부름 등)</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-10</code> <span class="revised">나는 업무와 별개인 나 또는 다른 사람의 사적인 일을 업무상 요구처럼 맡긴 적이 있다. (예: 개인 심부름, 개인 관혼상제 준비 등)</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘나 또는 다른 상사’라는 어색한 주체를 정리하고, 개인적인 부탁과 업무상 요구를 구분해 돌아보도록 바꿨다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">누구의 어떤 일이었는지, 요청할 때 한 말·지시 방식, 업무 시간·자원 사용, 거절에 대한 반응과 관계·권한을 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표의 ‘상사’를 ‘나 또는 다른 사람’으로 넓히고 ‘업무상 요구처럼’이라는 조건을 추가했다. 요청 형식만으로 성격을 확정하지 않는다. 자발적 동의·침묵의 해석과 기관 내규를 검토한다.</dd>
+</dl></section>
+<section class="item" id="act-11" data-source="SRC26-III-11">
+<h2>11. 부서이동·퇴사 요구 <span class="tag">상황 확인형</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 11번</dt><dd class="official">나에게 부서이동 또는 퇴사를 강요했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-11</dt><dd class="previous">나는 다른 사람에게 부서이동 또는 퇴사를 강요한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-11a</code> <span class="revised">나는 다른 사람에게 부서이동을 하라고 요구한 적이 있다.</span></li><li><code>ACT26-11b</code> <span class="revised">나는 다른 사람에게 퇴사를 하라고 요구한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘강요’라는 결론을 먼저 요구하지 않도록 어떤 요구를 했는지 나눴다. 인사발령 안내·본인의 이동 요청과 압박을 같은 것으로 보지 않는다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">실제 표현, 제안·결정 권한, 인사 사유·공식 절차, 선택 가능성, 되풀이한 요구나 불이익 언급 등 경위를 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표보다 넓어 정상적인 인사 절차도 포함할 수 있다. 요구 여부만으로 강요·부당함을 판정하지 않는다. 두 질문의 최종 필요성은 노무 검토 대기다.</dd>
+</dl></section>
+<section class="item" id="act-12" data-source="SRC26-III-12">
+<h2>12. 피드백과 개인 비난 <span class="tag">구체화·범위 수정</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 12번</dt><dd class="official">누군가 사소한 일에 트집을 잡거나 시비를 걸었다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-12</dt><dd class="previous">나는 다른 사람의 사소한 일에 트집을 잡거나 시비를 건 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-12</code> <span class="revised">나는 업무 피드백을 하면서 고쳐야 할 업무 내용보다 그 사람 자체를 탓하는 말을 한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘사소함·트집·시비’를 스스로 판정하는 대신 업무 내용에 대한 설명과 사람 자체를 탓하는 말을 구분하려는 안이다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">실제 말, 피드백 목적·내용·장소, 구체적인 수정 방법을 설명했는지 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표의 시비 전반에서 업무 피드백의 개인 비난으로 좁혔다. 업무 밖에서의 트집 등 누락을 검토한다. ‘사람 자체를 탓함’의 이해와 18번 중복도 확인한다.</dd>
+</dl></section>
+<section class="item" id="act-13" data-source="SRC26-III-13">
+<h2>13. 개인사 공유 <span class="tag">구체화·맥락 확인</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 13번</dt><dd class="official">누군가 내 개인사에 대한 뒷담화나 소문을 퍼뜨렸다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-13</dt><dd class="previous">나는 다른 사람의 개인사에 대한 뒷담화나 소문을 퍼뜨린 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-13</code> <span class="revised">나는 다른 사람의 동의를 확인하지 않고 그 사람의 개인사를 업무 처리나 상담·신고와 관계없는 사람에게 이야기하거나 전달한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘뒷담화’라는 평가 대신 어떤 정보를 누구에게 전달했는지 묻도록 바꿨다. 정당한 상담·신고 자체를 문제행동으로 묶지 않으려는 안이다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">공유 내용·목적·대상, 공개된 정보인지, 동의를 어떻게 확인했는지 정리한다. 문서에는 실명·민감한 개인사 자체를 적도록 요구하지 않는다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">동의 확인과 전달 대상을 조건으로 추가해 원표와 범위가 다르다. 업무·상담 목적이라는 주장만으로 모든 공유가 허용된다고 판단하지 않는다. 개인정보·인권 검토 필요.</dd>
+</dl></section>
+<section class="item" id="act-14" data-source="SRC26-III-14">
+<h2>14. 신체적 위협 행동·힘의 사용 <span class="tag">분리·행동 구체화</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 14번</dt><dd class="official">나에게 신체적인 위협이나 폭력을 가했다.(예: 물건 던지기, 주먹질 등)</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-14</dt><dd class="previous">나는 다른 사람에게 신체적인 위협이나 폭력을 가한 적이 있다.(예: 물건 던지기, 주먹질 등)</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-14a</code> <span class="revised">나는 다른 사람을 향해 물건을 던지거나 주먹을 들어 보이는 행동을 한 적이 있다.</span></li><li><code>ACT26-14b</code> <span class="revised">나는 다른 사람을 때리거나 밀치는 등 그 사람의 신체에 힘을 가한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>상대가 위협을 느꼈는지 추정하게 하지 않고 직접 한 행동을 나눠 묻는다. 사례는 법적 정의나 모든 위협 행동의 목록이 아니다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">실제 행동과 당시 경위, 사고·구조·위험 제지 상황 여부를 정리한다. 현재 위험이 있으면 설문 완료와 관계없이 별도 도움을 이용한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표 예시에 행동을 추가·분리했다. 다른 위협 행동 누락, 질문 부담과 안전 안내는 전문가 확인 대기다. 과거 빈도로 현재 안전을 판단하지 않는다.</dd>
+</dl></section>
+<section class="item" id="act-15" data-source="SRC26-III-15">
+<h2>15. 욕설·해를 언급하는 말 <span class="tag">분리·구체화</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 15번</dt><dd class="official">나에게 욕설이나 위협적인 말을 했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-15</dt><dd class="previous">나는 다른 사람에게 욕설이나 위협적인 말을 한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-15a</code> <span class="revised">나는 다른 사람에게 욕설을 한 적이 있다.</span></li><li><code>ACT26-15b</code> <span class="revised">나는 다른 사람에게 신체에 해를 가하거나 업무상 불이익을 주겠다는 말을 한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>욕설과 위협적 발언을 분리하고 내가 말한 내용을 확인하도록 했다. 상대 감정의 크기를 대신 평가하지 않는다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">실제 말과 상황, 업무상 결과·절차를 설명한 것인지 사람을 압박한 경위인지 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">불이익을 언급하는 문장은 정당한 절차 안내도 포함할 수 있으며 모든 위협을 포괄하지 않는다. 설명과 위협의 법적 경계는 이 문항으로 확정하지 않는다.</dd>
+</dl></section>
+<section class="item" id="act-16" data-source="SRC26-III-16">
+<h2>16. 확인되지 않은 잘못의 단정 <span class="tag">구체화·범위 수정</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 16번</dt><dd class="official">나를 부적절하게 의심하거나, 누명을 씌웠다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-16</dt><dd class="previous">나는 다른 사람을 부적절하게 의심하거나 누명을 씌운 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-16</code> <span class="revised">나는 사실관계가 확인되지 않은 상태에서 특정인에게 잘못이 있다고 단정하여 말하거나 다른 사람에게 전달한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘부적절하게 의심함·누명’이라는 판정을 요구하는 대신 확인 상태와 단정·전달 행동을 구분했다. 사실 확인을 위한 질문 자체를 묻는 문항으로 만들지 않는다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">당시 확인한 사실·불확실한 점, 실제 표현, 전달 대상과 확인 절차를 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">단순한 의심이나 행동으로 드러나지 않은 판단을 제외해 범위가 달라졌다. 적법한 조사·신고와의 구분, 확인 상태를 모르는 경우의 응답을 검토한다.</dd>
+</dl></section>
+<section class="item" id="act-17" data-source="SRC26-III-17">
+<h2>17. 개인 물건 사용·훼손 <span class="tag">분리·구체화</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 17번</dt><dd class="official">누군가 내 물건을 허락 없이 가져가거나 망가뜨렸다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-17</dt><dd class="previous">나는 다른 사람의 물건을 허락 없이 가져가거나 망가뜨린 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-17a</code> <span class="revised">나는 다른 사람의 개인 물건을 그 사람의 허락을 확인하지 않고 가져가거나 사용한 적이 있다.</span></li><li><code>ACT26-17b</code> <span class="revised">나는 다른 사람의 물건을 던지거나 훼손한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>무단 사용과 훼손을 분리하고 개인 물건의 허락 확인이라는 행동을 명시했다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">개인·공용 물품 구분, 사용·처분 권한, 실제 행동과 사고·손상 경위를 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">‘개인 물건’으로 일부 범위를 좁히고 사용·던지기를 추가했다. 고의·과실·정당한 처분 여부를 응답만으로 판단하지 않는다.</dd>
+</dl></section>
+<section class="item" id="act-18" data-source="SRC26-III-18">
+<h2>18. 공개된 자리의 비웃음·비하 <span class="tag">감정 추정 제거</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 18번</dt><dd class="official">다른 사람들 앞에서(또는 온라인상에서) 나에게 모욕감을 주는 언행을 했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-18</dt><dd class="previous">나는 다른 사람들 앞이나 온라인에서 특정인을 비하하는 말이나 행동을 한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-18</code> <span class="revised">나는 다른 사람이 있는 자리나 온라인에서 특정인 자체를 비웃거나 비하하는 말·행동을 한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>상대의 ‘모욕감’을 확인했다고 가정하지 않고 내 표현을 돌아보도록 했다. 업무 내용에 대한 구체적인 비판과 사람 자체를 낮추는 표현의 차이를 살핀다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">실제 표현, 대상·장소·공개 범위와 업무 피드백 내용을 정리한다. 상대의 항의나 표정 변화가 없었다는 사실을 영향 없음으로 해석하지 않는다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표의 ‘모욕감을 주는 언행’을 비웃음·비하로 구체화해 범위가 달라졌다. 개념 이해와 다른 모욕적 언행 누락, 1·12번과의 중복은 검토 대기다.</dd>
+</dl></section>
+<section class="item" id="act-19" data-source="SRC26-III-19">
+<h2>19. 음주·흡연 요구 <span class="tag">행동·상황 분리</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 19번</dt><dd class="official">내 의사와 상관없이 음주 / 흡연을 강요했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-19</dt><dd class="previous">나는 다른 사람의 의사와 상관없이 음주 또는 흡연을 강요한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-19a</code> <span class="revised">나는 상대가 음주나 흡연을 원하지 않는다는 표현을 한 뒤에도 요구를 이어간 적이 있다.</span></li><li><code>ACT26-19b</code> <span class="revised">나는 음주·흡연 참여를 업무상 대우나 관계와 연결해 말한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘상대의 의사’를 추측하거나 ‘강요’를 스스로 인정하게 하는 대신 직접 들은 표현과 내가 이어간 요구·말을 묻는다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">술과 담배 중 해당 행동, 실제 요청과 반응, 관계·권한, 거절을 어렵게 할 수 있는 상황을 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표를 두 구체 행동으로 바꾼 후보다. 직접 거절이 있어야만 강요가 성립한다는 뜻이 아니며, 거절 표현이 없었다는 답을 동의·안전으로 처리하지 않는다. 다른 방식의 압박과 음주·흡연 분할 필요성은 검토한다.</dd>
+</dl></section>
+<section class="item" id="act-20" data-source="SRC26-III-20">
+<h2>20. 회식 참여 요구 <span class="tag">행동·상황 분리</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 20번</dt><dd class="official">내 의사와 관계없이 회식 참여를 강요했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-20</dt><dd class="previous">나는 다른 사람의 의사와 관계없이 회식 참여를 강요한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-20a</code> <span class="revised">나는 회식 참석을 업무평가나 관계상 불이익과 연결해 말한 적이 있다.</span></li><li><code>ACT26-20b</code> <span class="revised">나는 회식에 참석하지 않겠다는 표현을 들은 뒤에도 참석해야 한다고 거듭 요구한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>한 번의 초대나 안내와 불이익 언급·계속된 요구를 구분하려는 안이다. 상대가 거절하기 어려웠을 것이라고 추정해 답하게 하지 않는다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">행사의 성격·시간·업무 관련성, 실제 말과 요구 경위, 불참에 대한 반응을 확인한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표의 강요를 일부 구체 행동으로 좁혔다. 명시적 거절·불이익 언급이 없는 압박도 있을 수 있다. 두 응답이 없다고 자발적 참여였다고 결론내리지 않는다. ‘거듭’의 횟수 경계값은 정하지 않는다.</dd>
+</dl></section>
+<section class="item" id="act-21" data-source="SRC26-III-21">
+<h2>21. 다른 사람과 함께하는 배제 <span class="tag">범위 축소·재검토</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 21번</dt><dd class="official">나를 업무 외의 대화나 친목 모임에서 제외했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-21</dt><dd class="previous">나는 다른 사람을 업무 외의 대화나 친목 모임에서 제외한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-21</code> <span class="revised">나는 특정인이 사적인 대화나 모임에 참여하지 못하도록 다른 사람에게도 그 사람을 참여시키지 말자고 말한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>누구와 사적으로 어울릴지 선택한 일 자체를 문제로 보지 않도록, 다른 사람에게도 배제를 요구한 행동에 초점을 맞췄다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">대화·모임의 목적, 참여 제한의 이유, 다른 구성원에게 한 말과 업무·정보 접근에 미친 상황을 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표보다 상당히 좁아졌으며 이 문구를 최종 대체안으로 확정하지 않는다. 정상적인 모임 범위 설정과 조직적 배제의 구분, 단독 배제 사례의 누락을 노무·인권 담당이 검토한다.</dd>
+</dl></section>
+<section class="item" id="act-22" data-source="SRC26-III-22">
+<h2>22. 의견·건의 제시의 차단 <span class="tag">구체화·범위 수정</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 22번</dt><dd class="official">나의 정당한 건의사항이나 의견을 무시했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-22</dt><dd class="previous">나는 다른 사람의 건의사항이나 의견을 듣거나 검토하지 않고 무시한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-22</code> <span class="revised">나는 다른 사람이 업무 관련 의견이나 건의를 말하려 할 때 말을 끊거나 의견을 내지 말라고 한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘정당함·무시’를 스스로 판단하게 하는 대신 의견을 제시하는 과정에서 내가 한 행동을 묻는다. 제안을 채택하지 않은 일 자체와 구분한다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">실제 말과 회의·소통 절차, 발언 시간 조정 이유, 다른 의견 제출 경로를 확인한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표의 무시 전반에서 발언 차단으로 좁혀져 검토·답변 없이 방치한 사례 등이 빠질 수 있다. 진행상 발언 조정도 포함할 수 있어 응답만으로 침묵 강요로 판정하지 않는다.</dd>
+</dl></section>
+<section class="item" id="act-23" data-source="SRC26-III-23">
+<h2>23. 추가근무 요구 <span class="tag">상황 확인형</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 23번</dt><dd class="official">나의 의사와 관계없이 불필요한 추가근무(야근, 주말출근 등)를 강요했다.</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-23</dt><dd class="previous">나는 다른 사람의 의사와 관계없이 불필요한 추가근무(야근, 주말출근 등)를 강요한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-23</code> <span class="revised">나는 다른 사람에게 야간이나 휴일에 추가근무를 하도록 요구한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>업무 필요성을 응답자가 한 단어로 판단하도록 한 ‘불필요한’과 ‘강요’를 빼고 실제 요구와 맥락을 나눴다. 추가근무 지시 자체를 문제행동이라고 표시하지 않는다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">업무 목적·기한·긴급성, 실제 요구 방식, 근무시간·승인·동의·보상 절차, 일정 조정 가능성을 기관 규정과 대조해 정리한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표보다 넓어졌고 야간·휴일 이외의 추가근무를 충분히 포괄하지 못할 수 있다. 필요성이 있었다는 이유만으로 모든 방식이 적정하다고 결론내리지 않는다. 법·노무 검토 전 허용 기준을 만들지 않는다.</dd>
+</dl></section>
+<section class="item" id="act-24" data-source="SRC26-III-24">
+<h2>24. 반성문·벌 요구와 공식 징계 <span class="tag">분리·상황 확인형</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 24번</dt><dd class="official">나에게 부당한 징계를 주었다.(반성문, 처벌 등)</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-24</dt><dd class="previous">나는 다른 사람에게 반성문 작성이나 처벌 등 징계 성격의 조치를 요구하거나 적용한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-24a</code> <span class="revised">나는 다른 사람에게 반성문 작성이나 벌을 요구한 적이 있다.</span></li><li><code>ACT26-24b</code> <span class="revised">나는 다른 사람에 대한 공식 징계 조치를 제안하거나 결정·집행한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>‘부당한 징계’를 스스로 판정하도록 하지 않고 요구한 조치와 공식 절차 관여를 나눴다. 공식 징계에 관여했다는 사실만으로 문제행동으로 표시하지 않는다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">요구 내용·사유·권한과 적용 규정, 소명·결정 절차, 공식 절차 밖에서 추가로 요구한 조치가 있는지 확인한다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표를 역할·절차 확인용으로 넓혔다. 두 질문이 개인 예방 점검에 필요한지부터 검토하고, 부당성은 기관 규정과 사실관계를 확인한 후 별도로 검토한다.</dd>
+</dl></section>
+<section class="item" id="act-25" data-source="SRC26-III-25">
+<h2>25. 성적 말·메시지와 접촉 <span class="tag">감정 추정 제거·분리</span></h2>
+<dl>
+<dt>공식 원문 · 참고 5, Ⅲ 표 안의 25번</dt><dd class="official">성적 수치심을 느끼게 하는 말 또는 행동을 나에게 했다.(이메일, 전화, 성적 농담, 성추행)</dd>
+<dt>앞선 1차 행동 수정안 · ACT26-25</dt><dd class="previous">나는 업무 관계에서 다른 사람에게 성적인 농담이나 발언을 하거나 성적인 신체 접촉을 한 적이 있다.</dd>
+<dt>이번 2차 수정 후보 · 공식 문항 아님</dt><dd><ul class="questions"><li><code>ACT26-25a</code> <span class="revised">나는 업무 관계에서 다른 사람을 대상으로 성적인 농담이나 성적 내용을 담은 말·메시지를 한 적이 있다.</span></li><li><code>ACT26-25b</code> <span class="revised">나는 업무 관계에서 다른 사람에게 성적 접촉을 요구하거나 성적인 신체 접촉을 한 적이 있다.</span></li></ul></dd>
+<dt>공식 문항에서 바꾼 이유</dt><dd>상대가 ‘성적 수치심’을 느꼈는지 대신 판단하지 않고 직접 한 말·메시지·요구·접촉으로 나눴다.</dd>
+<dt>별도로 정리할 맥락 · 자체 추가 안내</dt><dd class="context">필요한 범위에서 행동의 종류·관계·상황을 정리한다. 구체적 성적 내용이나 신체 접촉의 상세 묘사를 필수로 요구하지 않는다. 동의나 불편함은 추정하지 않는다.</dd>
+<dt>남은 검토 · 미승인</dt><dd class="pending">원표와 의미 범위가 달라질 수 있고 다른 성적 언행이 누락될 수 있다. 항의가 없었다는 이유로 동의·영향 없음이라고 판단하지 않는다. 원치 않는 행위의 표현, 언어·접촉 분리와 별도 성희롱 지원은 인권 담당 검토 대기다.</dd>
+</dl></section>
+<section class="notes" id="pending"><h2>문구를 다듬은 뒤에도 남는 확인</h2>
+<p>상태는 모두 <code>pending</code>, 마지막 확인은 2026-10-15다. 문구 수정 완료와 도구의 적정성 승인을 구분한다. 아래 항목은 기존 <a href="workplace-respect-reliability-ops.html#risks">운영 승인·위험 기록</a>의 출처·문항·임계값·안전 항목에 연결한다.</p>
+<div class="table-wrap"><table><thead><tr><th>담당</th><th>기대 증거</th><th>종료 조건</th></tr></thead><tbody>
+<tr><td>노무·인권·기관 업무 담당</td><td>정상 업무·부적절한 방식·불확실한 사례에 대한 문항별 해석, 원문 대비 누락·확대 범위와 내규 대조</td><td>최종 문구·맥락 안내·제외 범위와 사용 목적의 승인 기록이 연결됨</td></tr>
+<tr><td>문항·측정 담당</td><td>실제 대상자의 인지면담: 자기 행동 회상, 평가 표현의 이해, 여러 행동·응답 범주의 선택 근거와 부담</td><td>문항 묶음·하위 질문·회상 기간·응답 방식 확정. 문구 검토를 점수 검증으로 취급하지 않음</td></tr>
+<tr><td>안전·인권·개인정보 담당</td><td>현재 위험과 과거 행동의 구분, 성희롱 등 별도 상담 경로, 상세 입력 최소화·열람·보관 정책</td><td>승인 범위에 맞는 안내와 실제 접근 경로 확인. 기존 안전 승인 대기를 이번 문서로 해제하지 않음</td></tr>
+</tbody></table></div>
+<p><strong>내 행동 점검의 점수 필요성과 기준은 보류다.</strong> 2019년 점수표나 기존 앱의 경계값을 적용하지 않는다. 일터 존중 점검은 점수 없는 상황 정리·상담 안내 방향을 유지하며 이번 작업에서는 문항을 수정하지 않았다.</p></section>
+<section class="notes"><h2>대조·검증 기록</h2>
+<p>공식 원문 25개와 1차 행동 수정안 25개를 1차 문서에서 각각 대조해 보존했다. 공식 경험 원문은 PDF 본문과 공백·줄바꿈을 정규화해 일치를 확인했다. 수정 활용 안내는 책자 69쪽에서 확인했다. 모든 문항 묶음에 2차 수정 후보, 변경 이유, 자체 맥락 안내와 미승인 쟁점을 기록했다. 점수 계산·결과·응답 계약·AI 지침·배포는 변경하지 않았다.</p>
+<p class="small">사용 도구: 번들 Windows Python 3.12.14, pypdf 6.10.0. 원문 사본: <code>artifacts/workplace-respect-v02/moel-2026-07.pdf</code>. SHA-256: <code>B8AE269EDCC20F5BBC2ABBC3242BD573B65B280F8AB89D498C22A6C423ECA207</code>. 이번 검증은 원문·구조 대조이며 전문가 승인이나 측정 타당성 검증이 아니다.</p>
+<a href="workplace-respect-2026-question-review.html">앞선 공식·수정 문항 대조</a> · <a href="index.html">검토 문서 목록</a></section>
+</main></body></html>

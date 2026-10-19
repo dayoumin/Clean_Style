@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2026년 기준 내 행동·일터 존중 문항 검토안</title>
+<style>
+  :root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f5f7fa;color:#243341;font:16px/1.8 system-ui,"Malgun Gothic",sans-serif}main{max-width:1240px;margin:auto;padding:32px 24px 72px}h1{font-size:29px;line-height:1.45}h2{font-size:23px;margin-top:40px}h3{font-size:19px;margin-top:28px}a{color:#1b5b98}p,ul{max-width:1000px}.notice,.scope{padding:18px 22px;border-left:4px solid #9b6700;background:#fff3d8}.scope{border-color:#286293;background:#edf5fc}.table-wrap{overflow-x:auto;margin:18px 0}table{width:100%;border-collapse:collapse;background:#fff;font-size:15px}caption{text-align:left;font-weight:700;margin-bottom:10px}th,td{padding:13px 14px;border:1px solid #d5dde5;text-align:left;vertical-align:top}th{background:#eaf0f6}thead th{position:sticky;top:0}td:first-child{font-variant-numeric:tabular-nums}code{overflow-wrap:anywhere;font-size:.9em}.comparison{min-width:1000px;table-layout:fixed}.comparison th:nth-child(1){width:11%}.comparison th:nth-child(2){width:30%}.comparison th:nth-child(3){width:32%}.comparison th:nth-child(4){width:27%}.tag{display:inline-block;border-radius:4px;padding:1px 7px;font-size:13px;font-weight:700;background:#e8eff8;color:#244b79}.modified{background:#fff0d4;color:#775000}.pending{background:#f4e7e6;color:#7d3933}.small,small{font-size:13px;color:#485967}.question{margin:6px 0}.nav{display:flex;gap:16px;flex-wrap:wrap;margin:20px 0}.review td:last-child{min-width:190px}:focus-visible{outline:3px solid #305fc1;outline-offset:3px}@media(max-width:640px){main{padding:22px 16px 48px}h1{font-size:24px}}@media print{body{background:white;font-size:11pt}main{max-width:none;padding:0}h2{break-after:avoid}.table-wrap{overflow:visible}.comparison{min-width:0}thead{display:table-header-group}thead th{position:static}tr{break-inside:avoid}.nav{display:none}a{color:inherit}}
+</style>
+</head>
+<body><main>
+<a href="index.html">검토 문서 목록</a>
+<h1>2026년 기준 내 행동·일터 존중 문항 검토안</h1><p id="official-implementation-notice"><strong>보관 문서 · 2026-10-15 기준 변경:</strong> 이 본문은 이전 문항·무점수 흐름·비교 검토 또는 구 구현의 이력이다. 사용자의 최종 지시에 따른 공식 행동 10문항·원표 채점 및 경험 25문항·0~100점 시험 합계는 <a href="workplace-respect-implementation-20261015.html">현재 v0.3.0 구현·근거·결정 기록</a>을 따른다. 이 본문의 ‘현재’, ‘미구현’, 구 위험 등급은 작성 당시의 상태로 읽는다. 문항·수정 이유·검토 이력은 보관한다.</p>
+<p>작성·마지막 확인: 2026-10-15 · 문서 버전 <code>2026-question-review-draft-1</code> · 기관 내부 성인 종사자용 · 상태: <strong>검토 초안</strong></p>
+<div class="scope"><strong>현재 정리안:</strong> <a href="workplace-respect-2026-action-current.html">내 행동 점검 사용자 채택 기준안</a>과 <a href="workplace-respect-2026-experience-current.html">일터 존중 점검 원문 유지·점수 없는 상황 정리·상담 안내안</a>을 우선 확인한다. 이 문서는 앞선 비교·수정 후보의 이력으로 보존하며 앱 구현 규격으로 사용하지 않는다.</div>
+<div class="scope"><strong>이 문서는 1차안을 보존한다.</strong> 내 행동 문항 25개를 다시 검토한 <a href="workplace-respect-2026-action-review.html">2차 수정 후보·문항별 변경 이유</a>를 별도로 작성했다. 2026년 매뉴얼 책자 69쪽은 설문이 예시이며 사업장 특성에 맞게 수정해 활용하도록 안내한다. 원문 수정 자체를 금지하는 자료로 취급하지 않는다. 아래 공식 경험 문항 원문과 1차 행동 수정안은 변경하지 않았으며, 내 행동의 추가 수정·의미 범위 차이와 보류는 2차 문서에서 확인한다. 점수 기준은 계속 보류다.</div>
+<div class="notice"><strong>문항을 먼저 검토하는 문서다.</strong> 앱의 문항·채점·응답 계약·결과·AI 지침은 변경하지 않았다. 내 행동 점검의 총점·가중치·경계값·등급 및 자동 판정 규칙은 <strong>보류</strong>다. 일터 존중 점검은 점수 없이 상황 정리·상담 준비에 사용한다. 2019년 점수표와 기존 v0.2.2의 6점·8점 규칙을 이 안에 가져오지 않는다. 현재 앱에는 기존 규칙이 남아 있으므로 이 문서가 앱에 적용되었다고 설명하지 않는다.</div>
+<nav class="nav" aria-label="문서 목차"><a href="#source">출처와 범위</a><a href="#instructions">안내·응답안</a><a href="#items">25개 문항 대조</a><a href="#followup">상황·상담 질문</a><a href="#review">검토 결과와 보류</a></nav>
+
+<h2 id="source">1. 출처와 공식·수정 구분</h2>
+<p>우선 출처는 고용노동부 <a href="https://www.moel.go.kr/policy/policydata/view.do?bbs_seq=20260701008">직장 내 괴롭힘 예방·대응 매뉴얼(2026년 7월, 2026-07-29 게시)</a>이다. 참고 5 「사업장 자체 조직문화 진단을 위한 근무환경 설문조사표」의 <strong>Ⅲ 경험 25문항, 책자 139쪽(PDF 143쪽)</strong>과 <strong>Ⅲ-1~Ⅲ-7 후속 질문, 책자 140쪽(PDF 144쪽)</strong>을 대조했다. 조직 예방 체크리스트는 책자 67쪽(PDF 71쪽), 조직문화 문항은 책자 138쪽(PDF 142쪽)에 있다.</p>
+<ul>
+<li><span class="tag">공식 원문</span>: 공식 매뉴얼에 실제 실린 문항. 아래 원문 열은 줄바꿈·단어 사이 공백만 정리했다. <code>SRC26-III-01</code> 같은 식별자는 이번 대조용이며 공식 번호가 아니다.</li>
+<li><span class="tag">원문 유지안</span>: 일터 존중의 <code>EXP26-01~25</code>는 아래 공식 원문 열을 그대로 쓰는 검토안이다. 문항별 원문을 유지해도 도구 전체가 정부의 공식 검사·승인된 개인 진단이 되는 것은 아니다.</li>
+<li><span class="tag modified">수정안</span>: 내 행동의 <code>ACT26-01~25</code>는 경험 질문을 내가 한 말·행동으로 바꾼 초안이다. 2026년 공식 자가진단표라고 표시하지 않는다. 단순한 관점 전환 외에 표현을 바꾼 곳은 행별로 명시했다.</li>
+<li><span class="tag modified">자체 추가안</span>: 시기·업무 맥락·영향·원하는 도움 등 상담 준비에 필요한 보조 질문. 공식 문항 원문과 분리한다.</li>
+</ul>
+<p><strong>25개씩은 누락 여부를 검토하기 위한 전체 후보 목록이다.</strong> 최종 서비스의 필수 문항 수나 검사 길이를 확정한 것이 아니다. 단축·분할·삭제·순서 변경은 근거와 검토 의견을 남긴 뒤 결정한다.</p>
+<p class="small">이전 설계는 <a href="archive/workplace-respect-v0.2.2-before-official-20261015.zip">전환 전 v0.2.2 보존본</a>으로 남겨 비교한다. 2019년 표는 보조 비교 자료로만 두며 이번 문항의 점수 출처로 쓰지 않는다.</p>
+
+<h2 id="instructions">2. 안내·응답안</h2>
+<div class="table-wrap"><table><thead><tr><th>구분</th><th>문구·응답 검토안</th><th>구분과 한계</th></tr></thead><tbody>
+<tr><td>공식 경험 안내</td><td>다음은 최근 6개월 동안 직장 생활에서 발생한 경험의 빈도에 대한 질문입니다.</td><td>참고 5의 Ⅲ 안내 원문. 일터 존중 문항의 기간 기준으로 유지하는 안.</td></tr>
+<tr><td>공식 빈도 응답</td><td>전혀 없음 / 6개월에 1-2회 / 월 1회 정도 / 주 1회 정도 / 매일</td><td>원표의 빈도 범주다. 원표의 ①~⑤를 배점으로 해석하지 않는다. 빈도 범주 사이에 애매하게 걸리는 경험의 응답 방법은 검토 필요.</td></tr>
+<tr><td>내 행동 안내</td><td>최근 6개월 동안 업무 관계에서 내가 한 말이나 행동을 돌아봐 주세요. 상대의 생각이나 감정은 추정하지 말고, 직접 알고 있는 사실을 기준으로 답해 주세요.</td><td><span class="tag modified">수정안</span> 경험 안내를 행동 관점으로 바꿈. 6개월의 내 행동 회상 적정성은 검토 대기.</td></tr>
+<tr><td>내 행동 응답</td><td>공식 경험 설문의 5개 빈도 범주를 참고하는 안. 기억나지 않음·판단하기 어려움 / 해당 행동을 할 역할·기회가 없었음 / 답변하지 않음은 구분하여 제공하는 안.</td><td><span class="tag modified">수정안</span> 행위자용 공식 응답 체계가 아니다. 기회 없음과 발생 없음, 기억 어려움을 같은 응답으로 합치지 않는다. 선택지 최종 문구·배치는 보류.</td></tr>
+<tr><td>일터 존중 보충 응답</td><td>공식 5개 빈도 범주에 기억나지 않음·판단하기 어려움 / 답변하지 않음을 추가하는 안.</td><td><span class="tag modified">수정안</span> 추가 응답은 공식 선택지가 아니다. 모름·건너뛰기를 0점·안전·문제 없음으로 처리하지 않는다.</td></tr>
+<tr><td>공통 추가 안내</td><td>각 문항은 행동이나 경험을 돌아보기 위한 것입니다. 해당 항목이 있다는 사실만으로 괴롭힘이 성립한다고 판단하지 않습니다. 답하기 어려운 문항은 건너뛸 수 있고, 답변 여부와 관계없이 상담 안내를 볼 수 있습니다.</td><td><span class="tag modified">자체 추가안</span> 분류·진단·인사평가용으로 설명하지 않는다. 세부 사실을 쓰지 않아도 도움에 접근할 수 있게 하는 운영안.</td></tr>
+</tbody></table></div>
+<p>다음 표의 <strong>공식 원문 열이 일터 존중 점검의 문항 유지안</strong>이다. 예: 원표 Ⅲ 표 안의 10번 → <code>EXP26-10</code>, 관점 변경안 → <code>ACT26-10</code>. 출처 열의 “Ⅲ / 10”은 표 안의 문항 번호이며 후속 질문 “Ⅲ-1” 등과 구분한다. 이 식별자는 기존 앱의 <code>A01/E01</code>과 다르며 기존 응답을 새 문항에 재해석하지 않는다.</p>
+
+<h2 id="items">3. 문항 25개 전체 대조</h2>
+<p>원문은 모두 참고 5, Ⅲ의 같은 번호에 해당한다. 아래 “검토 쟁점”은 작성자의 검토 의견이며 전문가 승인 결과가 아니다. 업무 배분·평가·징계처럼 정상적인 업무 수행에도 등장할 수 있는 행동은 맥락 없이 법적·윤리적 위반으로 분류하지 않는다.</p>
+<div class="table-wrap" tabindex="0" role="region" aria-label="공식 문항과 내 행동 수정안 대조표. 좁은 화면에서 가로로 이동할 수 있습니다.">
+<table class="comparison"><caption>공식 경험 문항 = EXP26 원문 유지안 / ACT26 = 내 행동 수정안</caption><thead><tr><th>출처 번호·대응 ID</th><th>공식 원문 · 일터 존중 유지안</th><th>내 행동 점검 수정안</th><th>변경 내용·검토 쟁점</th></tr></thead><tbody>
+<tr data-source="SRC26-III-01"><td>Ⅲ / 1<br><code>EXP26-01</code><br><code>ACT26-01</code></td><td class="official">나의 업무능력이나 성과를 인정하지 않거나 조롱했다.</td><td class="action">나는 다른 사람의 업무능력이나 성과를 인정하지 않거나 조롱한 적이 있다.</td><td>경험 → 행동 관점. 인정하지 않음과 조롱은 서로 다름. 단순한 칭찬 부재까지 포함하는지, 문항을 나눌지 검토.</td></tr>
+<tr data-source="SRC26-III-02"><td>Ⅲ / 2<br><code>EXP26-02</code><br><code>ACT26-02</code></td><td class="official">훈련, 승진, 보상, 일상적인 대우 등에서 차별을 했다.</td><td class="action">나는 다른 사람을 훈련, 승진, 보상 또는 일상적인 대우에서 차별한 적이 있다.</td><td>경험 → 행동 관점. “차별”을 스스로 판정하기 어려움. 대우의 차이·사유를 구체적으로 묻는 대안과 권한 없음 응답 검토.</td></tr>
+<tr data-source="SRC26-III-03"><td>Ⅲ / 3<br><code>EXP26-03</code><br><code>ACT26-03</code></td><td class="official">나에게 힘들고, 모두가 꺼리는 업무를 주었다.</td><td class="action">나는 다른 사람에게 힘들고 모두가 꺼리는 업무를 맡긴 적이 있다.</td><td>경험 → 행동 관점. 어려운 업무 배정 자체를 위반으로 보지 않음. 업무 필요·배분 이유·지원·편중의 맥락 확인 필요.</td></tr>
+<tr data-source="SRC26-III-04"><td>Ⅲ / 4<br><code>EXP26-04</code><br><code>ACT26-04</code></td><td class="official">허드렛일만 시키거나 일을 거의 주지 않았다.</td><td class="action">나는 다른 사람에게 허드렛일만 시키거나 일을 거의 주지 않은 적이 있다.</td><td>경험 → 행동 관점. 업무의 성격과 업무 배제는 별개. 원표의 복합 문항을 나눌지, “허드렛일”을 어떻게 이해하는지 검토.</td></tr>
+<tr data-source="SRC26-III-05"><td>Ⅲ / 5<br><code>EXP26-05</code><br><code>ACT26-05</code></td><td class="official">업무와 관련된 중요한 정보나 의사결정 과정에서 나를 제외했다.</td><td class="action">나는 다른 사람을 업무와 관련된 중요한 정보나 의사결정 과정에서 제외한 적이 있다.</td><td>경험 → 행동 관점. 보안·역할 분담에 따른 제한과 업무 수행 방해를 구분할 맥락 필요.</td></tr>
+<tr data-source="SRC26-III-06"><td>Ⅲ / 6<br><code>EXP26-06</code><br><code>ACT26-06</code></td><td class="official">내 성과를 가로채거나, 성과 달성을 방해했다.</td><td class="action">나는 다른 사람의 성과를 가로채거나 성과 달성을 방해한 적이 있다.</td><td>경험 → 행동 관점. 성과 귀속과 방해 행위의 분할, 공동 성과의 귀속에 대한 해석 차이 검토.</td></tr>
+<tr data-source="SRC26-III-07"><td>Ⅲ / 7<br><code>EXP26-07</code><br><code>ACT26-07</code></td><td class="official">나에게 휴가나 병가, 각종 복지혜택 등을 쓰지 못하도록 압력을 주었다.</td><td class="action">나는 다른 사람이 휴가나 병가, 각종 복지혜택 등을 쓰지 못하도록 압력을 준 적이 있다.</td><td>경험 → 행동 관점. 승인 권한과 무관한 압력도 포함할지, 절차 안내와 압력의 구분을 확인.</td></tr>
+<tr data-source="SRC26-III-08"><td>Ⅲ / 8<br><code>EXP26-08</code><br><code>ACT26-08</code></td><td class="official">일하거나 휴식하는 모습을 지나치게 감시했다.(예: CCTV를 통한 감시)</td><td class="action">나는 다른 사람이 일하거나 휴식하는 모습을 지나치게 감시한 적이 있다.(예: CCTV를 통한 감시)</td><td>경험 → 행동 관점. “지나치게”의 해석과 안전·업무 관리의 목적·범위·방법을 확인. 자의적 횟수 기준은 만들지 않음.</td></tr>
+<tr data-source="SRC26-III-09"><td>Ⅲ / 9<br><code>EXP26-09</code><br><code>ACT26-09</code></td><td class="official">사고위험이 있는 작업을 할 때, 나에게 주의사항이나 안전장비를 전달해주지 않았다.</td><td class="action">나는 다른 사람에게 사고위험이 있는 작업을 맡기거나 함께 수행하면서 필요한 주의사항이나 안전장비를 전달해주지 않은 적이 있다.</td><td>관점 변경 + 업무 관여 범위 추가. “맡기거나 함께 수행”은 원문에 없는 표현. 안전정보·장비 제공 책임 범위와 분할 여부 검토. 현재 안전 도움은 이 설문 완료를 조건으로 하지 않음.</td></tr>
+<tr data-source="SRC26-III-10"><td>Ⅲ / 10<br><code>EXP26-10</code><br><code>ACT26-10</code></td><td class="official">나에게 상사의 관혼상제나 개인적인 일상생활과 관련된 일을 하도록 했다.(예: 개인 심부름 등)</td><td class="action">나는 다른 사람에게 나 또는 다른 상사의 관혼상제나 개인적인 일상생활과 관련된 일을 하도록 한 적이 있다.(예: 개인 심부름 등)</td><td>관점 변경 + “나 또는 다른 상사”로 요청 주체 명시. 직원 간 부탁과 지위·관계를 이용한 요구의 맥락, 기관의 관련 내규 검토.</td></tr>
+<tr data-source="SRC26-III-11"><td>Ⅲ / 11<br><code>EXP26-11</code><br><code>ACT26-11</code></td><td class="official">나에게 부서이동 또는 퇴사를 강요했다.</td><td class="action">나는 다른 사람에게 부서이동 또는 퇴사를 강요한 적이 있다.</td><td>경험 → 행동 관점. 부서이동과 퇴사의 분할, 정당한 인사 절차와 압력·강요의 구분 검토.</td></tr>
+<tr data-source="SRC26-III-12"><td>Ⅲ / 12<br><code>EXP26-12</code><br><code>ACT26-12</code></td><td class="official">누군가 사소한 일에 트집을 잡거나 시비를 걸었다.</td><td class="action">나는 다른 사람의 사소한 일에 트집을 잡거나 시비를 건 적이 있다.</td><td>경험 → 행동 관점. “사소한 일·트집·시비” 해석 차이와 업무 피드백과의 구분 검토.</td></tr>
+<tr data-source="SRC26-III-13"><td>Ⅲ / 13<br><code>EXP26-13</code><br><code>ACT26-13</code></td><td class="official">누군가 내 개인사에 대한 뒷담화나 소문을 퍼뜨렸다.</td><td class="action">나는 다른 사람의 개인사에 대한 뒷담화나 소문을 퍼뜨린 적이 있다.</td><td>경험 → 행동 관점. 상담·정당한 문제 제기와 유포의 구분, 실명·민감한 개인사를 입력하게 하지 않는 안내 검토.</td></tr>
+<tr data-source="SRC26-III-14"><td>Ⅲ / 14<br><code>EXP26-14</code><br><code>ACT26-14</code></td><td class="official">나에게 신체적인 위협이나 폭력을 가했다.(예: 물건 던지기, 주먹질 등)</td><td class="action">나는 다른 사람에게 신체적인 위협이나 폭력을 가한 적이 있다.(예: 물건 던지기, 주먹질 등)</td><td>경험 → 행동 관점. 과거 경험 빈도와 현재 안전은 별도 확인. 위협·폭력의 분할과 도움 경로는 안전 담당 검토. 1회라는 이유로 도움을 제한하지 않음.</td></tr>
+<tr data-source="SRC26-III-15"><td>Ⅲ / 15<br><code>EXP26-15</code><br><code>ACT26-15</code></td><td class="official">나에게 욕설이나 위협적인 말을 했다.</td><td class="action">나는 다른 사람에게 욕설이나 위협적인 말을 한 적이 있다.</td><td>경험 → 행동 관점. 신체 위협 문항과 겹칠 수 있으나 중복 가산하지 않음. 말의 내용·맥락은 선택적 상황 정리로 확인.</td></tr>
+<tr data-source="SRC26-III-16"><td>Ⅲ / 16<br><code>EXP26-16</code><br><code>ACT26-16</code></td><td class="official">나를 부적절하게 의심하거나, 누명을 씌웠다.</td><td class="action">나는 다른 사람을 부적절하게 의심하거나 누명을 씌운 적이 있다.</td><td>경험 → 행동 관점. 스스로 “부적절함·누명”을 인정해야 응답하게 되는 한계. 확인·조사와 비난·혐의 유포를 나누는 대안 검토.</td></tr>
+<tr data-source="SRC26-III-17"><td>Ⅲ / 17<br><code>EXP26-17</code><br><code>ACT26-17</code></td><td class="official">누군가 내 물건을 허락 없이 가져가거나 망가뜨렸다.</td><td class="action">나는 다른 사람의 물건을 허락 없이 가져가거나 망가뜨린 적이 있다.</td><td>경험 → 행동 관점. 무단 사용과 파손을 나눌지, 개인 물품과 공용 물품의 범위를 확인.</td></tr>
+<tr data-source="SRC26-III-18"><td>Ⅲ / 18<br><code>EXP26-18</code><br><code>ACT26-18</code></td><td class="official">다른 사람들 앞에서(또는 온라인상에서) 나에게 모욕감을 주는 언행을 했다.</td><td class="action">나는 다른 사람들 앞이나 온라인에서 특정인을 비하하는 말이나 행동을 한 적이 있다.</td><td>관점 변경 + 감정 추정 대신 말·행동으로 표현. “모욕감을 주는 언행”과 “비하”의 범위가 같은지 검토 필요. 상대 감정을 확인했다고 간주하지 않음.</td></tr>
+<tr data-source="SRC26-III-19"><td>Ⅲ / 19<br><code>EXP26-19</code><br><code>ACT26-19</code></td><td class="official">내 의사와 상관없이 음주 / 흡연을 강요했다.</td><td class="action">나는 다른 사람의 의사와 상관없이 음주 또는 흡연을 강요한 적이 있다.</td><td>경험 → 행동 관점. 음주·흡연의 분할, 직접 거절이 없었다는 이유로 자발적 동의라고 해석하지 않는 안내 검토.</td></tr>
+<tr data-source="SRC26-III-20"><td>Ⅲ / 20<br><code>EXP26-20</code><br><code>ACT26-20</code></td><td class="official">내 의사와 관계없이 회식 참여를 강요했다.</td><td class="action">나는 다른 사람의 의사와 관계없이 회식 참여를 강요한 적이 있다.</td><td>경험 → 행동 관점. 초대·참여 권유와 강요의 차이, 거절했을 때의 반응·불이익 걱정을 맥락으로 검토.</td></tr>
+<tr data-source="SRC26-III-21"><td>Ⅲ / 21<br><code>EXP26-21</code><br><code>ACT26-21</code></td><td class="official">나를 업무 외의 대화나 친목 모임에서 제외했다.</td><td class="action">나는 다른 사람을 업무 외의 대화나 친목 모임에서 제외한 적이 있다.</td><td>경험 → 행동 관점. 사적 모임 선택 자체를 위반으로 보지 않음. 조직적 배제·업무 영향과 구분할지 검토.</td></tr>
+<tr data-source="SRC26-III-22"><td>Ⅲ / 22<br><code>EXP26-22</code><br><code>ACT26-22</code></td><td class="official">나의 정당한 건의사항이나 의견을 무시했다.</td><td class="action">나는 다른 사람의 건의사항이나 의견을 듣거나 검토하지 않고 무시한 적이 있다.</td><td>관점 변경 + “정당한” 삭제, 듣기·검토 행동 추가. 원표와 범위가 달라짐. 의견을 채택하지 않는 것과 의견을 내지 못하게 하는 일을 구분할 문구 검토.</td></tr>
+<tr data-source="SRC26-III-23"><td>Ⅲ / 23<br><code>EXP26-23</code><br><code>ACT26-23</code></td><td class="official">나의 의사와 관계없이 불필요한 추가근무(야근, 주말출근 등)를 강요했다.</td><td class="action">나는 다른 사람의 의사와 관계없이 불필요한 추가근무(야근, 주말출근 등)를 강요한 적이 있다.</td><td>경험 → 행동 관점. 업무상 필요·절차·거절 가능성 확인. 시간외 연락 일반을 이 문항에 자동 포함하지 않음.</td></tr>
+<tr data-source="SRC26-III-24"><td>Ⅲ / 24<br><code>EXP26-24</code><br><code>ACT26-24</code></td><td class="official">나에게 부당한 징계를 주었다.(반성문, 처벌 등)</td><td class="action">나는 다른 사람에게 반성문 작성이나 처벌 등 징계 성격의 조치를 요구하거나 적용한 적이 있다.</td><td>관점 변경 + “부당한” 대신 조치 행위로 표현. 정당한 조치도 포함할 수 있음. 권한·사유·절차를 별도로 확인해야 하며 문항만으로 부당함을 판정하지 않음.</td></tr>
+<tr data-source="SRC26-III-25"><td>Ⅲ / 25<br><code>EXP26-25</code><br><code>ACT26-25</code></td><td class="official">성적 수치심을 느끼게 하는 말 또는 행동을 나에게 했다.(이메일, 전화, 성적 농담, 성추행)</td><td class="action">나는 업무 관계에서 다른 사람에게 성적인 농담이나 발언을 하거나 성적인 신체 접촉을 한 적이 있다.</td><td>관점 변경 + 감정 추정 대신 구체 행동으로 표현. 원문 예시를 모두 열거하지 않았고 의미 범위가 달라질 수 있음. 언어·접촉 분할, 원치 않는 행위·관계 맥락 및 별도 성희롱 상담 경로를 인권 담당자가 검토.</td></tr>
+</tbody></table></div>
+
+<h2 id="followup">4. 상황 정리·상담 준비 질문</h2>
+<p>후속 질문은 모두 선택적으로 검토한다. 항목을 체크하지 않았거나 상세 사실을 쓰지 않아도 상담 안내를 볼 수 있다. 원표의 후속 질문을 모두 개인 상담 도구에 옮기지 않고 목적에 맞는지 구분한다.</p>
+<h3>4-1. 공식 후속 질문과 일터 존중 수정 후보</h3>
+<p class="small">아래 원문은 질문 본문이며 원표 선택지·분기·부가 안내 전체를 재현한 표가 아니다. 선택지나 분기를 바꾸면 공식 응답 형식을 유지한 것으로 표시하지 않는다.</p>
+<div class="table-wrap"><table class="review"><thead><tr><th>출처</th><th>공식 질문 본문</th><th>일터 존중용 수정·채택 검토</th></tr></thead><tbody>
+<tr><td>Ⅲ-1</td><td>위 “Ⅲ.”에서 제시된 것과 같은 상황을 경험한 적이 있다면, 주요 가해자의 직급은 어떠한가요.</td><td><code>EXP26-F01</code> <span class="tag modified">수정안</span><p class="question">정리하려는 상황의 상대방과 나는 어떤 업무 관계인가요? 여러 사람이 관련되어 있다면 함께 표시할 수 있습니다.</p>“가해자”를 “상대방”으로 바꾸고 직급 외 업무 관계를 포함. 역할 예시·복수 응답·모름·답변 안 함은 별도 검토.</td></tr>
+<tr><td>Ⅲ-2</td><td>귀하께서는 위 “Ⅲ.”에서 제시된 것과 같은 상황을 경험한 경우, 어떻게 대처하셨습니까</td><td><code>EXP26-F02</code> <span class="tag modified">수정안</span><p class="question">그 일과 관련해 지금까지 해본 대응이나 받아본 도움이 있나요? 아직 대응하지 않았어도 괜찮습니다.</p>직접 맞대응을 권하는 문구로 바꾸지 않음. 공식 선택지는 그대로 가져오지 않고 기관 경로·비대응 응답을 검토.</td></tr>
+<tr><td>Ⅲ-3</td><td>(위 설문에서 ⑦을 선택한 경우만 답변) 혼자 참거나 어쩔 수 없다고 체념하는 가장 중요한 이유는 무엇입니까(단일응답)</td><td><code>EXP26-F03</code> <span class="tag modified">수정안</span><p class="question">상담이나 도움을 요청할 때 걱정되거나 어려운 점이 있나요? 원하지 않으면 답하지 않아도 됩니다.</p>원표의 “체념” 분기·단일응답과 자기 탓으로 돌리는 선택지는 채택하지 않는 안. 불이익·비밀보장·창구 정보 등 필요를 확인하되 응답이 실제 보복 발생을 뜻하지 않음.</td></tr>
+<tr><td>Ⅲ-4</td><td>위 “Ⅲ.”에 제시된 것과 같은 상황을 경험할 경우, 직장 내에서 도움을 제공하는 부서나 담당자가 있습니까</td><td><code>EXP26-F04</code> <span class="tag modified">수정안</span><p class="question">기관 안에서 이 상황을 상담하거나 도움을 요청할 창구를 알고 있나요?</p>있음·없음 대신 창구를 알고 있는지를 질문. 알고 있음 / 잘 모르겠음 / 답변하지 않음은 자체 응답 후보. 기관의 실제 창구 유무와 혼동하지 않음.</td></tr>
+<tr><td>Ⅲ-5</td><td>(바로 위 질문에 ① 선택 시에만 답변) 그러한 부서와 담당자가 위 상황을 해결하고 귀하의 근무환경을 개선하는데 얼마나 기여하고 있다고 생각하십니까(단일응답)</td><td><span class="tag pending">이번 개인 점검에서는 제외하는 안</span> 상담부서 평가·조직 실태조사에 가까움. 개인 상황 정리에 필수로 요구하지 않음. 제외가 공식 설문 전체의 단축·변형임을 기록.</td></tr>
+<tr><td>Ⅲ-6</td><td>우리 회사에서 회사-근로자, 임원-근로자, 근로자-근로자가 서로 존중하는 문화가 정착되기 위해서 꼭 변해야 한다고 생각하는 사항이 1가지 있다면 작성해주세요.</td><td><span class="tag pending">별도 조직문화 설문 후보</span> 기관 차원의 개선 의견 수렴이 목적. 개인 상담 준비 질문과 별도 운영하는 안.</td></tr>
+<tr><td>Ⅲ-7</td><td>5-1에서 답변하신 사항이 이루어지기 위해서 우리 회사에 요구하고 싶은 사항이 1가지 있다면 키워드로 작성해주세요. (예: 재택근무, 회식 줄이기, 야근･주말출근 줄이기 등)</td><td><span class="tag pending">별도 조직문화 설문 후보</span> 원문 “5-1” 표기를 그대로 기록했으며 이번 문서에서 공식 문구를 임의 교정하지 않음. 개인 점검에는 넣지 않는 안.</td></tr>
+</tbody></table></div>
+<h3>4-2. 공식 원문과 구분하는 자체 추가 질문</h3>
+<p>아래는 공식 설문 문항의 인용이 아니다. 상세 입력·저장 기능을 승인한 것도 아니다. 검토 단계에서는 질문 문구와 필요성만 정리한다. 실명·연락처·부서명·파일 업로드를 필수로 요구하지 않는 안이다.</p>
+<div class="table-wrap"><table><thead><tr><th>ID·대상</th><th>자체 추가안</th><th>목적·검토 쟁점</th></tr></thead><tbody>
+<tr><td><code>CTX26-01</code><br>공통</td><td>정리하고 싶은 일이 언제, 어떤 업무나 상황에서 있었나요? 기억나는 범위에서만 적어도 됩니다.</td><td>일회 사건과 여러 사건을 구분하는 선택적 기록. 6개월 이전의 상담 필요도 막지 않음. 날짜·장소의 상세 입력 필요성 검토.</td></tr>
+<tr><td><code>CTX26-02</code><br>공통</td><td>실제로 오간 말이나 행동 중 기억나는 내용은 무엇인가요? 평가나 추측보다 직접 알고 있는 사실을 중심으로 정리해 주세요.</td><td>막연한 판단을 사실 정리와 구분. 상대의 의도·감정을 추정하도록 요구하지 않음. 식별정보·민감정보 최소화 안내 필요.</td></tr>
+<tr><td><code>CTX26-03</code><br>공통</td><td>그 일의 업무상 목적이나 필요성, 업무를 배분한 이유에 대해 어떤 설명이 있었나요? 모르는 부분은 모른다고 남겨도 됩니다.</td><td>업무 맥락 확인. 직접 업무와 관련 없다는 사실만으로 부당함을 확정하지 않음. 법적 요건 충족 여부를 자동 계산하지 않음.</td></tr>
+<tr><td><code>ACT26-C01</code><br>내 행동</td><td>그 말이나 행동 뒤에 상대가 직접 알려준 어려움이나 내가 확인한 영향이 있나요? 직접 알지 못하는 부분은 모른다고 남겨 주세요.</td><td>상대의 고통을 대신 평가하지 않음. 항의나 표정 변화가 없었다는 사실을 영향 없음으로 해석하지 않음.</td></tr>
+<tr><td><code>ACT26-C02</code><br>내 행동</td><td>앞으로 같은 상황에서 바꾸거나 중단하고 싶은 말·행동, 확인받고 싶은 업무 기준은 무엇인가요?</td><td>예방 행동·절차 확인 중심. 상대에게 직접 해명·사과·접촉하도록 자동 권하지 않음. 필요한 조치의 순서는 기관 절차 검토.</td></tr>
+<tr><td><code>EXP26-C01</code><br>일터 존중</td><td>그 일로 업무 수행이나 근무환경, 몸과 마음의 상태에 어떤 영향이 있었나요? 원하지 않는 내용은 적지 않아도 됩니다.</td><td>영향 정리용이며 임상 진단 문항이 아님. 영향의 정도·기간으로 임의 등급이나 상담 자격을 만들지 않음.</td></tr>
+<tr><td><code>EXP26-C02</code><br>일터 존중</td><td>지금도 이어지는 상황이나 앞으로 걱정되는 불이익이 있나요? 이미 있었던 일과 앞으로의 걱정을 구분해 적어도 됩니다.</td><td>실제 행위와 우려를 구분. 걱정만으로 실제 보복을 판정하지 않음. 현재 안전은 별도 도움 영역에서 다룸.</td></tr>
+<tr><td><code>CTX26-04</code><br>공통</td><td>지금 가장 필요한 도움이나 확인받고 싶은 내용은 무엇인가요? 아직 정하지 못했어도 괜찮습니다.</td><td>절차 설명·상담·업무 기준 확인 등 본인의 필요를 우선. 도움 종류·담당자·열람 범위는 기관 확인 후 제시.</td></tr>
+</tbody></table></div>
+<p><strong>내 행동에는 EXP26-F01~04를 그대로 재사용하지 않는다.</strong> 필요한 업무 관계·도움 창구 질문은 행위자 관점에 맞는 문구를 별도로 검토한다. 상대의 경험을 대신 답하게 하거나 경험 결과와 대칭 점수를 만드는 구조로 설계하지 않는다.</p>
+
+<h2>5. 이번 개인 점검에서 별도로 두는 내용</h2>
+<ul>
+<li><strong>조직문화:</strong> 참고 5의 Ⅱ 12개 문항은 조직 분위기·평가·업무 분담·소통·지원 등에 대한 문항이다(이 설명은 범주 요약이며 원문 인용이 아님). 기관 전체의 조직문화 조사 후보로 별도 검토하고, 개인 사건의 위험 점수로 합산하지 않는다.</li>
+<li><strong>응답자 특성:</strong> 원표의 성별·연령대·고용형태 항목은 이번 개인 상담 준비안에 필수로 넣지 않는다. 수집 목적·재식별 가능성·최소 필요성을 기관이 먼저 검토한다.</li>
+<li><strong>안전·도움:</strong> 기존의 별도 안전·도움 연결 영역을 유지하는 방향이다. 이번 문서에서 새 안전 문항·위기 경계값을 확정하지 않는다. 현재 도움 접근은 25문항 완료·빈도·총점·상세 기록 유무와 연결하지 않는다. 기존 안전 문항과 분기의 전문가 확인 대기는 계속 유지한다.</li>
+<li><strong>점수 없는 안내:</strong> 일터 존중 결과는 사용자가 정리한 행동·상황·필요한 도움을 요약하는 방향이다. 낮음·주의·높음·백분율·순위·체크 개수별 위험 판정은 만들지 않는다. 문항 빈도나 모름·건너뛰기 개수를 위험 등급으로 바꾸지 않는다.</li>
+</ul>
+
+<h2 id="review">6. 문항 검토 결과와 전문가 확인 보류</h2>
+<p>아래는 원문 대조와 초안 작성으로 확인한 쟁점이다. 전문가 검수·측정 타당성·내부 운영 승인을 완료한 것으로 보지 않는다. 검토 의견은 원문 ID·수정안 ID에 연결해 남긴다.</p>
+<div class="table-wrap"><table><thead><tr><th>우선 검토 사항</th><th>현재 처리·상태</th><th>담당·기대 증거·종료 조건</th></tr></thead><tbody>
+<tr><td>공식 경험 문항과 행동 수정안의 혼동</td><td><strong>문서에서 구분 완료.</strong> 공식 25개 원문, 행동 수정안 25개, 공식 후속 질문과 자체 추가안을 분리. 도구 전체의 공식 승인으로 표현하지 않음.</td><td>Ⅲ 표 안의 1~25번 원문과 각 대조 행의 일치 확인. 서비스 적용 시 출처·변경 이력이 사용자 설명과 일치하는지 재확인 필요.</td></tr>
+<tr><td>내 행동의 자기평가 한계</td><td><code>pending</code> — 차별·강요·부적절·불필요 같은 평가 표현과 타인 감정 추정, 솔직한 응답의 어려움이 있음. 18·22·24·25번은 관점 외 표현도 바꿨으며 9·10번도 범위를 추가했음.</td><td>노무·인권 및 문항 설계 담당. 기대 증거: 문항별 목적·범위 대조, 다양한 직급·직무의 인지면담, 정상 업무·부당한 방식 사례에 대한 검토 의견. 종료 조건: 최종 문구·변경 이유·적용 범위 승인.</td></tr>
+<tr><td>복합 문항·회상 기간·응답 범주</td><td><code>pending</code> — 25개는 전수 검토 후보. 한 질문의 여러 행동·정도 표현, 빈도 범주 사이 사례, 권한·기회 없음과 모름·건너뛰기의 구분을 검토. 중대한 1회 경험을 빈도가 낮다는 이유로 제외하지 않음.</td><td>측정·문항 설계 담당. 기대 증거: 인지면담의 이해·회상·응답 선택 근거, 분할·단축의 누락 검토와 부담 확인. 종료 조건: 문항 수·기간·응답 체계·표시 방식 승인. 이를 점수 타당성 승인으로 간주하지 않음.</td></tr>
+<tr><td>점수·등급·자동 결론</td><td><strong>보류.</strong> 배점·총점·경계값·축별 가중치·유형·법적 요건 충족 조합을 만들지 않음. 2019년 및 기존 앱 기준을 이전하지 않음. 일터 존중은 점수 없는 방향으로 고정.</td><td>내 행동에서 점수 필요성을 먼저 노무·측정 담당이 검토. 필요하다고 판단되어도 대상·목적에 맞는 별도 근거·검증·승인 없이는 채택하지 않음. 이번 문항 대조로 종료하지 않음.</td></tr>
+<tr><td>기관 내 사용·개인정보·상담 창구</td><td><code>pending</code> — 내부 사용으로 범위 명시. 현재 답변 수집·관리자 열람·인사평가·AI 전송·비밀보장을 승인하지 않음. 상담 준비용 서술 입력의 저장 필요성도 미확정.</td><td>기관 운영·개인정보·고충처리 담당. 기대 증거: 대상 신분별 적용 규정, 이용조건, 실제 내부·외부 경로, 열람 권한·보관·삭제·비밀보장 범위 및 AI 사용 여부. 종료 조건: 승인 범위와 최종 문항·안내·구현이 일치.</td></tr>
+<tr><td>현재 안전·성희롱 등 별도 지원</td><td><code>pending</code> — 안전 영역을 별도로 유지. 경험 14·15·25번 및 행동 대응 문항의 질문 부담·분할·도움 연결을 별도 검토. 직장 내 괴롭힘의 법적 해당 여부와 도움 필요를 동일시하지 않음.</td><td>인권·정신건강·위기 대응 담당. 기대 증거: 승인된 문구·기관 경로·현재 위험 시 도움 순서·응답 중단 대안. 종료 조건: 기존 안전 위험 기록의 승인 조건 충족. 이번 문서에서 새 임상 기준을 만들지 않음.</td></tr>
+</tbody></table></div>
+<p>실제 운영 전에 확인해야 할 항목은 기존 <a href="workplace-respect-reliability-ops.html#risks">신뢰성·운영 승인 문서의 위험 기록</a>에 연결한다. 중복 위험 행을 추가하지 않고 출처·임계값·안전·운영 관련 기존 행의 상태를 유지한다.</p>
+
+<h2>7. 이번 확인 범위</h2>
+<p>공식 게시물의 판본·게시일과 로컬 PDF의 관련 본문을 확인했다. 공식 경험 25개 문항·안내·빈도 범주, 후속 질문 7개를 추출 본문과 대조했다. 25개 원문은 공백·줄바꿈을 정규화한 뒤 전부 일치했고, 공식 후속 질문 본문 7개도 PDF에서 일치함을 확인했다. HTML 태그의 닫힘·로컬 링크·대조 ID를 확인했다. 원문 질문의 줄바꿈·공백만 정리했으며 수정한 문구는 원문 열에 넣지 않았다. 확인 기록은 <code>artifacts/workplace-respect-review-20261015/2026-question-source-verification.json</code>에 두었다. 출처 PDF의 SHA-256은 아래에 기록한다. 사용한 도구는 번들 Windows Python 3.12.14와 pypdf 6.10.0이며 앱 실행 검사를 수행한 것이 아니다. 앱·API·채점 코드를 바꾸지 않았으며 배포하지 않았다. 문서 검토와 원문 일치 확인은 전문가 승인이나 측정 검증을 대신하지 않는다.</p>
+<p class="small">로컬 확인 사본: <code>artifacts/workplace-respect-v02/moel-2026-07.pdf</code>. 원문 URL은 1절의 공식 게시물. SHA-256: <code>B8AE269EDCC20F5BBC2ABBC3242BD573B65B280F8AB89D498C22A6C423ECA207</code>. 기존 결과·응답은 이번 검토안에 재사용하거나 새 문항으로 재해석하지 않는다.</p>
+<p><a href="workplace-respect-review-comparison.html">앞선 비교·보존·보류 기록</a> · <a href="index.html">검토 문서 목록</a></p>
+</main></body></html>

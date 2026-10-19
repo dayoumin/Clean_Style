@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useRespectChat } from '@/hooks/useRespectChat';
 import { createRespectResponse } from '@/diagnostics/workplace-respect/response';
+import { getRespectQuestions } from '@/data/workplaceRespectQuestions';
 // Callback unit tests: retain state/ref slots and flush effects between actions.
 // Browser focus and DOM behavior are verified separately.
 const hooks = vi.hoisted(() => ({
@@ -45,7 +46,7 @@ vi.mock('@/lib/history', () => ({ getHistoryEntry: vi.fn(), updateChat: vi.fn(),
 vi.mock('@/lib/client-id', () => ({ getClientIdHeader: () => ({}) }));
 
 
-const response = createRespectResponse('experience', Array(12).fill(0));
+const response = createRespectResponse('experience', getRespectQuestions('experience').map(() => 0));
 function render() {
   let result: ReturnType<typeof useRespectChat>;
   do { hooks.dirty=false; hooks.cursor=0; result=useRespectChat('experience', response); hooks.effects.splice(0).forEach(effect=>effect()); } while(hooks.dirty);
