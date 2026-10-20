@@ -2,6 +2,20 @@
 
 ## 우선 확인
 
+### 단일 main 운영과 수동 서버 배포 준비 (2026-10-20)
+
+- [x] 최신 main의 공통 질문 높이·HTML 개선본·문구 한 줄·기관명 간격·불투명 PNG 배경을 통합하고 운영 문서 정리. 집중 검사 59개, default Next 빌드와 최종 타입 검사, 43이미지·38소스 해시 확인, 같은 소스의 PNG 8조건 검증 및 에이전트 최종 검토 통과. main의 서버 배포는 수동 이벤트+main 조건으로 제한하고 기존 배포 job과 학생 workflow 보존을 YAML로 확인. 실제 서버 배포는 별도 명시 요청 때만 실행. 최종 파일·운영 화면의 직접 재확인과 실제 수동 배포 증거는 기존 출시 QA pending 항목으로 유지.
+
+### 단독 HTML 결과 화면과 저장 PNG의 일치 (2026-10-19)
+
+- [x] 별도 보고서 양식으로 그리던 PNG를 실제 결과 화면의 스타일·위치 복사로 변경. 선택한 탭의 본문·SVG 레이더·이름·그림을 저장하고 조작 버튼만 제외함. 자동 다운로드 후 미리보기 창을 다시 열던 동작을 제거하고 같은 화면에 재다운로드 링크 제공. 8유형+3탭 10조합 실제 화면/PNG 비교, 저장 실패·저장소 차단·이전 결과·이름 복원 재검증 통과. 추가로 고정 화면 높이 때문에 남던 PNG 하단 빈 공간을 제거하고, 같은 합성 답안·화면 크기의 분리된 컴포넌트 화면 7조건에서 전체 PNG 비교·반복 저장 픽셀 동일·배치 유지 확인. 최신 파일의 직접 file: 재확인은 접근 정책 제한으로 릴리스 QA에 pending 기록. 서버 원본·설정·배포 변경 없음. 증거: `artifacts/html-export-parity/release.json`, `artifacts/html-export-fidelity/release.json`, `docs/adult-design-release-qa.html#standalone-html-device-export`. 마지막 확인: 2026-10-19.
+
+- [x] 저장 PNG 하단의 청렴한 당신을 응원합니다. 문구를 한 줄로 유지하고, 국립수산과학원은 아래에 9px 간격으로 배치. 강조색·밑줄 유지, 상속된 글꼴 크기를 변환 전에 고정해 겹침 방지. 별도 에이전트 2명의 점검에서 구현 결함 없음. PNG 8조건·반복 저장·배치 유지 및 실제 오프라인 HTML의 1100px·360px 저장 확인. 타입 검사·HTML 생성 통과. 사용자 기존 기록 확인 범위는 릴리스 QA에 유지. 증거: `artifacts/html-export-fidelity/footer-line-fix/verification.json`, `artifacts/html-export-fidelity/institution-footer/verification.json`. 마지막 확인: 2026-10-19.
+
+### 단독 HTML 완료 이탈 후 이전 결과의 이름·완료 상태 (2026-10-19)
+
+- [x] 15문항 완료 → 이름 입력 → 뒤로 홈 → 이전 결과로 열기에서 이름이 빠지고 완료 단계가 다시 나타나는 P2 결함 수정. HTML 전용 `getSaved`가 최신 임시 이름을 우선하고 `openResult`가 해당 결과만 완료 처리함. 다른 미완료 답변·완료 이름 초안 보존 자동 검사 통과. 실제 Edge 오프라인 파일에서 결과·PNG 이름, 새로고침 후 같은 결과 ID·기록 1개, 새 검사 문항 시작을 확인. 집중 검사 20개·전체 타입 검사 통과. 서버 코드·설정·배포 변경 없음. 증거: `artifacts/html-verification/verification.json`, `alternate-history-named-result-export.png`; 출시 기록: `docs/adult-design-release-qa.html#standalone-html-device-export`. 마지막 확인: 2026-10-19, 종료 조건 충족.
+
 ### 청렴 홈 타이포그래피 이미지 오류 복구 (2026-10-14)
 
 - [ ] 제목 이미지가 React 이벤트 연결 전에 실패해도 기존 텍스트 제목으로 복구 — 에이전트 소스 검토에서 `home-page.tsx`의 `onError`만으로는 초기 실패를 놓칠 수 있음을 확인. 기존 `AdultArtwork.tsx`처럼 이미지 참조와 초기 `complete && naturalWidth === 0` 확인이 필요함. 실제 초기 실패 재현은 미실시. 종료 조건: 초기 실패와 로딩 중 실패에서 모두 `나의 청렴 스타일은?` 텍스트가 표시되고 제목·보조 버튼이 겹치지 않는 증거 확보. 마지막 확인: 2026-10-14.

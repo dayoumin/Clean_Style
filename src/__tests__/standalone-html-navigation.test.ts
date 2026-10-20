@@ -1,115 +1,106 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
-import vm from 'node:vm';
-import { describe, expect, it, vi } from 'vitest';
-import * as model from '@/products/adult/standalone/model';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { calculateResult, questions, HISTORY_KEY, PROGRESS_KEY } from '@/products/adult/standalone/model';
 
-const source = readFileSync(path.resolve('src/products/adult/standalone/app.js'), 'utf8');
-
-// Execute the actual standalone entry. This small DOM substitute covers the
-// storage/navigation lifecycle; it does not claim to verify browser rendering.
-class ElementStub {
-  children: ElementStub[] = [];
-  className = '';
-  textContent = '';
-  listeners = new Map<string, () => void>();
-  content = { cloneNode: () => new ElementStub('fragment') };
-
-  constructor(public tag: string) {}
-  append(...children: ElementStub[]) { this.children.push(...children); }
-  replaceChildren(...children: ElementStub[]) { this.children = children; }
-  setAttribute() {}
-  focus() {}
-  addEventListener(name: string, action: () => void) { this.listeners.set(name, action); }
-  querySelector(selector: string): ElementStub | null {
-    for (const child of this.children) {
-      if (selector.startsWith('.') ? child.className.split(' ').includes(selector.slice(1)) : child.tag === selector) return child;
-      const nested = child.querySelector(selector);
-      if (nested) return nested;
-    }
-    return null;
-  }
+let values: Map<string, string>;
+let denyWrites: boolean;
+beforeEach(() => {
+  vi.resetModules(); values = new Map(); denyWrites = false;
+  vi.stubGlobal('window', {
+    dispatchEvent: vi.fn(),
+    localStorage: {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem(key: string, value: string) { if (denyWrites) throw Error('QuotaExceededError'); values.set(key, value); },
+      removeItem(key: string) { if (denyWrites) throw Error('SecurityError'); values.delete(key); },
+    },
+  });
+});
+afterEach(() => vi.unstubAllGlobals());
+function completion(seed = 42) {
+  const answers = questions.map(() => 0);
+  const result = calculateResult(answers);
+  return { answers, standaloneSeed: seed, scores: result.scores, styleKey: result.styleKey,
+    styleName: result.style.name, styleEmoji: result.style.emoji };
 }
-
-function navigationHarness() {
-  const entry: model.SavedResult = {
-    id: 'saved-result', createdAt: '2026-10-16T00:00:00Z', name: '기록 주인',
-    instrumentVersion: model.INSTRUMENT_VERSION, scoringVersion: model.SCORING_VERSION,
-    answers: model.questions.map(() => 0),
-  };
-  const values = new Map([[model.HISTORY_KEY, JSON.stringify([entry])]]);
-  let denyWrites = false;
-  const storage = {
-    getItem: (key: string) => values.get(key) ?? null,
-    setItem(key: string, value: string) {
-      if (denyWrites) throw new Error('QuotaExceededError');
-      values.set(key, value);
-    },
-  };
-  const app = new ElementStub('main');
-  const notice = new ElementStub('p');
-  const data = new ElementStub('script');
-  const imagePaths = [
-    '/images/integrity-home-title-smile.png', ...Object.values(model.adultCommonArtwork),
-    model.getAdultResultArtwork(model.calculateResult(entry.answers).styleKey),
-  ];
-  data.textContent = JSON.stringify({
-    assets: Object.fromEntries(imagePaths.map(imagePath => [imagePath, 'data:image/png;base64,fixture'])),
-    metadata: { brandMarkup: '', icons: {}, sceneFiles: [] },
+describe('HTML result lifecycle', () => {
+  it('restores the unfinished name step without creating another history entry', async () => {
+    const runtime = await import('@/products/adult/standalone/runtime');
+    const first = runtime.addHistoryEntry(completion());
+    runtime.rememberName('기록 주인');
+    vi.resetModules(); // A file reload loses memory, but preserves browser storage.
+    const reloaded = await import('@/products/adult/standalone/runtime');
+    expect(reloaded.loadProgress()).toMatchObject({ answers: completion().answers, name: '기록 주인' });
+    const restored = reloaded.addHistoryEntry(completion());
+    expect(restored.id).toBe(first.id);
+    expect(reloaded.getHistory()).toHaveLength(1);
+    reloaded.finishResult(restored.id, '기록 주인');
+    expect(reloaded.loadProgress()).toBeNull();
+    expect(values.has(PROGRESS_KEY)).toBe(false);
+    expect(reloaded.getSaved(first.id)?.name).toBe('기록 주인');
+    expect(reloaded.getHistory()).toHaveLength(1);
   });
-  const listeners = new Map<string, (event: { state: unknown }) => void>();
-  const context = vm.createContext({
-    require(name: string) {
-      if (name !== './model') throw new Error(`Unexpected dependency: ${name}`);
-      return model;
-    },
-    document: {
-      getElementById: (id: string) => ({ app, notice, 'standalone-data': data })[id as 'app' | 'notice' | 'standalone-data'] ?? null,
-      createElement: (tag: string) => new ElementStub(tag),
-      createElementNS: (_namespace: string, tag: string) => new ElementStub(tag),
-    },
-    window: {
-      localStorage: storage,
-      history: { replaceState: vi.fn(), pushState: vi.fn() },
-      scrollTo: vi.fn(),
-      addEventListener: (name: string, listener: (event: { state: unknown }) => void) => listeners.set(name, listener),
-    },
-    URL: { revokeObjectURL: vi.fn() },
-    requestAnimationFrame: vi.fn(), setTimeout: vi.fn(), clearTimeout: vi.fn(),
+  it('does not clear a different unfinished test when an old result is viewed', async () => {
+    const runtime = await import('@/products/adult/standalone/runtime');
+    const first = runtime.addHistoryEntry(completion()); runtime.finishResult(first.id, '');
+    runtime.saveProgress([0, 1], 51);
+    expect(runtime.openResult(first.id)).toBeDefined();
+    expect(runtime.loadProgress()).toEqual({ answers: [0, 1], seed: 51 });
   });
-  vm.runInContext(source, context);
-  // Start from a previously viewed result, then revisit its saved-history row.
-  vm.runInContext('currentResult = readHistory(storage)[0]; result(); home(); history();', context);
-  return {
-    app, notice, storage,
-    denyDeletion: () => { denyWrites = true; },
-    deleteEntry: () => app.querySelector('.delete')!.listeners.get('click')!(),
-    snapshot: () => vm.runInContext('({ route: renderedRoute, currentResult, cached: resultCache.has("saved-result") })', context),
-    backToResult: () => listeners.get('popstate')!({ state: { route: 'result', resultId: entry.id, answers: [], seed: 0 } }),
-  };
-}
-
-describe('standalone HTML history deletion and browser navigation', () => {
-  it('removes a deleted result from storage and memory before revisiting its browser-history entry', () => {
-    const harness = navigationHarness();
-    harness.deleteEntry();
-
-    expect(model.readHistory(harness.storage)).toEqual([]);
-    expect(harness.snapshot()).toMatchObject({ currentResult: null, cached: false });
-    harness.backToResult();
-    expect(harness.snapshot()).toMatchObject({ route: 'home', currentResult: null, cached: false });
+  it('keeps the entered name and completes a pending result opened through history', async () => {
+    const runtime = await import('@/products/adult/standalone/runtime');
+    const first = runtime.addHistoryEntry(completion());
+    runtime.rememberName('홍길동');
+    expect(runtime.openResult(first.id)?.name).toBe('홍길동');
+    expect(runtime.loadProgress()).toBeNull();
+    expect(runtime.getHistory()).toHaveLength(1);
+    vi.resetModules();
+    const reloaded = await import('@/products/adult/standalone/runtime');
+    expect(reloaded.getSaved(first.id)?.name).toBe('홍길동');
+    expect(reloaded.loadProgress()).toBeNull();
   });
-
-  it('keeps a result available when persistent deletion fails', () => {
-    const harness = navigationHarness();
-    harness.denyDeletion();
-    harness.deleteEntry();
-
-    expect(model.readHistory(harness.storage)).toHaveLength(1);
-    expect(harness.notice.textContent).toContain('기록을 삭제하지 못했어요');
-    expect(harness.app.querySelector('.delete')).not.toBeNull();
-    expect(harness.snapshot()).toMatchObject({ currentResult: { id: 'saved-result' }, cached: true });
-    harness.backToResult();
-    expect(harness.snapshot()).toMatchObject({ route: 'result', currentResult: { id: 'saved-result' }, cached: true });
+  it('recovers a pending name saved by the previous HTML when history is opened after reload', async () => {
+    const runtime = await import('@/products/adult/standalone/runtime');
+    const first = runtime.addHistoryEntry(completion());
+    runtime.rememberName('복원 이름');
+    vi.resetModules();
+    const reloaded = await import('@/products/adult/standalone/runtime');
+    expect(reloaded.openResult(first.id)?.name).toBe('복원 이름');
+    expect(reloaded.loadProgress()).toBeNull();
+    expect(JSON.parse(values.get(HISTORY_KEY)!)[0].name).toBe('복원 이름');
+  });
+  it('keeps another completed name draft while opening an older result', async () => {
+    const runtime = await import('@/products/adult/standalone/runtime');
+    const first = runtime.addHistoryEntry(completion()); runtime.finishResult(first.id, '이전 이름');
+    const second = runtime.addHistoryEntry(completion(43)); runtime.rememberName('진행 이름');
+    expect(runtime.openResult(first.id)?.name).toBe('이전 이름');
+    expect(runtime.loadProgress()).toMatchObject({ seed: 43, name: '진행 이름' });
+    expect(runtime.openResult(second.id)?.name).toBe('진행 이름');
+    expect(runtime.loadProgress()).toBeNull();
+  });
+  it('blocks stale result navigation after deletion, including cached records', async () => {
+    const runtime = await import('@/products/adult/standalone/runtime');
+    const first = runtime.addHistoryEntry(completion()); runtime.finishResult(first.id, '');
+    expect(runtime.deleteHistoryEntry(first.id)).toBe(true);
+    expect(runtime.getHistory()).toEqual([]);
+    expect(runtime.getSaved(first.id)).toBeUndefined();
+  });
+  it('keeps the record and pending state when deletion fails', async () => {
+    const runtime = await import('@/products/adult/standalone/runtime');
+    const first = runtime.addHistoryEntry(completion());
+    const before = values.get(HISTORY_KEY);
+    denyWrites = true;
+    expect(runtime.deleteHistoryEntry(first.id)).toBe(false);
+    expect(values.get(HISTORY_KEY)).toBe(before);
+    expect(runtime.getSaved(first.id)).toBeDefined();
+    expect(runtime.loadProgress()?.answers).toHaveLength(15);
+  });
+  it('keeps a current result exportable in memory when all storage writes fail', async () => {
+    const runtime = await import('@/products/adult/standalone/runtime');
+    denyWrites = true;
+    const first = runtime.addHistoryEntry(completion());
+    runtime.finishResult(first.id, '임시 기록');
+    expect(runtime.getSaved(first.id)?.name).toBe('임시 기록');
+    expect(runtime.loadProgress()).toBeNull();
+    expect(runtime.getHistory()).toEqual([]);
+    expect(window.dispatchEvent).toHaveBeenCalled();
   });
 });
