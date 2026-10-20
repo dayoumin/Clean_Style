@@ -79,7 +79,7 @@ export const questions: Question[] = [
     category: 'research',
     situation: '논문 공동저자 순서를 정해야 하는데, 기여도 판단이 애매하다.',
     choices: [
-      { text: '기여도 기준표를 만들어 논의할 순서안을 제안한다.', scores: { principle: 1, independence: 1 } },
+      { text: '기여도 기준표를 만들어 공동저자 순서안을 제안한다.', scores: { principle: 1, independence: 1 } },
       { text: '관련된 사람들이 모여 각자의 기여를 함께 논의한다.', scores: { transparency: 1, independence: -1 } },
       { text: '이번 연구에서 각자가 맡은 역할과 기여를 직접 살펴 조정안을 만든다.', scores: { principle: -1, transparency: -1, independence: 1 } },
       { text: '팀장과 기여도를 함께 검토해 논의할 안을 정한다.', scores: { independence: -1 } },
@@ -163,7 +163,7 @@ export const questions: Question[] = [
       { text: '관련 규정을 확인해보고, 문제가 있으면 알려준다', scores: { principle: 1, independence: 1, transparency: -1 } },
       { text: '동료한테 직접 "이거 괜찮은 건지" 가볍게 물어본다', scores: { transparency: 1, independence: -1 } },
       { text: '업무 스타일 차이일 수 있으니, 상황을 좀 더 파악해본다', scores: { principle: -1, transparency: -1 } },
-      { text: '개인을 특정하지 않고, 청렴 담당에게 본 처리 방식을 설명해 규정을 확인한다.', scores: { transparency: 1, principle: 1 } },
+      { text: '개인을 특정하지 않고, 청렴 담당자에게 해당 처리 방식을 설명해 규정을 확인한다.', scores: { transparency: 1, principle: 1 } },
     ],
   },
   {
