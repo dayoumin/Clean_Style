@@ -21,10 +21,6 @@ export function adaptSource(source, filename) {
     replace('onChange={(event) => setShareName(event.target.value)}', 'onChange={(event) => { setShareName(event.target.value); rememberName(event.target.value); }}');
   }
   if (filename.endsWith('/pages/ResultClient.tsx')) {
-    // The HTML result uses the radar labels instead of repeating three trait badges.
-    replace(`        <div className="adult-result-traits" aria-label="주요 성향">
-          {style.subtitle.split('-').map(trait => <span key={trait}>{trait}</span>)}
-        </div>`, '');
     // Drop the entire analytics effect, not just its visible controls.
     const start = source.indexOf('  const savedRef = useRef(false);');
     const end = source.indexOf('  useEffect(() => {\n    return () => clearTimeout', start);

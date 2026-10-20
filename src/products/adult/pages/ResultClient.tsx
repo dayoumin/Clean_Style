@@ -159,9 +159,6 @@ export default function ResultContent() {
             <AdultArtwork src={getAdultResultArtwork(styleKey) ?? adultCommonArtwork.pause} fallback={style.emoji} className="adult-result-art" eager />
           </div>
         </section>
-        <div className="adult-result-traits" aria-label="주요 성향">
-          {style.subtitle.split('-').map(trait => <span key={trait}>{trait}</span>)}
-        </div>
         <section className="adult-result-chart" aria-labelledby="adult-chart-title">
           <h2 id="adult-chart-title">나의 성향</h2>
           {sixAxis ? <StyleRadarChart sixAxis={sixAxis} /> : (
