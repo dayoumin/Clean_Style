@@ -215,7 +215,7 @@ export default function TestPage() {
           >
             {autoResultEnabled
               ? `입력하지 않아도 ${autoSecondsLeft}초 뒤 결과로 이동해요`
-              : '이름 입력 후 결과 보기를 눌러주세요'}
+              : '이름은 선택 사항이에요. 결과 보기를 눌러주세요.'}
           </p>
         </div>
       </div>
