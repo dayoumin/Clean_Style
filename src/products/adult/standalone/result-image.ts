@@ -70,7 +70,9 @@ export async function createResultImage(root: HTMLElement): Promise<Blob> {
       + parseFloat(mainStyle.paddingBottom) + parseFloat(mainStyle.borderBottomWidth));
     snapshot.style.height = `${height}px`;
     const blob = await toBlob(snapshot, { width, height, pixelRatio: 2, skipFonts: true,
-      backgroundColor: mainStyle.backgroundColor,
+      // Narrow main frames are transparent; retain the visible adult page surface
+      // instead of exporting alpha that some image viewers display as black.
+      backgroundColor: rootStyle.getPropertyValue('--color-bg').trim() || mainStyle.backgroundColor,
       // Keep the exact inline font size; the library otherwise reduces it by 0.1px.
       includeStyleProperties: Array.from(getComputedStyle(snapshot)).filter(property => property !== 'font-size'),
       style: { position: 'relative', left: '0', top: '0' } });

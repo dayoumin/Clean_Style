@@ -12,14 +12,13 @@
 
 ## 시작하기
 
-```bash
-pnpm install
+```powershell
+corepack pnpm install
 
-cp .env.local.example .env.local
-# .env.local에 OPENROUTER_API_KEY 입력
-# NVIDIA DeepSeek fallback을 로컬에서 테스트할 때만 NVIDIA_API_KEY도 입력
+Copy-Item .env.local.example .env.local
+# .env.local에 OPENAI_API_KEY 입력
 
-pnpm dev
+corepack pnpm dev
 ```
 
 http://localhost:3000 에서 확인
@@ -32,12 +31,18 @@ http://localhost:3000 에서 확인
 
 ## 배포
 
-Cloudflare Workers (OpenNext SSR). `main` 브랜치에 push하면 GitHub Actions가 자동 배포.
+Cloudflare Workers (OpenNext SSR). 서버 배포는 검토된 `main`에서 수동 실행합니다.
+커밋·푸시·병합만으로 배포하지 않으며, 사용자가 서버 배포를 명시적으로 요청할 때만 실행합니다.
+`gh workflow run deploy.yml --ref main` 또는 GitHub Actions의 Run workflow에서 실행합니다.
+
+서버와 단독 HTML은 같은 `main` 소스를 사용합니다. 기본 배포는 서버용이며, HTML 파일은
+`corepack pnpm build:html`로 따로 생성합니다. HTML 생성·main 병합만으로 서버를 배포하지 않습니다.
+수동 실행 설정은 이 변경이 원격 `main`에 반영된 뒤 적용됩니다.
+소스 관리·요청별 실행 범위·파일 전달 방법은 [단독 HTML 안내](docs/standalone-html.md)를 참고하세요.
 
 - **URL**: `https://clean-style.ecomarin.workers.dev`
 - **설정**: `wrangler.toml` + `open-next.config.ts`
-- **GitHub Secrets**: `CLOUDFLARE_API_TOKEN`, `OPENROUTER_API_KEY`, `ADMIN_SECRET`
-- **Optional Secret**: `NVIDIA_API_KEY` (`nvidia:deepseek-ai/deepseek-v4-flash` fallback용)
+- **GitHub Secrets**: `CLOUDFLARE_API_TOKEN`, `OPENAI_API_KEY`, `ADMIN_SECRET`
 - **Worker Vars**: `NEXT_PUBLIC_APP_URL=https://clean-style.ecomarin.workers.dev` (`wrangler.toml`)
 - **배포 검증**: GitHub Actions가 secrets를 `wrangler deploy --secrets-file`로 함께 배포하고 `/api/chat` smoke test를 실행
 - **상세**: `D:\Projects\html-docs\deployment-guide.html`
@@ -47,7 +52,7 @@ Cloudflare Workers (OpenNext SSR). `main` 브랜치에 push하면 GitHub Actions
 - Next.js 15 (App Router) + TypeScript
 - Tailwind CSS v4
 - Recharts + shadcn/ui Charts (레이더 차트)
-- OpenRouter API (AI 분석 — Claude, GPT 등 멀티 모델)
+- OpenAI API (기존 서버 AI 조언; 단독 HTML에는 포함하지 않음)
 
 ## 프로젝트 구조
 

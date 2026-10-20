@@ -187,9 +187,9 @@ try {
     await download.saveAs(savedFile);
     const png = await fs.readFile(savedFile);
     const comparison = await page.evaluate(async({a,b,height})=>{
-      // Narrow frames inherit the white page through a transparent main. Compare
-      // the PNG on that same white surface instead of treating alpha as black.
-      async function read(src){const i=new Image();i.src=src;await i.decode();const c=document.createElement('canvas');c.width=i.naturalWidth;c.height=i.naturalHeight;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(i,0,0);return {c,x,w:c.width,h:c.height};}
+      async function read(src){const i=new Image();i.src=src;await i.decode();const c=document.createElement('canvas');c.width=i.naturalWidth;c.height=i.naturalHeight;const x=c.getContext('2d');x.drawImage(i,0,0);
+        const pixels=x.getImageData(0,0,c.width,c.height).data;let transparentPixels=0;for(let n=3;n<pixels.length;n+=4)if(pixels[n]<255)transparentPixels++;
+        return {c,x,w:c.width,h:c.height,transparentPixels};}
       const native=await read(a),saved=await read(b), h=height*2;
       const aPixels=native.x.getImageData(0,0,native.w,h).data,bPixels=saved.x.getImageData(0,0,saved.w,saved.h).data;
       const cropped=document.createElement('canvas');cropped.width=native.w;cropped.height=h;cropped.getContext('2d').putImageData(native.x.getImageData(0,0,native.w,h),0,0);
@@ -198,7 +198,7 @@ try {
       if(saved.h===h&&saved.w===native.w)for(let n=0;n<aPixels.length;n+=4){let distance=0;for(let k=0;k<3;k++)distance+=Math.abs(aPixels[n+k]-bPixels[n+k]);if(distance>45)count++;sum+=distance;
         pixels.data[n]=distance>45?230:bPixels[n]*.35;pixels.data[n+1]=distance>45?40:bPixels[n+1]*.35;pixels.data[n+2]=distance>45?40:bPixels[n+2]*.35;pixels.data[n+3]=255;}
       dx.putImageData(pixels,0,0);
-      return{width:saved.w,height:saved.h,expected:[native.w,h],differentRatio:saved.h===h?count/(native.w*h):null,meanChannelDifference:saved.h===h?sum/(native.w*h*3):null,reference:cropped.toDataURL(),difference:diff.toDataURL()};
+      return{width:saved.w,height:saved.h,transparentPixels:saved.transparentPixels,expected:[native.w,h],differentRatio:saved.h===h?count/(native.w*h):null,meanChannelDifference:saved.h===h?sum/(native.w*h*3):null,reference:cropped.toDataURL(),difference:diff.toDataURL()};
     },{a:'data:image/png;base64,'+reference.toString('base64'),b:'data:image/png;base64,'+png.toString('base64'),height:expectedHeight});
     for(const key of ['reference','difference']){await fs.writeFile(path.join(output,`${prefix}-${key}.png`),Buffer.from(comparison[key].split(',')[1],'base64'));delete comparison[key];}
     const after = await geometry();
@@ -212,6 +212,7 @@ try {
     const check={...test,filename:download.suggestedFilename(),before,after,footer,...comparison};report.checks.push(check);
     console.log(JSON.stringify(check));
     assert.deepEqual([comparison.width,comparison.height],comparison.expected,'PNG retains blank footer space or clips content');
+    assert.equal(comparison.transparentPixels,0,'Saved PNG loses the visible page background');
     assert(comparison.differentRatio<0.025,'Whole saved image differs from the same live result');
     assert.deepEqual(after.positions,before.positions,'Saving changes the live result layout');
     // Repeat the save without reloading: no notice should shrink the chart.
