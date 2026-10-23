@@ -5,7 +5,8 @@
 ### 공통 릴리스 규칙 v2 적용과 `pnpm release` 이전 (2026-10-23)
 
 - [x] `AGENTS.md`에 `release-rules v2` 블록을 넣고 브랜치·배포·비밀값 문구를 블록과 맞춤. 기존 수동 workflow는 `pnpm release` 전까지의 과도기 경로로 표시. 두 배포 job에 `timeout-minutes` 추가. 배포·Actions 실행·비밀값 변경 없음.
-- [ ] 최소 pre-push hook 추가 제안 — `.githooks/pre-push`에서 `pnpm typecheck && pnpm lint && pnpm test`, `prepare`로 `git config core.hooksPath .githooks`. 생기기 전까지 AI는 커밋까지만 하고 push 전에 묻는다(규칙 2). AI 지침·hook 변경이라 사용자 확인 후 진행.
+- [x] pre-push hook 추가 — `.githooks/pre-push`가 `pnpm check`(타입 검사·Vitest·실험 `node:test`)를 실행하고 `pnpm install`의 `prepare`가 `core.hooksPath`를 설정. 기존 main에서 실패하던 테스트 정리: `node:test` 실험 파일 4개를 Vitest 수집에서 빼고 `pnpm test:experiments`로 실행(14개 통과), OG 테스트가 fallback과 같은 🧭 이모지를 쓰는 유형을 실패로 보던 가정 수정. `pnpm check` 통과(Vitest 449, node:test 14).
+- [ ] `pnpm lint` 복구 또는 제거 — 스크립트만 있고 ESLint 설치·설정이 없어 실행되지 않음. 복구하면 `pnpm check`에 추가.
 - [ ] `pnpm release` 이전 (구현은 사용자 요청 시, 참고 구현: species_checker `scripts/workers-builds.mjs`·`scripts/promote-cf-version.mjs`)
   1. [사용자] `clean-style` Worker의 `OPENAI_API_KEY`·`ADMIN_SECRET`을 PC에서 `wrangler versions secret put`으로 올리고 release로 승격해 정본을 Cloudflare로 옮김. 학생 Worker는 비밀값 없음.
   2. [사용자] Cloudflare Workers Builds에 `clean-style`·`clean-style-student`를 연결. 제품별 `NEXT_PUBLIC_*` 빌드 env, 배포 명령은 `wrangler versions upload`(트래픽 0).

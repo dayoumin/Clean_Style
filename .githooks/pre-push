@@ -1,0 +1,3 @@
+#!/bin/sh
+# Release rule 2: pushes to main require the repository checks to pass first.
+exec pnpm check

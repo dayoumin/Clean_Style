@@ -36,8 +36,11 @@ the product definition and build configuration, not from a long-lived product br
   Read the nearest nested `AGENTS.md` before changing those folders.
 - Branching and pushing follow the release rules block above (rules 1–2): `main` is the only
   long-lived branch, short-lived work branches are deleted after merge, and there is no permanent
-  branch per deployed product. This repository has no pre-push hook yet, so AI agents commit and
-  ask before pushing to `main`. Every Actions job keeps a `timeout-minutes` limit.
+  branch per deployed product. `.githooks/pre-push` runs `pnpm check` (typecheck, Vitest, and the
+  `node:test` experiment tests); `pnpm install` enables it by setting `core.hooksPath` to
+  `.githooks`. If that setting is missing in a session, run `pnpm install` first, or commit and
+  ask. `pnpm lint` has no ESLint install or config yet and is not part of the check. Every
+  Actions job keeps a `timeout-minutes` limit.
 - Student development must follow
   `docs/research/student-integrity/product-and-student-implementation-plan.html`.
 - Student scientific and safety claims must remain consistent with the student research hub.

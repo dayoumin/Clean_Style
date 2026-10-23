@@ -47,7 +47,8 @@ describe('OG 이미지 데이터 조회', () => {
 
   it.each(allStyleKeys)('유형 "%s" → 이모지, 이름, 설명 모두 존재', (key) => {
     const data = resolveOgData(key);
-    expect(data.emoji).not.toBe('🧭');
+    // 일부 유형은 fallback과 같은 🧭를 쓰므로 fallback 비교 대신 유형 정의와 일치하는지 확인
+    expect(data.emoji).toBe(styleTypes[key].emoji);
     expect(data.name).not.toBe('청렴 스타일');
     expect(data.description).not.toBe('나의 업무 스타일을 알아보세요');
     expect(data.emoji.length).toBeGreaterThan(0);
