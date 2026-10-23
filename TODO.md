@@ -2,6 +2,20 @@
 
 ## 우선 확인
 
+### 공통 릴리스 규칙 v2 적용과 `pnpm release` 이전 (2026-10-23)
+
+- [x] `AGENTS.md`에 `release-rules v2` 블록을 넣고 브랜치·배포·비밀값 문구를 블록과 맞춤. 기존 수동 workflow는 `pnpm release` 전까지의 과도기 경로로 표시. 두 배포 job에 `timeout-minutes` 추가. 배포·Actions 실행·비밀값 변경 없음.
+- [ ] 최소 pre-push hook 추가 제안 — `.githooks/pre-push`에서 `pnpm typecheck && pnpm lint && pnpm test`, `prepare`로 `git config core.hooksPath .githooks`. 생기기 전까지 AI는 커밋까지만 하고 push 전에 묻는다(규칙 2). AI 지침·hook 변경이라 사용자 확인 후 진행.
+- [ ] `pnpm release` 이전 (구현은 사용자 요청 시, 참고 구현: species_checker `scripts/workers-builds.mjs`·`scripts/promote-cf-version.mjs`)
+  1. [사용자] `clean-style` Worker의 `OPENAI_API_KEY`·`ADMIN_SECRET`을 PC에서 `wrangler versions secret put`으로 올리고 release로 승격해 정본을 Cloudflare로 옮김. 학생 Worker는 비밀값 없음.
+  2. [사용자] Cloudflare Workers Builds에 `clean-style`·`clean-style-student`를 연결. 제품별 `NEXT_PUBLIC_*` 빌드 env, 배포 명령은 `wrangler versions upload`(트래픽 0).
+  3. [AI] `scripts/workers-builds.mjs`: 제품 변형별 빌드와 versions upload.
+  4. [AI] `scripts/release.mjs`·`scripts/promote-cf-version.mjs`: 대상 SHA 버전 확인 → D1 복원 지점 기록 → 추가형 migration 적용(`migrations/`) → 0% 후보 smoke(기존 `/api/chat` 토큰 검사, 학생 성인 API 404 검사 재사용) → 승격 → `prod-YYYY-MM-DD.N`(UTC) annotated 태그에 version ID·migration·smoke 결과 기록.
+  5. [AI] `pnpm release:rollback`: 이전 태그의 version ID로 되돌리고 태그 기록.
+  6. [AI] 학생 smoke의 옛 준비 문구 검사를 현재 흐름으로 갱신(아래 "학생 수동 배포의 사후 확인" 항목과 통합).
+  7. [사용자 확인 후] `deploy.yml`·`deploy-student.yml` 삭제, `AGENTS.md` 과도기 문구 정리. GitHub Secrets `CLOUDFLARE_API_TOKEN`·`OPENAI_API_KEY`·`ADMIN_SECRET` 삭제는 사용자가 직접.
+  - 종료 조건: 기본·학생 모두 `pnpm release production`으로 승격·롤백 1회씩 확인, 배포 workflow 0개.
+
 ### 단일 main 운영과 수동 서버 배포 준비 (2026-10-20)
 
 - [x] 최신 main의 공통 질문 높이·HTML 개선본·문구 한 줄·기관명 간격·불투명 PNG 배경을 통합하고 운영 문서 정리. 집중 검사 59개, default Next 빌드와 최종 타입 검사, 43이미지·38소스 해시 확인, 같은 소스의 PNG 8조건 검증 및 에이전트 최종 검토 통과. main의 서버 배포는 수동 이벤트+main 조건으로 제한하고 기존 배포 job과 학생 workflow 보존을 YAML로 확인. 실제 서버 배포는 별도 명시 요청 때만 실행. 최종 파일·운영 화면의 직접 재확인과 실제 수동 배포 증거는 기존 출시 QA pending 항목으로 유지.
