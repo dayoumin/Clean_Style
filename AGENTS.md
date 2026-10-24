@@ -37,7 +37,7 @@ the product definition and build configuration, not from a long-lived product br
 - Branching and pushing follow the release rules block above (rules 1–2): `main` is the only
   long-lived branch, short-lived work branches are deleted after merge, and there is no permanent
   branch per deployed product. `.githooks/pre-push` runs `pnpm check` (typecheck, Vitest, and the
-  `node:test` experiment tests); `pnpm install` enables it by setting `core.hooksPath` to
+  `node:test` tests in `scripts/`); `pnpm install` enables it by setting `core.hooksPath` to
   `.githooks`. If that setting is missing in a session, run `pnpm install` first, or commit and
   ask. `pnpm lint` has no ESLint install or config yet and is not part of the check. Every
   Actions job keeps a `timeout-minutes` limit.
@@ -53,9 +53,12 @@ the product definition and build configuration, not from a long-lived product br
   and merges must not affect production. Commit, push, merge, and HTML generation requests do
   not authorize a deployment. Cloud sessions never run them; they give the PC command and the
   target SHA instead.
-- Transitional existing path (release rule 4, until the `pnpm release` migration in `TODO.md`
-  is done): the default and student products deploy through the manual `workflow_dispatch`
-  workflows `.github/workflows/deploy.yml` (reviewed `main` only) and `deploy-student.yml`.
+- `pnpm release production [default|student]` and `pnpm release:rollback` are the release path;
+  `docs/release.md` describes the flow and the one-time setup. They refuse to run in cloud
+  sessions, CI, or Workers Builds.
+- Transitional existing path (release rule 4, until the one-time setup in `docs/release.md` is
+  done and `TODO.md` closes the migration): the manual `workflow_dispatch` workflows
+  `.github/workflows/deploy.yml` (reviewed `main` only) and `deploy-student.yml` remain.
   Do not add new deployment workflows.
 - The separate `clean-style-plus` deployment was retired on 2026-10-15. Keep its deployment
   workflow removed and do not recreate its Cloudflare Worker unless the user explicitly requests it.

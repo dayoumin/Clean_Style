@@ -23,6 +23,7 @@ design-concepts/
 
 .vercel
 .open-next/
+.workers-builds/
 .dev.vars
 
 # dev server logs

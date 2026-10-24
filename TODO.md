@@ -5,16 +5,12 @@
 ### 공통 릴리스 규칙 v2 적용과 `pnpm release` 이전 (2026-10-23)
 
 - [x] `AGENTS.md`에 `release-rules v2` 블록을 넣고 브랜치·배포·비밀값 문구를 블록과 맞춤. 기존 수동 workflow는 `pnpm release` 전까지의 과도기 경로로 표시. 두 배포 job에 `timeout-minutes` 추가. 배포·Actions 실행·비밀값 변경 없음.
-- [x] pre-push hook 추가 — `.githooks/pre-push`가 `pnpm check`(타입 검사·Vitest·실험 `node:test`)를 실행하고 `pnpm install`의 `prepare`가 `core.hooksPath`를 설정. 기존 main에서 실패하던 테스트 정리: `node:test` 실험 파일 4개를 Vitest 수집에서 빼고 `pnpm test:experiments`로 실행(14개 통과), OG 테스트가 fallback과 같은 🧭 이모지를 쓰는 유형을 실패로 보던 가정 수정. `pnpm check` 통과(Vitest 449, node:test 14).
+- [x] pre-push hook 추가 — `.githooks/pre-push`가 `pnpm check`(타입 검사·Vitest·실험 `node:test`)를 실행하고 `pnpm install`의 `prepare`가 `core.hooksPath`를 설정. 기존 main에서 실패하던 테스트 정리: `node:test` 실험 파일 4개를 Vitest 수집에서 빼고 `pnpm test:node`로 실행(14개 통과), OG 테스트가 fallback과 같은 🧭 이모지를 쓰는 유형을 실패로 보던 가정 수정. `pnpm check` 통과(Vitest 449, node:test 14).
 - [ ] `pnpm lint` 복구 또는 제거 — 스크립트만 있고 ESLint 설치·설정이 없어 실행되지 않음. 복구하면 `pnpm check`에 추가.
-- [ ] `pnpm release` 이전 (구현은 사용자 요청 시, 참고 구현: species_checker `scripts/workers-builds.mjs`·`scripts/promote-cf-version.mjs`)
-  1. [사용자] `clean-style` Worker의 `OPENAI_API_KEY`·`ADMIN_SECRET`을 PC에서 `wrangler versions secret put`으로 올리고 release로 승격해 정본을 Cloudflare로 옮김. 학생 Worker는 비밀값 없음.
-  2. [사용자] Cloudflare Workers Builds에 `clean-style`·`clean-style-student`를 연결. 제품별 `NEXT_PUBLIC_*` 빌드 env, 배포 명령은 `wrangler versions upload`(트래픽 0).
-  3. [AI] `scripts/workers-builds.mjs`: 제품 변형별 빌드와 versions upload.
-  4. [AI] `scripts/release.mjs`·`scripts/promote-cf-version.mjs`: 대상 SHA 버전 확인 → D1 복원 지점 기록 → 추가형 migration 적용(`migrations/`) → 0% 후보 smoke(기존 `/api/chat` 토큰 검사, 학생 성인 API 404 검사 재사용) → 승격 → `prod-YYYY-MM-DD.N`(UTC) annotated 태그에 version ID·migration·smoke 결과 기록.
-  5. [AI] `pnpm release:rollback`: 이전 태그의 version ID로 되돌리고 태그 기록.
-  6. [AI] 학생 smoke의 옛 준비 문구 검사를 현재 흐름으로 갱신(아래 "학생 수동 배포의 사후 확인" 항목과 통합).
-  7. [사용자 확인 후] `deploy.yml`·`deploy-student.yml` 삭제, `AGENTS.md` 과도기 문구 정리. GitHub Secrets `CLOUDFLARE_API_TOKEN`·`OPENAI_API_KEY`·`ADMIN_SECRET` 삭제는 사용자가 직접.
+- [x] `pnpm release` 구현 (2026-10-24) — `scripts/workers-builds.mjs`(Workers Builds에서 `pnpm check`·제품별 빌드·0% 버전 저장, preview URL 켜짐이면 거부), `scripts/release.mjs`(PC 전용: SHA 버전 검증 → D1 bookmark → 확인 후 migration → 0% 후보 smoke → 100% 승격·smoke → `prod-YYYY-MM-DD.N` 태그, 실패 시 이전 버전 복귀), `pnpm release:rollback`. smoke는 기존 workflow의 `/api/chat` 토큰 검사와 학생 성인 API 404 검사를 옮김(학생 `/test` 옛 문구 검사는 200 확인으로 대체). 순수 함수 node:test 12개, `pnpm check` 통과. 실제 Cloudflare 실행은 아직 없음. 절차: `docs/release.md`.
+- [ ] Next.js 15 지원 종료 대응 — 2026-10-21부터 OpenNext가 `pnpm build`를 "Next.js 15.5.14 is not supported"로 거부함(2026-10-24 Linux 빌드에서 확인). 기존 Actions 배포와 Workers Builds 모두 빌드 실패 예상. Next 16 업그레이드 또는 `--dangerouslyUseUnsupportedNextVersion` 임시 허용 중 사용자 결정 필요.
+- [ ] [사용자] `docs/release.md` "처음 한 번 설정" 2~6단계: 비밀값 확인, preview URL 끄기, D1 migration 기록 확인, Workers Builds 연결, 첫 release·rollback 시험.
+- [ ] [사용자 확인 후] `deploy.yml`·`deploy-student.yml` 삭제, `AGENTS.md` 과도기 문구 정리. GitHub Secrets `CLOUDFLARE_API_TOKEN`·`OPENAI_API_KEY`·`ADMIN_SECRET` 삭제는 사용자가 직접.
   - 종료 조건: 기본·학생 모두 `pnpm release production`으로 승격·롤백 1회씩 확인, 배포 workflow 0개.
 
 ### 단일 main 운영과 수동 서버 배포 준비 (2026-10-20)

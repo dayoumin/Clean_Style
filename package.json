@@ -12,8 +12,10 @@
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
     "test": "vitest run",
-    "test:experiments": "node --test scripts/experiments/*.test.mjs",
-    "check": "pnpm typecheck && pnpm test && pnpm test:experiments",
+    "test:node": "node --test scripts/experiments/*.test.mjs scripts/__tests__/*.test.mjs",
+    "check": "pnpm typecheck && pnpm test && pnpm test:node",
+    "release": "node scripts/release.mjs release",
+    "release:rollback": "node scripts/release.mjs rollback",
     "prepare": "node scripts/install-git-hooks.mjs",
     "docs:student-item-bank": "node scripts/generate-student-item-bank.mjs"
   },
