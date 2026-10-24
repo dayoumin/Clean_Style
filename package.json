@@ -4,9 +4,9 @@
   "private": true,
   "packageManager": "pnpm@10.28.0",
   "scripts": {
-    "dev": "next dev",
-    "dev:clean": "rimraf .next && next dev",
-    "build": "next build && opennextjs-cloudflare build --skipNextBuild",
+    "dev": "next dev --webpack",
+    "dev:clean": "rimraf .next && next dev --webpack",
+    "build": "next build --webpack && opennextjs-cloudflare build --skipNextBuild",
     "build:html": "node scripts/build-standalone-html.mjs",
     "start": "next start",
     "lint": "eslint .",
@@ -20,9 +20,9 @@
     "docs:student-item-bank": "node scripts/generate-student-item-bank.mjs"
   },
   "dependencies": {
-    "@opennextjs/cloudflare": "^1.17.3",
+    "@opennextjs/cloudflare": "^1.20.13",
     "clsx": "^2.1.0",
-    "next": "15.5.14",
+    "next": "16.4.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^3.8.0",
@@ -43,6 +43,6 @@
     "tailwindcss": "^4.1.0",
     "typescript": "^5.7.0",
     "vitest": "^4.1.2",
-    "wrangler": "^4.76.0"
+    "wrangler": "^4.152.0"
   }
 }

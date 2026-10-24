@@ -28,7 +28,7 @@
 
 ## 처음 한 번 설정 (사용자 작업)
 
-1. **Next.js 지원 종료 해결.** Next.js 15는 2026-10-21에 지원이 끝나서 OpenNext가 `pnpm build`를 거부한다. Next 16으로 올리거나, 임시로 `--dangerouslyUseUnsupportedNextVersion`를 허용할지 결정한다. 해결 전에는 Workers Builds와 기존 Actions 배포 모두 빌드에서 실패한다.
+1. **Next.js 지원 종료 해결 (완료).** 2026-10-24에 Next 16.4.3·OpenNext 1.20.13·Wrangler 4.152로 올렸다. 제품별 페이지 연결이 webpack 설정에 있어 `next build --webpack`·`next dev --webpack`을 쓴다.
 2. **비밀값 확인.** PC에서 `npx wrangler secret list --name clean-style`를 실행해 `OPENAI_API_KEY`·`ADMIN_SECRET`이 있는지 본다. 기존 배포로 이미 들어가 있으므로 새로 등록할 필요는 없다. 앞으로 바꿀 때는 `wrangler versions secret put <NAME> --name clean-style`로 넣고 `pnpm release`로 승격한다.
 3. **버전 preview URL 끄기.** 대시보드에서 Worker → Settings → Domains & Routes → Preview URLs를 두 Worker 모두 끈다. 켜져 있으면 저장된 미배포 버전이 운영 D1·비밀값을 쓴 채 열린다. 업로드 스크립트는 켜져 있으면 업로드를 거부한다.
 4. **D1 migration 기록 확인.** `npx wrangler d1 migrations list clean-style-db --remote`에서 `0001`·`0002`가 대기 중으로 나오면, 예전에 손으로 적용해서 기록만 빠진 상태일 수 있다. 이때는 `pnpm release`가 적용을 묻더라도 승인하지 말고 먼저 AI와 기준선 정리 방법을 정한다. `0002`는 `ALTER TABLE ADD COLUMN`이라 다시 실행하면 실패한다.
