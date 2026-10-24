@@ -10,6 +10,12 @@
 - [x] `pnpm release` 구현 (2026-10-24) — `scripts/workers-builds.mjs`(Workers Builds에서 `pnpm check`·제품별 빌드·0% 버전 저장, preview URL 켜짐이면 거부), `scripts/release.mjs`(PC 전용: SHA 버전 검증 → D1 bookmark → 확인 후 migration → 0% 후보 smoke → 100% 승격·smoke → `prod-YYYY-MM-DD.N` 태그, 실패 시 이전 버전 복귀), `pnpm release:rollback`. smoke는 기존 workflow의 `/api/chat` 토큰 검사와 학생 성인 API 404 검사를 옮김(학생 `/test` 옛 문구 검사는 200 확인으로 대체). 순수 함수 node:test 12개, `pnpm check` 통과. 실제 Cloudflare 실행은 아직 없음. 절차: `docs/release.md`.
 - [x] Next.js 15 지원 종료 대응 (2026-10-24) — 2026-10-21부터 OpenNext가 Next 15 빌드를 거부해 Next 16.4.3·`@opennextjs/cloudflare` 1.20.13·Wrangler 4.152로 올림. 제품별 페이지 alias가 webpack 설정이라 `next build --webpack`·`next dev --webpack` 사용. 기본·Plus·학생 빌드 모두 성공, 학생 빌드 `/test`에 학생 문항만 있음, `pnpm check`·`pnpm build:html` 통과. 로컬 `wrangler dev`(포트 8787, 로그 `artifacts/dev-server/8787/`)에서 기본: `/`·`/test`·`/result`·`/api/questions`·`/admin/dashboard` 200, 학생: 페이지 200·성인 API 404. `/api/og` 기본값(🧭 이모지)만 500인데 Next 15 빌드에서도 같아 샌드박스의 이모지 글꼴 외부 요청 차단으로 판단(유형 지정 이미지는 양쪽 200). 운영 확인은 첫 `pnpm release` 때.
 - [ ] [사용자] `docs/release.md` "처음 한 번 설정" 2~6단계: 비밀값 확인, preview URL 끄기, D1 migration 기록 확인, Workers Builds 연결, 첫 release·rollback 시험.
+- [ ] 첫 `pnpm release` 때 확인할 것 (클라우드에서 검증 못 한 부분)
+  - `wrangler versions list --json` 출력에서 `annotations['workers/tag']`·`metadata.created_on`으로 SHA 버전을 찾는 부분이 실제 형식과 맞는지(`scripts/release/products.mjs` `findVersionForCommit`). 못 찾으면 출력 예시를 AI에게 주고 수정.
+  - 학생 Worker를 Workers Builds에 연결할 때 `wrangler.toml`의 `name = "clean-style"`과 이름이 달라 막히는지. 막히면 제품별 Wrangler 설정 분리.
+  - 0% 후보 smoke의 `Cloudflare-Workers-Version-Overrides` 헤더가 `workers.dev`에서 후보 버전으로 가는지, 기본 제품 `/api/chat`이 Next 16 운영 빌드에서 토큰을 내는지(로컬은 OpenAI 키가 없어 미확인).
+  - 운영 `/api/og` 기본 이미지(유형 없음)가 200인지. 로컬 500은 Next 15에서도 같았던 샌드박스 네트워크 차단으로 판단.
+- [ ] 과도기에 기존 Actions 배포를 다시 쓸 경우 — Next 16으로 올린 뒤 `deploy.yml`·`deploy-student.yml`은 실행해 보지 않음(리눅스 바이너리 추가 단계 포함). `deploy-student.yml`의 `/test` 옛 문구 검사는 현재 화면과 맞지 않아 실패할 수 있음(아래 "학생 수동 배포의 사후 확인" 항목). 가능하면 Actions 대신 `pnpm release`로 첫 배포.
 - [ ] [사용자 확인 후] `deploy.yml`·`deploy-student.yml` 삭제, `AGENTS.md` 과도기 문구 정리. GitHub Secrets `CLOUDFLARE_API_TOKEN`·`OPENAI_API_KEY`·`ADMIN_SECRET` 삭제는 사용자가 직접.
   - 종료 조건: 기본·학생 모두 `pnpm release production`으로 승격·롤백 1회씩 확인, 배포 workflow 0개.
 
@@ -96,7 +102,7 @@
 아래 항목은 제작을 중단시키는 선행 연구가 아니라, 공모전 제출 전 최소 정리와 성과 확인 후 정식 검증으로 나눠 진행한다.
 
 **공모전 시연 완성 전 최소 보완**
-- [ ] 학생 수동 배포의 사후 확인을 현재 시연 화면에 맞추기 — 2026-10-14 에이전트 소스 점검: `.github/workflows/deploy-student.yml`은 `/test`에서 옛 준비 문구를 찾지만 현재 학생 페이지는 행동·이유 선택 시연이다. 학생 배포 전 현재 진입·선택·결과 흐름 확인으로 갱신하고, 성인 API 404 검사는 유지한다. 실제 배포 실패를 관찰한 것은 아님.
+- [ ] 학생 수동 배포의 사후 확인을 현재 시연 화면에 맞추기 — 2026-10-24: `pnpm release`의 학생 smoke는 `/`·`/test` 200과 성인 API 404로 바꿔 해결. `deploy-student.yml`은 workflow 삭제 때 함께 정리. 2026-10-14 에이전트 소스 점검: `.github/workflows/deploy-student.yml`은 `/test`에서 옛 준비 문구를 찾지만 현재 학생 페이지는 행동·이유 선택 시연이다. 학생 배포 전 현재 진입·선택·결과 흐름 확인으로 갱신하고, 성인 API 404 검사는 유지한다. 실제 배포 실패를 관찰한 것은 아님.
 - [ ] 앱의 3개 시연 문항은 연구용 후보의 `SI-*`와 혼동되지 않도록 `DEMO-*` ID와 별도 콘텐츠로 분리
 - [ ] 행동과 이유를 따로 합산하지 않고 장면별 행동×이유 조합으로 관점 지도·다른 관점 질문을 결정
 - [ ] 결과 레이더는 숫자·등급 없는 `관점 지도`로 구현하고 모든 4개 관점 동료를 같은 비중으로 표시
